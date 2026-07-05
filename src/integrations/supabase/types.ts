@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      tenders: {
+        Row: {
+          contracting_authority: string
+          cpv_code: string
+          created_at: string
+          deadline: string
+          description: string
+          estimated_value: number | null
+          id: string
+          published_at: string
+          region: string
+          source_url: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          contracting_authority: string
+          cpv_code: string
+          created_at?: string
+          deadline: string
+          description: string
+          estimated_value?: number | null
+          id?: string
+          published_at: string
+          region: string
+          source_url: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          contracting_authority?: string
+          cpv_code?: string
+          created_at?: string
+          deadline?: string
+          description?: string
+          estimated_value?: number | null
+          id?: string
+          published_at?: string
+          region?: string
+          source_url?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          cpv_codes: string[]
+          created_at: string
+          email_notifications: boolean
+          id: string
+          keywords: string[]
+          onboarding_completed: boolean
+          regions: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cpv_codes?: string[]
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          keywords?: string[]
+          onboarding_completed?: boolean
+          regions?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cpv_codes?: string[]
+          created_at?: string
+          email_notifications?: boolean
+          id?: string
+          keywords?: string[]
+          onboarding_completed?: boolean
+          regions?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
