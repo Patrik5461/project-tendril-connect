@@ -124,12 +124,26 @@ function Dashboard() {
       );
     }
 
+    // Activity filter: by default hide expired/stale tenders.
+    // Active = deadline today or in the future,
+    //        OR (no deadline AND published_at within last 30 days).
+    const now = Date.now();
+    const publishedCutoff = now - 30 * 24 * 60 * 60 * 1000;
+    const isActive = (t: Tender) => {
+      if (t.deadline) return new Date(t.deadline).getTime() >= now;
+      return t.published_at
+        ? new Date(t.published_at).getTime() >= publishedCutoff
+        : false;
+    };
+    const hiddenExpired = showExpired ? 0 : result.filter((t) => !isActive(t)).length;
+    if (!showExpired) result = result.filter(isActive);
+
     result.sort((a, b) => {
       if (sort === "deadline") return (a.deadline ?? "").localeCompare(b.deadline ?? "");
       return (b.published_at ?? "").localeCompare(a.published_at ?? "");
     });
-    return result;
-  }, [tenders, prefs, sort, search]);
+    return { list: result, hiddenExpired };
+  }, [tenders, prefs, sort, search, showExpired]);
 
   if (loading) {
     return <div className="mx-auto max-w-6xl px-4 py-8 text-muted-foreground">Načítavam...</div>;
