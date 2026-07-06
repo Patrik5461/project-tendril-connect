@@ -22,10 +22,10 @@ const corsHeaders = {
 const USER_AGENT = "TendrikBot/1.0 (bezplatny monitoring VO; kontakt@tendrik.sk)";
 const BASE = "https://www.uvo.gov.sk";
 const LIST_URL = `${BASE}/vestnik-a-registre/vestnik`;
-const CALENDAR_URL = `${BASE}/vestnik-a-registre/vestnik/calendar`;
-const MAX_ISSUES_PER_CALL = 3;
+const CALENDAR_AJAX_URL = `${BASE}/vestnik-a-registre/vestnik/ajaxCalendar?type=199900`;
+const MAX_ISSUES_PER_CALL = 1;
 const MAX_DETAILS_PER_ISSUE = 60;
-const DETAIL_DELAY_MS = 500;
+const DETAIL_DELAY_MS = 250;
 const ISSUES_LOOKBACK_DAYS = 92;
 // UVO publishes on business days (~5/week), so ~65 issues in 3 months
 const ISSUES_LOOKBACK_COUNT = 65;
@@ -82,82 +82,51 @@ function parseIssue(html: string): { number: string; year: string } | null {
 }
 
 /**
- * Discover the URLs of the last ~3 months of vestník issues.
- * Strategy:
- *   1. Fetch the calendar / current list page.
- *   2. Collect all anchors whose href matches /vestnik-a-registre/vestnik/{num}-{year}.
- *   3. If we didn't get enough, synthesize URLs by decrementing the current
- *      issue number (with rollover across the year boundary).
+/**
+ * Discover URLs of the last ~3 months of vestník issues via the FullCalendar
+ * AJAX endpoint. It returns JSON entries of the form:
+ *   { title: "133/2026", start: "2026-07-06",
+ *     url: "/vestnik-a-registre/vestnik?date=&order=133&year=2026&cHash=..." }
+ * The cHash token is required — synthetic URLs like /vestnik/{n}-{y} return
+ * a "Nedostupne" page.
  */
 async function discoverIssues(): Promise<IssueRef[]> {
+  const end = new Date();
+  const start = new Date();
+  start.setUTCDate(start.getUTCDate() - ISSUES_LOOKBACK_DAYS);
+  const iso = (d: Date) => d.toISOString().slice(0, 10);
+
+  const url = `${CALENDAR_AJAX_URL}&start=${iso(start)}&end=${iso(end)}`;
+  const res = await fetch(url, {
+    headers: {
+      "User-Agent": USER_AGENT,
+      "Accept": "application/json",
+      "Accept-Language": "sk,en;q=0.8",
+      "X-Requested-With": "XMLHttpRequest",
+    },
+  });
+  if (!res.ok) throw new Error(`ajaxCalendar HTTP ${res.status}`);
+  const arr: Array<{ title: string; start: string; url: string }> = await res.json();
+
   const found = new Map<string, IssueRef>();
-
-  const addFromHtml = (html: string) => {
-    const re = /href="([^"]*\/vestnik-a-registre\/vestnik\/(\d+)-(\d{4}))"/gi;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(html)) !== null) {
-      const href = decodeEntities(m[1]);
-      const label = `${m[2]}/${m[3]}`;
-      const url = href.startsWith("http") ? href : `${BASE}${href}`;
-      if (!found.has(label)) found.set(label, { label, url });
-    }
-  };
-
-  // Try calendar page (may not exist — non-fatal)
-  try {
-    const calHtml = await fetchText(CALENDAR_URL);
-    addFromHtml(calHtml);
-  } catch (e) {
-    console.warn("calendar unreachable, falling back to list page:", (e as Error).message);
-  }
-
-  // Always also scan the main list page (for current issue anchor + navigation)
-  const listHtml = await fetchText(LIST_URL);
-  addFromHtml(listHtml);
-
-  const current = parseIssue(listHtml);
-  if (!current) throw new Error("Cannot parse current issue number");
-
-  // Build a canonical URL for the current issue (in case we didn't find its anchor)
-  const currentLabel = `${current.number}/${current.year}`;
-  if (!found.has(currentLabel)) {
-    found.set(currentLabel, {
-      label: currentLabel,
-      url: `${BASE}/vestnik-a-registre/vestnik/${current.number}-${current.year}`,
+  for (const e of arr) {
+    if (!e?.title || !e?.url) continue;
+    const label = e.title.trim();
+    if (found.has(label)) continue;
+    const href = decodeEntities(e.url);
+    found.set(label, {
+      label,
+      url: href.startsWith("http") ? href : `${BASE}${href}`,
     });
   }
 
-  // Sort discovered issues newest first (by year, then number)
-  let issues = Array.from(found.values()).sort((a, b) => {
+  // Sort newest first: parse "N/YYYY".
+  const issues = Array.from(found.values()).sort((a, b) => {
     const [an, ay] = a.label.split("/").map(Number);
     const [bn, by] = b.label.split("/").map(Number);
     if (ay !== by) return by - ay;
     return bn - an;
   });
-
-  // If we have fewer than the expected lookback, synthesize by decrementing.
-  if (issues.length < ISSUES_LOOKBACK_COUNT) {
-    let num = Number(current.number);
-    let year = Number(current.year);
-    // UVO issue numbers per year are typically 250-260; we cross year boundary
-    // conservatively by picking 250 as the rollover point when hitting 0.
-    const YEAR_ROLLOVER = 250;
-    const synthesized: IssueRef[] = [];
-    for (let i = 0; synthesized.length + issues.length < ISSUES_LOOKBACK_COUNT && i < 400; i++) {
-      num -= 1;
-      if (num <= 0) {
-        year -= 1;
-        num = YEAR_ROLLOVER;
-      }
-      const label = `${num}/${year}`;
-      if (found.has(label)) continue;
-      synthesized.push({
-        label,
-        url: `${BASE}/vestnik-a-registre/vestnik/${num}-${year}`,
-      });
-    }
-    issues = issues.concat(synthesized);
-  }
 
   return issues.slice(0, ISSUES_LOOKBACK_COUNT);
 }
@@ -273,14 +242,32 @@ function parseDetail(html: string): DetailFields {
   return { form_type, cpv, region, deadline, estimated_value, currency };
 }
 
+type IssueResult = {
+  saved: number;
+  skipped_missing_deadline: number;
+  skipped_past_deadline: number;
+  skipped_form_type: number;
+  skipped_existing: number;
+  errors: number;
+  listed: number;
+  unavailable?: boolean;
+};
+
 async function processIssue(
   supabase: any,
   issue: IssueRef,
   now: number,
-): Promise<{ saved: number; skipped_stale: number; skipped_existing: number; errors: number; listed: number }> {
-  let saved = 0, skipped_stale = 0, errors = 0;
+): Promise<IssueResult> {
+  let saved = 0, skipped_missing_deadline = 0, skipped_past_deadline = 0, skipped_form_type = 0, errors = 0;
 
   const listHtml = await fetchText(issue.url);
+  // Sanity check: real issue pages are ~100+ kB with ul-link anchors. The
+  // "Nedostupne" placeholder is ~3.5 kB and has zero ul-link occurrences.
+  if (!listHtml.includes("ul-link") || /<title>Nedostupne<\/title>/i.test(listHtml)) {
+    console.warn(`Issue ${issue.label} unavailable (${listHtml.length} B) — skipping`);
+    return { saved: 0, skipped_missing_deadline: 0, skipped_past_deadline: 0, skipped_form_type: 0, skipped_existing: 0, errors: 0, listed: 0, unavailable: true };
+  }
+
   const yearMatch = issue.label.match(/\/(\d{4})$/);
   const year = yearMatch ? yearMatch[1] : String(new Date().getUTCFullYear());
   const listed = parseListedNotices(listHtml, year);
@@ -305,11 +292,17 @@ async function processIssue(
       const detailHtml = await fetchText(n.detail_url);
       const d = parseDetail(detailHtml);
 
-      if (d.form_type && SKIP_FORM_TYPES.test(d.form_type)) continue;
+      if (d.form_type && SKIP_FORM_TYPES.test(d.form_type)) {
+        skipped_form_type += 1;
+        continue;
+      }
 
-      // Backfill rule: only future deadlines.
-      if (!d.deadline || new Date(d.deadline).getTime() < now) {
-        skipped_stale += 1;
+      if (!d.deadline) {
+        skipped_missing_deadline += 1;
+        continue;
+      }
+      if (new Date(d.deadline).getTime() < now) {
+        skipped_past_deadline += 1;
         continue;
       }
 
@@ -340,7 +333,15 @@ async function processIssue(
     }
   }
 
-  return { saved, skipped_stale, skipped_existing: existingSet.size, errors, listed: listed.length };
+  return {
+    saved,
+    skipped_missing_deadline,
+    skipped_past_deadline,
+    skipped_form_type,
+    skipped_existing: existingSet.size,
+    errors,
+    listed: listed.length,
+  };
 }
 
 Deno.serve(async (req) => {
@@ -369,7 +370,11 @@ Deno.serve(async (req) => {
     const remaining = queue.slice(MAX_ISSUES_PER_CALL);
 
     let saved = 0;
-    let skipped_stale = 0;
+    let listed_total = 0;
+    let skipped_missing_deadline = 0;
+    let skipped_past_deadline = 0;
+    let skipped_form_type = 0;
+    let unavailable = 0;
     let errors = 0;
     const per_issue: any[] = [];
 
@@ -377,7 +382,11 @@ Deno.serve(async (req) => {
       try {
         const r = await processIssue(supabase, issue, now);
         saved += r.saved;
-        skipped_stale += r.skipped_stale;
+        listed_total += r.listed;
+        skipped_missing_deadline += r.skipped_missing_deadline;
+        skipped_past_deadline += r.skipped_past_deadline;
+        skipped_form_type += r.skipped_form_type;
+        if (r.unavailable) unavailable += 1;
         errors += r.errors;
         per_issue.push({ issue: issue.label, ...r });
       } catch (e) {
@@ -392,7 +401,11 @@ Deno.serve(async (req) => {
         issues_done: toProcess.map((i) => i.label),
         remaining_issues: remaining,
         saved,
-        skipped_stale,
+        listed: listed_total,
+        skipped_missing_deadline,
+        skipped_past_deadline,
+        skipped_form_type,
+        unavailable_issues: unavailable,
         errors,
         has_more: remaining.length > 0,
         per_issue,
