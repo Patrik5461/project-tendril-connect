@@ -352,9 +352,14 @@ function Dashboard() {
       if (!hasFilters) return true;
       const text = norm(t.title + " " + (t.description ?? ""));
       const keywordMatch = kws.length > 0 && kws.some((k) => text.includes(k));
+      // A tender is a valid CPV candidate only if its code looks like a real CPV
+      // (digits, at least 2). Missing/garbage codes fall through as "unknown"
+      // so backfilled notices without a parsed CPV still surface in For You.
+      const cpvLooksValid = !!t.cpv_code && /^\d{2,}/.test(t.cpv_code);
       const cpvMatch =
-        cpvs.length > 0 && !!t.cpv_code && cpvs.some((c) => t.cpv_code!.startsWith(c));
-      return keywordMatch || cpvMatch;
+        cpvs.length > 0 && cpvLooksValid && cpvs.some((c) => t.cpv_code!.startsWith(c));
+      const cpvUnknown = !cpvLooksValid;
+      return keywordMatch || cpvMatch || cpvUnknown;
     };
   }, [prefs]);
 
