@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,6 +60,14 @@ function Dashboard() {
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewCount, setPreviewCount] = useState(0);
+  const [backfill, setBackfill] = useState<{
+    source: "TED" | "UVO" | null;
+    status: string;
+    saved: number;
+    running: boolean;
+    done: boolean;
+  }>({ source: null, status: "", saved: 0, running: false, done: false });
+  const backfillStopRef = useRef(false);
 
   async function loadTenders() {
     const { data: t } = await supabase.from("tenders").select("*");
@@ -143,6 +151,84 @@ function Dashboard() {
       toast.error(err.message ?? "Odoslanie zlyhalo");
     } finally {
       setSendingDigest(false);
+    }
+  }
+
+  function stopBackfill() {
+    backfillStopRef.current = true;
+  }
+
+  async function runBackfillTed() {
+    backfillStopRef.current = false;
+    setBackfill({ source: "TED", status: "Spúšťam...", saved: 0, running: true, done: false });
+    let totalSaved = 0;
+    let nextPage: number | null = 1;
+    let pagesTotal = 0;
+    try {
+      while (nextPage !== null) {
+        if (backfillStopRef.current) {
+          setBackfill((b) => ({ ...b, running: false, done: true, status: `Zastavené · strán ${pagesTotal}, uložených ${totalSaved}` }));
+          return;
+        }
+        const { data, error }: { data: any; error: any } = await supabase.functions.invoke("backfill-ted", {
+          body: { next_page: nextPage },
+        });
+        if (error) throw error;
+        pagesTotal += data?.pages_done ?? 0;
+        totalSaved += data?.saved ?? 0;
+        nextPage = data?.has_more ? data?.next_page : null;
+        setBackfill({
+          source: "TED",
+          status: `TED: strana ${pagesTotal}${data?.has_more ? "…" : ""}, uložených ${totalSaved}`,
+          saved: totalSaved,
+          running: nextPage !== null,
+          done: nextPage === null,
+        });
+      }
+      await loadTenders();
+      toast.success(`TED backfill hotový: ${totalSaved} zákaziek za ${pagesTotal} strán`);
+    } catch (err: any) {
+      toast.error(`TED backfill zlyhal: ${err.message}`);
+      setBackfill((b) => ({ ...b, running: false, done: true, status: `Chyba: ${err.message}` }));
+    }
+  }
+
+  async function runBackfillUvo() {
+    backfillStopRef.current = false;
+    setBackfill({ source: "UVO", status: "Zisťujem čísla vestníka...", saved: 0, running: true, done: false });
+    let totalSaved = 0;
+    let issuesDone = 0;
+    let remaining: any[] | undefined = undefined;
+    let totalIssues = 0;
+    try {
+      while (true) {
+        if (backfillStopRef.current) {
+          setBackfill((b) => ({ ...b, running: false, done: true, status: `Zastavené · čísel ${issuesDone}, uložených ${totalSaved}` }));
+          return;
+        }
+        const { data, error }: { data: any; error: any } = await supabase.functions.invoke("backfill-uvo", {
+          body: remaining ? { remaining_issues: remaining } : {},
+        });
+        if (error) throw error;
+        const done: string[] = data?.issues_done ?? [];
+        issuesDone += done.length;
+        totalSaved += data?.saved ?? 0;
+        if (totalIssues === 0) totalIssues = issuesDone + (data?.remaining_issues?.length ?? 0);
+        remaining = data?.remaining_issues;
+        setBackfill({
+          source: "UVO",
+          status: `ÚVO: číslo ${issuesDone}/${totalIssues}, uložených ${totalSaved}`,
+          saved: totalSaved,
+          running: data?.has_more,
+          done: !data?.has_more,
+        });
+        if (!data?.has_more) break;
+      }
+      await loadTenders();
+      toast.success(`ÚVO backfill hotový: ${totalSaved} zákaziek z ${issuesDone} čísel`);
+    } catch (err: any) {
+      toast.error(`ÚVO backfill zlyhal: ${err.message}`);
+      setBackfill((b) => ({ ...b, running: false, done: true, status: `Chyba: ${err.message}` }));
     }
   }
 
@@ -333,6 +419,56 @@ function Dashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <details className="mt-6 rounded-xl border bg-card p-4">
+        <summary className="cursor-pointer text-sm font-medium text-muted-foreground">
+          Backfill histórie (admin)
+        </summary>
+        <div className="mt-4 space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Jednorazovo doplní historické zákazky. TED: posledných 365 dní.
+            ÚVO: posledné ~3 mesiace čísel vestníka. Ukladá len zákazky s
+            deadlinom v budúcnosti.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              onClick={runBackfillTed}
+              disabled={backfill.running}
+            >
+              Backfill TED (365 dní)
+            </Button>
+            <Button
+              variant="outline"
+              onClick={runBackfillUvo}
+              disabled={backfill.running}
+            >
+              Backfill ÚVO (3 mesiace)
+            </Button>
+            {backfill.running && (
+              <Button variant="destructive" onClick={stopBackfill}>
+                Zastaviť
+              </Button>
+            )}
+          </div>
+          {backfill.status && (
+            <div className="rounded-md bg-muted p-3 text-sm">
+              <div className="flex items-center gap-2">
+                {backfill.running && <RefreshCw className="h-4 w-4 animate-spin" />}
+                <span>{backfill.status}</span>
+              </div>
+              {backfill.done && !backfill.running && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Súhrn: uložených <b>{backfill.saved}</b> nových zákaziek zo zdroja{" "}
+                  <b>{backfill.source}</b>.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </details>
+
+
 
       {filtered.list.length === 0 ? (
         <div className="mt-12 rounded-xl border bg-card p-12 text-center">
