@@ -196,8 +196,8 @@ function Landing() {
       <section className="relative overflow-hidden">
         <RadarGraphic />
         <div className="relative mx-auto max-w-4xl px-4 py-24 md:py-32 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+          <div className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-4 py-1.5 text-sm font-semibold text-accent-soft-foreground">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             100 % bezplatná služba
           </div>
           <h1 className="mt-8 font-display font-bold text-[2.75rem] leading-[1.02] md:text-7xl md:leading-[0.98] tracking-tight text-foreground">
