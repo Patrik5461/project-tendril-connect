@@ -154,6 +154,84 @@ function Dashboard() {
     }
   }
 
+  function stopBackfill() {
+    backfillStopRef.current = true;
+  }
+
+  async function runBackfillTed() {
+    backfillStopRef.current = false;
+    setBackfill({ source: "TED", status: "Spúšťam...", saved: 0, running: true, done: false });
+    let totalSaved = 0;
+    let nextPage: number | null = 1;
+    let pagesTotal = 0;
+    try {
+      while (nextPage !== null) {
+        if (backfillStopRef.current) {
+          setBackfill((b) => ({ ...b, running: false, done: true, status: `Zastavené · strán ${pagesTotal}, uložených ${totalSaved}` }));
+          return;
+        }
+        const { data, error } = await supabase.functions.invoke("backfill-ted", {
+          body: { next_page: nextPage },
+        });
+        if (error) throw error;
+        pagesTotal += data?.pages_done ?? 0;
+        totalSaved += data?.saved ?? 0;
+        nextPage = data?.has_more ? data?.next_page : null;
+        setBackfill({
+          source: "TED",
+          status: `TED: strana ${pagesTotal}${data?.has_more ? "…" : ""}, uložených ${totalSaved}`,
+          saved: totalSaved,
+          running: nextPage !== null,
+          done: nextPage === null,
+        });
+      }
+      await loadTenders();
+      toast.success(`TED backfill hotový: ${totalSaved} zákaziek za ${pagesTotal} strán`);
+    } catch (err: any) {
+      toast.error(`TED backfill zlyhal: ${err.message}`);
+      setBackfill((b) => ({ ...b, running: false, done: true, status: `Chyba: ${err.message}` }));
+    }
+  }
+
+  async function runBackfillUvo() {
+    backfillStopRef.current = false;
+    setBackfill({ source: "UVO", status: "Zisťujem čísla vestníka...", saved: 0, running: true, done: false });
+    let totalSaved = 0;
+    let issuesDone = 0;
+    let remaining: any[] | undefined = undefined;
+    let totalIssues = 0;
+    try {
+      while (true) {
+        if (backfillStopRef.current) {
+          setBackfill((b) => ({ ...b, running: false, done: true, status: `Zastavené · čísel ${issuesDone}, uložených ${totalSaved}` }));
+          return;
+        }
+        const { data, error } = await supabase.functions.invoke("backfill-uvo", {
+          body: remaining ? { remaining_issues: remaining } : {},
+        });
+        if (error) throw error;
+        const done: string[] = data?.issues_done ?? [];
+        issuesDone += done.length;
+        totalSaved += data?.saved ?? 0;
+        if (totalIssues === 0) totalIssues = issuesDone + (data?.remaining_issues?.length ?? 0);
+        remaining = data?.remaining_issues;
+        setBackfill({
+          source: "UVO",
+          status: `ÚVO: číslo ${issuesDone}/${totalIssues}, uložených ${totalSaved}`,
+          saved: totalSaved,
+          running: data?.has_more,
+          done: !data?.has_more,
+        });
+        if (!data?.has_more) break;
+      }
+      await loadTenders();
+      toast.success(`ÚVO backfill hotový: ${totalSaved} zákaziek z ${issuesDone} čísel`);
+    } catch (err: any) {
+      toast.error(`ÚVO backfill zlyhal: ${err.message}`);
+      setBackfill((b) => ({ ...b, running: false, done: true, status: `Chyba: ${err.message}` }));
+    }
+  }
+
   const filtered = useMemo(() => {
     if (!prefs) return { list: [] as Tender[], hiddenExpired: 0 };
     const kws = prefs.keywords.map((k) => k.toLowerCase());
