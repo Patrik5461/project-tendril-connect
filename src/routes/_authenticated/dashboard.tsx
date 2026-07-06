@@ -283,8 +283,56 @@ function Dashboard() {
             />
             {refreshing === "UVO" ? "Aktualizujem..." : "Aktualizovať ÚVO"}
           </Button>
+          <Button
+            onClick={handlePreviewDigest}
+            disabled={previewLoading}
+            variant="outline"
+          >
+            <Mail className="h-4 w-4 mr-2" />
+            Náhľad e-mailu
+          </Button>
+          <Button
+            onClick={handleSendDigest}
+            disabled={sendingDigest}
+            variant="outline"
+          >
+            <Send className={`h-4 w-4 mr-2 ${sendingDigest ? "animate-pulse" : ""}`} />
+            {sendingDigest ? "Odosielam..." : "Poslať digest teraz"}
+          </Button>
         </div>
       </div>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>
+              Náhľad denného digestu
+              {!previewLoading && previewHtml !== null && (
+                <span className="ml-2 text-sm font-normal text-muted-foreground">
+                  ({previewCount} {previewCount === 1 ? "zákazka" : "zákaziek"} za posledných 24h)
+                </span>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          {previewLoading ? (
+            <div className="py-16 text-center text-muted-foreground">Načítavam náhľad...</div>
+          ) : previewCount === 0 ? (
+            <div className="py-16 text-center text-muted-foreground">
+              Za posledných 24 hodín nie sú žiadne nové zákazky pre vaše filtre –
+              e-mail by sa vám dnes neposlal.
+            </div>
+          ) : (
+            <iframe
+              title="Náhľad digestu"
+              srcDoc={previewHtml ?? ""}
+              className="w-full h-[60vh] rounded border bg-white"
+            />
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPreviewOpen(false)}>Zavrieť</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {filtered.list.length === 0 ? (
         <div className="mt-12 rounded-xl border bg-card p-12 text-center">
