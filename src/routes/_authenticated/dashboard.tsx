@@ -170,7 +170,7 @@ function Dashboard() {
           setBackfill((b) => ({ ...b, running: false, done: true, status: `Zastavené · strán ${pagesTotal}, uložených ${totalSaved}` }));
           return;
         }
-        const { data, error } = await supabase.functions.invoke<any>("backfill-ted", {
+        const { data, error }: { data: any; error: any } = await supabase.functions.invoke("backfill-ted", {
           body: { next_page: nextPage },
         });
         if (error) throw error;
@@ -206,7 +206,7 @@ function Dashboard() {
           setBackfill((b) => ({ ...b, running: false, done: true, status: `Zastavené · čísel ${issuesDone}, uložených ${totalSaved}` }));
           return;
         }
-        const { data, error } = await supabase.functions.invoke<any>("backfill-uvo", {
+        const { data, error }: { data: any; error: any } = await supabase.functions.invoke("backfill-uvo", {
           body: remaining ? { remaining_issues: remaining } : {},
         });
         if (error) throw error;
