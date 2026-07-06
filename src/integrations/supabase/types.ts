@@ -19,6 +19,7 @@ export type Database = {
           contracting_authority: string
           cpv_code: string | null
           created_at: string
+          currency: string | null
           deadline: string | null
           description: string | null
           estimated_value: number | null
@@ -35,6 +36,7 @@ export type Database = {
           contracting_authority: string
           cpv_code?: string | null
           created_at?: string
+          currency?: string | null
           deadline?: string | null
           description?: string | null
           estimated_value?: number | null
@@ -51,6 +53,7 @@ export type Database = {
           contracting_authority?: string
           cpv_code?: string | null
           created_at?: string
+          currency?: string | null
           deadline?: string | null
           description?: string | null
           estimated_value?: number | null
@@ -139,6 +142,13 @@ export type Database = {
     }
     Functions: {
       get_active_tenders_count: { Args: never; Returns: number }
+      get_active_tenders_stats: {
+        Args: never
+        Returns: {
+          active_count: number
+          total_value_eur: number
+        }[]
+      }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
