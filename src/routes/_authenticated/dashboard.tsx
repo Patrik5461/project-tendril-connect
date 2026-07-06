@@ -305,9 +305,9 @@ function Dashboard() {
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Vaše zákazky</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Vaše zákazky</h1>
           <p className="text-muted-foreground mt-1">
-            Nájdených <b>{filtered.list.length}</b> zákaziek podľa vašich filtrov
+            Nájdených <b className="num text-foreground">{filtered.list.length}</b> zákaziek podľa vašich filtrov
             {filtered.hiddenExpired > 0 && (
               <>
                 {" "}· <button
