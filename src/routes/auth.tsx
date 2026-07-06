@@ -154,7 +154,7 @@ function AuthPage() {
             )}
           </div>
         </div>
-        </div>
+
 
         <div className="mt-4 rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-sm">
           <p className="font-semibold text-primary">Testovací účet (dočasné)</p>
