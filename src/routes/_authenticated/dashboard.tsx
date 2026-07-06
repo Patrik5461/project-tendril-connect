@@ -32,6 +32,8 @@ import {
   Radar,
   RotateCcw,
   Search,
+  LayoutList,
+  LayoutGrid,
 } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { toast } from "sonner";
@@ -64,6 +66,7 @@ const searchSchema = z.object({
   tab: fallback(z.enum(["foryou", "saved", "hidden"]), "foryou").default("foryou"),
   sort: fallback(z.enum(["deadline", "newest", "value"]), "deadline").default("deadline"),
   q: fallback(z.string(), "").default(""),
+  view: fallback(z.enum(["list", "grid"]), "list").default("list"),
 });
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -81,7 +84,7 @@ function norm(s: string): string {
 }
 
 function Dashboard() {
-  const { tab, sort, q } = Route.useSearch();
+  const { tab, sort, q, view } = Route.useSearch();
   const navigate = useNavigate({ from: "/_authenticated/dashboard" });
 
   const [tenders, setTenders] = useState<Tender[]>([]);
@@ -502,6 +505,10 @@ function Dashboard() {
               <SelectItem value="value">Najvyššia hodnota</SelectItem>
             </SelectContent>
           </Select>
+          <ViewToggle
+            view={view}
+            onChange={(v) => navigate({ search: (p: any) => ({ ...p, view: v }) })}
+          />
         </div>
       </div>
 
@@ -579,6 +586,19 @@ function Dashboard() {
 
       {filtered.length === 0 ? (
         <EmptyState tab={tab} query={q} />
+      ) : view === "grid" ? (
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((t) => (
+            <TenderGridCard
+              key={t.id}
+              tender={t}
+              saved={actions[t.id]?.has("saved") ?? false}
+              hidden={actions[t.id]?.has("hidden") ?? false}
+              tab={tab}
+              onToggle={toggleAction}
+            />
+          ))}
+        </div>
       ) : (
         <div className="mt-6 border-t-2 border-foreground">
           {filtered.map((t) => (
@@ -832,5 +852,169 @@ function SourceBadge({ source }: { source: string }) {
     >
       {label}
     </span>
+  );
+}
+
+function ViewToggle({
+  view,
+  onChange,
+}: {
+  view: "list" | "grid";
+  onChange: (v: "list" | "grid") => void;
+}) {
+  const base =
+    "inline-flex h-9 w-9 items-center justify-center border transition-colors";
+  const active = "border-foreground text-foreground bg-secondary";
+  const inactive =
+    "border-border text-muted-foreground hover:text-foreground hover:border-foreground";
+  return (
+    <div className="flex" role="group" aria-label="Zobrazenie zákaziek">
+      <button
+        type="button"
+        aria-label="Zobraziť ako zoznam"
+        aria-pressed={view === "list"}
+        title="Zoznam"
+        onClick={() => onChange("list")}
+        className={`${base} ${view === "list" ? active : inactive} relative`}
+      >
+        <LayoutList className="h-4 w-4" />
+        {view === "list" && (
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-[2px] bg-primary"
+          />
+        )}
+      </button>
+      <button
+        type="button"
+        aria-label="Zobraziť ako mriežku"
+        aria-pressed={view === "grid"}
+        title="Mriežka"
+        onClick={() => onChange("grid")}
+        className={`${base} ${view === "grid" ? active : inactive} relative -ml-px`}
+      >
+        <LayoutGrid className="h-4 w-4" />
+        {view === "grid" && (
+          <span
+            aria-hidden="true"
+            className="absolute inset-x-0 bottom-0 h-[2px] bg-primary"
+          />
+        )}
+      </button>
+    </div>
+  );
+}
+
+function formatEur(v: number): string {
+  return (
+    new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
+      .format(v)
+      .replace(/\u00a0/g, " ") + " €"
+  );
+}
+
+function TenderGridCard({
+  tender,
+  saved,
+  hidden,
+  tab,
+  onToggle,
+}: {
+  tender: Tender;
+  saved: boolean;
+  hidden: boolean;
+  tab: "foryou" | "saved" | "hidden";
+  onToggle: (id: string, action: Action) => void;
+}) {
+  const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
+  const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
+  const expired = daysLeft !== null && daysLeft < 0;
+
+  return (
+    <article
+      className={`flex flex-col border border-foreground bg-card p-5 transition-colors hover:bg-secondary/60 ${
+        expired ? "opacity-70" : ""
+      } ${hidden && tab !== "hidden" ? "opacity-60" : ""}`}
+    >
+      <div className="flex items-center gap-2 flex-wrap">
+        <SourceBadge source={tender.source} />
+        <DeadlineBadge daysLeft={daysLeft} expired={expired} />
+      </div>
+      <Link
+        to="/zakazka/$id"
+        params={{ id: tender.id }}
+        className="mt-4 block group min-w-0"
+      >
+        <h3
+          className="font-display font-semibold text-lg leading-snug tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-3 break-words"
+          title={tender.title}
+        >
+          {tender.title}
+        </h3>
+      </Link>
+      <div className="mt-3 space-y-1.5 text-sm text-foreground/75 min-w-0">
+        <div className="flex items-start gap-1.5">
+          <Building2 className="h-4 w-4 shrink-0 mt-0.5" />
+          <span className="truncate">{tender.contracting_authority}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <MapPin className="h-4 w-4 shrink-0" />
+          <span className="truncate">{tender.region ?? "—"}</span>
+        </div>
+      </div>
+      {tender.estimated_value != null && (
+        <div className="mt-4 pt-3 border-t border-border">
+          <div className="eyebrow text-muted-foreground">Hodnota</div>
+          <div className="num text-lg font-semibold text-foreground">
+            {formatEur(Number(tender.estimated_value))}
+          </div>
+        </div>
+      )}
+      <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-2">
+        <Link to="/zakazka/$id" params={{ id: tender.id }}>
+          <Button size="sm" variant="outline">
+            Detail
+          </Button>
+        </Link>
+        <div className="flex items-center gap-1">
+          {tab === "hidden" ? (
+            <button
+              type="button"
+              aria-label="Obnoviť zákazku"
+              title="Obnoviť"
+              onClick={() => onToggle(tender.id, "hidden")}
+              className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                aria-label={saved ? "Zrušiť uloženie" : "Uložiť zákazku"}
+                title={saved ? "Zrušiť uloženie" : "Uložiť"}
+                onClick={() => onToggle(tender.id, "saved")}
+                className="p-1.5 hover:bg-secondary transition-colors"
+              >
+                <Star
+                  className={`h-4 w-4 ${
+                    saved ? "fill-primary text-primary" : "text-muted-foreground"
+                  }`}
+                />
+              </button>
+              <button
+                type="button"
+                aria-label="Skryť zákazku"
+                title="Skryť"
+                onClick={() => onToggle(tender.id, "hidden")}
+                className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </article>
   );
 }
