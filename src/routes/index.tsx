@@ -115,6 +115,7 @@ function Landing() {
           Zadajte kľúčové slová, vyberte CPV kategórie a kraje. Tendrik vám každý deň zobrazí
           zákazky, ktoré sa vás naozaj týkajú.
         </p>
+        <ActiveTendersLine />
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <Link to="/auth" search={{ mode: "signup" }}>
             <Button size="lg" className="w-full sm:w-auto">
