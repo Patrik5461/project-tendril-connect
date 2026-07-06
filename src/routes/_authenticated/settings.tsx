@@ -80,12 +80,12 @@ function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-3xl font-bold">Nastavenia</h1>
+    <div className="mx-auto max-w-3xl px-4 py-10">
+      <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Nastavenia</h1>
       <p className="mt-1 text-muted-foreground">Prihlásený ako {email}</p>
 
-      <section className="mt-6 rounded-xl border bg-card p-6">
-        <h2 className="font-semibold text-lg">E-mailové notifikácie</h2>
+      <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
+        <h2 className="font-display font-semibold text-lg tracking-tight">E-mailové notifikácie</h2>
         <div className="mt-3 flex items-center justify-between">
           <div>
             <Label htmlFor="notif">Zasielať upozornenia na nové zákazky</Label>
@@ -95,8 +95,8 @@ function SettingsPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-xl border bg-card p-6">
-        <h2 className="font-semibold text-lg">Kľúčové slová</h2>
+      <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
+        <h2 className="font-display font-semibold text-lg tracking-tight">Kľúčové slová</h2>
         <div className="mt-3 flex gap-2">
           <Input
             value={kwInput}
@@ -117,7 +117,7 @@ function SettingsPage() {
           {keywords.map((k) => (
             <span
               key={k}
-              className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-3 py-1 text-sm"
+              className="inline-flex items-center gap-1 rounded-full bg-accent text-accent-foreground px-3 py-1 text-sm font-medium"
             >
               {k}
               <button onClick={() => setKeywords(keywords.filter((x) => x !== k))}>
@@ -128,8 +128,8 @@ function SettingsPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-xl border bg-card p-6">
-        <h2 className="font-semibold text-lg">CPV kategórie</h2>
+      <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
+        <h2 className="font-display font-semibold text-lg tracking-tight">CPV kategórie</h2>
         <div className="mt-4 grid sm:grid-cols-2 gap-2 max-h-96 overflow-y-auto pr-2">
           {CPV_DIVISIONS.map((d) => (
             <label
@@ -148,8 +148,8 @@ function SettingsPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-xl border bg-card p-6">
-        <h2 className="font-semibold text-lg">Kraje</h2>
+      <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
+        <h2 className="font-display font-semibold text-lg tracking-tight">Kraje</h2>
         <div className="mt-4 grid sm:grid-cols-2 gap-2">
           {REGIONS.map((r) => (
             <label
