@@ -45,6 +45,12 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<"deadline" | "published">("deadline");
   const [search, setSearch] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function loadTenders() {
+    const { data: t } = await supabase.from("tenders").select("*");
+    setTenders((t ?? []) as Tender[]);
+  }
 
   useEffect(() => {
     (async () => {
@@ -63,6 +69,22 @@ function Dashboard() {
       setLoading(false);
     })();
   }, []);
+
+  async function handleRefresh() {
+    setRefreshing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-tenders");
+      if (error) throw error;
+      toast.success(
+        `Aktualizované: ${data?.processed ?? 0} zákaziek (${data?.new ?? 0} nových)`,
+      );
+      await loadTenders();
+    } catch (err: any) {
+      toast.error(err.message ?? "Aktualizácia zlyhala");
+    } finally {
+      setRefreshing(false);
+    }
+  }
 
   const filtered = useMemo(() => {
     if (!prefs) return [];
