@@ -110,8 +110,17 @@ Deno.serve(async (req) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          query:
-            "place-of-performance IN (SVK) AND notice-type IN (cn-standard) SORT BY publication-date DESC",
+          // Only pull notices published in the last 60 days — older ones are
+          // typically corrections/results of long-closed procurements.
+          // TED expert query date format is YYYYMMDD.
+          query: (() => {
+            const since = new Date();
+            since.setDate(since.getDate() - 60);
+            const y = since.getUTCFullYear();
+            const m = String(since.getUTCMonth() + 1).padStart(2, "0");
+            const d = String(since.getUTCDate()).padStart(2, "0");
+            return `place-of-performance IN (SVK) AND notice-type IN (cn-standard) AND publication-date >= ${y}${m}${d} SORT BY publication-date DESC`;
+          })(),
           fields: [
             "publication-number",
             "notice-title",
