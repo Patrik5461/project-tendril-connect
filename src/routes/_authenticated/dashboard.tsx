@@ -47,6 +47,7 @@ function Dashboard() {
   const [sort, setSort] = useState<"deadline" | "published">("deadline");
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState<"TED" | "UVO" | null>(null);
+  const [showExpired, setShowExpired] = useState(false);
 
   async function loadTenders() {
     const { data: t } = await supabase.from("tenders").select("*");
@@ -95,7 +96,7 @@ function Dashboard() {
   }
 
   const filtered = useMemo(() => {
-    if (!prefs) return [];
+    if (!prefs) return { list: [] as Tender[], hiddenExpired: 0 };
     const kws = prefs.keywords.map((k) => k.toLowerCase());
     const cpvs = prefs.cpv_codes;
     const regs = prefs.regions;
@@ -123,12 +124,26 @@ function Dashboard() {
       );
     }
 
+    // Activity filter: by default hide expired/stale tenders.
+    // Active = deadline today or in the future,
+    //        OR (no deadline AND published_at within last 30 days).
+    const now = Date.now();
+    const publishedCutoff = now - 30 * 24 * 60 * 60 * 1000;
+    const isActive = (t: Tender) => {
+      if (t.deadline) return new Date(t.deadline).getTime() >= now;
+      return t.published_at
+        ? new Date(t.published_at).getTime() >= publishedCutoff
+        : false;
+    };
+    const hiddenExpired = showExpired ? 0 : result.filter((t) => !isActive(t)).length;
+    if (!showExpired) result = result.filter(isActive);
+
     result.sort((a, b) => {
       if (sort === "deadline") return (a.deadline ?? "").localeCompare(b.deadline ?? "");
       return (b.published_at ?? "").localeCompare(a.published_at ?? "");
     });
-    return result;
-  }, [tenders, prefs, sort, search]);
+    return { list: result, hiddenExpired };
+  }, [tenders, prefs, sort, search, showExpired]);
 
   if (loading) {
     return <div className="mx-auto max-w-6xl px-4 py-8 text-muted-foreground">Načítavam...</div>;
@@ -155,7 +170,30 @@ function Dashboard() {
         <div>
           <h1 className="text-3xl font-bold">Vaše zákazky</h1>
           <p className="text-muted-foreground mt-1">
-            Nájdených <b>{filtered.length}</b> zákaziek podľa vašich filtrov
+            Nájdených <b>{filtered.list.length}</b> zákaziek podľa vašich filtrov
+            {filtered.hiddenExpired > 0 && (
+              <>
+                {" "}· <button
+                  type="button"
+                  onClick={() => setShowExpired(true)}
+                  className="underline hover:text-foreground"
+                >
+                  {filtered.hiddenExpired} po termíne skrytých
+                </button>
+              </>
+            )}
+            {showExpired && (
+              <>
+                {" "}·{" "}
+                <button
+                  type="button"
+                  onClick={() => setShowExpired(false)}
+                  className="underline hover:text-foreground"
+                >
+                  Skryť po termíne
+                </button>
+              </>
+            )}
           </p>
         </div>
         <div className="flex gap-2 flex-col sm:flex-row">
@@ -197,7 +235,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {filtered.list.length === 0 ? (
         <div className="mt-12 rounded-xl border bg-card p-12 text-center">
           <p className="text-muted-foreground">
             Žiadne zákazky nezodpovedajú vašim filtrom. Skúste upraviť{" "}
@@ -209,7 +247,7 @@ function Dashboard() {
         </div>
       ) : (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {filtered.map((t) => (
+          {filtered.list.map((t) => (
             <TenderCard key={t.id} tender={t} />
           ))}
         </div>
@@ -221,13 +259,21 @@ function Dashboard() {
 function TenderCard({ tender }: { tender: Tender }) {
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
-  const urgent = daysLeft !== null && daysLeft < 7;
+  const expired = daysLeft !== null && daysLeft < 0;
+  const urgent = daysLeft !== null && daysLeft >= 0 && daysLeft < 7;
   return (
-    <article className="rounded-xl border bg-card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+    <article className={`rounded-xl border bg-card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow ${expired ? "opacity-70" : ""}`}>
       <div>
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold text-lg leading-snug">{tender.title}</h3>
-          <SourceBadge source={tender.source} />
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            <SourceBadge source={tender.source} />
+            {expired && (
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
+                Po termíne
+              </span>
+            )}
+          </div>
         </div>
         <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
           <Building2 className="h-4 w-4" />
