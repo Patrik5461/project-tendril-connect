@@ -84,7 +84,7 @@ function norm(s: string): string {
 }
 
 function Dashboard() {
-  const { tab, sort, q } = Route.useSearch();
+  const { tab, sort, q, view } = Route.useSearch();
   const navigate = useNavigate({ from: "/_authenticated/dashboard" });
 
   const [tenders, setTenders] = useState<Tender[]>([]);
