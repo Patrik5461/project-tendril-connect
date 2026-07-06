@@ -54,8 +54,9 @@ function ActiveTendersLine() {
         </span>
       )}
       <span className="text-sm md:text-base text-muted-foreground text-center max-w-md">
-        aktívnych zákaziek práve teraz · z oficiálnych zdrojov TED a ÚVO ·
-        aktualizované denne
+        aktívnych zákaziek práve teraz{"\u00a0"}
+        <br />
+        z oficiálnych zdrojov TED a ÚVO · aktualizované denne
       </span>
     </div>
   );
@@ -205,9 +206,9 @@ function Landing() {
             <br />
             <span className="italic">nájdu samy.</span>
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Zadaj kľúčové slová, CPV kategórie a kraje — Tendrik ti každý deň
-            prinesie zákazky, ktoré sa ťa naozaj týkajú.
+          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto whitespace-pre-line">
+            Zadaj kľúčové slová, CPV kategórie a kraje.{"\n"}
+            Tendrík ti každý deň prinesie zákazky, ktoré sa ťa naozaj týkajú.
           </p>
           <ActiveTendersLine />
           <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
