@@ -586,6 +586,19 @@ function Dashboard() {
 
       {filtered.length === 0 ? (
         <EmptyState tab={tab} query={q} />
+      ) : view === "grid" ? (
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((t) => (
+            <TenderGridCard
+              key={t.id}
+              tender={t}
+              saved={actions[t.id]?.has("saved") ?? false}
+              hidden={actions[t.id]?.has("hidden") ?? false}
+              tab={tab}
+              onToggle={toggleAction}
+            />
+          ))}
+        </div>
       ) : (
         <div className="mt-6 border-t-2 border-foreground">
           {filtered.map((t) => (
