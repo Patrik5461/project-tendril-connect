@@ -25,6 +25,7 @@ type Tender = {
   published_at: string | null;
   source_url: string | null;
   estimated_value: number | null;
+  source: string;
 };
 
 type Prefs = {
