@@ -99,14 +99,6 @@ function Dashboard() {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewCount, setPreviewCount] = useState(0);
   const [searchInput, setSearchInput] = useState(q);
-  const [backfill, setBackfill] = useState<{
-    source: "TED" | "UVO" | null;
-    status: string;
-    saved: number;
-    running: boolean;
-    done: boolean;
-  }>({ source: null, status: "", saved: 0, running: false, done: false });
-  const backfillStopRef = useRef(false);
 
   // Debounce search input -> URL
   useEffect(() => {
