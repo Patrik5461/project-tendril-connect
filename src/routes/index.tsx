@@ -247,7 +247,7 @@ function Landing() {
             key={f.title}
             className="rounded-lg border border-primary/15 bg-card p-6 card-hover"
           >
-            <div className="h-10 w-10 rounded-md bg-accent text-accent-foreground flex items-center justify-center">
+            <div className="h-10 w-10 rounded-md bg-accent-soft text-primary flex items-center justify-center">
               <f.icon className="h-5 w-5" />
             </div>
             <h3 className="mt-5 font-display font-bold text-lg">{f.title}</h3>
