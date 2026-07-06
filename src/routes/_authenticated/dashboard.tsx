@@ -47,6 +47,7 @@ function Dashboard() {
   const [sort, setSort] = useState<"deadline" | "published">("deadline");
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState<"TED" | "UVO" | null>(null);
+  const [showExpired, setShowExpired] = useState(false);
 
   async function loadTenders() {
     const { data: t } = await supabase.from("tenders").select("*");
