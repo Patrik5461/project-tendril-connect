@@ -1,5 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { z } from "zod";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +19,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Calendar, ExternalLink, Building2, MapPin, AlertCircle, RefreshCw, Mail, Send } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Calendar,
+  Building2,
+  MapPin,
+  AlertCircle,
+  RefreshCw,
+  Mail,
+  Send,
+  Star,
+  X,
+  Radar,
+  RotateCcw,
+  Search,
+} from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { toast } from "sonner";
 
@@ -42,24 +58,45 @@ type Prefs = {
   onboarding_completed: boolean;
 };
 
+type Action = "saved" | "hidden";
+type ActionRow = { tender_id: string; action: Action };
+
+const searchSchema = z.object({
+  tab: fallback(z.enum(["foryou", "saved", "hidden"]), "foryou").default("foryou"),
+  sort: fallback(z.enum(["deadline", "newest", "value"]), "deadline").default("deadline"),
+  q: fallback(z.string(), "").default(""),
+});
+
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Zákazky – Tendrik" }] }),
+  validateSearch: zodValidator(searchSchema),
   component: Dashboard,
 });
 
+// Diacritics-insensitive lowercase for client-side matching
+function norm(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function Dashboard() {
+  const { tab, sort, q } = Route.useSearch();
+  const navigate = useNavigate({ from: "/_authenticated/dashboard" });
+
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [prefs, setPrefs] = useState<Prefs | null>(null);
+  const [actions, setActions] = useState<Record<string, Set<Action>>>({});
+  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [sort, setSort] = useState<"deadline" | "published">("deadline");
-  const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState<"TED" | "UVO" | null>(null);
-  const [showExpired, setShowExpired] = useState(false);
   const [sendingDigest, setSendingDigest] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewCount, setPreviewCount] = useState(0);
+  const [searchInput, setSearchInput] = useState(q);
   const [backfill, setBackfill] = useState<{
     source: "TED" | "UVO" | null;
     status: string;
@@ -69,15 +106,44 @@ function Dashboard() {
   }>({ source: null, status: "", saved: 0, running: false, done: false });
   const backfillStopRef = useRef(false);
 
+  // Debounce search input -> URL
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (searchInput !== q) {
+        navigate({ search: (p: any) => ({ ...p, q: searchInput }), replace: true });
+      }
+    }, 250);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
+
+  useEffect(() => {
+    setSearchInput(q);
+  }, [q]);
+
   async function loadTenders() {
     const { data: t } = await supabase.from("tenders").select("*");
     setTenders((t ?? []) as Tender[]);
+  }
+
+  async function loadActions(uid: string) {
+    const { data } = await supabase
+      .from("user_tender_actions" as never)
+      .select("tender_id, action")
+      .eq("user_id", uid);
+    const map: Record<string, Set<Action>> = {};
+    for (const row of (data ?? []) as ActionRow[]) {
+      if (!map[row.tender_id]) map[row.tender_id] = new Set();
+      map[row.tender_id].add(row.action);
+    }
+    setActions(map);
   }
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
+      setUserId(u.user.id);
       const [{ data: p }, { data: t }] = await Promise.all([
         supabase
           .from("user_preferences")
@@ -88,9 +154,46 @@ function Dashboard() {
       ]);
       setPrefs(p as Prefs | null);
       setTenders((t ?? []) as Tender[]);
+      await loadActions(u.user.id);
       setLoading(false);
     })();
   }, []);
+
+  async function toggleAction(tenderId: string, action: Action) {
+    if (!userId) return;
+    const current = actions[tenderId] ?? new Set<Action>();
+    const has = current.has(action);
+    // Optimistic
+    setActions((prev) => {
+      const next = { ...prev };
+      const set = new Set(next[tenderId] ?? []);
+      if (has) set.delete(action);
+      else set.add(action);
+      next[tenderId] = set;
+      return next;
+    });
+
+    if (has) {
+      const { error } = await supabase
+        .from("user_tender_actions" as never)
+        .delete()
+        .eq("user_id", userId)
+        .eq("tender_id", tenderId)
+        .eq("action", action);
+      if (error) {
+        toast.error("Nepodarilo sa zmeniť stav");
+        await loadActions(userId);
+      }
+    } else {
+      const { error } = await supabase
+        .from("user_tender_actions" as never)
+        .insert({ user_id: userId, tender_id: tenderId, action } as never);
+      if (error) {
+        toast.error("Nepodarilo sa zmeniť stav");
+        await loadActions(userId);
+      }
+    }
+  }
 
   async function handleRefresh(source: "TED" | "UVO") {
     setRefreshing(source);
@@ -232,55 +335,71 @@ function Dashboard() {
     }
   }
 
-  const filtered = useMemo(() => {
-    if (!prefs) return { list: [] as Tender[], hiddenExpired: 0 };
-    const kws = prefs.keywords.map((k) => k.toLowerCase());
+  // Match tenders to user preferences (For You audience)
+  const matchesPrefs = useMemo(() => {
+    if (!prefs) return () => false;
+    const kws = prefs.keywords.map((k) => norm(k));
     const cpvs = prefs.cpv_codes;
     const regs = prefs.regions;
     const wholeSk = regs.includes("Celé Slovensko");
     const hasFilters = kws.length > 0 || cpvs.length > 0;
-
-    let result = tenders.filter((t) => {
-      const regionOk = wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
+    return (t: Tender) => {
+      const regionOk =
+        wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
       if (!regionOk) return false;
       if (!hasFilters) return true;
-      const text = (t.title + " " + (t.description ?? "")).toLowerCase();
+      const text = norm(t.title + " " + (t.description ?? ""));
       const keywordMatch = kws.length > 0 && kws.some((k) => text.includes(k));
       const cpvMatch =
         cpvs.length > 0 && !!t.cpv_code && cpvs.some((c) => t.cpv_code!.startsWith(c));
       return keywordMatch || cpvMatch;
-    });
+    };
+  }, [prefs]);
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
+  const isActive = (t: Tender) => {
+    const now = Date.now();
+    if (t.deadline) return new Date(t.deadline).getTime() >= now;
+    return t.published_at
+      ? new Date(t.published_at).getTime() >= now - 30 * 24 * 60 * 60 * 1000
+      : false;
+  };
+
+  const filtered = useMemo(() => {
+    let result = tenders.slice();
+
+    if (tab === "foryou") {
+      result = result.filter(matchesPrefs).filter(isActive);
+      result = result.filter((t) => !actions[t.id]?.has("hidden"));
+    } else if (tab === "saved") {
+      result = result.filter((t) => actions[t.id]?.has("saved"));
+    } else if (tab === "hidden") {
+      result = result.filter((t) => actions[t.id]?.has("hidden"));
+    }
+
+    if (q.trim()) {
+      const nq = norm(q);
       result = result.filter(
         (t) =>
-          t.title.toLowerCase().includes(q) ||
-          t.contracting_authority.toLowerCase().includes(q) ||
-          (t.description ?? "").toLowerCase().includes(q),
+          norm(t.title).includes(nq) ||
+          norm(t.contracting_authority).includes(nq) ||
+          norm(t.description ?? "").includes(nq),
       );
     }
 
-    // Activity filter: by default hide expired/stale tenders.
-    // Active = deadline today or in the future,
-    //        OR (no deadline AND published_at within last 30 days).
-    const now = Date.now();
-    const publishedCutoff = now - 30 * 24 * 60 * 60 * 1000;
-    const isActive = (t: Tender) => {
-      if (t.deadline) return new Date(t.deadline).getTime() >= now;
-      return t.published_at
-        ? new Date(t.published_at).getTime() >= publishedCutoff
-        : false;
-    };
-    const hiddenExpired = showExpired ? 0 : result.filter((t) => !isActive(t)).length;
-    if (!showExpired) result = result.filter(isActive);
-
     result.sort((a, b) => {
-      if (sort === "deadline") return (a.deadline ?? "").localeCompare(b.deadline ?? "");
-      return (b.published_at ?? "").localeCompare(a.published_at ?? "");
+      if (sort === "deadline") {
+        const av = a.deadline ?? "9999";
+        const bv = b.deadline ?? "9999";
+        return av.localeCompare(bv);
+      }
+      if (sort === "newest") {
+        return (b.published_at ?? "").localeCompare(a.published_at ?? "");
+      }
+      // value
+      return (Number(b.estimated_value) || 0) - (Number(a.estimated_value) || 0);
     });
-    return { list: result, hiddenExpired };
-  }, [tenders, prefs, sort, search, showExpired]);
+    return result;
+  }, [tenders, actions, matchesPrefs, tab, q, sort]);
 
   if (loading) {
     return <div className="mx-auto max-w-6xl px-4 py-8 text-muted-foreground">Načítavam...</div>;
@@ -307,84 +426,81 @@ function Dashboard() {
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">Vaše zákazky</h1>
           <p className="text-muted-foreground mt-1">
-            Nájdených <b className="num text-foreground">{filtered.list.length}</b> zákaziek podľa vašich filtrov
-            {filtered.hiddenExpired > 0 && (
-              <>
-                {" "}· <button
-                  type="button"
-                  onClick={() => setShowExpired(true)}
-                  className="underline hover:text-foreground"
-                >
-                  {filtered.hiddenExpired} po termíne skrytých
-                </button>
-              </>
-            )}
-            {showExpired && (
-              <>
-                {" "}·{" "}
-                <button
-                  type="button"
-                  onClick={() => setShowExpired(false)}
-                  className="underline hover:text-foreground"
-                >
-                  Skryť po termíne
-                </button>
-              </>
-            )}
+            Nájdených <b className="num text-foreground">{filtered.length}</b>{" "}
+            {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
           </p>
         </div>
-        <div className="flex gap-2 flex-col sm:flex-row">
-          <Input
-            placeholder="Hľadať v zákazkach..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="sm:w-64"
-          />
-          <Select value={sort} onValueChange={(v) => setSort(v as any)}>
-            <SelectTrigger className="sm:w-52">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="deadline">Podľa deadline</SelectItem>
-              <SelectItem value="published">Podľa dátumu zverejnenia</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex gap-2 flex-wrap">
           <Button
             onClick={() => handleRefresh("TED")}
             disabled={refreshing !== null}
             variant="default"
+            size="sm"
           >
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${refreshing === "TED" ? "animate-spin" : ""}`}
-            />
-            {refreshing === "TED" ? "Aktualizujem..." : "Aktualizovať TED"}
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing === "TED" ? "animate-spin" : ""}`} />
+            {refreshing === "TED" ? "Aktualizujem..." : "TED"}
           </Button>
           <Button
             onClick={() => handleRefresh("UVO")}
             disabled={refreshing !== null}
             variant="secondary"
+            size="sm"
           >
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${refreshing === "UVO" ? "animate-spin" : ""}`}
-            />
-            {refreshing === "UVO" ? "Aktualizujem..." : "Aktualizovať ÚVO"}
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing === "UVO" ? "animate-spin" : ""}`} />
+            {refreshing === "UVO" ? "Aktualizujem..." : "ÚVO"}
           </Button>
-          <Button
-            onClick={handlePreviewDigest}
-            disabled={previewLoading}
-            variant="outline"
-          >
+          <Button onClick={handlePreviewDigest} disabled={previewLoading} variant="outline" size="sm">
             <Mail className="h-4 w-4 mr-2" />
             Náhľad e-mailu
           </Button>
-          <Button
-            onClick={handleSendDigest}
-            disabled={sendingDigest}
-            variant="outline"
-          >
+          <Button onClick={handleSendDigest} disabled={sendingDigest} variant="outline" size="sm">
             <Send className={`h-4 w-4 mr-2 ${sendingDigest ? "animate-pulse" : ""}`} />
-            {sendingDigest ? "Odosielam..." : "Poslať digest teraz"}
+            {sendingDigest ? "Odosielam..." : "Poslať digest"}
           </Button>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <Tabs
+          value={tab}
+          onValueChange={(v) =>
+            navigate({ search: (p: any) => ({ ...p, tab: v as "foryou" | "saved" | "hidden" }) })
+          }
+        >
+          <TabsList>
+            <TabsTrigger value="foryou">Pre vás</TabsTrigger>
+            <TabsTrigger value="saved">Uložené</TabsTrigger>
+            <TabsTrigger value="hidden">Skryté</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <div className="flex gap-2 flex-col sm:flex-row">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Hľadať v zákazkach..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="pl-8 sm:w-64"
+            />
+          </div>
+          <Select
+            value={sort}
+            onValueChange={(v) =>
+              navigate({
+                search: (p: any) => ({ ...p, sort: v as "deadline" | "newest" | "value" }),
+              })
+            }
+          >
+            <SelectTrigger className="sm:w-56">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="deadline">Najbližší deadline</SelectItem>
+              <SelectItem value="newest">Najnovšie</SelectItem>
+              <SelectItem value="value">Najvyššia hodnota</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -431,18 +547,10 @@ function Dashboard() {
             deadlinom v budúcnosti.
           </p>
           <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              onClick={runBackfillTed}
-              disabled={backfill.running}
-            >
+            <Button variant="outline" onClick={runBackfillTed} disabled={backfill.running}>
               Backfill TED (365 dní)
             </Button>
-            <Button
-              variant="outline"
-              onClick={runBackfillUvo}
-              disabled={backfill.running}
-            >
+            <Button variant="outline" onClick={runBackfillUvo} disabled={backfill.running}>
               Backfill ÚVO (3 mesiace)
             </Button>
             {backfill.running && (
@@ -468,22 +576,19 @@ function Dashboard() {
         </div>
       </details>
 
-
-
-      {filtered.list.length === 0 ? (
-        <div className="mt-12 rounded-xl border bg-card p-12 text-center">
-          <p className="text-muted-foreground">
-            Žiadne zákazky nezodpovedajú vašim filtrom. Skúste upraviť{" "}
-            <Link to="/settings" className="text-primary underline">
-              nastavenia
-            </Link>
-            .
-          </p>
-        </div>
+      {filtered.length === 0 ? (
+        <EmptyState tab={tab} query={q} />
       ) : (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {filtered.list.map((t) => (
-            <TenderCard key={t.id} tender={t} />
+          {filtered.map((t) => (
+            <TenderCard
+              key={t.id}
+              tender={t}
+              saved={actions[t.id]?.has("saved") ?? false}
+              hidden={actions[t.id]?.has("hidden") ?? false}
+              tab={tab}
+              onToggle={toggleAction}
+            />
           ))}
         </div>
       )}
@@ -491,23 +596,146 @@ function Dashboard() {
   );
 }
 
-function TenderCard({ tender }: { tender: Tender }) {
+function EmptyState({
+  tab,
+  query,
+}: {
+  tab: "foryou" | "saved" | "hidden";
+  query: string;
+}) {
+  if (query.trim()) {
+    return (
+      <div className="mt-12 rounded-xl border bg-card p-12 text-center">
+        <Search className="mx-auto h-10 w-10 text-muted-foreground/60" />
+        <p className="mt-4 text-muted-foreground">
+          Nič sme nenašli pre{" "}
+          <b className="text-foreground">„{query}"</b> – skúste iné slovo.
+        </p>
+      </div>
+    );
+  }
+
+  if (tab === "saved") {
+    return (
+      <div className="mt-12 rounded-xl border bg-card p-12 text-center">
+        <Star className="mx-auto h-10 w-10 text-muted-foreground/60" />
+        <p className="mt-4 text-muted-foreground">
+          Zatiaľ nemáte uložené zákazky – kliknite na hviezdičku pri zákazke,
+          ktorá vás zaujme.
+        </p>
+      </div>
+    );
+  }
+
+  if (tab === "hidden") {
+    return (
+      <div className="mt-12 rounded-xl border bg-card p-12 text-center">
+        <X className="mx-auto h-10 w-10 text-muted-foreground/60" />
+        <p className="mt-4 text-muted-foreground">
+          Nemáte žiadne skryté zákazky.
+        </p>
+      </div>
+    );
+  }
+
+  // for you empty
+  return (
+    <div className="mt-12 rounded-xl border bg-card p-12 text-center">
+      <Radar className="mx-auto h-12 w-12 text-primary/70" />
+      <h2 className="mt-4 font-display text-xl font-semibold">
+        Váš radar zatiaľ nič nezachytil
+      </h2>
+      <p className="mt-2 text-muted-foreground">
+        Skúste upraviť filtre alebo si pozrite všetky zákazky.
+      </p>
+      <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <Link to="/settings">
+          <Button>Upraviť filtre</Button>
+        </Link>
+        <Link to="/dashboard" search={{ tab: "foryou", sort: "newest", q: "" }}>
+          <Button variant="outline">Zobraziť všetky zákazky</Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function TenderCard({
+  tender,
+  saved,
+  hidden,
+  tab,
+  onToggle,
+}: {
+  tender: Tender;
+  saved: boolean;
+  hidden: boolean;
+  tab: "foryou" | "saved" | "hidden";
+  onToggle: (id: string, action: Action) => void;
+}) {
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
   const expired = daysLeft !== null && daysLeft < 0;
   const urgent = daysLeft !== null && daysLeft >= 0 && daysLeft < 7;
+
   return (
     <article
       className={`rounded-lg border border-primary/15 bg-card p-5 flex flex-col gap-3 card-hover ${
         expired ? "opacity-70" : ""
-      }`}
+      } ${hidden && tab !== "hidden" ? "opacity-60" : ""}`}
     >
       <div>
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-display font-semibold text-lg leading-snug tracking-tight">
-            {tender.title}
-          </h3>
+          <Link
+            to="/zakazka/$id"
+            params={{ id: tender.id }}
+            className="flex-1 min-w-0 group"
+          >
+            <h3 className="font-display font-semibold text-lg leading-snug tracking-tight group-hover:text-primary transition-colors">
+              {tender.title}
+            </h3>
+          </Link>
           <div className="flex flex-col items-end gap-1 shrink-0">
+            <div className="flex items-center gap-1">
+              {tab === "hidden" ? (
+                <button
+                  type="button"
+                  aria-label="Obnoviť zákazku"
+                  title="Obnoviť"
+                  onClick={() => onToggle(tender.id, "hidden")}
+                  className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </button>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    aria-label={saved ? "Zrušiť uloženie" : "Uložiť zákazku"}
+                    title={saved ? "Zrušiť uloženie" : "Uložiť"}
+                    onClick={() => onToggle(tender.id, "saved")}
+                    className="p-1.5 rounded-md hover:bg-muted transition-colors"
+                  >
+                    <Star
+                      className={`h-4 w-4 ${
+                        saved
+                          ? "fill-primary text-primary"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Skryť zákazku"
+                    title="Skryť"
+                    onClick={() => onToggle(tender.id, "hidden")}
+                    className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </>
+              )}
+            </div>
             <SourceBadge source={tender.source} />
             {expired && (
               <span className="text-xs font-medium px-2 py-0.5 rounded-md border border-border bg-muted text-muted-foreground">
@@ -531,7 +759,13 @@ function TenderCard({ tender }: { tender: Tender }) {
         </div>
       </div>
       {tender.description && (
-        <p className="text-sm text-muted-foreground line-clamp-2">{tender.description}</p>
+        <Link
+          to="/zakazka/$id"
+          params={{ id: tender.id }}
+          className="text-sm text-muted-foreground line-clamp-2 hover:text-foreground"
+        >
+          {tender.description}
+        </Link>
       )}
       <div className="mt-auto flex items-center justify-between pt-3 border-t border-primary/10">
         <div
@@ -549,13 +783,11 @@ function TenderCard({ tender }: { tender: Tender }) {
             )}
           </span>
         </div>
-        {tender.source_url && (
-          <a href={tender.source_url} target="_blank" rel="noopener noreferrer">
-            <Button size="sm" variant="outline">
-              Zdroj <ExternalLink className="h-3 w-3 ml-1" />
-            </Button>
-          </a>
-        )}
+        <Link to="/zakazka/$id" params={{ id: tender.id }}>
+          <Button size="sm" variant="outline">
+            Detail
+          </Button>
+        </Link>
       </div>
     </article>
   );
