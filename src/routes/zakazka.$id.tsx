@@ -8,7 +8,6 @@ import {
   Calendar,
   ExternalLink,
   MapPin,
-  Coins,
   Tag,
 } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
@@ -124,15 +123,12 @@ function TenderDetail() {
         <ArrowLeft className="h-4 w-4" /> Späť
       </Link>
 
-      <div className="mt-6 flex items-start justify-between gap-4">
-        <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight leading-tight">
-          {tender.title}
-        </h1>
+      <div className="mt-6 flex items-center gap-3 flex-wrap">
         <span
-          className={`shrink-0 text-xs font-semibold px-2 py-1 rounded-md border ${
+          className={`eyebrow inline-flex items-center bg-transparent px-2 py-0.5 ${
             isUvo
-              ? "bg-accent text-accent-foreground border-primary/30"
-              : "bg-transparent text-primary border-primary"
+              ? "border border-primary text-primary"
+              : "border border-accent text-accent"
           }`}
           title={
             isUvo ? "Vestník verejného obstarávania ÚVO" : "Tenders Electronic Daily (EÚ)"
@@ -140,31 +136,49 @@ function TenderDetail() {
         >
           {isUvo ? "ÚVO" : "TED"}
         </span>
+        {daysLeft !== null && (
+          daysLeft < 0 ? (
+            <span className="eyebrow inline-flex items-center border border-border bg-secondary px-2 py-0.5 text-muted-foreground">
+              Po termíne
+            </span>
+          ) : (
+            <span
+              className={`eyebrow inline-flex items-center px-2 py-0.5 ${
+                daysLeft < 7
+                  ? "border border-primary bg-primary text-primary-foreground"
+                  : "border border-foreground bg-transparent text-foreground"
+              }`}
+            >
+              {daysLeft === 0
+                ? "Posledný deň"
+                : `${daysLeft} ${daysLeft === 1 ? "deň" : daysLeft < 5 ? "dni" : "dní"}`}
+            </span>
+          )
+        )}
       </div>
 
-      <div className="mt-4 flex items-center gap-2 text-muted-foreground">
+      <h1 className="mt-4 font-display text-3xl md:text-5xl font-bold tracking-tight leading-[1.05] text-foreground">
+        {tender.title}
+      </h1>
+
+      <div className="mt-4 flex items-center gap-2 text-foreground/80">
         <Building2 className="h-4 w-4" />
         <span>{tender.contracting_authority}</span>
       </div>
 
       {tender.estimated_value != null && (
-        <div className="mt-6 rounded-xl border border-primary/20 bg-accent-soft p-5 flex items-center gap-3">
-          <Coins className="h-6 w-6 text-primary" />
-          <div>
-            <div className="text-xs uppercase tracking-wide text-muted-foreground">
-              Predpokladaná hodnota
-            </div>
-            <div className="num text-2xl md:text-3xl font-bold text-primary leading-tight">
-              {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
-                .format(Number(tender.estimated_value))
-                .replace(/\u00a0/g, " ")}{" "}
-              €
-            </div>
+        <div className="mt-8 border-t-2 border-foreground border-b border-border py-5">
+          <div className="eyebrow text-muted-foreground">Predpokladaná hodnota</div>
+          <div className="num mt-1 text-4xl md:text-5xl font-bold text-primary leading-tight">
+            {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
+              .format(Number(tender.estimated_value))
+              .replace(/\u00a0/g, " ")}{" "}
+            €
           </div>
         </div>
       )}
 
-      <dl className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-primary/15 bg-card p-5">
+      <dl className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8 border-t border-border pt-6">
         <Field
           icon={<Calendar className="h-4 w-4" />}
           label="Deadline"
@@ -176,9 +190,9 @@ function TenderDetail() {
                   <span
                     className={`ml-2 text-xs ${
                       daysLeft < 0
-                        ? "text-destructive"
+                        ? "text-muted-foreground"
                         : daysLeft < 7
-                          ? "text-warning"
+                          ? "text-primary"
                           : "text-muted-foreground"
                     }`}
                   >
@@ -232,15 +246,15 @@ function TenderDetail() {
       </dl>
 
       {tender.description && (
-        <div className="mt-6">
-          <h2 className="font-display text-lg font-semibold">Popis zákazky</h2>
-          <p className="mt-2 whitespace-pre-line text-foreground/90 leading-relaxed">
+        <div className="mt-10 border-t border-border pt-6">
+          <div className="eyebrow text-muted-foreground">Popis zákazky</div>
+          <p className="mt-3 whitespace-pre-line text-foreground/90 leading-relaxed">
             {tender.description}
           </p>
         </div>
       )}
 
-      <div className="mt-8 flex flex-wrap gap-3">
+      <div className="mt-10 flex flex-wrap gap-3">
         {tender.source_url && (
           <a href={tender.source_url} target="_blank" rel="noopener noreferrer">
             <Button>
@@ -257,14 +271,17 @@ function TenderDetail() {
       </div>
 
       {authed === false && (
-        <div className="mt-10 rounded-xl border border-primary/20 bg-accent-soft p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="mt-12 border-t-2 border-foreground border-b border-border py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <p className="font-display font-semibold text-lg text-primary">
+            <div className="eyebrow flex items-center text-foreground">
+              <span className="red-square" aria-hidden="true" />
+              Bezplatná služba
+            </div>
+            <p className="mt-2 font-display font-bold text-xl text-foreground">
               Zaregistruj sa a dostávaj takéto zákazky e-mailom
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Nastav si kľúčové slová, CPV kategórie a kraje. 100 % bezplatná
-              služba.
+              Nastav si kľúčové slová, CPV kategórie a kraje.
             </p>
           </div>
           <Link to="/auth">

@@ -21,17 +21,11 @@ function AuthedLayout() {
   }
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border bg-background/90 backdrop-blur sticky top-0 z-10">
+      <header className="border-b-2 border-foreground bg-background sticky top-0 z-10">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
-          <Link to="/dashboard" className="font-display font-bold text-xl text-primary flex items-center gap-2.5">
-            <span className="h-8 w-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center">
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.75">
-                <circle cx="12" cy="12" r="9" />
-                <circle cx="12" cy="12" r="5" />
-                <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
-              </svg>
-            </span>
-            <span className="hidden sm:inline">Tendrik.sk</span>
+          <Link to="/dashboard" className="font-display font-bold text-xl text-foreground flex items-center gap-2.5">
+            <span className="h-7 w-7 bg-primary" aria-hidden="true" />
+            <span className="hidden sm:inline">Tendrik</span>
           </Link>
           <nav className="flex items-center gap-1">
             <Link to="/dashboard">
