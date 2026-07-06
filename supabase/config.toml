@@ -2,3 +2,12 @@ project_id = "tmssxnluhjhzqmutflbl"
 
 [functions.fetch-tenders]
 verify_jwt = false
+
+[functions.fetch-uvo-tenders]
+verify_jwt = false
+
+[functions.cleanup-tenders]
+verify_jwt = false
+
+[functions.send-daily-digest]
+verify_jwt = false
