@@ -67,8 +67,7 @@ function Dashboard() {
     running: boolean;
     done: boolean;
   }>({ source: null, status: "", saved: 0, running: false, done: false });
-  const backfillStopRef = (Dashboard as any)._stopRef ?? { current: false };
-  (Dashboard as any)._stopRef = backfillStopRef;
+  const backfillStopRef = useRef(false);
 
   async function loadTenders() {
     const { data: t } = await supabase.from("tenders").select("*");
