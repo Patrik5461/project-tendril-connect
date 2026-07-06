@@ -682,117 +682,104 @@ function TenderCard({
 
   return (
     <article
-      className={`rounded-lg border border-primary/15 bg-card p-5 flex flex-col gap-3 card-hover ${
+      className={`border-b border-border bg-card px-1 py-5 md:px-2 md:py-6 transition-colors hover:bg-secondary/60 ${
         expired ? "opacity-70" : ""
       } ${hidden && tab !== "hidden" ? "opacity-60" : ""}`}
     >
-      <div>
-        <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 flex-wrap">
+            <SourceBadge source={tender.source} />
+            <DeadlineBadge daysLeft={daysLeft} expired={expired} />
+            {tender.cpv_code && (
+              <span className="eyebrow text-muted-foreground">CPV {tender.cpv_code}</span>
+            )}
+          </div>
           <Link
             to="/zakazka/$id"
             params={{ id: tender.id }}
-            className="flex-1 min-w-0 group"
+            className="mt-2 block group"
           >
-            <h3 className="font-display font-semibold text-lg leading-snug tracking-tight group-hover:text-primary transition-colors">
+            <h3 className="font-display font-semibold text-xl md:text-2xl leading-snug tracking-tight text-foreground group-hover:text-primary transition-colors">
               {tender.title}
             </h3>
           </Link>
-          <div className="flex flex-col items-end gap-1 shrink-0">
-            <div className="flex items-center gap-1">
-              {tab === "hidden" ? (
-                <button
-                  type="button"
-                  aria-label="Obnoviť zákazku"
-                  title="Obnoviť"
-                  onClick={() => onToggle(tender.id, "hidden")}
-                  className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    aria-label={saved ? "Zrušiť uloženie" : "Uložiť zákazku"}
-                    title={saved ? "Zrušiť uloženie" : "Uložiť"}
-                    onClick={() => onToggle(tender.id, "saved")}
-                    className="p-1.5 rounded-md hover:bg-muted transition-colors"
-                  >
-                    <Star
-                      className={`h-4 w-4 ${
-                        saved
-                          ? "fill-primary text-primary"
-                          : "text-muted-foreground"
-                      }`}
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Skryť zákazku"
-                    title="Skryť"
-                    onClick={() => onToggle(tender.id, "hidden")}
-                    className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </>
-              )}
-            </div>
-            <SourceBadge source={tender.source} />
-            {expired && (
-              <span className="text-xs font-medium px-2 py-0.5 rounded-md border border-border bg-muted text-muted-foreground">
-                Po termíne
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-          <Building2 className="h-4 w-4" />
-          {tender.contracting_authority}
-        </div>
-        <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-          <MapPin className="h-4 w-4" />
-          {tender.region ?? "—"}
-          {tender.cpv_code && (
-            <span className="ml-2 font-mono text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded">
-              CPV {tender.cpv_code}
+          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-foreground/75">
+            <span className="inline-flex items-center gap-1.5">
+              <Building2 className="h-4 w-4" />
+              {tender.contracting_authority}
             </span>
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="h-4 w-4" />
+              {tender.region ?? "—"}
+            </span>
+            <span className="inline-flex items-center gap-1.5 num">
+              <Calendar className="h-4 w-4" />
+              {deadlineDate ? format(deadlineDate, "d.M.yyyy") : "Neurčené"}
+            </span>
+          </div>
+          {tender.description && (
+            <Link
+              to="/zakazka/$id"
+              params={{ id: tender.id }}
+              className="mt-3 block text-sm text-foreground/70 line-clamp-2 hover:text-foreground"
+            >
+              {tender.description}
+            </Link>
           )}
         </div>
-      </div>
-      {tender.description && (
-        <Link
-          to="/zakazka/$id"
-          params={{ id: tender.id }}
-          className="text-sm text-muted-foreground line-clamp-2 hover:text-foreground"
-        >
-          {tender.description}
-        </Link>
-      )}
-      <div className="mt-auto flex items-center justify-between pt-3 border-t border-primary/10 gap-3">
-        <div
-          className={`flex items-center gap-1.5 text-sm font-medium num ${
-            urgent ? "text-warning" : "text-foreground"
-          }`}
-        >
-          {urgent ? <AlertCircle className="h-4 w-4" /> : <Calendar className="h-4 w-4" />}
-          <span>
-            {deadlineDate ? format(deadlineDate, "d.M.yyyy") : "Neurčené"}
-            {daysLeft !== null && (
-              <span className="ml-1 text-xs opacity-80">
-                ({daysLeft < 0 ? "po termíne" : `${daysLeft} dní`})
-              </span>
+
+        <div className="flex flex-col items-end justify-between gap-3 shrink-0 min-h-[6rem]">
+          <div className="flex items-center gap-1">
+            {tab === "hidden" ? (
+              <button
+                type="button"
+                aria-label="Obnoviť zákazku"
+                title="Obnoviť"
+                onClick={() => onToggle(tender.id, "hidden")}
+                className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <RotateCcw className="h-4 w-4" />
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  aria-label={saved ? "Zrušiť uloženie" : "Uložiť zákazku"}
+                  title={saved ? "Zrušiť uloženie" : "Uložiť"}
+                  onClick={() => onToggle(tender.id, "saved")}
+                  className="p-1.5 hover:bg-secondary transition-colors"
+                >
+                  <Star
+                    className={`h-4 w-4 ${
+                      saved
+                        ? "fill-primary text-primary"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Skryť zákazku"
+                  title="Skryť"
+                  onClick={() => onToggle(tender.id, "hidden")}
+                  className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </>
             )}
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
+          </div>
           {tender.estimated_value != null && (
-            <span className="num text-sm font-semibold text-primary" title="Predpokladaná hodnota">
-              {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
-                .format(Number(tender.estimated_value))
-                .replace(/\u00a0/g, " ")}{" "}
-              €
-            </span>
+            <div className="text-right">
+              <div className="eyebrow text-muted-foreground">Hodnota</div>
+              <div className="num text-lg font-semibold text-foreground">
+                {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
+                  .format(Number(tender.estimated_value))
+                  .replace(/\u00a0/g, " ")}{" "}
+                €
+              </div>
+            </div>
           )}
           <Link to="/zakazka/$id" params={{ id: tender.id }}>
             <Button size="sm" variant="outline">
@@ -805,15 +792,43 @@ function TenderCard({
   );
 }
 
+function DeadlineBadge({
+  daysLeft,
+  expired,
+}: {
+  daysLeft: number | null;
+  expired: boolean;
+}) {
+  if (daysLeft === null) return null;
+  if (expired) {
+    return (
+      <span className="eyebrow inline-flex items-center border border-border bg-secondary px-2 py-0.5 text-muted-foreground">
+        Po termíne
+      </span>
+    );
+  }
+  const urgent = daysLeft < 7;
+  const cls = urgent
+    ? "border border-primary bg-primary text-primary-foreground"
+    : "border border-foreground bg-transparent text-foreground";
+  const label =
+    daysLeft === 0 ? "Posledný deň" : `${daysLeft} ${daysLeft === 1 ? "deň" : daysLeft < 5 ? "dni" : "dní"}`;
+  return (
+    <span className={`eyebrow inline-flex items-center px-2 py-0.5 ${cls}`}>
+      {label}
+    </span>
+  );
+}
+
 function SourceBadge({ source }: { source: string }) {
   const isUvo = source === "UVO";
   const label = isUvo ? "ÚVO" : "TED";
   const cls = isUvo
-    ? "bg-accent text-accent-foreground border-primary/30"
-    : "bg-transparent text-primary border-primary";
+    ? "border border-primary text-primary"
+    : "border border-accent text-accent";
   return (
     <span
-      className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-md border ${cls}`}
+      className={`eyebrow inline-flex items-center bg-transparent px-2 py-0.5 ${cls}`}
       title={isUvo ? "Vestník verejného obstarávania ÚVO" : "Tenders Electronic Daily (EÚ)"}
     >
       {label}
