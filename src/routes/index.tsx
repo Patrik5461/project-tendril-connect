@@ -167,6 +167,7 @@ function Landing() {
               "Nastavenie za menej ako 2 minúty",
               "Odkaz priamo na zdroj zákazky",
               "Farebné upozornenie pri krátkom deadline",
+              "Dáta priamo z oficiálnych zdrojov TED a vestníka ÚVO",
             ].map((t) => (
               <li key={t} className="flex items-start gap-3">
                 <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
