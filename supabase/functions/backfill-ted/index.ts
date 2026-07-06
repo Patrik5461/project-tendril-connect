@@ -180,6 +180,7 @@ Deno.serve(async (req) => {
           parseTedDate(n["deadline-receipt-tender-date-lot"]) ??
           parseTedDate(n["deadline-receipt-request-date-lot"]);
         const region = pickRegion(n["place-of-performance"]);
+        const { value: estimated_value, currency } = pickTedValue(n);
 
         // Save gate: deadline today-or-future, OR (no deadline AND published within 60d)
         const deadlineOk = deadline ? new Date(deadline).getTime() >= now : false;
@@ -201,6 +202,8 @@ Deno.serve(async (req) => {
             region,
             published_at: publishedAt,
             deadline,
+            estimated_value,
+            currency,
             source: "TED",
             source_url: `https://ted.europa.eu/sk/notice/-/detail/${pubNumber}`,
           },
