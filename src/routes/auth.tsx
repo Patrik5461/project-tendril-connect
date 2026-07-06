@@ -96,13 +96,20 @@ function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        <Link to="/" className="block text-center mb-8 text-2xl font-bold text-primary">
+        <Link to="/" className="mb-8 flex items-center justify-center gap-2.5 font-display font-bold text-2xl text-primary">
+          <span className="h-9 w-9 rounded-md bg-primary text-primary-foreground flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.75">
+              <circle cx="12" cy="12" r="9" />
+              <circle cx="12" cy="12" r="5" />
+              <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+            </svg>
+          </span>
           Tendrik.sk
         </Link>
-        <div className="rounded-xl border bg-card p-6 shadow-sm">
-          <h1 className="text-2xl font-semibold text-center">
+        <div className="rounded-lg border border-primary/15 bg-card p-6">
+          <h1 className="font-display text-2xl font-bold text-center tracking-tight">
             {isSignup ? "Vytvoriť účet" : "Prihlásiť sa"}
           </h1>
           <p className="mt-1 text-center text-sm text-muted-foreground">
