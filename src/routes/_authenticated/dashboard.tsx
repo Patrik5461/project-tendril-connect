@@ -24,7 +24,6 @@ import {
   Calendar,
   Building2,
   MapPin,
-  AlertCircle,
   RefreshCw,
   Mail,
   Send,
