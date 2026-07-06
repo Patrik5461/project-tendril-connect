@@ -107,6 +107,45 @@ function Dashboard() {
     }
   }
 
+  async function handlePreviewDigest() {
+    setPreviewLoading(true);
+    setPreviewOpen(true);
+    setPreviewHtml(null);
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) throw new Error("Nie ste prihlásený");
+      const { data, error } = await supabase.functions.invoke("send-daily-digest", {
+        body: { preview_user_id: u.user.id },
+      });
+      if (error) throw error;
+      setPreviewHtml(data?.html ?? "");
+      setPreviewCount(data?.tender_count ?? 0);
+    } catch (err: any) {
+      toast.error(err.message ?? "Náhľad zlyhal");
+      setPreviewOpen(false);
+    } finally {
+      setPreviewLoading(false);
+    }
+  }
+
+  async function handleSendDigest() {
+    if (!confirm("Naozaj odoslať denný digest všetkým používateľom teraz?")) return;
+    setSendingDigest(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-daily-digest", {
+        body: {},
+      });
+      if (error) throw error;
+      toast.success(
+        `Digest: skontrolovaných ${data?.users_checked ?? 0}, odoslaných ${data?.emails_sent ?? 0}, chýb ${data?.errors ?? 0}`,
+      );
+    } catch (err: any) {
+      toast.error(err.message ?? "Odoslanie zlyhalo");
+    } finally {
+      setSendingDigest(false);
+    }
+  }
+
   const filtered = useMemo(() => {
     if (!prefs) return { list: [] as Tender[], hiddenExpired: 0 };
     const kws = prefs.keywords.map((k) => k.toLowerCase());
