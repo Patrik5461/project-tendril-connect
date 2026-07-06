@@ -10,19 +10,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Calendar, ExternalLink, Building2, MapPin, AlertCircle } from "lucide-react";
+import { Calendar, ExternalLink, Building2, MapPin, AlertCircle, RefreshCw } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
+import { toast } from "sonner";
 
 type Tender = {
   id: string;
   title: string;
   contracting_authority: string;
-  description: string;
-  cpv_code: string;
-  region: string;
-  deadline: string;
-  published_at: string;
-  source_url: string;
+  description: string | null;
+  cpv_code: string | null;
+  region: string | null;
+  deadline: string | null;
+  published_at: string | null;
+  source_url: string | null;
   estimated_value: number | null;
 };
 
@@ -44,6 +45,12 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<"deadline" | "published">("deadline");
   const [search, setSearch] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function loadTenders() {
+    const { data: t } = await supabase.from("tenders").select("*");
+    setTenders((t ?? []) as Tender[]);
+  }
 
   useEffect(() => {
     (async () => {
@@ -63,19 +70,38 @@ function Dashboard() {
     })();
   }, []);
 
+  async function handleRefresh() {
+    setRefreshing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-tenders");
+      if (error) throw error;
+      toast.success(
+        `Aktualizované: ${data?.processed ?? 0} zákaziek (${data?.new ?? 0} nových)`,
+      );
+      await loadTenders();
+    } catch (err: any) {
+      toast.error(err.message ?? "Aktualizácia zlyhala");
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
   const filtered = useMemo(() => {
     if (!prefs) return [];
     const kws = prefs.keywords.map((k) => k.toLowerCase());
     const cpvs = prefs.cpv_codes;
     const regs = prefs.regions;
     const wholeSk = regs.includes("Celé Slovensko");
+    const hasFilters = kws.length > 0 || cpvs.length > 0;
 
     let result = tenders.filter((t) => {
-      const regionOk = wholeSk || regs.includes(t.region);
+      const regionOk = wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
       if (!regionOk) return false;
-      const text = (t.title + " " + t.description).toLowerCase();
+      if (!hasFilters) return true;
+      const text = (t.title + " " + (t.description ?? "")).toLowerCase();
       const keywordMatch = kws.length > 0 && kws.some((k) => text.includes(k));
-      const cpvMatch = cpvs.length > 0 && cpvs.some((c) => t.cpv_code.startsWith(c));
+      const cpvMatch =
+        cpvs.length > 0 && !!t.cpv_code && cpvs.some((c) => t.cpv_code!.startsWith(c));
       return keywordMatch || cpvMatch;
     });
 
@@ -85,13 +111,13 @@ function Dashboard() {
         (t) =>
           t.title.toLowerCase().includes(q) ||
           t.contracting_authority.toLowerCase().includes(q) ||
-          t.description.toLowerCase().includes(q),
+          (t.description ?? "").toLowerCase().includes(q),
       );
     }
 
     result.sort((a, b) => {
-      if (sort === "deadline") return a.deadline.localeCompare(b.deadline);
-      return b.published_at.localeCompare(a.published_at);
+      if (sort === "deadline") return (a.deadline ?? "").localeCompare(b.deadline ?? "");
+      return (b.published_at ?? "").localeCompare(a.published_at ?? "");
     });
     return result;
   }, [tenders, prefs, sort, search]);
@@ -140,6 +166,10 @@ function Dashboard() {
               <SelectItem value="published">Podľa dátumu zverejnenia</SelectItem>
             </SelectContent>
           </Select>
+          <Button onClick={handleRefresh} disabled={refreshing} variant="default">
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+            {refreshing ? "Aktualizujem..." : "Aktualizovať zákazky"}
+          </Button>
         </div>
       </div>
 
@@ -165,8 +195,9 @@ function Dashboard() {
 }
 
 function TenderCard({ tender }: { tender: Tender }) {
-  const daysLeft = differenceInDays(parseISO(tender.deadline), new Date());
-  const urgent = daysLeft < 7;
+  const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
+  const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
+  const urgent = daysLeft !== null && daysLeft < 7;
   return (
     <article className="rounded-xl border bg-card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
       <div>
@@ -177,13 +208,17 @@ function TenderCard({ tender }: { tender: Tender }) {
         </div>
         <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />
-          {tender.region}
-          <span className="ml-2 font-mono text-xs bg-secondary px-1.5 py-0.5 rounded">
-            CPV {tender.cpv_code}
-          </span>
+          {tender.region ?? "—"}
+          {tender.cpv_code && (
+            <span className="ml-2 font-mono text-xs bg-secondary px-1.5 py-0.5 rounded">
+              CPV {tender.cpv_code}
+            </span>
+          )}
         </div>
       </div>
-      <p className="text-sm text-muted-foreground line-clamp-2">{tender.description}</p>
+      {tender.description && (
+        <p className="text-sm text-muted-foreground line-clamp-2">{tender.description}</p>
+      )}
       <div className="mt-auto flex items-center justify-between pt-2 border-t">
         <div
           className={`flex items-center gap-1.5 text-sm font-medium ${
@@ -192,17 +227,21 @@ function TenderCard({ tender }: { tender: Tender }) {
         >
           {urgent ? <AlertCircle className="h-4 w-4" /> : <Calendar className="h-4 w-4" />}
           <span>
-            {format(parseISO(tender.deadline), "d.M.yyyy")}
-            <span className="ml-1 text-xs opacity-80">
-              ({daysLeft < 0 ? "po termíne" : `${daysLeft} dní`})
-            </span>
+            {deadlineDate ? format(deadlineDate, "d.M.yyyy") : "Neurčené"}
+            {daysLeft !== null && (
+              <span className="ml-1 text-xs opacity-80">
+                ({daysLeft < 0 ? "po termíne" : `${daysLeft} dní`})
+              </span>
+            )}
           </span>
         </div>
-        <a href={tender.source_url} target="_blank" rel="noopener noreferrer">
-          <Button size="sm" variant="outline">
-            Zdroj <ExternalLink className="h-3 w-3 ml-1" />
-          </Button>
-        </a>
+        {tender.source_url && (
+          <a href={tender.source_url} target="_blank" rel="noopener noreferrer">
+            <Button size="sm" variant="outline">
+              Zdroj <ExternalLink className="h-3 w-3 ml-1" />
+            </Button>
+          </a>
+        )}
       </div>
     </article>
   );

@@ -1,1 +1,4 @@
 project_id = "tmssxnluhjhzqmutflbl"
+
+[functions.fetch-tenders]
+verify_jwt = false

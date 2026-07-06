@@ -17,43 +17,49 @@ export type Database = {
       tenders: {
         Row: {
           contracting_authority: string
-          cpv_code: string
+          cpv_code: string | null
           created_at: string
-          deadline: string
-          description: string
+          deadline: string | null
+          description: string | null
           estimated_value: number | null
           id: string
-          published_at: string
-          region: string
-          source_url: string
+          publication_number: string | null
+          published_at: string | null
+          region: string | null
+          source: string
+          source_url: string | null
           title: string
           updated_at: string
         }
         Insert: {
           contracting_authority: string
-          cpv_code: string
+          cpv_code?: string | null
           created_at?: string
-          deadline: string
-          description: string
+          deadline?: string | null
+          description?: string | null
           estimated_value?: number | null
           id?: string
-          published_at: string
-          region: string
-          source_url: string
+          publication_number?: string | null
+          published_at?: string | null
+          region?: string | null
+          source?: string
+          source_url?: string | null
           title: string
           updated_at?: string
         }
         Update: {
           contracting_authority?: string
-          cpv_code?: string
+          cpv_code?: string | null
           created_at?: string
-          deadline?: string
-          description?: string
+          deadline?: string | null
+          description?: string | null
           estimated_value?: number | null
           id?: string
-          published_at?: string
-          region?: string
-          source_url?: string
+          publication_number?: string | null
+          published_at?: string | null
+          region?: string | null
+          source?: string
+          source_url?: string | null
           title?: string
           updated_at?: string
         }
