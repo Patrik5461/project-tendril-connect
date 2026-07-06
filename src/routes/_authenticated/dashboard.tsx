@@ -769,7 +769,7 @@ function TenderCard({
           {tender.description}
         </Link>
       )}
-      <div className="mt-auto flex items-center justify-between pt-3 border-t border-primary/10">
+      <div className="mt-auto flex items-center justify-between pt-3 border-t border-primary/10 gap-3">
         <div
           className={`flex items-center gap-1.5 text-sm font-medium num ${
             urgent ? "text-warning" : "text-foreground"
@@ -785,11 +785,21 @@ function TenderCard({
             )}
           </span>
         </div>
-        <Link to="/zakazka/$id" params={{ id: tender.id }}>
-          <Button size="sm" variant="outline">
-            Detail
-          </Button>
-        </Link>
+        <div className="flex items-center gap-3">
+          {tender.estimated_value != null && (
+            <span className="num text-sm font-semibold text-primary" title="Predpokladaná hodnota">
+              {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
+                .format(Number(tender.estimated_value))
+                .replace(/\u00a0/g, " ")}{" "}
+              €
+            </span>
+          )}
+          <Link to="/zakazka/$id" params={{ id: tender.id }}>
+            <Button size="sm" variant="outline">
+              Detail
+            </Button>
+          </Link>
+        </div>
       </div>
     </article>
   );
