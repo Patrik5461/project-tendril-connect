@@ -150,7 +150,15 @@ export const Route = createFileRoute("/")({
 function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2.5 font-display font-bold text-xl text-foreground">
-      <span className="h-8 w-8 bg-primary" aria-hidden="true" />
+      <span
+        className="relative inline-flex h-8 w-8 items-center justify-center bg-primary"
+        aria-hidden="true"
+      >
+        <span className="font-display font-bold text-primary-foreground text-lg leading-none translate-y-[-1px]">
+          T
+        </span>
+        <span className="absolute inset-0 border border-primary-foreground/30" />
+      </span>
       <span>Tendrik</span>
     </Link>
   );
