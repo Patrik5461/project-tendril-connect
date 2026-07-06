@@ -45,15 +45,15 @@ function ActiveTendersLine() {
   if (failed) return null;
 
   return (
-    <div className="mt-10 flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1">
+    <div className="mt-12 flex flex-col items-center gap-3">
       {count === null ? (
-        <span className="inline-block h-12 w-40 rounded-md bg-muted animate-pulse" />
+        <span className="inline-block h-20 w-40 rounded-md bg-muted animate-pulse" />
       ) : (
-        <span className="num text-5xl md:text-6xl font-bold text-accent-foreground bg-accent px-3 py-0.5 rounded-md">
+        <span className="num text-7xl md:text-8xl font-bold text-primary leading-none">
           {formatSk(display)}
         </span>
       )}
-      <span className="text-sm md:text-base text-muted-foreground">
+      <span className="text-sm md:text-base text-muted-foreground text-center max-w-md">
         aktívnych zákaziek práve teraz · z oficiálnych zdrojov TED a ÚVO ·
         aktualizované denne
       </span>
