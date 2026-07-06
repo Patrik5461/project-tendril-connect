@@ -18,12 +18,12 @@ type Tender = {
   id: string;
   title: string;
   contracting_authority: string;
-  description: string;
-  cpv_code: string;
-  region: string;
-  deadline: string;
-  published_at: string;
-  source_url: string;
+  description: string | null;
+  cpv_code: string | null;
+  region: string | null;
+  deadline: string | null;
+  published_at: string | null;
+  source_url: string | null;
   estimated_value: number | null;
 };
 
