@@ -25,6 +25,7 @@ type Tender = {
   published_at: string | null;
   source_url: string | null;
   estimated_value: number | null;
+  source: string;
 };
 
 type Prefs = {
@@ -45,7 +46,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<"deadline" | "published">("deadline");
   const [search, setSearch] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState<"TED" | "UVO" | null>(null);
 
   async function loadTenders() {
     const { data: t } = await supabase.from("tenders").select("*");
@@ -70,19 +71,26 @@ function Dashboard() {
     })();
   }, []);
 
-  async function handleRefresh() {
-    setRefreshing(true);
+  async function handleRefresh(source: "TED" | "UVO") {
+    setRefreshing(source);
+    const fnName = source === "TED" ? "fetch-tenders" : "fetch-uvo-tenders";
     try {
-      const { data, error } = await supabase.functions.invoke("fetch-tenders");
+      const { data, error } = await supabase.functions.invoke(fnName);
       if (error) throw error;
-      toast.success(
-        `Aktualizované: ${data?.processed ?? 0} zákaziek (${data?.new ?? 0} nových)`,
-      );
+      if (source === "TED") {
+        toast.success(
+          `TED: ${data?.processed ?? 0} zákaziek (${data?.new ?? 0} nových)`,
+        );
+      } else {
+        toast.success(
+          `ÚVO ${data?.issue ?? ""}: uložených ${data?.saved ?? 0}, preskočených ${data?.skipped_existing ?? 0}, chýb ${data?.errors ?? 0}`,
+        );
+      }
       await loadTenders();
     } catch (err: any) {
       toast.error(err.message ?? "Aktualizácia zlyhala");
     } finally {
-      setRefreshing(false);
+      setRefreshing(null);
     }
   }
 
@@ -166,9 +174,25 @@ function Dashboard() {
               <SelectItem value="published">Podľa dátumu zverejnenia</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={handleRefresh} disabled={refreshing} variant="default">
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-            {refreshing ? "Aktualizujem..." : "Aktualizovať zákazky"}
+          <Button
+            onClick={() => handleRefresh("TED")}
+            disabled={refreshing !== null}
+            variant="default"
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${refreshing === "TED" ? "animate-spin" : ""}`}
+            />
+            {refreshing === "TED" ? "Aktualizujem..." : "Aktualizovať TED"}
+          </Button>
+          <Button
+            onClick={() => handleRefresh("UVO")}
+            disabled={refreshing !== null}
+            variant="secondary"
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${refreshing === "UVO" ? "animate-spin" : ""}`}
+            />
+            {refreshing === "UVO" ? "Aktualizujem..." : "Aktualizovať ÚVO"}
           </Button>
         </div>
       </div>
@@ -201,7 +225,10 @@ function TenderCard({ tender }: { tender: Tender }) {
   return (
     <article className="rounded-xl border bg-card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
       <div>
-        <h3 className="font-semibold text-lg leading-snug">{tender.title}</h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold text-lg leading-snug">{tender.title}</h3>
+          <SourceBadge source={tender.source} />
+        </div>
         <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
           <Building2 className="h-4 w-4" />
           {tender.contracting_authority}
@@ -244,5 +271,21 @@ function TenderCard({ tender }: { tender: Tender }) {
         )}
       </div>
     </article>
+  );
+}
+
+function SourceBadge({ source }: { source: string }) {
+  const isUvo = source === "UVO";
+  const label = isUvo ? "ÚVO" : "TED";
+  const cls = isUvo
+    ? "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-200 dark:border-emerald-900"
+    : "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:border-blue-900";
+  return (
+    <span
+      className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full border ${cls}`}
+      title={isUvo ? "Vestník verejného obstarávania ÚVO" : "Tenders Electronic Daily (EÚ)"}
+    >
+      {label}
+    </span>
   );
 }
