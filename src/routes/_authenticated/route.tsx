@@ -27,7 +27,7 @@ function AuthedLayout() {
             <div className="h-8 w-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center">
               T
             </div>
-            <span className="hidden sm:inline">Tendrik</span>
+            <span className="hidden sm:inline">Tendrik.sk</span>
           </Link>
           <nav className="flex items-center gap-1">
             <Link to="/dashboard">
