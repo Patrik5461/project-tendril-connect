@@ -206,6 +206,7 @@ Deno.serve(async (req) => {
         parseTedDate(n["deadline-receipt-tender-date-lot"]) ??
         parseTedDate(n["deadline-receipt-request-date-lot"]);
       const region = pickRegion(n["place-of-performance"]);
+      const { value: estimated_value, currency } = pickTedValue(n);
       const sourceUrl = `https://ted.europa.eu/sk/notice/-/detail/${pubNumber}`;
 
       const { data: existing } = await supabase
@@ -223,6 +224,8 @@ Deno.serve(async (req) => {
           region,
           published_at: publishedAt,
           deadline,
+          estimated_value,
+          currency,
           source: "TED",
           source_url: sourceUrl,
         },
