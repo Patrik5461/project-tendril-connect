@@ -59,7 +59,7 @@ function Landing() {
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <Link to="/auth" search={{ mode: "signup" }}>
             <Button size="lg" className="w-full sm:w-auto">
-              Začať zadarmo
+              Bez poplatkov
             </Button>
           </Link>
           <Link to="/auth" search={{ mode: "login" }}>
