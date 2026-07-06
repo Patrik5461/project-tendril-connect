@@ -64,7 +64,7 @@ function ActiveTendersLine() {
 function RadarGraphic() {
   return (
     <div
-      className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.18]"
+      className="pointer-events-none absolute -top-32 -right-40 md:-top-40 md:-right-56"
       aria-hidden="true"
     >
       <svg
@@ -73,8 +73,8 @@ function RadarGraphic() {
       >
         <defs>
           <radialGradient id="sweep" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#C5F547" stopOpacity="0" />
-            <stop offset="100%" stopColor="#C5F547" stopOpacity="0.9" />
+            <stop offset="0%" stopColor="#1A3C34" stopOpacity="0" />
+            <stop offset="100%" stopColor="#1A3C34" stopOpacity="0.08" />
           </radialGradient>
         </defs>
         {/* concentric rings */}
@@ -86,13 +86,14 @@ function RadarGraphic() {
             r={r}
             fill="none"
             stroke="#1A3C34"
+            strokeOpacity="0.12"
             strokeWidth="1"
           />
         ))}
         {/* crosshairs */}
-        <line x1="200" y1="20" x2="200" y2="380" stroke="#1A3C34" strokeWidth="0.5" />
-        <line x1="20" y1="200" x2="380" y2="200" stroke="#1A3C34" strokeWidth="0.5" />
-        {/* rotating sweep */}
+        <line x1="200" y1="20" x2="200" y2="380" stroke="#1A3C34" strokeOpacity="0.08" strokeWidth="0.5" />
+        <line x1="20" y1="200" x2="380" y2="200" stroke="#1A3C34" strokeOpacity="0.08" strokeWidth="0.5" />
+        {/* rotating sweep — very subtle */}
         <g className="radar-sweep" style={{ transformOrigin: "200px 200px" }}>
           <path d="M200 200 L200 20 A180 180 0 0 1 360 130 Z" fill="url(#sweep)" />
         </g>
@@ -107,16 +108,16 @@ function RadarGraphic() {
             <circle
               cx={d.cx}
               cy={d.cy}
-              r="5"
-              fill="#C5F547"
-              stroke="#1A3C34"
-              strokeWidth="1"
+              r="4"
+              fill="#7BA05B"
+              fillOpacity="0.35"
             />
             <circle
               cx={d.cx}
               cy={d.cy}
-              r="5"
-              fill="#C5F547"
+              r="4"
+              fill="#7BA05B"
+              fillOpacity="0.35"
               className="radar-ping"
               style={{ animationDelay: d.delay, transformOrigin: `${d.cx}px ${d.cy}px` }}
             />
