@@ -259,13 +259,21 @@ function Dashboard() {
 function TenderCard({ tender }: { tender: Tender }) {
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
-  const urgent = daysLeft !== null && daysLeft < 7;
+  const expired = daysLeft !== null && daysLeft < 0;
+  const urgent = daysLeft !== null && daysLeft >= 0 && daysLeft < 7;
   return (
-    <article className="rounded-xl border bg-card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+    <article className={`rounded-xl border bg-card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow ${expired ? "opacity-70" : ""}`}>
       <div>
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold text-lg leading-snug">{tender.title}</h3>
-          <SourceBadge source={tender.source} />
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            <SourceBadge source={tender.source} />
+            {expired && (
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full border bg-muted text-muted-foreground border-border">
+                Po termíne
+              </span>
+            )}
+          </div>
         </div>
         <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
           <Building2 className="h-4 w-4" />
