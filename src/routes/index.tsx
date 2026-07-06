@@ -1,6 +1,65 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Search, Bell, Filter } from "lucide-react";
+
+function formatSk(n: number): string {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
+}
+
+function ActiveTendersLine() {
+  const [count, setCount] = useState<number | null>(null);
+  const [display, setDisplay] = useState(0);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/public/stats")
+      .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+      .then((d) => {
+        if (cancelled) return;
+        if (typeof d?.active_tenders === "number") setCount(d.active_tenders);
+        else setFailed(true);
+      })
+      .catch(() => !cancelled && setFailed(true));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (count === null) return;
+    const start = performance.now();
+    const dur = 1000;
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(Math.round(count * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [count]);
+
+  if (failed) return null;
+
+  return (
+    <div className="mt-8 flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1">
+      {count === null ? (
+        <span className="inline-block h-10 w-32 rounded-md bg-muted animate-pulse" />
+      ) : (
+        <span className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight tabular-nums">
+          {formatSk(display)}
+        </span>
+      )}
+      <span className="text-sm md:text-base text-muted-foreground">
+        aktívnych zákaziek práve teraz · z oficiálnych zdrojov TED a ÚVO ·
+        aktualizované denne
+      </span>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -56,6 +115,7 @@ function Landing() {
           Zadajte kľúčové slová, vyberte CPV kategórie a kraje. Tendrik vám každý deň zobrazí
           zákazky, ktoré sa vás naozaj týkajú.
         </p>
+        <ActiveTendersLine />
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <Link to="/auth" search={{ mode: "signup" }}>
             <Button size="lg" className="w-full sm:w-auto">
@@ -107,6 +167,7 @@ function Landing() {
               "Nastavenie za menej ako 2 minúty",
               "Odkaz priamo na zdroj zákazky",
               "Farebné upozornenie pri krátkom deadline",
+              "Dáta priamo z oficiálnych zdrojov TED a vestníka ÚVO",
             ].map((t) => (
               <li key={t} className="flex items-start gap-3">
                 <CheckCircle2 className="h-5 w-5 text-primary shrink-0 mt-0.5" />
