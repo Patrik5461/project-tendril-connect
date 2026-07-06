@@ -81,9 +81,18 @@ type ListedNotice = {
 };
 
 function parseIssue(html: string): { number: string; year: string } | null {
-  const m = html.match(/Vestník\s+číslo\s+(\d+)\/(\d{4})/i);
-  if (!m) return null;
-  return { number: m[1], year: m[2] };
+  // Normalize whitespace (page sometimes uses &nbsp; / \u00a0 between words).
+  const norm = html.replace(/&nbsp;|\u00a0/g, " ").replace(/\s+/g, " ");
+  const patterns = [
+    /Vestník\s+číslo\s+(\d+)\s*\/\s*(\d{4})/i,
+    /Vestn[íi]k\s*(?:č\.|c\.|číslo|cislo)?\s*(\d+)\s*\/\s*(\d{4})/i,
+    /aktu[aá]lny\s+vestn[íi]k[^0-9]{0,40}(\d+)\s*\/\s*(\d{4})/i,
+  ];
+  for (const re of patterns) {
+    const m = norm.match(re);
+    if (m) return { number: m[1], year: m[2] };
+  }
+  return null;
 }
 
 function extractGroup(html: string, groupId: string): string {
@@ -222,10 +231,19 @@ Deno.serve(async (req) => {
     const listHtml = await fetchText(LIST_URL);
     const issue = parseIssue(listHtml);
     if (!issue) {
+      console.error(
+        "parseIssue failed; first 500 chars of list page:",
+        listHtml.slice(0, 500),
+      );
       return new Response(
-        JSON.stringify({ error: "Cannot parse issue number from list page" }),
+        JSON.stringify({
+          skipped: true,
+          reason: "Cannot parse issue number from list page",
+          listed: 0,
+          saved: 0,
+        }),
         {
-          status: 500,
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
