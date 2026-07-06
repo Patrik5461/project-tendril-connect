@@ -247,7 +247,7 @@ function Dashboard() {
         </div>
       ) : (
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {filtered.map((t) => (
+          {filtered.list.map((t) => (
             <TenderCard key={t.id} tender={t} />
           ))}
         </div>
