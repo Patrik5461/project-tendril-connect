@@ -142,6 +142,7 @@ type DetailFields = {
   region: string | null;
   deadline: string | null;
   estimated_value: number | null;
+  currency: string | null;
 };
 
 function parseDetail(html: string): DetailFields {
