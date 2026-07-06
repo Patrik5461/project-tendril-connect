@@ -420,6 +420,56 @@ function Dashboard() {
         </DialogContent>
       </Dialog>
 
+      <details className="mt-6 rounded-xl border bg-card p-4">
+        <summary className="cursor-pointer text-sm font-medium text-muted-foreground">
+          Backfill histórie (admin)
+        </summary>
+        <div className="mt-4 space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Jednorazovo doplní historické zákazky. TED: posledných 365 dní.
+            ÚVO: posledné ~3 mesiace čísel vestníka. Ukladá len zákazky s
+            deadlinom v budúcnosti.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              onClick={runBackfillTed}
+              disabled={backfill.running}
+            >
+              Backfill TED (365 dní)
+            </Button>
+            <Button
+              variant="outline"
+              onClick={runBackfillUvo}
+              disabled={backfill.running}
+            >
+              Backfill ÚVO (3 mesiace)
+            </Button>
+            {backfill.running && (
+              <Button variant="destructive" onClick={stopBackfill}>
+                Zastaviť
+              </Button>
+            )}
+          </div>
+          {backfill.status && (
+            <div className="rounded-md bg-muted p-3 text-sm">
+              <div className="flex items-center gap-2">
+                {backfill.running && <RefreshCw className="h-4 w-4 animate-spin" />}
+                <span>{backfill.status}</span>
+              </div>
+              {backfill.done && !backfill.running && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  Súhrn: uložených <b>{backfill.saved}</b> nových zákaziek zo zdroja{" "}
+                  <b>{backfill.source}</b>.
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </details>
+
+
+
       {filtered.list.length === 0 ? (
         <div className="mt-12 rounded-xl border bg-card p-12 text-center">
           <p className="text-muted-foreground">
