@@ -8,7 +8,6 @@ import {
   Calendar,
   ExternalLink,
   MapPin,
-  Coins,
   Tag,
 } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
