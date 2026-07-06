@@ -78,28 +78,43 @@ function formatDeadline(d: string | null): string {
 function sourceBadge(src: string): string {
   const isUvo = src === "UVO";
   const label = isUvo ? "ÚVO" : "TED";
-  // TED: dark green outline. UVO: solid warm yellow-green.
+  // ÚVO: red outline (primary). TED: navy outline (accent).
   const style = isUvo
-    ? "background:#C5F547;color:#14201C;border:1px solid #1A3C34;"
-    : "background:transparent;color:#1A3C34;border:1px solid #1A3C34;";
-  return `<span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600;font-family:'Space Grotesk',-apple-system,sans-serif;letter-spacing:0.02em;${style}">${label}</span>`;
+    ? "color:#C8102E;border:1px solid #C8102E;"
+    : "color:#26428B;border:1px solid #26428B;";
+  return `<span style="display:inline-block;padding:2px 8px;font-size:11px;font-weight:600;font-family:Inter,-apple-system,sans-serif;letter-spacing:0.12em;text-transform:uppercase;background:transparent;${style}">${label}</span>`;
 }
 
-function renderHtml(tenders: Tender[], totalCount: number): string {
+function formatValue(v: number | null | undefined): string | null {
+  if (v == null) return null;
+  const n = Number(v);
+  if (!isFinite(n) || n <= 0) return null;
+  return new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
+    .format(n)
+    .replace(/\u00a0/g, " ") + " €";
+}
+
+function renderHtml(tenders: (Tender & { estimated_value?: number | null })[], totalCount: number): string {
   const items = tenders
     .map((t) => {
       const titleHtml = t.source_url
-        ? `<a href="${escapeHtml(t.source_url)}" style="color:#14201C;text-decoration:none;font-weight:600;">${escapeHtml(t.title)}</a>`
-        : `<span style="color:#14201C;font-weight:600;">${escapeHtml(t.title)}</span>`;
+        ? `<a href="${escapeHtml(t.source_url)}" style="color:#111111;text-decoration:none;font-weight:600;font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.25;">${escapeHtml(t.title)}</a>`
+        : `<span style="color:#111111;font-weight:600;font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.25;">${escapeHtml(t.title)}</span>`;
+      const valueStr = formatValue((t as any).estimated_value);
+      const valueRow = valueStr
+        ? `<div style="margin-top:8px;font-family:Inter,-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-weight:600;color:#C8102E;font-size:15px;">${escapeHtml(valueStr)}</div>`
+        : "";
       return `
         <tr>
-          <td style="padding:18px 0;border-bottom:1px solid rgba(26,60,52,0.15);">
-            <div style="margin-bottom:8px;">${titleHtml} &nbsp;${sourceBadge(t.source)}</div>
-            <div style="font-size:13px;color:#4a5a55;line-height:1.6;">
-              <b style="color:#14201C;">Obstarávateľ:</b> ${escapeHtml(t.contracting_authority)}<br/>
-              <b style="color:#14201C;">Región:</b> ${escapeHtml(t.region ?? "—")}<br/>
-              <b style="color:#14201C;">Deadline:</b> <span style="font-family:'Space Grotesk',-apple-system,sans-serif;font-variant-numeric:tabular-nums;">${escapeHtml(formatDeadline(t.deadline))}</span>
+          <td style="padding:18px 0;border-top:1px solid #111111;border-bottom:1px solid #d5d5d5;">
+            <div style="margin-bottom:8px;">${sourceBadge(t.source)}</div>
+            <div style="margin-bottom:6px;">${titleHtml}</div>
+            <div style="font-family:Inter,-apple-system,sans-serif;font-size:13px;color:#555555;line-height:1.6;">
+              <b style="color:#111111;">Obstarávateľ:</b> ${escapeHtml(t.contracting_authority)}<br/>
+              <b style="color:#111111;">Región:</b> ${escapeHtml(t.region ?? "—")}<br/>
+              <b style="color:#111111;">Deadline:</b> <span style="font-variant-numeric:tabular-nums;">${escapeHtml(formatDeadline(t.deadline))}</span>
             </div>
+            ${valueRow}
           </td>
         </tr>`;
     })
@@ -107,8 +122,8 @@ function renderHtml(tenders: Tender[], totalCount: number): string {
 
   const cta =
     totalCount > 0
-      ? `<p style="text-align:center;margin:28px 0 8px 0;">
-           <a href="${APP_URL}/dashboard" style="display:inline-block;background:#C5F547;color:#14201C;text-decoration:none;font-weight:700;padding:12px 24px;border-radius:8px;border:1px solid #1A3C34;font-family:'Space Grotesk',-apple-system,sans-serif;">
+      ? `<p style="text-align:left;margin:28px 0 8px 0;">
+           <a href="${APP_URL}/dashboard" style="display:inline-block;background:#C8102E;color:#FFFFFF;text-decoration:none;font-weight:700;padding:14px 28px;font-family:Inter,-apple-system,sans-serif;letter-spacing:0.02em;">
              ${totalCount > tenders.length ? "Zobraziť všetky zákazky" : "Otvoriť v Tendriku"} →
            </a>
          </p>`
@@ -116,25 +131,29 @@ function renderHtml(tenders: Tender[], totalCount: number): string {
 
   return `<!DOCTYPE html>
 <html lang="sk"><head><meta charset="utf-8"><title>Tendrik</title></head>
-<body style="margin:0;padding:0;background:#FAF8F3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#14201C;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FAF8F3;padding:24px 12px;">
+<body style="margin:0;padding:0;background:#FFFFFF;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#111111;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#FFFFFF;padding:24px 12px;">
     <tr><td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FAF8F3;border:1px solid rgba(26,60,52,0.15);border-radius:8px;overflow:hidden;">
-        <tr><td style="background:#1A3C34;padding:20px 28px;">
-          <div style="font-family:'Space Grotesk',-apple-system,sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;color:#FAF8F3;">
-            <span style="display:inline-block;width:22px;height:22px;border-radius:5px;background:#C5F547;color:#1A3C34;text-align:center;line-height:22px;font-weight:800;margin-right:8px;vertical-align:middle;">T</span>
+      <table role="presentation" width="620" cellpadding="0" cellspacing="0" style="max-width:620px;background:#FFFFFF;">
+        <tr><td style="padding:16px 24px;border-bottom:2px solid #111111;">
+          <div style="font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:22px;letter-spacing:-0.01em;color:#111111;">
+            <span style="display:inline-block;width:18px;height:18px;background:#C8102E;vertical-align:-3px;margin-right:10px;"></span>
             Tendrik
           </div>
         </td></tr>
-        <tr><td style="padding:28px;">
-          <h1 style="margin:0 0 8px 0;font-family:'Space Grotesk',-apple-system,sans-serif;font-weight:700;font-size:22px;letter-spacing:-0.02em;color:#14201C;">${totalCount} ${totalCount === 1 ? "nová zákazka" : totalCount < 5 ? "nové zákazky" : "nových zákaziek"} pre vás</h1>
-          <p style="margin:0 0 8px 0;color:#4a5a55;font-size:14px;">Za posledných 24 hodín sme našli zákazky, ktoré zodpovedajú vašim filtrom.</p>
+        <tr><td style="padding:28px 24px 8px 24px;">
+          <div style="font-family:Inter,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#555555;margin-bottom:8px;">
+            <span style="display:inline-block;width:8px;height:8px;background:#C8102E;vertical-align:1px;margin-right:8px;"></span>
+            Denný digest verejného obstarávania
+          </div>
+          <h1 style="margin:0 0 6px 0;font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:28px;line-height:1.15;letter-spacing:-0.01em;color:#111111;">${totalCount} ${totalCount === 1 ? "nová zákazka" : totalCount < 5 ? "nové zákazky" : "nových zákaziek"} pre vás</h1>
+          <p style="margin:0 0 20px 0;color:#555555;font-size:14px;">Za posledných 24 hodín sme našli zákazky, ktoré zodpovedajú vašim filtrom.</p>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}</table>
           ${cta}
-          <hr style="border:none;border-top:1px solid rgba(26,60,52,0.15);margin:24px 0;"/>
-          <p style="font-size:12px;color:#6b7770;text-align:center;margin:0;">
+          <hr style="border:none;border-top:2px solid #111111;margin:32px 0 12px 0;"/>
+          <p style="font-size:12px;color:#777777;text-align:left;margin:0;">
             Dostávate tento e-mail, lebo máte zapnuté notifikácie v Tendriku.<br/>
-            <a href="${APP_URL}/settings" style="color:#1A3C34;">Spravovať nastavenia</a>
+            <a href="${APP_URL}/settings" style="color:#26428B;text-decoration:underline;">Spravovať nastavenia</a>
           </p>
         </td></tr>
       </table>
