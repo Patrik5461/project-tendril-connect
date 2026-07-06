@@ -154,6 +154,25 @@ function AuthPage() {
             )}
           </div>
         </div>
+        </div>
+
+        <div className="mt-4 rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-sm">
+          <p className="font-semibold text-primary">Testovací účet (dočasné)</p>
+          <p className="mt-1 text-muted-foreground">
+            E-mail: <span className="font-mono">{TEST_EMAIL}</span>
+            <br />
+            Heslo: <span className="font-mono">{TEST_PASSWORD}</span>
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-3 w-full"
+            onClick={loginAsTest}
+            disabled={loading}
+          >
+            Prihlásiť sa ako test
+          </Button>
+        </div>
       </div>
     </div>
   );
