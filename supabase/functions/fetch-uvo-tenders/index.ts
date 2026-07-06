@@ -97,33 +97,32 @@ function extractGroup(html: string, groupId: string): string {
 
 function parseListedNotices(html: string, year: string): ListedNotice[] {
   const out: ListedNotice[] = [];
-  for (const group of ["M", "WY"]) {
-    const block = extractGroup(html, group);
-    if (!block) continue;
-    const anchorRe =
-      /<a\s+class="ul-link"\s+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
-    let am: RegExpExecArray | null;
-    while ((am = anchorRe.exec(block)) !== null) {
-      const href = decodeEntities(am[1]);
-      const inner = am[2];
-      const titleMatch = inner.match(/<span[^>]*>([\s\S]*?)<\/span>/i);
-      const title = titleMatch ? stripTags(titleMatch[1]) : "";
-      // Text before the <span> looks like: " 9367 - MST : Banskobystrický ... "
-      const headText = stripTags(inner.replace(/<span[\s\S]*/i, ""));
-      const headMatch = headText.match(/^(\d+)\s*-\s*([A-Z]+)\s*:\s*(.+?)$/);
-      if (!headMatch) continue;
-      const [, orderNum, typeCode, buyer] = headMatch;
-      out.push({
-        publication_number: `${orderNum}-${year}`,
-        order_num: orderNum,
-        type_code: typeCode,
-        buyer: buyer.trim(),
-        title: title || `${typeCode} ${orderNum}`,
-        detail_url: href.startsWith("http") ? href : `${BASE}${href}`,
-      });
-    }
+  // Group M/WY containers may nest further ul lists per subtype, so instead of
+  // trying to walk the nested tree we iterate ALL `.ul-link` anchors and keep
+  // the ones whose type code starts with "M" (announcements of tender) or
+  // "WY" (below-threshold calls). This is stable across markup changes.
+  const anchorRe =
+    /<a\s+class="ul-link"\s+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g;
+  let am: RegExpExecArray | null;
+  while ((am = anchorRe.exec(html)) !== null) {
+    const href = decodeEntities(am[1]);
+    const inner = am[2];
+    const titleMatch = inner.match(/<span[^>]*>([\s\S]*?)<\/span>/i);
+    const title = titleMatch ? stripTags(titleMatch[1]) : "";
+    const headText = stripTags(inner.replace(/<span[\s\S]*/i, ""));
+    const headMatch = headText.match(/^(\d+)\s*-\s*([A-Z]+)\s*:\s*(.+?)$/);
+    if (!headMatch) continue;
+    const [, orderNum, typeCode, buyer] = headMatch;
+    if (!(typeCode.startsWith("M") || typeCode.startsWith("WY"))) continue;
+    out.push({
+      publication_number: `${orderNum}-${year}`,
+      order_num: orderNum,
+      type_code: typeCode,
+      buyer: buyer.trim(),
+      title: title || `${typeCode} ${orderNum}`,
+      detail_url: href.startsWith("http") ? href : `${BASE}${href}`,
+    });
   }
-  // Sort ascending by order number for stable pagination
   out.sort((a, b) => Number(a.order_num) - Number(b.order_num));
   return out;
 }
