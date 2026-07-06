@@ -229,20 +229,6 @@ function TenderDetail() {
             )
           }
         />
-        {tender.estimated_value != null && (
-          <Field
-            icon={<Coins className="h-4 w-4" />}
-            label="Predpokladaná hodnota"
-            value={
-              <span className="num font-medium">
-                {new Intl.NumberFormat("sk-SK").format(
-                  Number(tender.estimated_value),
-                )}{" "}
-                €
-              </span>
-            }
-          />
-        )}
       </dl>
 
       {tender.description && (
