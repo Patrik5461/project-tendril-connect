@@ -71,19 +71,26 @@ function Dashboard() {
     })();
   }, []);
 
-  async function handleRefresh() {
-    setRefreshing(true);
+  async function handleRefresh(source: "TED" | "UVO") {
+    setRefreshing(source);
+    const fnName = source === "TED" ? "fetch-tenders" : "fetch-uvo-tenders";
     try {
-      const { data, error } = await supabase.functions.invoke("fetch-tenders");
+      const { data, error } = await supabase.functions.invoke(fnName);
       if (error) throw error;
-      toast.success(
-        `Aktualizované: ${data?.processed ?? 0} zákaziek (${data?.new ?? 0} nových)`,
-      );
+      if (source === "TED") {
+        toast.success(
+          `TED: ${data?.processed ?? 0} zákaziek (${data?.new ?? 0} nových)`,
+        );
+      } else {
+        toast.success(
+          `ÚVO ${data?.issue ?? ""}: uložených ${data?.saved ?? 0}, preskočených ${data?.skipped_existing ?? 0}, chýb ${data?.errors ?? 0}`,
+        );
+      }
       await loadTenders();
     } catch (err: any) {
       toast.error(err.message ?? "Aktualizácia zlyhala");
     } finally {
-      setRefreshing(false);
+      setRefreshing(null);
     }
   }
 
