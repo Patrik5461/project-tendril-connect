@@ -5,25 +5,24 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Tendrik design system
- * Ink green primary (#1A3C34), warm yellow-green accent (#C5F547),
- * cream background (#FAF8F3), near-black text (#14201C),
- * brick deadline warning (#D9552B).
- * Type: Space Grotesk for display + numbers, Inter for body.
- * Sharper radii, borders instead of shadows, radar motif in hero.
+ * Tendrik design system — Moderný úradný vestník
+ * White paper (#FFFFFF), near-black text (#111111),
+ * stamp red primary (#C8102E), navy secondary (#26428B).
+ * Type: Source Serif 4 for display, Inter for UI + tabular numbers.
+ * Sharp corners (radius ≤ 2px), 1–2px rules instead of shadows.
  */
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  --radius-sm: 0px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 4px;
+  --radius-3xl: 6px;
+  --radius-4xl: 8px;
 
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Source Serif 4", "Source Serif Pro", Georgia, "Times New Roman", serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 
   --color-background: var(--background);
@@ -66,101 +65,100 @@
 }
 
 :root {
-  /* 8px */
-  --radius: 0.5rem;
+  --radius: 2px;
 
-  /* #FAF8F3 cream */
-  --background: oklch(0.98 0.008 90);
-  /* #14201C near-black */
-  --foreground: oklch(0.2 0.015 170);
+  /* Paper white */
+  --background: oklch(1 0 0);
+  /* Near-black ink */
+  --foreground: oklch(0.185 0 0);
 
-  /* Cards: cream, slightly lighter, framed by border rather than shadow */
-  --card: oklch(0.99 0.006 90);
-  --card-foreground: oklch(0.2 0.015 170);
+  /* Cards: pure white, framed by 1px black/gray rule */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.185 0 0);
 
-  --popover: oklch(0.99 0.006 90);
-  --popover-foreground: oklch(0.2 0.015 170);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.185 0 0);
 
-  /* #1A3C34 ink green */
-  --primary: oklch(0.32 0.04 170);
-  --primary-foreground: oklch(0.98 0.008 90);
+  /* #C8102E stamp red */
+  --primary: oklch(0.535 0.202 25);
+  --primary-foreground: oklch(1 0 0);
 
-  /* Secondary: soft cream tone for buttons/chips on light bg */
-  --secondary: oklch(0.94 0.012 90);
-  --secondary-foreground: oklch(0.2 0.015 170);
+  /* Secondary surface: very light gray #F5F5F3 */
+  --secondary: oklch(0.968 0.003 90);
+  --secondary-foreground: oklch(0.185 0 0);
 
-  --muted: oklch(0.94 0.012 90);
-  --muted-foreground: oklch(0.42 0.015 170);
+  --muted: oklch(0.968 0.003 90);
+  --muted-foreground: oklch(0.42 0 0);
 
-  /* #7BA05B muted sage — brand accent */
-  --accent: oklch(0.66 0.11 135);
+  /* #26428B navy — links, TED, secondary accents */
+  --accent: oklch(0.4 0.14 265);
   --accent-foreground: oklch(1 0 0);
-  /* #E8F0E0 soft green surface for chips / icon tiles */
-  --accent-soft: oklch(0.955 0.02 135);
-  --accent-soft-foreground: oklch(0.32 0.04 170);
+  /* Soft navy tint surface (rarely used) */
+  --accent-soft: oklch(0.955 0.02 265);
+  --accent-soft-foreground: oklch(0.4 0.14 265);
 
-  /* #D9552B brick — deadline warning */
-  --destructive: oklch(0.6 0.185 40);
-  --destructive-foreground: oklch(0.98 0.008 90);
-  --warning: oklch(0.6 0.185 40);
-  --warning-foreground: oklch(0.98 0.008 90);
+  /* Deadline red = same as primary */
+  --destructive: oklch(0.535 0.202 25);
+  --destructive-foreground: oklch(1 0 0);
+  --warning: oklch(0.535 0.202 25);
+  --warning-foreground: oklch(1 0 0);
 
-  /* Border in ink green at ~15% */
-  --border: oklch(0.32 0.04 170 / 15%);
-  --input: oklch(0.32 0.04 170 / 20%);
-  --ring: oklch(0.66 0.11 135);
+  /* 1px hairline: light gray for card rules */
+  --border: oklch(0.87 0 0);
+  --input: oklch(0.75 0 0);
+  --ring: oklch(0.535 0.202 25);
 
-  --chart-1: oklch(0.32 0.04 170);
-  --chart-2: oklch(0.925 0.2 125);
-  --chart-3: oklch(0.6 0.185 40);
-  --chart-4: oklch(0.55 0.08 170);
-  --chart-5: oklch(0.75 0.12 90);
+  --chart-1: oklch(0.535 0.202 25);
+  --chart-2: oklch(0.4 0.14 265);
+  --chart-3: oklch(0.185 0 0);
+  --chart-4: oklch(0.6 0 0);
+  --chart-5: oklch(0.75 0 0);
 
-  --sidebar: oklch(0.98 0.008 90);
-  --sidebar-foreground: oklch(0.2 0.015 170);
-  --sidebar-primary: oklch(0.32 0.04 170);
-  --sidebar-primary-foreground: oklch(0.98 0.008 90);
-  --sidebar-accent: oklch(0.94 0.012 90);
-  --sidebar-accent-foreground: oklch(0.2 0.015 170);
-  --sidebar-border: oklch(0.32 0.04 170 / 15%);
-  --sidebar-ring: oklch(0.925 0.2 125);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.185 0 0);
+  --sidebar-primary: oklch(0.535 0.202 25);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.968 0.003 90);
+  --sidebar-accent-foreground: oklch(0.185 0 0);
+  --sidebar-border: oklch(0.87 0 0);
+  --sidebar-ring: oklch(0.535 0.202 25);
 }
 
 .dark {
-  --background: oklch(0.2 0.015 170);
-  --foreground: oklch(0.98 0.008 90);
-  --card: oklch(0.26 0.02 170);
-  --card-foreground: oklch(0.98 0.008 90);
-  --popover: oklch(0.26 0.02 170);
-  --popover-foreground: oklch(0.98 0.008 90);
-  --primary: oklch(0.925 0.2 125);
-  --primary-foreground: oklch(0.2 0.015 170);
-  --secondary: oklch(0.3 0.02 170);
-  --secondary-foreground: oklch(0.98 0.008 90);
-  --muted: oklch(0.3 0.02 170);
-  --muted-foreground: oklch(0.75 0.02 170);
-  --accent: oklch(0.925 0.2 125);
-  --accent-foreground: oklch(0.2 0.015 170);
-  --destructive: oklch(0.65 0.185 40);
-  --destructive-foreground: oklch(0.98 0.008 90);
-  --warning: oklch(0.65 0.185 40);
-  --warning-foreground: oklch(0.98 0.008 90);
-  --border: oklch(0.98 0.008 90 / 12%);
-  --input: oklch(0.98 0.008 90 / 15%);
-  --ring: oklch(0.925 0.2 125);
-  --chart-1: oklch(0.925 0.2 125);
-  --chart-2: oklch(0.5 0.05 170);
-  --chart-3: oklch(0.65 0.185 40);
-  --chart-4: oklch(0.7 0.1 90);
-  --chart-5: oklch(0.55 0.08 170);
-  --sidebar: oklch(0.26 0.02 170);
-  --sidebar-foreground: oklch(0.98 0.008 90);
-  --sidebar-primary: oklch(0.925 0.2 125);
-  --sidebar-primary-foreground: oklch(0.2 0.015 170);
-  --sidebar-accent: oklch(0.3 0.02 170);
-  --sidebar-accent-foreground: oklch(0.98 0.008 90);
-  --sidebar-border: oklch(0.98 0.008 90 / 12%);
-  --sidebar-ring: oklch(0.925 0.2 125);
+  --background: oklch(0.185 0 0);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0.22 0 0);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.22 0 0);
+  --popover-foreground: oklch(1 0 0);
+  --primary: oklch(0.62 0.2 25);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.28 0 0);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.28 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.6 0.14 265);
+  --accent-foreground: oklch(1 0 0);
+  --destructive: oklch(0.62 0.2 25);
+  --destructive-foreground: oklch(1 0 0);
+  --warning: oklch(0.62 0.2 25);
+  --warning-foreground: oklch(1 0 0);
+  --border: oklch(1 0 0 / 15%);
+  --input: oklch(1 0 0 / 18%);
+  --ring: oklch(0.62 0.2 25);
+  --chart-1: oklch(0.62 0.2 25);
+  --chart-2: oklch(0.6 0.14 265);
+  --chart-3: oklch(1 0 0);
+  --chart-4: oklch(0.6 0 0);
+  --chart-5: oklch(0.4 0 0);
+  --sidebar: oklch(0.22 0 0);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(0.62 0.2 25);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.28 0 0);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(1 0 0 / 15%);
+  --sidebar-ring: oklch(0.62 0.2 25);
 }
 
 @layer base {
@@ -173,7 +171,8 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
   }
 
   h1,
@@ -181,57 +180,62 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
 }
 
-/* Card hover: darken border and lift 2px */
-@utility card-hover {
-  transition:
-    transform 180ms ease,
-    border-color 180ms ease;
+/* Tabular figures for counts, sums, deadlines — Inter tabular-nums */
+@utility num {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "lnum";
+  letter-spacing: -0.005em;
+}
+
+/* Uppercase eyebrow / label with wide tracking */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+/* Small red square marker for eyebrow lines */
+@utility red-square {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--color-primary);
+  margin-right: 0.55rem;
+  vertical-align: middle;
+}
+
+/* Newspaper-row card: no shadow, sharp corners, hairline rules top/bottom */
+@utility news-row {
+  background: var(--color-card);
+  border-top: 1px solid var(--color-foreground);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0;
+  transition: background-color 120ms ease;
 
   &:hover {
-    transform: translateY(-2px);
-    border-color: var(--color-primary);
+    background-color: color-mix(in oklab, var(--color-primary) 4%, var(--color-background));
   }
 }
 
-/* Tabular figures for counts and deadlines */
-@utility num {
-  font-family: var(--font-display);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+/* Thick 2px black horizontal rule for section dividers */
+@utility rule-thick {
+  border: 0;
+  border-top: 2px solid var(--color-foreground);
 }
 
-/* Radar sweep rotation */
-@keyframes radar-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@utility radar-sweep {
-  transform-origin: center;
-  animation: radar-spin 8s linear infinite;
-}
-
-@keyframes radar-ping {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  75%,
-  100% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
-}
-
-@utility radar-ping {
-  transform-origin: center;
-  animation: radar-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+/* Underline animation for hero headline word */
+@utility hero-underline {
+  background-image: linear-gradient(var(--color-primary), var(--color-primary));
+  background-repeat: no-repeat;
+  background-size: 100% 0.22em;
+  background-position: 0 90%;
+  padding: 0 0.05em;
 }
