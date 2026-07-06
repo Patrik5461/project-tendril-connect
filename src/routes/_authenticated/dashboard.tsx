@@ -220,4 +220,3 @@ function TenderCard({ tender }: { tender: Tender }) {
     </article>
   );
 }
-}
