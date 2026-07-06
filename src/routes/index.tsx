@@ -65,7 +65,7 @@ function ActiveTendersLine() {
 function RadarGraphic() {
   return (
     <div
-      className="pointer-events-none absolute -top-32 -right-40 md:-top-40 md:-right-56"
+      className="pointer-events-none absolute -top-32 -right-40 md:-top-40 md:-right-56 hidden md:block"
       aria-hidden="true"
     >
       <svg
@@ -196,7 +196,7 @@ function Landing() {
 
       <section className="relative overflow-hidden">
         <RadarGraphic />
-        <div className="relative mx-auto max-w-4xl px-4 py-24 md:py-32 text-center">
+        <div className="relative mx-auto max-w-4xl px-4 pt-24 pb-10 md:pt-32 md:pb-14 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-4 py-1.5 text-sm font-semibold text-accent-soft-foreground">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             100 % bezplatná služba
@@ -208,7 +208,7 @@ function Landing() {
           </h1>
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto whitespace-pre-line">
             Zadaj kľúčové slová, CPV kategórie a kraje.{"\n"}
-            Tendrík ti každý deň prinesie zákazky, ktoré sa ťa naozaj týkajú.
+            Tendrik ti každý deň prinesie zákazky, ktoré sa ťa naozaj týkajú.
           </p>
           <ActiveTendersLine />
           <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
@@ -226,7 +226,7 @@ function Landing() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 grid md:grid-cols-3 gap-4">
+      <section className="mx-auto max-w-6xl px-4 pt-10 pb-16 grid md:grid-cols-3 gap-4">
         {[
           {
             icon: Search,
