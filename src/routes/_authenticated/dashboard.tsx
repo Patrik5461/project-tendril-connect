@@ -170,7 +170,30 @@ function Dashboard() {
         <div>
           <h1 className="text-3xl font-bold">Vaše zákazky</h1>
           <p className="text-muted-foreground mt-1">
-            Nájdených <b>{filtered.length}</b> zákaziek podľa vašich filtrov
+            Nájdených <b>{filtered.list.length}</b> zákaziek podľa vašich filtrov
+            {filtered.hiddenExpired > 0 && (
+              <>
+                {" "}· <button
+                  type="button"
+                  onClick={() => setShowExpired(true)}
+                  className="underline hover:text-foreground"
+                >
+                  {filtered.hiddenExpired} po termíne skrytých
+                </button>
+              </>
+            )}
+            {showExpired && (
+              <>
+                {" "}·{" "}
+                <button
+                  type="button"
+                  onClick={() => setShowExpired(false)}
+                  className="underline hover:text-foreground"
+                >
+                  Skryť po termíne
+                </button>
+              </>
+            )}
           </p>
         </div>
         <div className="flex gap-2 flex-col sm:flex-row">
