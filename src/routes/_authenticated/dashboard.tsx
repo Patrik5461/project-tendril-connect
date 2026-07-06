@@ -581,7 +581,7 @@ function Dashboard() {
       {filtered.length === 0 ? (
         <EmptyState tab={tab} query={q} />
       ) : (
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="mt-6 border-t-2 border-foreground">
           {filtered.map((t) => (
             <TenderCard
               key={t.id}
