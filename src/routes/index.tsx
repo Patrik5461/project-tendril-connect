@@ -16,7 +16,7 @@ function formatBigEur(n: number): string {
   return `${v.toFixed(0)} mil. €`;
 }
 
-function ActiveTendersLine() {
+function ActiveTendersBlock() {
   const [count, setCount] = useState<number | null>(null);
   const [total, setTotal] = useState<number | null>(null);
   const [display, setDisplay] = useState(0);
@@ -41,7 +41,7 @@ function ActiveTendersLine() {
   useEffect(() => {
     if (count === null) return;
     const start = performance.now();
-    const dur = 1000;
+    const dur = 900;
     let raf = 0;
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / dur);
@@ -56,105 +56,24 @@ function ActiveTendersLine() {
   if (failed) return null;
 
   return (
-    <div className="mt-12 flex flex-col items-center gap-3">
+    <div className="mt-14 flex flex-col items-start gap-2">
       {count === null ? (
-        <span className="inline-block h-20 w-40 rounded-md bg-muted animate-pulse" />
+        <span className="inline-block h-16 w-32 bg-muted" />
       ) : (
-        <span className="num text-7xl md:text-8xl font-bold text-primary leading-none">
+        <span className="num text-6xl md:text-7xl font-bold text-primary leading-none">
           {formatSk(display)}
         </span>
       )}
-      <span className="text-sm md:text-base text-muted-foreground text-center max-w-md">
-        aktívnych zákaziek práve teraz{"\u00a0"}
-        <br />
-        z oficiálnych zdrojov TED a ÚVO · aktualizované denne
-      </span>
       {total != null && total > 0 && (
-        <span className="text-base md:text-lg text-foreground/80 text-center">
+        <span className="text-base md:text-lg text-foreground">
           v hodnote viac než{" "}
-          <span className="num font-semibold text-primary">{formatBigEur(total)}</span>
+          <span className="num font-semibold text-foreground">{formatBigEur(total)}</span>
         </span>
       )}
+      <span className="eyebrow text-muted-foreground mt-1">
+        Aktívnych zákaziek · Zdroje TED &amp; ÚVO · Aktualizované denne
+      </span>
     </div>
-  );
-}
-
-function RadarGraphic() {
-  return (
-    <div
-      className="pointer-events-none absolute -top-32 -right-40 md:-top-40 md:-right-56 hidden md:block"
-      aria-hidden="true"
-    >
-      <svg
-        viewBox="0 0 400 400"
-        className="h-[520px] w-[520px] md:h-[720px] md:w-[720px]"
-      >
-        <defs>
-          <radialGradient id="sweep" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#1A3C34" stopOpacity="0" />
-            <stop offset="100%" stopColor="#1A3C34" stopOpacity="0.08" />
-          </radialGradient>
-        </defs>
-        {/* concentric rings */}
-        {[40, 90, 140, 180].map((r) => (
-          <circle
-            key={r}
-            cx="200"
-            cy="200"
-            r={r}
-            fill="none"
-            stroke="#1A3C34"
-            strokeOpacity="0.12"
-            strokeWidth="1"
-          />
-        ))}
-        {/* crosshairs */}
-        <line x1="200" y1="20" x2="200" y2="380" stroke="#1A3C34" strokeOpacity="0.08" strokeWidth="0.5" />
-        <line x1="20" y1="200" x2="380" y2="200" stroke="#1A3C34" strokeOpacity="0.08" strokeWidth="0.5" />
-        {/* rotating sweep — very subtle */}
-        <g className="radar-sweep" style={{ transformOrigin: "200px 200px" }}>
-          <path d="M200 200 L200 20 A180 180 0 0 1 360 130 Z" fill="url(#sweep)" />
-        </g>
-        {/* target dots (tenders) */}
-        {[
-          { cx: 160, cy: 130, delay: "0s" },
-          { cx: 260, cy: 180, delay: "0.6s" },
-          { cx: 220, cy: 250, delay: "1.2s" },
-          { cx: 130, cy: 230, delay: "1.8s" },
-        ].map((d, i) => (
-          <g key={i} style={{ transformOrigin: `${d.cx}px ${d.cy}px` }}>
-            <circle
-              cx={d.cx}
-              cy={d.cy}
-              r="4"
-              fill="#7BA05B"
-              fillOpacity="0.35"
-            />
-            <circle
-              cx={d.cx}
-              cy={d.cy}
-              r="4"
-              fill="#7BA05B"
-              fillOpacity="0.35"
-              className="radar-ping"
-              style={{ animationDelay: d.delay, transformOrigin: `${d.cx}px ${d.cy}px` }}
-            />
-          </g>
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-function RadarBullet() {
-  return (
-    <span
-      aria-hidden="true"
-      className="mt-1.5 relative inline-flex h-3 w-3 shrink-0 items-center justify-center"
-    >
-      <span className="absolute inset-0 rounded-full border border-primary/50" />
-      <span className="h-1.5 w-1.5 rounded-full bg-accent border border-primary" />
-    </span>
   );
 }
 
@@ -181,15 +100,9 @@ export const Route = createFileRoute("/")({
 
 function Logo() {
   return (
-    <Link to="/" className="flex items-center gap-2.5 font-display font-bold text-xl text-primary">
-      <span className="relative flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
-        <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.75">
-          <circle cx="12" cy="12" r="9" />
-          <circle cx="12" cy="12" r="5" />
-          <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
-        </svg>
-      </span>
-      Tendrik
+    <Link to="/" className="flex items-center gap-2.5 font-display font-bold text-xl text-foreground">
+      <span className="h-8 w-8 bg-primary" aria-hidden="true" />
+      <span>Tendrik</span>
     </Link>
   );
 }
@@ -197,7 +110,7 @@ function Logo() {
 function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border/80 bg-background/80 backdrop-blur">
+      <header className="border-b-2 border-foreground bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Logo />
           <div className="flex items-center gap-2">
@@ -211,24 +124,22 @@ function Landing() {
         </div>
       </header>
 
-      <section className="relative overflow-hidden">
-        <RadarGraphic />
-        <div className="relative mx-auto max-w-4xl px-4 pt-24 pb-10 md:pt-32 md:pb-14 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-4 py-1.5 text-sm font-semibold text-accent-soft-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            100 % bezplatná služba
+      <section className="mx-auto max-w-6xl px-4 pt-16 pb-14 md:pt-24 md:pb-20">
+        <div className="max-w-4xl">
+          <div className="eyebrow flex items-center text-foreground">
+            <span className="red-square" aria-hidden="true" />
+            Bezplatný monitoring verejného obstarávania
           </div>
-          <h1 className="mt-8 font-display font-bold text-[2.75rem] leading-[1.02] md:text-7xl md:leading-[0.98] tracking-tight text-foreground">
-            Zákazky si ťa
+          <h1 className="mt-6 font-display font-bold text-[2.75rem] leading-[1.02] md:text-[5.5rem] md:leading-[0.98] tracking-tight text-foreground">
+            <span className="hero-underline">Zákazky</span> si&nbsp;ťa
             <br />
-            <span className="italic">nájdu samy.</span>
+            nájdu samy.
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto whitespace-pre-line">
+          <p className="mt-8 text-lg md:text-xl text-foreground/80 max-w-2xl whitespace-pre-line">
             Zadaj kľúčové slová, CPV kategórie a kraje.{"\n"}
             Tendrik ti každý deň prinesie zákazky, ktoré sa ťa naozaj týkajú.
           </p>
-          <ActiveTendersLine />
-          <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="mt-10 flex flex-col sm:flex-row gap-3">
             <Link to="/auth" search={{ mode: "signup" }}>
               <Button size="lg" className="w-full sm:w-auto">
                 Začať zadarmo
@@ -240,10 +151,13 @@ function Landing() {
               </Button>
             </Link>
           </div>
+          <ActiveTendersBlock />
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pt-10 pb-16 grid md:grid-cols-3 gap-4">
+      <hr className="rule-thick mx-auto max-w-6xl" />
+
+      <section className="mx-auto max-w-6xl px-4 py-14 grid md:grid-cols-3 gap-0 md:divide-x md:divide-border">
         {[
           {
             icon: Search,
@@ -260,51 +174,68 @@ function Landing() {
             title: "E-mailové notifikácie",
             text: "Zapnite si upozornenia a nezmeškajte deadline.",
           },
-        ].map((f) => (
-          <div
-            key={f.title}
-            className="rounded-lg border border-primary/15 bg-card p-6 card-hover"
-          >
-            <div className="h-10 w-10 rounded-md bg-accent-soft text-primary flex items-center justify-center">
-              <f.icon className="h-5 w-5" />
+        ].map((f, i) => (
+          <div key={f.title} className={`px-0 md:px-8 py-6 ${i === 0 ? "md:pl-0" : ""}`}>
+            <div className="eyebrow text-primary">Funkcia 0{i + 1}</div>
+            <div className="mt-3 flex items-center gap-3">
+              <f.icon className="h-5 w-5 text-foreground" />
+              <h3 className="font-display font-bold text-xl text-foreground">{f.title}</h3>
             </div>
-            <h3 className="mt-5 font-display font-bold text-lg">{f.title}</h3>
-            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+            <p className="mt-3 text-sm text-foreground/75 leading-relaxed">
               {f.text}
             </p>
           </div>
         ))}
       </section>
 
-      <section className="border-y border-primary/15 bg-primary/[0.04]">
-        <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-          <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
-            Prečo Tendrik?
-          </h2>
-          <ul className="mt-8 space-y-4 text-left inline-block">
+      <hr className="rule-thick mx-auto max-w-6xl" />
+
+      <section className="mx-auto max-w-6xl px-4 py-16 md:py-20">
+        <div className="grid md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16 items-start">
+          <div>
+            <div className="eyebrow flex items-center text-foreground">
+              <span className="red-square" aria-hidden="true" />
+              Prečo Tendrik
+            </div>
+            <h2 className="mt-5 font-display text-3xl md:text-5xl font-bold tracking-tight">
+              Úradný vestník, ktorý pracuje za vás.
+            </h2>
+          </div>
+          <ul className="divide-y divide-border border-t border-b border-foreground">
             {[
               "Bez poplatkov, bez skrytých nákladov",
               "Nastavenie za menej ako 2 minúty",
               "Odkaz priamo na zdroj zákazky",
               "Farebné upozornenie pri krátkom deadline",
               "Dáta priamo z oficiálnych zdrojov TED a vestníka ÚVO",
-            ].map((t) => (
-              <li key={t} className="flex items-start gap-3 text-base">
-                <RadarBullet />
-                <span>{t}</span>
+            ].map((t, i) => (
+              <li key={t} className="flex items-baseline gap-4 py-4">
+                <span className="num text-sm text-primary font-semibold w-8 tabular-nums">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="text-base md:text-lg text-foreground">{t}</span>
               </li>
             ))}
           </ul>
-          <div className="mt-10">
-            <Link to="/auth" search={{ mode: "signup" }}>
-              <Button size="lg">Vytvoriť účet zadarmo</Button>
-            </Link>
-          </div>
+        </div>
+        <div className="mt-10">
+          <Link to="/auth" search={{ mode: "signup" }}>
+            <Button size="lg">Vytvoriť účet zadarmo</Button>
+          </Link>
         </div>
       </section>
 
-      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Tendrik. Bezplatná služba pre slovenských podnikateľov.
+      <footer className="border-t-2 border-foreground py-8 text-sm">
+        <div className="mx-auto flex max-w-6xl flex-col md:flex-row items-start md:items-center justify-between gap-2 px-4">
+          <div className="flex items-center gap-2">
+            <span className="h-4 w-4 bg-primary" aria-hidden="true" />
+            <span className="font-display font-bold">Tendrik</span>
+            <span className="text-muted-foreground">
+              · © {new Date().getFullYear()} · Bezplatná služba pre slovenských podnikateľov
+            </span>
+          </div>
+          <div className="eyebrow text-muted-foreground">Ver. 1.0</div>
+        </div>
       </footer>
     </div>
   );
