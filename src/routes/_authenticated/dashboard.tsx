@@ -60,6 +60,15 @@ function Dashboard() {
   const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewCount, setPreviewCount] = useState(0);
+  const [backfill, setBackfill] = useState<{
+    source: "TED" | "UVO" | null;
+    status: string;
+    saved: number;
+    running: boolean;
+    done: boolean;
+  }>({ source: null, status: "", saved: 0, running: false, done: false });
+  const backfillStopRef = (Dashboard as any)._stopRef ?? { current: false };
+  (Dashboard as any)._stopRef = backfillStopRef;
 
   async function loadTenders() {
     const { data: t } = await supabase.from("tenders").select("*");
