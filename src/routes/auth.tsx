@@ -99,7 +99,7 @@ function AuthPage() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <Link to="/" className="block text-center mb-8 text-2xl font-bold text-primary">
-          Tendrik
+          Tendrik.sk
         </Link>
         <div className="rounded-xl border bg-card p-6 shadow-sm">
           <h1 className="text-2xl font-semibold text-center">
