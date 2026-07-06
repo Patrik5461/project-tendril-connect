@@ -225,7 +225,10 @@ function TenderCard({ tender }: { tender: Tender }) {
   return (
     <article className="rounded-xl border bg-card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
       <div>
-        <h3 className="font-semibold text-lg leading-snug">{tender.title}</h3>
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold text-lg leading-snug">{tender.title}</h3>
+          <SourceBadge source={tender.source} />
+        </div>
         <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
           <Building2 className="h-4 w-4" />
           {tender.contracting_authority}
