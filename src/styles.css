@@ -90,9 +90,12 @@
   --muted: oklch(0.94 0.012 90);
   --muted-foreground: oklch(0.42 0.015 170);
 
-  /* #C5F547 warm yellow-green — brand accent; dark text on top */
-  --accent: oklch(0.925 0.2 125);
-  --accent-foreground: oklch(0.2 0.015 170);
+  /* #7BA05B muted sage — brand accent */
+  --accent: oklch(0.66 0.11 135);
+  --accent-foreground: oklch(1 0 0);
+  /* #E8F0E0 soft green surface for chips / icon tiles */
+  --accent-soft: oklch(0.955 0.02 135);
+  --accent-soft-foreground: oklch(0.32 0.04 170);
 
   /* #D9552B brick — deadline warning */
   --destructive: oklch(0.6 0.185 40);
