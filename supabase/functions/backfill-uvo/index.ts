@@ -206,6 +206,7 @@ type DetailFields = {
   region: string | null;
   deadline: string | null;
   estimated_value: number | null;
+  currency: string | null;
 };
 
 function parseDetail(html: string): DetailFields {
@@ -264,8 +265,12 @@ function parseDetail(html: string): DetailFields {
     const n = Number(cleaned);
     if (!isNaN(n)) estimated_value = n;
   }
+  const curStr = findVal(
+    /Predpokladaná hodnota \(BT-27-Procedure\) \(mena\):\s*([A-Za-z]{3})/i,
+  );
+  const currency = curStr ? curStr.toUpperCase() : (estimated_value != null ? "EUR" : null);
 
-  return { form_type, cpv, region, deadline, estimated_value };
+  return { form_type, cpv, region, deadline, estimated_value, currency };
 }
 
 async function processIssue(
@@ -317,6 +322,7 @@ async function processIssue(
           region: d.region,
           deadline: d.deadline,
           estimated_value: d.estimated_value,
+          currency: d.currency,
           source: "UVO",
           source_url: n.detail_url,
           published_at: new Date().toISOString(),

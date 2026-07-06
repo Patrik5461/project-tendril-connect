@@ -7,8 +7,18 @@ function formatSk(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
 }
 
+function formatBigEur(n: number): string {
+  if (n >= 1_000_000_000) {
+    const v = n / 1_000_000_000;
+    return `${v.toFixed(1).replace(".", ",")} mld €`;
+  }
+  const v = n / 1_000_000;
+  return `${v.toFixed(0)} mil. €`;
+}
+
 function ActiveTendersLine() {
   const [count, setCount] = useState<number | null>(null);
+  const [total, setTotal] = useState<number | null>(null);
   const [display, setDisplay] = useState(0);
   const [failed, setFailed] = useState(false);
 
@@ -20,6 +30,7 @@ function ActiveTendersLine() {
         if (cancelled) return;
         if (typeof d?.active_tenders === "number") setCount(d.active_tenders);
         else setFailed(true);
+        if (typeof d?.total_value_eur === "number") setTotal(d.total_value_eur);
       })
       .catch(() => !cancelled && setFailed(true));
     return () => {
@@ -58,6 +69,12 @@ function ActiveTendersLine() {
         <br />
         z oficiálnych zdrojov TED a ÚVO · aktualizované denne
       </span>
+      {total != null && total > 0 && (
+        <span className="text-base md:text-lg text-foreground/80 text-center">
+          v hodnote viac než{" "}
+          <span className="num font-semibold text-primary">{formatBigEur(total)}</span>
+        </span>
+      )}
     </div>
   );
 }

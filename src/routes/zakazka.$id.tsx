@@ -147,6 +147,23 @@ function TenderDetail() {
         <span>{tender.contracting_authority}</span>
       </div>
 
+      {tender.estimated_value != null && (
+        <div className="mt-6 rounded-xl border border-primary/20 bg-accent-soft p-5 flex items-center gap-3">
+          <Coins className="h-6 w-6 text-primary" />
+          <div>
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+              Predpokladaná hodnota
+            </div>
+            <div className="num text-2xl md:text-3xl font-bold text-primary leading-tight">
+              {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
+                .format(Number(tender.estimated_value))
+                .replace(/\u00a0/g, " ")}{" "}
+              €
+            </div>
+          </div>
+        </div>
+      )}
+
       <dl className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 rounded-xl border border-primary/15 bg-card p-5">
         <Field
           icon={<Calendar className="h-4 w-4" />}
@@ -212,20 +229,6 @@ function TenderDetail() {
             )
           }
         />
-        {tender.estimated_value != null && (
-          <Field
-            icon={<Coins className="h-4 w-4" />}
-            label="Predpokladaná hodnota"
-            value={
-              <span className="num font-medium">
-                {new Intl.NumberFormat("sk-SK").format(
-                  Number(tender.estimated_value),
-                )}{" "}
-                €
-              </span>
-            }
-          />
-        )}
       </dl>
 
       {tender.description && (

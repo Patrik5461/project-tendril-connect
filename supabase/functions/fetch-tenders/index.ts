@@ -94,6 +94,37 @@ function pickRegion(value: unknown): string | null {
   return null;
 }
 
+function collectNumbers(v: unknown, out: number[]) {
+  if (v === null || v === undefined) return;
+  if (typeof v === "number" && isFinite(v)) { out.push(v); return; }
+  if (typeof v === "string") {
+    const n = Number(v.replace(/\s/g, "").replace(",", "."));
+    if (isFinite(n) && n > 0) out.push(n);
+    return;
+  }
+  if (Array.isArray(v)) { v.forEach((x) => collectNumbers(x, out)); return; }
+  if (typeof v === "object") Object.values(v as Record<string, unknown>).forEach((x) => collectNumbers(x, out));
+}
+
+function collectCurrencies(v: unknown, out: string[]) {
+  if (v === null || v === undefined) return;
+  if (typeof v === "string") { if (/^[A-Z]{3}$/i.test(v.trim())) out.push(v.trim().toUpperCase()); return; }
+  if (Array.isArray(v)) { v.forEach((x) => collectCurrencies(x, out)); return; }
+  if (typeof v === "object") Object.values(v as Record<string, unknown>).forEach((x) => collectCurrencies(x, out));
+}
+
+function pickTedValue(n: Record<string, unknown>): { value: number | null; currency: string | null } {
+  const nums: number[] = [];
+  collectNumbers(n["estimated-value-glo"], nums);
+  if (nums.length === 0) collectNumbers(n["estimated-value-lot"], nums);
+  const curs: string[] = [];
+  collectCurrencies(n["estimated-value-cur-glo"], curs);
+  if (curs.length === 0) collectCurrencies(n["estimated-value-cur-lot"], curs);
+  const value = nums.length ? nums.reduce((a, b) => a + b, 0) : null;
+  const currency = curs[0] ?? (value != null ? "EUR" : null);
+  return { value, currency };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -130,6 +161,10 @@ Deno.serve(async (req) => {
             "deadline-receipt-request-date-lot",
             "classification-cpv",
             "place-of-performance",
+            "estimated-value-glo",
+            "estimated-value-cur-glo",
+            "estimated-value-lot",
+            "estimated-value-cur-lot",
           ],
           limit: 100,
           page: 1,
@@ -171,6 +206,7 @@ Deno.serve(async (req) => {
         parseTedDate(n["deadline-receipt-tender-date-lot"]) ??
         parseTedDate(n["deadline-receipt-request-date-lot"]);
       const region = pickRegion(n["place-of-performance"]);
+      const { value: estimated_value, currency } = pickTedValue(n);
       const sourceUrl = `https://ted.europa.eu/sk/notice/-/detail/${pubNumber}`;
 
       const { data: existing } = await supabase
@@ -188,6 +224,8 @@ Deno.serve(async (req) => {
           region,
           published_at: publishedAt,
           deadline,
+          estimated_value,
+          currency,
           source: "TED",
           source_url: sourceUrl,
         },
