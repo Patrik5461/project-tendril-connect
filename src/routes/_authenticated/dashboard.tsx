@@ -70,13 +70,16 @@ function Dashboard() {
     const cpvs = prefs.cpv_codes;
     const regs = prefs.regions;
     const wholeSk = regs.includes("Celé Slovensko");
+    const hasFilters = kws.length > 0 || cpvs.length > 0;
 
     let result = tenders.filter((t) => {
-      const regionOk = wholeSk || regs.includes(t.region);
+      const regionOk = wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
       if (!regionOk) return false;
-      const text = (t.title + " " + t.description).toLowerCase();
+      if (!hasFilters) return true;
+      const text = (t.title + " " + (t.description ?? "")).toLowerCase();
       const keywordMatch = kws.length > 0 && kws.some((k) => text.includes(k));
-      const cpvMatch = cpvs.length > 0 && cpvs.some((c) => t.cpv_code.startsWith(c));
+      const cpvMatch =
+        cpvs.length > 0 && !!t.cpv_code && cpvs.some((c) => t.cpv_code!.startsWith(c));
       return keywordMatch || cpvMatch;
     });
 
@@ -86,13 +89,13 @@ function Dashboard() {
         (t) =>
           t.title.toLowerCase().includes(q) ||
           t.contracting_authority.toLowerCase().includes(q) ||
-          t.description.toLowerCase().includes(q),
+          (t.description ?? "").toLowerCase().includes(q),
       );
     }
 
     result.sort((a, b) => {
-      if (sort === "deadline") return a.deadline.localeCompare(b.deadline);
-      return b.published_at.localeCompare(a.published_at);
+      if (sort === "deadline") return (a.deadline ?? "").localeCompare(b.deadline ?? "");
+      return (b.published_at ?? "").localeCompare(a.published_at ?? "");
     });
     return result;
   }, [tenders, prefs, sort, search]);
