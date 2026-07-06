@@ -25,12 +25,19 @@ export const Route = createFileRoute("/api/public/stats")({
           });
 
           const { data, error } = await supabase.rpc(
-            "get_active_tenders_count",
+            "get_active_tenders_stats",
           );
           if (error) throw error;
+          const row = Array.isArray(data) ? data[0] : data;
+          const active = Number(row?.active_count ?? 0);
+          const total = Number(row?.total_value_eur ?? 0);
 
           return new Response(
-            JSON.stringify({ active_tenders: data ?? 0, sources: 2 }),
+            JSON.stringify({
+              active_tenders: active,
+              total_value_eur: total,
+              sources: 2,
+            }),
             { status: 200, headers },
           );
         } catch (e) {
