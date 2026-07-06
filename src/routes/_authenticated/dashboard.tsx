@@ -110,7 +110,7 @@ function Dashboard() {
   useEffect(() => {
     const t = setTimeout(() => {
       if (searchInput !== q) {
-        navigate({ search: (p) => ({ ...p, q: searchInput }), replace: true });
+        navigate({ search: (p: any) => ({ ...p, q: searchInput }), replace: true });
       }
     }, 250);
     return () => clearTimeout(t);
@@ -464,7 +464,7 @@ function Dashboard() {
         <Tabs
           value={tab}
           onValueChange={(v) =>
-            navigate({ search: (p) => ({ ...p, tab: v as "foryou" | "saved" | "hidden" }) })
+            navigate({ search: (p: any) => ({ ...p, tab: v as "foryou" | "saved" | "hidden" }) })
           }
         >
           <TabsList>
@@ -488,7 +488,7 @@ function Dashboard() {
             value={sort}
             onValueChange={(v) =>
               navigate({
-                search: (p) => ({ ...p, sort: v as "deadline" | "newest" | "value" }),
+                search: (p: any) => ({ ...p, sort: v as "deadline" | "newest" | "value" }),
               })
             }
           >
