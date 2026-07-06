@@ -40,6 +40,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-foreground: var(--accent-soft-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-warning: var(--warning);
@@ -90,9 +92,12 @@
   --muted: oklch(0.94 0.012 90);
   --muted-foreground: oklch(0.42 0.015 170);
 
-  /* #C5F547 warm yellow-green — brand accent; dark text on top */
-  --accent: oklch(0.925 0.2 125);
-  --accent-foreground: oklch(0.2 0.015 170);
+  /* #7BA05B muted sage — brand accent */
+  --accent: oklch(0.66 0.11 135);
+  --accent-foreground: oklch(1 0 0);
+  /* #E8F0E0 soft green surface for chips / icon tiles */
+  --accent-soft: oklch(0.955 0.02 135);
+  --accent-soft-foreground: oklch(0.32 0.04 170);
 
   /* #D9552B brick — deadline warning */
   --destructive: oklch(0.6 0.185 40);
@@ -103,7 +108,7 @@
   /* Border in ink green at ~15% */
   --border: oklch(0.32 0.04 170 / 15%);
   --input: oklch(0.32 0.04 170 / 20%);
-  --ring: oklch(0.925 0.2 125);
+  --ring: oklch(0.66 0.11 135);
 
   --chart-1: oklch(0.32 0.04 170);
   --chart-2: oklch(0.925 0.2 125);

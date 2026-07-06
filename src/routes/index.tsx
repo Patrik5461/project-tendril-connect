@@ -45,15 +45,15 @@ function ActiveTendersLine() {
   if (failed) return null;
 
   return (
-    <div className="mt-10 flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1">
+    <div className="mt-12 flex flex-col items-center gap-3">
       {count === null ? (
-        <span className="inline-block h-12 w-40 rounded-md bg-muted animate-pulse" />
+        <span className="inline-block h-20 w-40 rounded-md bg-muted animate-pulse" />
       ) : (
-        <span className="num text-5xl md:text-6xl font-bold text-accent-foreground bg-accent px-3 py-0.5 rounded-md">
+        <span className="num text-7xl md:text-8xl font-bold text-primary leading-none">
           {formatSk(display)}
         </span>
       )}
-      <span className="text-sm md:text-base text-muted-foreground">
+      <span className="text-sm md:text-base text-muted-foreground text-center max-w-md">
         aktívnych zákaziek práve teraz · z oficiálnych zdrojov TED a ÚVO ·
         aktualizované denne
       </span>
@@ -64,7 +64,7 @@ function ActiveTendersLine() {
 function RadarGraphic() {
   return (
     <div
-      className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.18]"
+      className="pointer-events-none absolute -top-32 -right-40 md:-top-40 md:-right-56"
       aria-hidden="true"
     >
       <svg
@@ -73,8 +73,8 @@ function RadarGraphic() {
       >
         <defs>
           <radialGradient id="sweep" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#C5F547" stopOpacity="0" />
-            <stop offset="100%" stopColor="#C5F547" stopOpacity="0.9" />
+            <stop offset="0%" stopColor="#1A3C34" stopOpacity="0" />
+            <stop offset="100%" stopColor="#1A3C34" stopOpacity="0.08" />
           </radialGradient>
         </defs>
         {/* concentric rings */}
@@ -86,13 +86,14 @@ function RadarGraphic() {
             r={r}
             fill="none"
             stroke="#1A3C34"
+            strokeOpacity="0.12"
             strokeWidth="1"
           />
         ))}
         {/* crosshairs */}
-        <line x1="200" y1="20" x2="200" y2="380" stroke="#1A3C34" strokeWidth="0.5" />
-        <line x1="20" y1="200" x2="380" y2="200" stroke="#1A3C34" strokeWidth="0.5" />
-        {/* rotating sweep */}
+        <line x1="200" y1="20" x2="200" y2="380" stroke="#1A3C34" strokeOpacity="0.08" strokeWidth="0.5" />
+        <line x1="20" y1="200" x2="380" y2="200" stroke="#1A3C34" strokeOpacity="0.08" strokeWidth="0.5" />
+        {/* rotating sweep — very subtle */}
         <g className="radar-sweep" style={{ transformOrigin: "200px 200px" }}>
           <path d="M200 200 L200 20 A180 180 0 0 1 360 130 Z" fill="url(#sweep)" />
         </g>
@@ -107,16 +108,16 @@ function RadarGraphic() {
             <circle
               cx={d.cx}
               cy={d.cy}
-              r="5"
-              fill="#C5F547"
-              stroke="#1A3C34"
-              strokeWidth="1"
+              r="4"
+              fill="#7BA05B"
+              fillOpacity="0.35"
             />
             <circle
               cx={d.cx}
               cy={d.cy}
-              r="5"
-              fill="#C5F547"
+              r="4"
+              fill="#7BA05B"
+              fillOpacity="0.35"
               className="radar-ping"
               style={{ animationDelay: d.delay, transformOrigin: `${d.cx}px ${d.cy}px` }}
             />
@@ -195,8 +196,8 @@ function Landing() {
       <section className="relative overflow-hidden">
         <RadarGraphic />
         <div className="relative mx-auto max-w-4xl px-4 py-24 md:py-32 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-accent-foreground">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+          <div className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-4 py-1.5 text-sm font-semibold text-accent-soft-foreground">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             100 % bezplatná služba
           </div>
           <h1 className="mt-8 font-display font-bold text-[2.75rem] leading-[1.02] md:text-7xl md:leading-[0.98] tracking-tight text-foreground">
@@ -246,7 +247,7 @@ function Landing() {
             key={f.title}
             className="rounded-lg border border-primary/15 bg-card p-6 card-hover"
           >
-            <div className="h-10 w-10 rounded-md bg-accent text-accent-foreground flex items-center justify-center">
+            <div className="h-10 w-10 rounded-md bg-accent-soft text-primary flex items-center justify-center">
               <f.icon className="h-5 w-5" />
             </div>
             <h3 className="mt-5 font-display font-bold text-lg">{f.title}</h3>
