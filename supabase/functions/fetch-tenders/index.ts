@@ -94,6 +94,37 @@ function pickRegion(value: unknown): string | null {
   return null;
 }
 
+function collectNumbers(v: unknown, out: number[]) {
+  if (v === null || v === undefined) return;
+  if (typeof v === "number" && isFinite(v)) { out.push(v); return; }
+  if (typeof v === "string") {
+    const n = Number(v.replace(/\s/g, "").replace(",", "."));
+    if (isFinite(n) && n > 0) out.push(n);
+    return;
+  }
+  if (Array.isArray(v)) { v.forEach((x) => collectNumbers(x, out)); return; }
+  if (typeof v === "object") Object.values(v as Record<string, unknown>).forEach((x) => collectNumbers(x, out));
+}
+
+function collectCurrencies(v: unknown, out: string[]) {
+  if (v === null || v === undefined) return;
+  if (typeof v === "string") { if (/^[A-Z]{3}$/i.test(v.trim())) out.push(v.trim().toUpperCase()); return; }
+  if (Array.isArray(v)) { v.forEach((x) => collectCurrencies(x, out)); return; }
+  if (typeof v === "object") Object.values(v as Record<string, unknown>).forEach((x) => collectCurrencies(x, out));
+}
+
+function pickTedValue(n: Record<string, unknown>): { value: number | null; currency: string | null } {
+  const nums: number[] = [];
+  collectNumbers(n["estimated-value-glo"], nums);
+  if (nums.length === 0) collectNumbers(n["estimated-value-lot"], nums);
+  const curs: string[] = [];
+  collectCurrencies(n["estimated-value-cur-glo"], curs);
+  if (curs.length === 0) collectCurrencies(n["estimated-value-cur-lot"], curs);
+  const value = nums.length ? nums.reduce((a, b) => a + b, 0) : null;
+  const currency = curs[0] ?? (value != null ? "EUR" : null);
+  return { value, currency };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
