@@ -395,8 +395,10 @@ function Dashboard() {
       if (sort === "newest") {
         return (b.published_at ?? "").localeCompare(a.published_at ?? "");
       }
-      // value
-      return (Number(b.estimated_value) || 0) - (Number(a.estimated_value) || 0);
+      // value — nulls last
+      const av = a.estimated_value == null ? -1 : Number(a.estimated_value);
+      const bv = b.estimated_value == null ? -1 : Number(b.estimated_value);
+      return bv - av;
     });
     return result;
   }, [tenders, actions, matchesPrefs, tab, q, sort]);
