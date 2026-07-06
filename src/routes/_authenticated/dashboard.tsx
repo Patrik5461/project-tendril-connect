@@ -235,7 +235,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {filtered.list.length === 0 ? (
         <div className="mt-12 rounded-xl border bg-card p-12 text-center">
           <p className="text-muted-foreground">
             Žiadne zákazky nezodpovedajú vašim filtrom. Skúste upraviť{" "}
