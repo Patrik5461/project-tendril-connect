@@ -505,6 +505,10 @@ function Dashboard() {
               <SelectItem value="value">Najvyššia hodnota</SelectItem>
             </SelectContent>
           </Select>
+          <ViewToggle
+            view={view}
+            onChange={(v) => navigate({ search: (p: any) => ({ ...p, view: v }) })}
+          />
         </div>
       </div>
 
