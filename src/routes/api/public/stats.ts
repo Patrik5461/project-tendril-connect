@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/api/public/stats")({
   server: {
@@ -10,26 +12,25 @@ export const Route = createFileRoute("/api/public/stats")({
           "Access-Control-Allow-Origin": "*",
         };
         try {
-          const { supabaseAdmin } = await import(
-            "@/integrations/supabase/client.server"
+          const url = process.env.SUPABASE_URL;
+          const key = process.env.SUPABASE_PUBLISHABLE_KEY;
+          if (!url || !key) throw new Error("Missing Supabase public config");
+
+          const supabase = createClient<Database>(url, key, {
+            auth: {
+              storage: undefined,
+              persistSession: false,
+              autoRefreshToken: false,
+            },
+          });
+
+          const { data, error } = await supabase.rpc(
+            "get_active_tenders_count",
           );
-
-          const nowIso = new Date().toISOString();
-          const thirtyDaysAgoIso = new Date(
-            Date.now() - 30 * 24 * 60 * 60 * 1000,
-          ).toISOString();
-
-          const { count, error } = await supabaseAdmin
-            .from("tenders")
-            .select("id", { count: "exact", head: true })
-            .or(
-              `deadline.gte.${nowIso},and(deadline.is.null,published_at.gte.${thirtyDaysAgoIso})`,
-            );
-
           if (error) throw error;
 
           return new Response(
-            JSON.stringify({ active_tenders: count ?? 0, sources: 2 }),
+            JSON.stringify({ active_tenders: data ?? 0, sources: 2 }),
             { status: 200, headers },
           );
         } catch (e) {
