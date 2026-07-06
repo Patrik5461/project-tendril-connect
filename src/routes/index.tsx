@@ -56,7 +56,7 @@ function ActiveTendersBlock() {
   if (failed) return null;
 
   return (
-    <div className="mt-14 flex flex-col items-start gap-2">
+    <div className="mt-8 pt-6 border-t border-border flex flex-col items-start gap-2">
       {count === null ? (
         <span className="inline-block h-16 w-32 bg-muted" />
       ) : (
@@ -74,6 +74,55 @@ function ActiveTendersBlock() {
         Aktívnych zákaziek · Zdroje TED &amp; ÚVO · Aktualizované denne
       </span>
     </div>
+  );
+}
+
+function TenderMock() {
+  return (
+    <aside
+      aria-hidden="true"
+      className="hidden md:block relative border border-foreground bg-card p-6 rotate-[-0.6deg]"
+    >
+      <div className="flex items-center justify-between">
+        <span className="inline-flex items-center border border-primary text-primary text-[0.68rem] font-semibold uppercase tracking-[0.16em] px-1.5 py-0.5">
+          ÚVO
+        </span>
+        <span className="eyebrow text-muted-foreground">Č. 2026 / 184</span>
+      </div>
+      <h3 className="mt-5 font-display font-bold text-2xl leading-tight text-foreground">
+        Rekonštrukcia základnej školy na Hviezdoslavovej ulici
+      </h3>
+      <p className="mt-2 text-sm text-foreground/70">
+        Mesto Prievidza · Trenčiansky kraj
+      </p>
+      <hr className="my-5 border-border" />
+      <dl className="grid grid-cols-2 gap-y-3 gap-x-4">
+        <div>
+          <dt className="eyebrow text-muted-foreground">Hodnota</dt>
+          <dd className="num mt-1 text-lg font-semibold text-foreground">1&nbsp;250&nbsp;000&nbsp;€</dd>
+        </div>
+        <div>
+          <dt className="eyebrow text-muted-foreground">CPV</dt>
+          <dd className="num mt-1 text-sm text-foreground">45214210</dd>
+        </div>
+        <div>
+          <dt className="eyebrow text-muted-foreground">Zverejnené</dt>
+          <dd className="num mt-1 text-sm text-foreground">04.&nbsp;07.&nbsp;2026</dd>
+        </div>
+        <div>
+          <dt className="eyebrow text-muted-foreground">Deadline</dt>
+          <dd className="mt-1">
+            <span className="inline-flex items-center bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.14em] px-2 py-1">
+              8 dní
+            </span>
+          </dd>
+        </div>
+      </dl>
+      <div className="mt-6 pt-4 border-t-2 border-foreground flex items-center justify-between">
+        <span className="eyebrow text-muted-foreground">Ukážka záznamu</span>
+        <span className="h-2.5 w-2.5 bg-primary" aria-hidden="true" />
+      </div>
+    </aside>
   );
 }
 
@@ -101,7 +150,15 @@ export const Route = createFileRoute("/")({
 function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2.5 font-display font-bold text-xl text-foreground">
-      <span className="h-8 w-8 bg-primary" aria-hidden="true" />
+      <span
+        className="relative inline-flex h-8 w-8 items-center justify-center bg-primary"
+        aria-hidden="true"
+      >
+        <span className="font-display font-bold text-primary-foreground text-lg leading-none translate-y-[-1px]">
+          T
+        </span>
+        <span className="absolute inset-0 border border-primary-foreground/30" />
+      </span>
       <span>Tendrik</span>
     </Link>
   );
@@ -125,33 +182,38 @@ function Landing() {
       </header>
 
       <section className="mx-auto max-w-6xl px-4 pt-16 pb-14 md:pt-24 md:pb-20">
-        <div className="max-w-4xl">
-          <div className="eyebrow flex items-center text-foreground">
-            <span className="red-square" aria-hidden="true" />
-            Bezplatný monitoring verejného obstarávania
+        <div className="grid md:grid-cols-[1.35fr_1fr] gap-10 md:gap-14 items-start">
+          <div>
+            <div className="eyebrow flex items-center text-foreground">
+              <span className="red-square" aria-hidden="true" />
+              Bezplatný monitoring verejného obstarávania
+            </div>
+            <h1 className="mt-6 font-display font-bold text-[2.75rem] leading-[1.02] md:text-[5rem] md:leading-[0.98] tracking-tight text-foreground">
+              <span className="hero-underline">Zákazky</span> si&nbsp;ťa
+              <br />
+              nájdu samy.
+            </h1>
+            <p className="mt-8 text-lg md:text-xl text-foreground/80 max-w-2xl whitespace-pre-line">
+              Zadaj kľúčové slová, CPV kategórie a kraje.{"\n"}
+              Tendrik ti každý deň prinesie zákazky, ktoré sa ťa naozaj týkajú.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row gap-3">
+              <Link to="/auth" search={{ mode: "signup" }}>
+                <Button size="lg" className="w-full sm:w-auto">
+                  Začať zadarmo
+                </Button>
+              </Link>
+              <Link to="/auth" search={{ mode: "login" }}>
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  Mám už účet
+                </Button>
+              </Link>
+            </div>
+            <ActiveTendersBlock />
           </div>
-          <h1 className="mt-6 font-display font-bold text-[2.75rem] leading-[1.02] md:text-[5.5rem] md:leading-[0.98] tracking-tight text-foreground">
-            <span className="hero-underline">Zákazky</span> si&nbsp;ťa
-            <br />
-            nájdu samy.
-          </h1>
-          <p className="mt-8 text-lg md:text-xl text-foreground/80 max-w-2xl whitespace-pre-line">
-            Zadaj kľúčové slová, CPV kategórie a kraje.{"\n"}
-            Tendrik ti každý deň prinesie zákazky, ktoré sa ťa naozaj týkajú.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-3">
-            <Link to="/auth" search={{ mode: "signup" }}>
-              <Button size="lg" className="w-full sm:w-auto">
-                Začať zadarmo
-              </Button>
-            </Link>
-            <Link to="/auth" search={{ mode: "login" }}>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Mám už účet
-              </Button>
-            </Link>
+          <div className="md:pt-4">
+            <TenderMock />
           </div>
-          <ActiveTendersBlock />
         </div>
       </section>
 
