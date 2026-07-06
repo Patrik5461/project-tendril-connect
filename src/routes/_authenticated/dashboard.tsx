@@ -96,7 +96,7 @@ function Dashboard() {
   }
 
   const filtered = useMemo(() => {
-    if (!prefs) return [];
+    if (!prefs) return { list: [] as Tender[], hiddenExpired: 0 };
     const kws = prefs.keywords.map((k) => k.toLowerCase());
     const cpvs = prefs.cpv_codes;
     const regs = prefs.regions;
