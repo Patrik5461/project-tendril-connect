@@ -66,6 +66,7 @@ const searchSchema = z.object({
   tab: fallback(z.enum(["foryou", "saved", "hidden"]), "foryou").default("foryou"),
   sort: fallback(z.enum(["deadline", "newest", "value"]), "deadline").default("deadline"),
   q: fallback(z.string(), "").default(""),
+  view: fallback(z.enum(["list", "grid"]), "list").default("list"),
 });
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
