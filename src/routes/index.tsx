@@ -182,33 +182,38 @@ function Landing() {
       </header>
 
       <section className="mx-auto max-w-6xl px-4 pt-16 pb-14 md:pt-24 md:pb-20">
-        <div className="max-w-4xl">
-          <div className="eyebrow flex items-center text-foreground">
-            <span className="red-square" aria-hidden="true" />
-            Bezplatný monitoring verejného obstarávania
+        <div className="grid md:grid-cols-[1.35fr_1fr] gap-10 md:gap-14 items-start">
+          <div>
+            <div className="eyebrow flex items-center text-foreground">
+              <span className="red-square" aria-hidden="true" />
+              Bezplatný monitoring verejného obstarávania
+            </div>
+            <h1 className="mt-6 font-display font-bold text-[2.75rem] leading-[1.02] md:text-[5rem] md:leading-[0.98] tracking-tight text-foreground">
+              <span className="hero-underline">Zákazky</span> si&nbsp;ťa
+              <br />
+              nájdu samy.
+            </h1>
+            <p className="mt-8 text-lg md:text-xl text-foreground/80 max-w-2xl whitespace-pre-line">
+              Zadaj kľúčové slová, CPV kategórie a kraje.{"\n"}
+              Tendrik ti každý deň prinesie zákazky, ktoré sa ťa naozaj týkajú.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row gap-3">
+              <Link to="/auth" search={{ mode: "signup" }}>
+                <Button size="lg" className="w-full sm:w-auto">
+                  Začať zadarmo
+                </Button>
+              </Link>
+              <Link to="/auth" search={{ mode: "login" }}>
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  Mám už účet
+                </Button>
+              </Link>
+            </div>
+            <ActiveTendersBlock />
           </div>
-          <h1 className="mt-6 font-display font-bold text-[2.75rem] leading-[1.02] md:text-[5.5rem] md:leading-[0.98] tracking-tight text-foreground">
-            <span className="hero-underline">Zákazky</span> si&nbsp;ťa
-            <br />
-            nájdu samy.
-          </h1>
-          <p className="mt-8 text-lg md:text-xl text-foreground/80 max-w-2xl whitespace-pre-line">
-            Zadaj kľúčové slová, CPV kategórie a kraje.{"\n"}
-            Tendrik ti každý deň prinesie zákazky, ktoré sa ťa naozaj týkajú.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-3">
-            <Link to="/auth" search={{ mode: "signup" }}>
-              <Button size="lg" className="w-full sm:w-auto">
-                Začať zadarmo
-              </Button>
-            </Link>
-            <Link to="/auth" search={{ mode: "login" }}>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                Mám už účet
-              </Button>
-            </Link>
+          <div className="md:pt-4">
+            <TenderMock />
           </div>
-          <ActiveTendersBlock />
         </div>
       </section>
 
