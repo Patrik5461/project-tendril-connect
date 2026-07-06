@@ -169,8 +169,9 @@ function Dashboard() {
 }
 
 function TenderCard({ tender }: { tender: Tender }) {
-  const daysLeft = differenceInDays(parseISO(tender.deadline), new Date());
-  const urgent = daysLeft < 7;
+  const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
+  const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
+  const urgent = daysLeft !== null && daysLeft < 7;
   return (
     <article className="rounded-xl border bg-card p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
       <div>
@@ -181,13 +182,17 @@ function TenderCard({ tender }: { tender: Tender }) {
         </div>
         <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />
-          {tender.region}
-          <span className="ml-2 font-mono text-xs bg-secondary px-1.5 py-0.5 rounded">
-            CPV {tender.cpv_code}
-          </span>
+          {tender.region ?? "—"}
+          {tender.cpv_code && (
+            <span className="ml-2 font-mono text-xs bg-secondary px-1.5 py-0.5 rounded">
+              CPV {tender.cpv_code}
+            </span>
+          )}
         </div>
       </div>
-      <p className="text-sm text-muted-foreground line-clamp-2">{tender.description}</p>
+      {tender.description && (
+        <p className="text-sm text-muted-foreground line-clamp-2">{tender.description}</p>
+      )}
       <div className="mt-auto flex items-center justify-between pt-2 border-t">
         <div
           className={`flex items-center gap-1.5 text-sm font-medium ${
@@ -196,18 +201,23 @@ function TenderCard({ tender }: { tender: Tender }) {
         >
           {urgent ? <AlertCircle className="h-4 w-4" /> : <Calendar className="h-4 w-4" />}
           <span>
-            {format(parseISO(tender.deadline), "d.M.yyyy")}
-            <span className="ml-1 text-xs opacity-80">
-              ({daysLeft < 0 ? "po termíne" : `${daysLeft} dní`})
-            </span>
+            {deadlineDate ? format(deadlineDate, "d.M.yyyy") : "Neurčené"}
+            {daysLeft !== null && (
+              <span className="ml-1 text-xs opacity-80">
+                ({daysLeft < 0 ? "po termíne" : `${daysLeft} dní`})
+              </span>
+            )}
           </span>
         </div>
-        <a href={tender.source_url} target="_blank" rel="noopener noreferrer">
-          <Button size="sm" variant="outline">
-            Zdroj <ExternalLink className="h-3 w-3 ml-1" />
-          </Button>
-        </a>
+        {tender.source_url && (
+          <a href={tender.source_url} target="_blank" rel="noopener noreferrer">
+            <Button size="sm" variant="outline">
+              Zdroj <ExternalLink className="h-3 w-3 ml-1" />
+            </Button>
+          </a>
+        )}
       </div>
     </article>
   );
+}
 }
