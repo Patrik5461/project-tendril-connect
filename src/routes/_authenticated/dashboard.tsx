@@ -55,6 +55,11 @@ function Dashboard() {
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState<"TED" | "UVO" | null>(null);
   const [showExpired, setShowExpired] = useState(false);
+  const [sendingDigest, setSendingDigest] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewCount, setPreviewCount] = useState(0);
 
   async function loadTenders() {
     const { data: t } = await supabase.from("tenders").select("*");
