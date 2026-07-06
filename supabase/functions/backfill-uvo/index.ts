@@ -322,6 +322,7 @@ async function processIssue(
           region: d.region,
           deadline: d.deadline,
           estimated_value: d.estimated_value,
+          currency: d.currency,
           source: "UVO",
           source_url: n.detail_url,
           published_at: new Date().toISOString(),
