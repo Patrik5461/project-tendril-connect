@@ -10,7 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Calendar, ExternalLink, Building2, MapPin, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Calendar, ExternalLink, Building2, MapPin, AlertCircle, RefreshCw, Mail, Send } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { toast } from "sonner";
 
