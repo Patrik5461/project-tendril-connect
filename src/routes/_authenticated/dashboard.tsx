@@ -174,9 +174,25 @@ function Dashboard() {
               <SelectItem value="published">Podľa dátumu zverejnenia</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={handleRefresh} disabled={refreshing} variant="default">
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
-            {refreshing ? "Aktualizujem..." : "Aktualizovať zákazky"}
+          <Button
+            onClick={() => handleRefresh("TED")}
+            disabled={refreshing !== null}
+            variant="default"
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${refreshing === "TED" ? "animate-spin" : ""}`}
+            />
+            {refreshing === "TED" ? "Aktualizujem..." : "Aktualizovať TED"}
+          </Button>
+          <Button
+            onClick={() => handleRefresh("UVO")}
+            disabled={refreshing !== null}
+            variant="secondary"
+          >
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${refreshing === "UVO" ? "animate-spin" : ""}`}
+            />
+            {refreshing === "UVO" ? "Aktualizujem..." : "Aktualizovať ÚVO"}
           </Button>
         </div>
       </div>
