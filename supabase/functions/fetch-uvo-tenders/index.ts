@@ -231,10 +231,19 @@ Deno.serve(async (req) => {
     const listHtml = await fetchText(LIST_URL);
     const issue = parseIssue(listHtml);
     if (!issue) {
+      console.error(
+        "parseIssue failed; first 500 chars of list page:",
+        listHtml.slice(0, 500),
+      );
       return new Response(
-        JSON.stringify({ error: "Cannot parse issue number from list page" }),
+        JSON.stringify({
+          skipped: true,
+          reason: "Cannot parse issue number from list page",
+          listed: 0,
+          saved: 0,
+        }),
         {
-          status: 500,
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );
