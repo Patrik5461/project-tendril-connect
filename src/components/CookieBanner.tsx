@@ -97,7 +97,7 @@ export function CookieBanner() {
               <button
                 type="button"
                 onClick={acceptAll}
-                className="border-2 border-foreground bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:brightness-95"
+                className="rounded-md border-2 border-foreground bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:brightness-95"
               >
                 Prijať všetky
               </button>
