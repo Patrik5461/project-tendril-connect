@@ -34,6 +34,7 @@ function SettingsPage() {
   const [deadlineReminders, setDeadlineReminders] = useState(true);
   const [digestFrequency, setDigestFrequency] = useState<"daily" | "weekly">("daily");
   const [email, setEmail] = useState("");
+  const [notificationEmail, setNotificationEmail] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [list, setList] = useState<Radar[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
