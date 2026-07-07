@@ -90,7 +90,7 @@ export function CookieBanner() {
               <button
                 type="button"
                 onClick={openSettings}
-                className="border-2 border-foreground bg-white px-3 py-2 text-sm font-medium text-black hover:bg-black/5"
+                className="rounded-md border-2 border-foreground bg-white px-3 py-2 text-sm font-medium text-black hover:bg-black/5"
               >
                 Nastavenia
               </button>
