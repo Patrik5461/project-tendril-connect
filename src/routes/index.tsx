@@ -301,7 +301,24 @@ function Landing() {
               · © {new Date().getFullYear()} · Bezplatná služba pre slovenských podnikateľov
             </span>
           </div>
-          <div className="eyebrow text-muted-foreground">Ver. 1.0</div>
+          <div className="flex items-center gap-4">
+            <Link
+              to="/ochrana-osobnych-udajov"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Ochrana osobných údajov
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                import("@/lib/cookie-consent").then((m) => m.openCookieSettings());
+              }}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Nastavenia cookies
+            </button>
+            <div className="eyebrow text-muted-foreground">Ver. 1.0</div>
+          </div>
         </div>
       </footer>
     </div>
