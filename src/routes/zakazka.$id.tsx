@@ -246,6 +246,23 @@ function TenderDetail() {
         />
       </dl>
 
+      {tender.ai_summary && (
+        <div className="mt-10 border-t border-border pt-6">
+          <div className="flex items-center gap-2">
+            <div className="eyebrow text-primary">Zhrnutie</div>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border border-border px-1.5 py-0.5">
+              AI
+            </span>
+          </div>
+          <p className="mt-3 whitespace-pre-line text-foreground/90 leading-relaxed">
+            {tender.ai_summary}
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Vygenerované AI – overte si detaily v oficiálnom zdroji.
+          </p>
+        </div>
+      )}
+
       {tender.description && (
         <div className="mt-10 border-t border-border pt-6">
           <div className="eyebrow text-muted-foreground">Popis zákazky</div>
