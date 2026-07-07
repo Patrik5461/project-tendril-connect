@@ -109,7 +109,7 @@ export function HelpChatWidget() {
                 className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] px-3 py-2 text-sm whitespace-pre-line leading-relaxed border ${
+                  className={`max-w-[85%] px-3 py-2 text-sm whitespace-pre-line leading-relaxed rounded-md border ${
                     m.role === "user"
                       ? "bg-primary text-primary-foreground border-primary"
                       : "bg-secondary text-foreground border-border"
