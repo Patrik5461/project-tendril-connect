@@ -104,6 +104,7 @@ function Onboarding() {
       return;
     }
     toast.success("Radar uložený");
+    void sendWelcomeEmailIfNeeded();
     navigate({ to: "/dashboard" });
   }
 
