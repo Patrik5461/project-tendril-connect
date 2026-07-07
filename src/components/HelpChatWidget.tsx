@@ -80,7 +80,7 @@ export function HelpChatWidget() {
         <div
           role="dialog"
           aria-label="Pomocník Tendrik"
-          className="fixed bottom-5 right-5 z-40 w-[min(380px,calc(100vw-2.5rem))] h-[min(560px,calc(100vh-2.5rem))] flex flex-col bg-background border-2 border-foreground shadow-[6px_6px_0_0_hsl(var(--foreground))]"
+          className="fixed bottom-5 right-5 z-40 w-[min(380px,calc(100vw-2.5rem))] h-[min(560px,calc(100vh-2.5rem))] flex flex-col rounded-md bg-background border-2 border-foreground shadow-[6px_6px_0_0_hsl(var(--foreground))] overflow-hidden"
         >
           <div className="flex items-center justify-between border-b-2 border-foreground bg-foreground text-background px-3 py-2">
             <div className="flex items-center gap-2">
