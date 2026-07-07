@@ -285,8 +285,9 @@ Deno.serve(async (req) => {
 
     const { data: notifData, error: pErr } = await supabase
       .from("user_preferences")
-      .select("user_id,email_notifications")
-      .eq("email_notifications", true);
+      .select("user_id,email_notifications,digest_frequency")
+      .eq("email_notifications", true)
+      .or("digest_frequency.eq.daily,digest_frequency.is.null");
     if (pErr) throw pErr;
     const eligibleIds = (notifData ?? []).map((p: any) => p.user_id as string);
     if (eligibleIds.length === 0) {
