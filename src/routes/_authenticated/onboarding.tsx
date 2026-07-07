@@ -72,7 +72,7 @@ function Onboarding() {
       .eq("user_id", u.user.id)
       .limit(1);
     if (!existing || existing.length === 0) {
-      const { error: rErr } = await supabase.from("user_radars" as never).insert({
+      const { error: rErr } = await (supabase.from("user_radars" as never) as any).insert({
         user_id: u.user.id,
         name: "Môj radar",
         keywords,
