@@ -125,6 +125,7 @@ export type Database = {
           email_notifications: boolean
           id: string
           keywords: string[]
+          notification_email: string | null
           onboarding_completed: boolean
           regions: string[]
           updated_at: string
@@ -138,6 +139,7 @@ export type Database = {
           email_notifications?: boolean
           id?: string
           keywords?: string[]
+          notification_email?: string | null
           onboarding_completed?: boolean
           regions?: string[]
           updated_at?: string
@@ -151,6 +153,7 @@ export type Database = {
           email_notifications?: boolean
           id?: string
           keywords?: string[]
+          notification_email?: string | null
           onboarding_completed?: boolean
           regions?: string[]
           updated_at?: string
