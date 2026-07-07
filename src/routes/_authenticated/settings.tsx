@@ -42,6 +42,7 @@ function SettingsPage() {
         setCpvCodes(data.cpv_codes ?? []);
         setRegions(data.regions ?? []);
         setEmailNotif(data.email_notifications ?? true);
+        setDeadlineReminders((data as any).deadline_reminders ?? true);
       }
       setLoading(false);
     })();
