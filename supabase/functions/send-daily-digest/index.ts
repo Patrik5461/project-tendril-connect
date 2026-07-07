@@ -126,31 +126,48 @@ function formatValue(v: number | null | undefined): string | null {
     .replace(/\u00a0/g, " ") + " €";
 }
 
-function renderHtml(tenders: (Tender & { estimated_value?: number | null })[], totalCount: number): string {
-  const items = tenders
-    .map((t) => {
-      const titleHtml = t.source_url
-        ? `<a href="${escapeHtml(t.source_url)}" style="color:#111111;text-decoration:none;font-weight:600;font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.25;">${escapeHtml(t.title)}</a>`
-        : `<span style="color:#111111;font-weight:600;font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.25;">${escapeHtml(t.title)}</span>`;
-      const valueStr = formatValue((t as any).estimated_value);
-      const valueRow = valueStr
-        ? `<div style="margin-top:8px;font-family:Inter,-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-weight:600;color:#C8102E;font-size:15px;">${escapeHtml(valueStr)}</div>`
-        : "";
-      return `
-        <tr>
-          <td style="padding:18px 0;border-top:1px solid #111111;border-bottom:1px solid #d5d5d5;">
-            <div style="margin-bottom:8px;">${sourceBadge(t.source)}</div>
-            <div style="margin-bottom:6px;">${titleHtml}</div>
-            <div style="font-family:Inter,-apple-system,sans-serif;font-size:13px;color:#555555;line-height:1.6;">
-              <b style="color:#111111;">Obstarávateľ:</b> ${escapeHtml(t.contracting_authority)}<br/>
-              <b style="color:#111111;">Región:</b> ${escapeHtml(t.region ?? "—")}<br/>
-              <b style="color:#111111;">Deadline:</b> <span style="font-variant-numeric:tabular-nums;">${escapeHtml(formatDeadline(t.deadline))}</span>
-            </div>
-            ${valueRow}
-          </td>
-        </tr>`;
-    })
-    .join("");
+function renderTenderRow(t: Tender & { estimated_value?: number | null }): string {
+  const titleHtml = t.source_url
+    ? `<a href="${escapeHtml(t.source_url)}" style="color:#111111;text-decoration:none;font-weight:600;font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.25;">${escapeHtml(t.title)}</a>`
+    : `<span style="color:#111111;font-weight:600;font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.25;">${escapeHtml(t.title)}</span>`;
+  const valueStr = formatValue((t as any).estimated_value);
+  const valueRow = valueStr
+    ? `<div style="margin-top:8px;font-family:Inter,-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-weight:600;color:#C8102E;font-size:15px;">${escapeHtml(valueStr)}</div>`
+    : "";
+  return `
+    <tr>
+      <td style="padding:18px 0;border-top:1px solid #111111;border-bottom:1px solid #d5d5d5;">
+        <div style="margin-bottom:8px;">${sourceBadge(t.source)}</div>
+        <div style="margin-bottom:6px;">${titleHtml}</div>
+        <div style="font-family:Inter,-apple-system,sans-serif;font-size:13px;color:#555555;line-height:1.6;">
+          <b style="color:#111111;">Obstarávateľ:</b> ${escapeHtml(t.contracting_authority)}<br/>
+          <b style="color:#111111;">Región:</b> ${escapeHtml(t.region ?? "—")}<br/>
+          <b style="color:#111111;">Deadline:</b> <span style="font-variant-numeric:tabular-nums;">${escapeHtml(formatDeadline(t.deadline))}</span>
+        </div>
+        ${valueRow}
+      </td>
+    </tr>`;
+}
+
+function renderHtml(
+  tenders: (Tender & { estimated_value?: number | null })[],
+  totalCount: number,
+  groupsByRadar?: { name: string; items: (Tender & { estimated_value?: number | null })[] }[],
+): string {
+  let itemsHtml: string;
+  if (groupsByRadar && groupsByRadar.length > 1) {
+    itemsHtml = groupsByRadar
+      .map((g) => {
+        const header = `<tr><td style="padding:20px 0 8px 0;">
+          <div style="font-family:Inter,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#C8102E;">Radar · ${escapeHtml(g.name)} (${g.items.length})</div>
+        </td></tr>`;
+        return header + g.items.map(renderTenderRow).join("");
+      })
+      .join("");
+  } else {
+    itemsHtml = tenders.map(renderTenderRow).join("");
+  }
+  const items = itemsHtml;
 
   const cta =
     totalCount > 0
