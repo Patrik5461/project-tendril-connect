@@ -154,9 +154,41 @@ function SettingsPage() {
         <div className="mt-3 flex items-center justify-between">
           <div>
             <Label htmlFor="notif">Zasielať upozornenia na nové zákazky</Label>
-            <p className="text-sm text-muted-foreground">Denný súhrn na váš e-mail.</p>
+            <p className="text-sm text-muted-foreground">Súhrn nových zákaziek na váš e-mail.</p>
           </div>
           <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
+        </div>
+        <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
+          <div>
+            <Label>Frekvencia notifikácií</Label>
+            <p className="text-sm text-muted-foreground">
+              Ako často chcete dostávať súhrn nových zákaziek.
+            </p>
+          </div>
+          <div className="inline-flex rounded-md border border-primary/20 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setDigestFrequency("daily")}
+              className={`px-3 py-1.5 text-sm font-medium ${
+                digestFrequency === "daily"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-transparent text-foreground hover:bg-primary/5"
+              }`}
+            >
+              Denne
+            </button>
+            <button
+              type="button"
+              onClick={() => setDigestFrequency("weekly")}
+              className={`px-3 py-1.5 text-sm font-medium border-l border-primary/20 ${
+                digestFrequency === "weekly"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-transparent text-foreground hover:bg-primary/5"
+              }`}
+            >
+              Týždenne
+            </button>
+          </div>
         </div>
         <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
           <div>
