@@ -96,6 +96,19 @@ function SettingsPage() {
           </div>
           <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
         </div>
+        <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
+          <div>
+            <Label htmlFor="deadlineRem">Pripomienky deadlinov uložených zákaziek</Label>
+            <p className="text-sm text-muted-foreground">
+              E-mail 3 dni a 1 deň pred koncom lehoty pri uložených zákazkách.
+            </p>
+          </div>
+          <Switch
+            id="deadlineRem"
+            checked={deadlineReminders}
+            onCheckedChange={setDeadlineReminders}
+          />
+        </div>
       </section>
 
       <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
