@@ -60,7 +60,33 @@ function Onboarding() {
     }
     setSaving(true);
     const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
+    if (!u.user) {
+      setSaving(false);
+      return;
+    }
+
+    // Vytvor prvý radar, ak používateľ ešte žiadny nemá
+    const { data: existing } = await supabase
+      .from("user_radars" as never)
+      .select("id")
+      .eq("user_id", u.user.id)
+      .limit(1);
+    if (!existing || existing.length === 0) {
+      const { error: rErr } = await (supabase.from("user_radars" as never) as any).insert({
+        user_id: u.user.id,
+        name: "Môj radar",
+        keywords,
+        cpv_codes: cpvCodes,
+        regions,
+        active: true,
+      });
+      if (rErr) {
+        setSaving(false);
+        toast.error(rErr.message);
+        return;
+      }
+    }
+
     const { error } = await supabase.from("user_preferences").upsert(
       {
         user_id: u.user.id,
@@ -76,7 +102,7 @@ function Onboarding() {
       toast.error(error.message);
       return;
     }
-    toast.success("Filtre uložené");
+    toast.success("Radar uložený");
     navigate({ to: "/dashboard" });
   }
 

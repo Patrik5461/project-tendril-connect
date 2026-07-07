@@ -131,6 +131,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_radars: {
+        Row: {
+          active: boolean
+          cpv_codes: string[]
+          created_at: string
+          id: string
+          keywords: string[]
+          name: string
+          regions: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          cpv_codes?: string[]
+          created_at?: string
+          id?: string
+          keywords?: string[]
+          name?: string
+          regions?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          cpv_codes?: string[]
+          created_at?: string
+          id?: string
+          keywords?: string[]
+          name?: string
+          regions?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_tender_actions: {
         Row: {
           action: string

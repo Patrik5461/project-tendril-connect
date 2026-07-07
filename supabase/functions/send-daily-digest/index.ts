@@ -37,28 +37,37 @@ type Tender = {
   created_at: string;
 };
 
-type Prefs = {
+type Radar = {
+  id: string;
   user_id: string;
+  name: string;
   keywords: string[];
   cpv_codes: string[];
   regions: string[];
+  active: boolean;
+};
+
+type NotifPrefs = {
+  user_id: string;
   email_notifications: boolean;
 };
 
-function matches(t: Tender, p: Prefs): boolean {
-  const wholeSk = p.regions.includes("Celé Slovensko");
+function matchesRadar(t: Tender, r: Radar): boolean {
+  const wholeSk = r.regions.includes("Celé Slovensko");
   const regionOk =
-    wholeSk || p.regions.length === 0 || (t.region ? p.regions.includes(t.region) : true);
+    wholeSk || r.regions.length === 0 || (t.region ? r.regions.includes(t.region) : true);
   if (!regionOk) return false;
-  const kws = p.keywords.map((k) => k.toLowerCase());
+  const kws = r.keywords.map((k) => k.toLowerCase());
+  const cpvs = r.cpv_codes;
+  const hasFilters = kws.length > 0 || cpvs.length > 0;
+  if (!hasFilters) return true;
   const text = (t.title + " " + (t.description ?? "")).toLowerCase();
   const kwMatch = kws.length > 0 && kws.some((k) => text.includes(k));
   const cpvMatch =
-    p.cpv_codes.length > 0 &&
-    !!t.cpv_code &&
-    p.cpv_codes.some((c) => t.cpv_code!.startsWith(c));
+    cpvs.length > 0 && !!t.cpv_code && cpvs.some((c) => t.cpv_code!.startsWith(c));
   return kwMatch || cpvMatch;
 }
+
 
 function escapeHtml(s: string): string {
   return s
@@ -94,31 +103,48 @@ function formatValue(v: number | null | undefined): string | null {
     .replace(/\u00a0/g, " ") + " €";
 }
 
-function renderHtml(tenders: (Tender & { estimated_value?: number | null })[], totalCount: number): string {
-  const items = tenders
-    .map((t) => {
-      const titleHtml = t.source_url
-        ? `<a href="${escapeHtml(t.source_url)}" style="color:#111111;text-decoration:none;font-weight:600;font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.25;">${escapeHtml(t.title)}</a>`
-        : `<span style="color:#111111;font-weight:600;font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.25;">${escapeHtml(t.title)}</span>`;
-      const valueStr = formatValue((t as any).estimated_value);
-      const valueRow = valueStr
-        ? `<div style="margin-top:8px;font-family:Inter,-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-weight:600;color:#C8102E;font-size:15px;">${escapeHtml(valueStr)}</div>`
-        : "";
-      return `
-        <tr>
-          <td style="padding:18px 0;border-top:1px solid #111111;border-bottom:1px solid #d5d5d5;">
-            <div style="margin-bottom:8px;">${sourceBadge(t.source)}</div>
-            <div style="margin-bottom:6px;">${titleHtml}</div>
-            <div style="font-family:Inter,-apple-system,sans-serif;font-size:13px;color:#555555;line-height:1.6;">
-              <b style="color:#111111;">Obstarávateľ:</b> ${escapeHtml(t.contracting_authority)}<br/>
-              <b style="color:#111111;">Región:</b> ${escapeHtml(t.region ?? "—")}<br/>
-              <b style="color:#111111;">Deadline:</b> <span style="font-variant-numeric:tabular-nums;">${escapeHtml(formatDeadline(t.deadline))}</span>
-            </div>
-            ${valueRow}
-          </td>
-        </tr>`;
-    })
-    .join("");
+function renderTenderRow(t: Tender & { estimated_value?: number | null }): string {
+  const titleHtml = t.source_url
+    ? `<a href="${escapeHtml(t.source_url)}" style="color:#111111;text-decoration:none;font-weight:600;font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.25;">${escapeHtml(t.title)}</a>`
+    : `<span style="color:#111111;font-weight:600;font-family:'Source Serif 4',Georgia,serif;font-size:18px;line-height:1.25;">${escapeHtml(t.title)}</span>`;
+  const valueStr = formatValue((t as any).estimated_value);
+  const valueRow = valueStr
+    ? `<div style="margin-top:8px;font-family:Inter,-apple-system,sans-serif;font-variant-numeric:tabular-nums;font-weight:600;color:#C8102E;font-size:15px;">${escapeHtml(valueStr)}</div>`
+    : "";
+  return `
+    <tr>
+      <td style="padding:18px 0;border-top:1px solid #111111;border-bottom:1px solid #d5d5d5;">
+        <div style="margin-bottom:8px;">${sourceBadge(t.source)}</div>
+        <div style="margin-bottom:6px;">${titleHtml}</div>
+        <div style="font-family:Inter,-apple-system,sans-serif;font-size:13px;color:#555555;line-height:1.6;">
+          <b style="color:#111111;">Obstarávateľ:</b> ${escapeHtml(t.contracting_authority)}<br/>
+          <b style="color:#111111;">Región:</b> ${escapeHtml(t.region ?? "—")}<br/>
+          <b style="color:#111111;">Deadline:</b> <span style="font-variant-numeric:tabular-nums;">${escapeHtml(formatDeadline(t.deadline))}</span>
+        </div>
+        ${valueRow}
+      </td>
+    </tr>`;
+}
+
+function renderHtml(
+  tenders: (Tender & { estimated_value?: number | null })[],
+  totalCount: number,
+  groupsByRadar?: { name: string; items: (Tender & { estimated_value?: number | null })[] }[],
+): string {
+  let itemsHtml: string;
+  if (groupsByRadar && groupsByRadar.length > 1) {
+    itemsHtml = groupsByRadar
+      .map((g) => {
+        const header = `<tr><td style="padding:20px 0 8px 0;">
+          <div style="font-family:Inter,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#C8102E;">Radar · ${escapeHtml(g.name)} (${g.items.length})</div>
+        </td></tr>`;
+        return header + g.items.map(renderTenderRow).join("");
+      })
+      .join("");
+  } else {
+    itemsHtml = tenders.map(renderTenderRow).join("");
+  }
+  const items = itemsHtml;
 
   const cta =
     totalCount > 0
@@ -205,25 +231,50 @@ Deno.serve(async (req) => {
     if (tErr) throw tErr;
     const tenders = (tendersData ?? []) as Tender[];
 
+    // Helper: build per-user radar match groups + flat list (unique tenders in order)
+    function buildForUser(userId: string, radars: Radar[]) {
+      const active = radars.filter((r) => r.active);
+      const groupMap = new Map<string, (Tender & { estimated_value?: number | null })[]>();
+      const seen = new Set<string>();
+      const flat: (Tender & { estimated_value?: number | null })[] = [];
+      const sorted = tenders
+        .slice()
+        .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
+      for (const t of sorted) {
+        for (const r of active) {
+          if (matchesRadar(t, r)) {
+            if (!groupMap.has(r.name)) groupMap.set(r.name, []);
+            groupMap.get(r.name)!.push(t as any);
+            if (!seen.has(t.id)) {
+              seen.add(t.id);
+              flat.push(t as any);
+            }
+          }
+        }
+      }
+      const groups = Array.from(groupMap.entries()).map(([name, items]) => ({ name, items }));
+      return { flat, groups, activeCount: active.length };
+    }
+
     // PREVIEW MODE
     if (body.preview_user_id) {
-      const { data: p } = await supabase
-        .from("user_preferences")
-        .select("user_id,keywords,cpv_codes,regions,email_notifications")
-        .eq("user_id", body.preview_user_id)
-        .maybeSingle();
-      if (!p) {
-        return new Response(
-          JSON.stringify({ error: "user_preferences not found" }),
-          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
-      const prefs = p as Prefs;
-      const matched = tenders.filter((t) => matches(t, prefs));
-      matched.sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
-      const html = renderHtml(matched.slice(0, MAX_ITEMS), matched.length);
+      const { data: rData } = await supabase
+        .from("user_radars")
+        .select("*")
+        .eq("user_id", body.preview_user_id);
+      const radars = (rData ?? []) as Radar[];
+      const { flat, groups, activeCount } = buildForUser(body.preview_user_id, radars);
+      const limited = flat.slice(0, MAX_ITEMS);
+      const limitedGroups =
+        activeCount > 1
+          ? groups.map((g) => ({
+              name: g.name,
+              items: g.items.filter((t) => limited.some((x) => x.id === t.id)),
+            }))
+          : undefined;
+      const html = renderHtml(limited, flat.length, limitedGroups);
       return new Response(
-        JSON.stringify({ tender_count: matched.length, html }),
+        JSON.stringify({ tender_count: flat.length, html }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -232,50 +283,67 @@ Deno.serve(async (req) => {
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) throw new Error("RESEND_API_KEY not configured");
 
-    const { data: prefsData, error: pErr } = await supabase
+    const { data: notifData, error: pErr } = await supabase
       .from("user_preferences")
-      .select("user_id,keywords,cpv_codes,regions,email_notifications")
+      .select("user_id,email_notifications")
       .eq("email_notifications", true);
     if (pErr) throw pErr;
+    const eligibleIds = (notifData ?? []).map((p: any) => p.user_id as string);
+    if (eligibleIds.length === 0) {
+      return new Response(
+        JSON.stringify({ users_checked: 0, emails_sent: 0, errors: 0 }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
-    const eligible = (prefsData ?? []).filter((p: any) => {
-      const hasFilter =
-        (p.keywords?.length ?? 0) > 0 ||
-        (p.cpv_codes?.length ?? 0) > 0 ||
-        (p.regions?.length ?? 0) > 0;
-      return hasFilter;
-    }) as Prefs[];
+    const { data: allRadars, error: rErr } = await supabase
+      .from("user_radars")
+      .select("*")
+      .in("user_id", eligibleIds);
+    if (rErr) throw rErr;
+    const radarsByUser = new Map<string, Radar[]>();
+    for (const r of (allRadars ?? []) as Radar[]) {
+      if (!radarsByUser.has(r.user_id)) radarsByUser.set(r.user_id, []);
+      radarsByUser.get(r.user_id)!.push(r);
+    }
 
     let users_checked = 0;
     let emails_sent = 0;
     let errors = 0;
 
-    for (const prefs of eligible) {
+    for (const userId of eligibleIds) {
       users_checked++;
       try {
-        const matched = tenders.filter((t) => matches(t, prefs));
-        if (matched.length === 0) continue;
+        const radars = radarsByUser.get(userId) ?? [];
+        if (radars.filter((r) => r.active).length === 0) continue;
+        const { flat, groups, activeCount } = buildForUser(userId, radars);
+        if (flat.length === 0) continue;
 
-        // Fetch user email via admin API
-        const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(
-          prefs.user_id,
-        );
+        const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(userId);
         if (uErr || !uRes.user?.email) {
-          console.error(`No email for user ${prefs.user_id}`, uErr);
+          console.error(`No email for user ${userId}`, uErr);
           errors++;
           continue;
         }
-        matched.sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
-        const html = renderHtml(matched.slice(0, MAX_ITEMS), matched.length);
-        const subject = `Tendrik: ${matched.length} ${matched.length === 1 ? "nová zákazka" : matched.length < 5 ? "nové zákazky" : "nových zákaziek"} pre vás`;
+        const limited = flat.slice(0, MAX_ITEMS);
+        const limitedGroups =
+          activeCount > 1
+            ? groups.map((g) => ({
+                name: g.name,
+                items: g.items.filter((t) => limited.some((x) => x.id === t.id)),
+              }))
+            : undefined;
+        const html = renderHtml(limited, flat.length, limitedGroups);
+        const subject = `Tendrik: ${flat.length} ${flat.length === 1 ? "nová zákazka" : flat.length < 5 ? "nové zákazky" : "nových zákaziek"} pre vás`;
         await sendEmail(uRes.user.email, subject, html, resendKey);
         emails_sent++;
         await new Promise((r) => setTimeout(r, 100));
       } catch (err) {
-        console.error(`Digest failed for user ${prefs.user_id}:`, err);
+        console.error(`Digest failed for user ${userId}:`, err);
         errors++;
       }
     }
+
 
     return new Response(
       JSON.stringify({ users_checked, emails_sent, errors }),

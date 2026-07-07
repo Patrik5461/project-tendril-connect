@@ -53,10 +53,16 @@ type Tender = {
 };
 
 type Prefs = {
+  onboarding_completed: boolean;
+};
+
+type Radar = {
+  id: string;
+  name: string;
   keywords: string[];
   cpv_codes: string[];
   regions: string[];
-  onboarding_completed: boolean;
+  active: boolean;
 };
 
 type Action = "saved" | "hidden";
@@ -67,6 +73,7 @@ const searchSchema = z.object({
   sort: fallback(z.enum(["deadline", "newest", "value"]), "deadline").default("deadline"),
   q: fallback(z.string(), "").default(""),
   view: fallback(z.enum(["list", "grid"]), "list").default("list"),
+  radar: fallback(z.string(), "all").default("all"),
 });
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -84,11 +91,12 @@ function norm(s: string): string {
 }
 
 function Dashboard() {
-  const { tab, sort, q, view } = Route.useSearch();
+  const { tab, sort, q, view, radar: radarParam } = Route.useSearch();
   const navigate = useNavigate({ from: "/dashboard" });
 
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [prefs, setPrefs] = useState<Prefs | null>(null);
+  const [userRadars, setUserRadars] = useState<Radar[]>([]);
   const [actions, setActions] = useState<Record<string, Set<Action>>>({});
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -146,16 +154,21 @@ function Dashboard() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
       setUserId(u.user.id);
-      const [{ data: p }, { data: t }] = await Promise.all([
+      const [{ data: p }, { data: t }, { data: r }] = await Promise.all([
         supabase
           .from("user_preferences")
-          .select("keywords,cpv_codes,regions,onboarding_completed")
+          .select("onboarding_completed")
           .eq("user_id", u.user.id)
           .maybeSingle(),
         supabase.from("tenders").select("*"),
+        (supabase.from("user_radars" as never) as any)
+          .select("*")
+          .eq("user_id", u.user.id)
+          .order("created_at", { ascending: true }),
       ]);
       setPrefs(p as Prefs | null);
       setTenders((t ?? []) as Tender[]);
+      setUserRadars((r ?? []) as Radar[]);
       await loadActions(u.user.id);
       setLoading(false);
     })();
@@ -337,31 +350,42 @@ function Dashboard() {
     }
   }
 
-  // Match tenders to user preferences (For You audience)
-  const matchesPrefs = useMemo(() => {
-    if (!prefs) return () => false;
-    const kws = prefs.keywords.map((k) => norm(k));
-    const cpvs = prefs.cpv_codes;
-    const regs = prefs.regions;
+  // Match tender against a single radar
+  const matchesRadar = (t: Tender, r: Radar): boolean => {
+    const regs = r.regions;
     const wholeSk = regs.includes("Celé Slovensko");
+    const regionOk =
+      wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
+    if (!regionOk) return false;
+    const kws = r.keywords.map((k) => norm(k));
+    const cpvs = r.cpv_codes;
     const hasFilters = kws.length > 0 || cpvs.length > 0;
-    return (t: Tender) => {
-      const regionOk =
-        wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
-      if (!regionOk) return false;
-      if (!hasFilters) return true;
-      const text = norm(t.title + " " + (t.description ?? ""));
-      const keywordMatch = kws.length > 0 && kws.some((k) => text.includes(k));
-      // A tender is a valid CPV candidate only if its code looks like a real CPV
-      // (digits, at least 2). Missing/garbage codes fall through as "unknown"
-      // so backfilled notices without a parsed CPV still surface in For You.
-      const cpvLooksValid = !!t.cpv_code && /^\d{2,}/.test(t.cpv_code);
-      const cpvMatch =
-        cpvs.length > 0 && cpvLooksValid && cpvs.some((c) => t.cpv_code!.startsWith(c));
-      const cpvUnknown = !cpvLooksValid;
-      return keywordMatch || cpvMatch || cpvUnknown;
-    };
-  }, [prefs]);
+    if (!hasFilters) return true;
+    const text = norm(t.title + " " + (t.description ?? ""));
+    const keywordMatch = kws.length > 0 && kws.some((k) => text.includes(k));
+    const cpvLooksValid = !!t.cpv_code && /^\d{2,}/.test(t.cpv_code);
+    const cpvMatch =
+      cpvs.length > 0 && cpvLooksValid && cpvs.some((c) => t.cpv_code!.startsWith(c));
+    const cpvUnknown = !cpvLooksValid;
+    return keywordMatch || cpvMatch || cpvUnknown;
+  };
+
+  // Aktívne radary (alebo len vybraný)
+  const activeRadars = useMemo(
+    () => userRadars.filter((r) => r.active),
+    [userRadars],
+  );
+  const selectedRadars = useMemo(() => {
+    if (radarParam === "all") return activeRadars;
+    const one = activeRadars.find((r) => r.id === radarParam);
+    return one ? [one] : activeRadars;
+  }, [activeRadars, radarParam]);
+
+  // Vráti radary, ktoré zákazku zachytili
+  const matchingRadarsFor = useMemo(() => {
+    return (t: Tender): Radar[] => selectedRadars.filter((r) => matchesRadar(t, r));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRadars]);
 
   const isActive = (t: Tender) => {
     const now = Date.now();
@@ -375,7 +399,7 @@ function Dashboard() {
     let result = tenders.slice();
 
     if (tab === "foryou") {
-      result = result.filter(matchesPrefs).filter(isActive);
+      result = result.filter((t) => matchingRadarsFor(t).length > 0).filter(isActive);
       result = result.filter((t) => !actions[t.id]?.has("hidden"));
     } else if (tab === "saved") {
       result = result.filter((t) => actions[t.id]?.has("saved"));
@@ -402,28 +426,29 @@ function Dashboard() {
       if (sort === "newest") {
         return (b.published_at ?? "").localeCompare(a.published_at ?? "");
       }
-      // value — nulls last
       const av = a.estimated_value == null ? -1 : Number(a.estimated_value);
       const bv = b.estimated_value == null ? -1 : Number(b.estimated_value);
       return bv - av;
     });
     return result;
-  }, [tenders, actions, matchesPrefs, tab, q, sort]);
+  }, [tenders, actions, matchingRadarsFor, tab, q, sort]);
+
 
   if (loading) {
     return <div className="mx-auto max-w-6xl px-4 py-8 text-muted-foreground">Načítavam...</div>;
   }
 
-  if (!prefs?.onboarding_completed) {
+  const hasAnyRadar = userRadars.length > 0;
+  if (!prefs?.onboarding_completed || !hasAnyRadar) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">Ešte ste nenastavili filtre</h1>
+        <h1 className="text-2xl font-semibold">Ešte ste nenastavili radar</h1>
         <p className="mt-2 text-muted-foreground">
           Aby sme vám ukázali relevantné zákazky, potrebujeme vaše kľúčové slová, CPV kategórie a
           kraje.
         </p>
         <Link to="/onboarding" className="mt-6 inline-block">
-          <Button size="lg">Nastaviť filtre</Button>
+          <Button size="lg">Nastaviť radar</Button>
         </Link>
       </div>
     );
@@ -484,6 +509,27 @@ function Dashboard() {
         </Tabs>
 
         <div className="flex gap-2 flex-col sm:flex-row">
+          {tab === "foryou" && userRadars.length > 1 && (
+            <Select
+              value={radarParam}
+              onValueChange={(v) =>
+                navigate({ search: (p: any) => ({ ...p, radar: v }) })
+              }
+            >
+              <SelectTrigger className="sm:w-56">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Všetky radary</SelectItem>
+                {userRadars.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    {r.name}
+                    {!r.active ? " (vypnutý)" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -601,6 +647,11 @@ function Dashboard() {
               hidden={actions[t.id]?.has("hidden") ?? false}
               tab={tab}
               onToggle={toggleAction}
+              radarLabels={
+                tab === "foryou" && userRadars.length > 1
+                  ? matchingRadarsFor(t).map((r) => r.name)
+                  : undefined
+              }
             />
           ))}
         </div>
@@ -614,6 +665,11 @@ function Dashboard() {
               hidden={actions[t.id]?.has("hidden") ?? false}
               tab={tab}
               onToggle={toggleAction}
+              radarLabels={
+                tab === "foryou" && userRadars.length > 1
+                  ? matchingRadarsFor(t).map((r) => r.name)
+                  : undefined
+              }
             />
           ))}
         </div>
@@ -692,12 +748,14 @@ function TenderCard({
   hidden,
   tab,
   onToggle,
+  radarLabels,
 }: {
   tender: Tender;
   saved: boolean;
   hidden: boolean;
   tab: "foryou" | "saved" | "hidden";
   onToggle: (id: string, action: Action) => void;
+  radarLabels?: string[];
 }) {
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
@@ -718,6 +776,15 @@ function TenderCard({
             {tender.cpv_code && (
               <span className="eyebrow text-muted-foreground">CPV {tender.cpv_code}</span>
             )}
+            {radarLabels?.map((n) => (
+              <span
+                key={n}
+                className="inline-flex items-center gap-1 border border-primary/40 text-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
+                title="Zachytené radarom"
+              >
+                <Radar className="h-3 w-3" /> {n}
+              </span>
+            ))}
           </div>
           <Link
             to="/zakazka/$id"
@@ -924,12 +991,14 @@ function TenderGridCard({
   hidden,
   tab,
   onToggle,
+  radarLabels,
 }: {
   tender: Tender;
   saved: boolean;
   hidden: boolean;
   tab: "foryou" | "saved" | "hidden";
   onToggle: (id: string, action: Action) => void;
+  radarLabels?: string[];
 }) {
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
@@ -944,6 +1013,15 @@ function TenderGridCard({
       <div className="flex items-center gap-2 flex-wrap">
         <SourceBadge source={tender.source} />
         <DeadlineBadge daysLeft={daysLeft} expired={expired} />
+        {radarLabels?.map((n) => (
+          <span
+            key={n}
+            className="inline-flex items-center gap-1 border border-primary/40 text-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+            title="Zachytené radarom"
+          >
+            <Radar className="h-3 w-3" /> {n}
+          </span>
+        ))}
       </div>
       <Link
         to="/zakazka/$id"
