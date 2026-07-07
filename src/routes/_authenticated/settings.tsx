@@ -54,12 +54,14 @@ function SettingsPage() {
       setEmail(u.user.email ?? "");
       const { data } = await supabase
         .from("user_preferences")
-        .select("email_notifications,deadline_reminders")
+        .select("email_notifications,deadline_reminders,digest_frequency")
         .eq("user_id", u.user.id)
         .maybeSingle();
       if (data) {
         setEmailNotif(data.email_notifications ?? true);
         setDeadlineReminders((data as any).deadline_reminders ?? true);
+        const df = (data as any).digest_frequency;
+        setDigestFrequency(df === "weekly" ? "weekly" : "daily");
       }
       await reloadRadars(u.user.id);
       setLoading(false);
