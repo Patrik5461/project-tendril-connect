@@ -13,8 +13,8 @@ const corsHeaders = {
 
 const FROM = "Tendrik <novinky@tendrik.sk>";
 const APP_URL =
-  Deno.env.get("APP_URL") ??
-  "https://project--50e4e6a8-256b-47bb-bfde-c3e5d7cfcd8a.lovable.app";
+  Deno.env.get("APP_BASE_URL") ?? Deno.env.get("APP_URL") ??
+  "https://www.tendrik.sk";
 const REMINDER_DAYS = [3, 1];
 
 function escapeHtml(s: string): string {
@@ -58,7 +58,7 @@ function renderHtml(
   },
   daysLeft: number,
 ): string {
-  const detailUrl = `${APP_URL}/dashboard?tender=${t.id}`;
+  const detailUrl = `${APP_URL}/zakazka/${t.id}`;
   const sourceBtn = t.source_url
     ? `<a href="${escapeHtml(t.source_url)}" style="display:inline-block;border:1px solid #111111;color:#111111;text-decoration:none;font-weight:600;padding:12px 22px;font-family:Inter,-apple-system,sans-serif;margin-left:8px;">Oficiálny zdroj →</a>`
     : "";

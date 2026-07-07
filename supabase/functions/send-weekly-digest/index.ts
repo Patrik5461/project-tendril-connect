@@ -19,8 +19,8 @@ const corsHeaders = {
 
 const FROM = "Tendrik <novinky@tendrik.sk>";
 const APP_URL =
-  Deno.env.get("APP_URL") ??
-  "https://project--50e4e6a8-256b-47bb-bfde-c3e5d7cfcd8a.lovable.app";
+  Deno.env.get("APP_BASE_URL") ?? Deno.env.get("APP_URL") ??
+  "https://www.tendrik.sk";
 const MAX_ITEMS = 20;
 
 type Tender = {
