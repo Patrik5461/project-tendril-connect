@@ -49,6 +49,7 @@ function AuthedLayout() {
         </div>
       </header>
       <Outlet />
+      <HelpChatWidget />
     </div>
   );
 }
