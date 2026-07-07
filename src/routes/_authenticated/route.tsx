@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Settings, LogOut } from "lucide-react";
+import { HelpChatWidget } from "@/components/HelpChatWidget";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -48,6 +49,7 @@ function AuthedLayout() {
         </div>
       </header>
       <Outlet />
+      <HelpChatWidget />
     </div>
   );
 }
