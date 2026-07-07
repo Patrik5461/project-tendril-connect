@@ -72,6 +72,11 @@ function SettingsPage() {
 
   async function saveNotifications() {
     if (!userId) return;
+    const trimmed = notificationEmail.trim();
+    if (trimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error("Zadajte platnú e-mailovú adresu");
+      return;
+    }
     setSaving(true);
     const { error } = await supabase.from("user_preferences").upsert(
       {
@@ -79,6 +84,7 @@ function SettingsPage() {
         email_notifications: emailNotif,
         deadline_reminders: deadlineReminders,
         digest_frequency: digestFrequency,
+        notification_email: trimmed === "" ? null : trimmed,
         onboarding_completed: true,
       } as any,
       { onConflict: "user_id" },
