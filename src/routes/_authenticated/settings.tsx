@@ -166,6 +166,21 @@ function SettingsPage() {
           </div>
           <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
         </div>
+        <div className="mt-4 border-t border-primary/10 pt-4">
+          <Label htmlFor="notifEmail">E-mailová adresa pre notifikácie</Label>
+          <p className="text-sm text-muted-foreground">
+            Ak nechcete dostávať e-maily na prihlasovaciu adresu ({email}), zadajte inú.
+            Nechajte prázdne, ak chcete používať prihlasovací e-mail.
+          </p>
+          <Input
+            id="notifEmail"
+            type="email"
+            placeholder={email}
+            value={notificationEmail}
+            onChange={(e) => setNotificationEmail(e.target.value)}
+            className="mt-2 max-w-sm"
+          />
+        </div>
         <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
           <div>
             <Label>Frekvencia notifikácií</Label>
