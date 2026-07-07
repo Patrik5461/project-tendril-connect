@@ -780,7 +780,7 @@ function TenderCard({
             {radarLabels?.map((n) => (
               <span
                 key={n}
-                className="inline-flex items-center gap-1 border border-primary/40 text-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
+                className="inline-flex items-center gap-1 rounded-sm border border-primary/40 text-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
                 title="Zachytené radarom"
               >
                 <Radar className="h-3 w-3" /> {n}
