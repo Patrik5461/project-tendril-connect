@@ -1,0 +1,1 @@
+ALTER TABLE public.user_preferences ADD COLUMN IF NOT EXISTS digest_frequency text NOT NULL DEFAULT 'daily' CHECK (digest_frequency IN ('daily','weekly'));

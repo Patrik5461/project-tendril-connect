@@ -32,6 +32,7 @@ function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [emailNotif, setEmailNotif] = useState(true);
   const [deadlineReminders, setDeadlineReminders] = useState(true);
+  const [digestFrequency, setDigestFrequency] = useState<"daily" | "weekly">("daily");
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [list, setList] = useState<Radar[]>([]);
@@ -53,12 +54,14 @@ function SettingsPage() {
       setEmail(u.user.email ?? "");
       const { data } = await supabase
         .from("user_preferences")
-        .select("email_notifications,deadline_reminders")
+        .select("email_notifications,deadline_reminders,digest_frequency")
         .eq("user_id", u.user.id)
         .maybeSingle();
       if (data) {
         setEmailNotif(data.email_notifications ?? true);
         setDeadlineReminders((data as any).deadline_reminders ?? true);
+        const df = (data as any).digest_frequency;
+        setDigestFrequency(df === "weekly" ? "weekly" : "daily");
       }
       await reloadRadars(u.user.id);
       setLoading(false);
@@ -73,8 +76,9 @@ function SettingsPage() {
         user_id: userId,
         email_notifications: emailNotif,
         deadline_reminders: deadlineReminders,
+        digest_frequency: digestFrequency,
         onboarding_completed: true,
-      },
+      } as any,
       { onConflict: "user_id" },
     );
     setSaving(false);
@@ -150,9 +154,41 @@ function SettingsPage() {
         <div className="mt-3 flex items-center justify-between">
           <div>
             <Label htmlFor="notif">Zasielať upozornenia na nové zákazky</Label>
-            <p className="text-sm text-muted-foreground">Denný súhrn na váš e-mail.</p>
+            <p className="text-sm text-muted-foreground">Súhrn nových zákaziek na váš e-mail.</p>
           </div>
           <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
+        </div>
+        <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
+          <div>
+            <Label>Frekvencia notifikácií</Label>
+            <p className="text-sm text-muted-foreground">
+              Ako často chcete dostávať súhrn nových zákaziek.
+            </p>
+          </div>
+          <div className="inline-flex rounded-md border border-primary/20 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setDigestFrequency("daily")}
+              className={`px-3 py-1.5 text-sm font-medium ${
+                digestFrequency === "daily"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-transparent text-foreground hover:bg-primary/5"
+              }`}
+            >
+              Denne
+            </button>
+            <button
+              type="button"
+              onClick={() => setDigestFrequency("weekly")}
+              className={`px-3 py-1.5 text-sm font-medium border-l border-primary/20 ${
+                digestFrequency === "weekly"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-transparent text-foreground hover:bg-primary/5"
+              }`}
+            >
+              Týždenne
+            </button>
+          </div>
         </div>
         <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
           <div>

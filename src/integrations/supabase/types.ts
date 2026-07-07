@@ -97,6 +97,7 @@ export type Database = {
           cpv_codes: string[]
           created_at: string
           deadline_reminders: boolean
+          digest_frequency: string
           email_notifications: boolean
           id: string
           keywords: string[]
@@ -109,6 +110,7 @@ export type Database = {
           cpv_codes?: string[]
           created_at?: string
           deadline_reminders?: boolean
+          digest_frequency?: string
           email_notifications?: boolean
           id?: string
           keywords?: string[]
@@ -121,6 +123,7 @@ export type Database = {
           cpv_codes?: string[]
           created_at?: string
           deadline_reminders?: boolean
+          digest_frequency?: string
           email_notifications?: boolean
           id?: string
           keywords?: string[]

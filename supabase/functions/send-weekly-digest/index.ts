@@ -1,4 +1,4 @@
-// Supabase Edge Function: send-daily-digest
+// Supabase Edge Function: send-weekly-digest
 // Sends a daily email digest of new tenders (last 24h) to each user
 // with email_notifications = true and at least one filter set.
 // Matching mirrors the dashboard: (keyword hit in title/description OR CPV prefix match)
@@ -170,10 +170,10 @@ function renderHtml(
         <tr><td style="padding:28px 24px 8px 24px;">
           <div style="font-family:Inter,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#555555;margin-bottom:8px;">
             <span style="display:inline-block;width:8px;height:8px;background:#C8102E;vertical-align:1px;margin-right:8px;"></span>
-            Denný digest verejného obstarávania
+            Týždenný digest verejného obstarávania
           </div>
           <h1 style="margin:0 0 6px 0;font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:28px;line-height:1.15;letter-spacing:-0.01em;color:#111111;">${totalCount} ${totalCount === 1 ? "nová zákazka" : totalCount < 5 ? "nové zákazky" : "nových zákaziek"} pre vás</h1>
-          <p style="margin:0 0 20px 0;color:#555555;font-size:14px;">Za posledných 24 hodín sme našli zákazky, ktoré zodpovedajú vašim filtrom.</p>
+          <p style="margin:0 0 20px 0;color:#555555;font-size:14px;">Za posledných 7 dní sme našli zákazky, ktoré zodpovedajú vašim filtrom.</p>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}</table>
           ${cta}
           <hr style="border:none;border-top:2px solid #111111;margin:32px 0 12px 0;"/>
@@ -221,7 +221,7 @@ Deno.serve(async (req) => {
       body = {};
     }
 
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     const { data: tendersData, error: tErr } = await supabase
       .from("tenders")
       .select(
@@ -287,7 +287,7 @@ Deno.serve(async (req) => {
       .from("user_preferences")
       .select("user_id,email_notifications,digest_frequency")
       .eq("email_notifications", true)
-      .or("digest_frequency.eq.daily,digest_frequency.is.null");
+      .eq("digest_frequency", "weekly");
     if (pErr) throw pErr;
     const eligibleIds = (notifData ?? []).map((p: any) => p.user_id as string);
     if (eligibleIds.length === 0) {
@@ -335,7 +335,7 @@ Deno.serve(async (req) => {
               }))
             : undefined;
         const html = renderHtml(limited, flat.length, limitedGroups);
-        const subject = `Tendrik: ${flat.length} ${flat.length === 1 ? "nová zákazka" : flat.length < 5 ? "nové zákazky" : "nových zákaziek"} pre vás`;
+        const subject = `Tendrik: váš týždenný prehľad – ${flat.length} ${flat.length === 1 ? "nová zákazka" : flat.length < 5 ? "nové zákazky" : "nových zákaziek"}`;
         await sendEmail(uRes.user.email, subject, html, resendKey);
         emails_sent++;
         await new Promise((r) => setTimeout(r, 100));
@@ -351,7 +351,7 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    console.error("send-daily-digest failed:", err);
+    console.error("send-weekly-digest failed:", err);
     return new Response(
       JSON.stringify({ error: String(err) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
