@@ -188,14 +188,25 @@ function renderHtml(
 </body></html>`;
 }
 
-async function sendEmail(to: string, subject: string, html: string, apiKey: string) {
+function parseRecipients(override: string | null | undefined, fallback: string | null | undefined): string[] {
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (override && override.trim() !== "") {
+    const list = override.split(/[,;\s]+/).map((s) => s.trim()).filter((s) => emailRe.test(s));
+    if (list.length > 0) return Array.from(new Set(list.map((s) => s.toLowerCase()))).slice(0, 10);
+  }
+  if (fallback && emailRe.test(fallback)) return [fallback];
+  return [];
+}
+
+async function sendEmail(to: string[], subject: string, html: string, apiKey: string) {
+  if (to.length === 0) return;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    body: JSON.stringify({ from: FROM, to, subject, html }),
   });
   if (!res.ok) {
     const body = await res.text();
@@ -324,15 +335,15 @@ Deno.serve(async (req) => {
         if (flat.length === 0) continue;
 
         const overrideEmail = notifEmailMap.get(userId);
-        let recipient: string | null = overrideEmail && overrideEmail.trim() !== "" ? overrideEmail.trim() : null;
-        if (!recipient) {
+        let recipients = parseRecipients(overrideEmail, null);
+        if (recipients.length === 0) {
           const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(userId);
           if (uErr || !uRes.user?.email) {
             console.error(`No email for user ${userId}`, uErr);
             errors++;
             continue;
           }
-          recipient = uRes.user.email;
+          recipients = [uRes.user.email];
         }
         const limited = flat.slice(0, MAX_ITEMS);
         const limitedGroups =
@@ -344,7 +355,7 @@ Deno.serve(async (req) => {
             : undefined;
         const html = renderHtml(limited, flat.length, limitedGroups);
         const subject = `Tendrik: ${flat.length} ${flat.length === 1 ? "nová zákazka" : flat.length < 5 ? "nové zákazky" : "nových zákaziek"} pre vás`;
-        await sendEmail(recipient, subject, html, resendKey);
+        await sendEmail(recipients, subject, html, resendKey);
         emails_sent++;
         await new Promise((r) => setTimeout(r, 100));
       } catch (err) {

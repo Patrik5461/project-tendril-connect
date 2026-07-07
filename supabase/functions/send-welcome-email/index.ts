@@ -118,14 +118,25 @@ function renderHtml(dashboardUrl: string, settingsUrl: string): string {
 </html>`;
 }
 
-async function sendEmail(to: string, subject: string, html: string, apiKey: string) {
+function parseRecipients(override: string | null | undefined, fallback: string | null | undefined): string[] {
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (override && override.trim() !== "") {
+    const list = override.split(/[,;\s]+/).map((s) => s.trim()).filter((s) => emailRe.test(s));
+    if (list.length > 0) return Array.from(new Set(list.map((s) => s.toLowerCase()))).slice(0, 10);
+  }
+  if (fallback && emailRe.test(fallback)) return [fallback];
+  return [];
+}
+
+async function sendEmail(to: string[], subject: string, html: string, apiKey: string) {
+  if (to.length === 0) return;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    body: JSON.stringify({ from: FROM, to, subject, html }),
   });
   if (!res.ok) {
     const text = await res.text();
@@ -208,11 +219,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    const recipient =
-      notificationEmail && notificationEmail.trim() !== ""
-        ? notificationEmail.trim()
-        : user.email;
-    if (!recipient) {
+    const recipients = parseRecipients(notificationEmail, user.email);
+    if (recipients.length === 0) {
       return new Response(
         JSON.stringify({ sent: false, reason: "no_email" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -227,7 +235,7 @@ Deno.serve(async (req) => {
     const html = renderHtml(dashboardUrl, settingsUrl);
 
     try {
-      await sendEmail(recipient, "Vitajte v Tendriku – váš radar je zapnutý", html, resendKey);
+      await sendEmail(recipients, "Vitajte v Tendriku – váš radar je zapnutý", html, resendKey);
     } catch (mailErr) {
       // Roll back the flag so the user can retry later.
       await admin

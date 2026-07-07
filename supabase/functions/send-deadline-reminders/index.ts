@@ -116,14 +116,25 @@ function renderHtml(
 </body></html>`;
 }
 
-async function sendEmail(to: string, subject: string, html: string, apiKey: string) {
+function parseRecipients(override: string | null | undefined, fallback: string | null | undefined): string[] {
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (override && override.trim() !== "") {
+    const list = override.split(/[,;\s]+/).map((s) => s.trim()).filter((s) => emailRe.test(s));
+    if (list.length > 0) return Array.from(new Set(list.map((s) => s.toLowerCase()))).slice(0, 10);
+  }
+  if (fallback && emailRe.test(fallback)) return [fallback];
+  return [];
+}
+
+async function sendEmail(to: string[], subject: string, html: string, apiKey: string) {
+  if (to.length === 0) return;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({ from: FROM, to: [to], subject, html }),
+    body: JSON.stringify({ from: FROM, to, subject, html }),
   });
   if (!res.ok) {
     const body = await res.text();
@@ -191,7 +202,7 @@ Deno.serve(async (req) => {
     let reminders_sent = 0;
     let checked = 0;
     let errors = 0;
-    const emailCache = new Map<string, string | null>();
+    const recipientsCache = new Map<string, string[]>();
     const now = Date.now();
     const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -213,19 +224,19 @@ Deno.serve(async (req) => {
       const key = `${a.user_id}|${a.tender_id}|${daysLeft}`;
       if (sentKey.has(key)) continue;
 
-      // Zisti email – prefer notification_email z preferencií
-      let email = emailCache.get(a.user_id);
-      if (email === undefined) {
+      // Zisti príjemcov – prefer notification_email (možno viac oddelených čiarkou)
+      let recipients = recipientsCache.get(a.user_id);
+      if (!recipients) {
         const override = (p as any).notification_email as string | null | undefined;
-        if (override && override.trim() !== "") {
-          email = override.trim();
-        } else {
+        let fallback: string | null = null;
+        if (!override || override.trim() === "") {
           const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(a.user_id);
-          email = uErr ? null : (uRes.user?.email ?? null);
+          fallback = uErr ? null : (uRes.user?.email ?? null);
         }
-        emailCache.set(a.user_id, email);
+        recipients = parseRecipients(override, fallback);
+        recipientsCache.set(a.user_id, recipients);
       }
-      if (!email) {
+      if (recipients.length === 0) {
         errors++;
         continue;
       }
@@ -233,7 +244,7 @@ Deno.serve(async (req) => {
       try {
         const subject = `Pripomienka: zákazke ${t.title} končí lehota o ${daysWord(daysLeft)}`;
         const html = renderHtml(t, daysLeft);
-        await sendEmail(email, subject, html, resendKey);
+        await sendEmail(recipients, subject, html, resendKey);
 
         const { error: insErr } = await supabase.from("sent_reminders").insert({
           user_id: a.user_id,

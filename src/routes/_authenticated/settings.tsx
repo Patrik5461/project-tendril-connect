@@ -73,10 +73,34 @@ function SettingsPage() {
 
   async function saveNotifications() {
     if (!userId) return;
-    const trimmed = notificationEmail.trim();
-    if (trimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      toast.error("Zadajte platnú e-mailovú adresu");
-      return;
+    const raw = notificationEmail.trim();
+    let normalized: string | null = null;
+    if (raw !== "") {
+      const parts = raw
+        .split(/[,;\s]+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const invalid = parts.filter((p) => !emailRe.test(p));
+      if (invalid.length > 0) {
+        toast.error(`Neplatná e-mailová adresa: ${invalid[0]}`);
+        return;
+      }
+      // Dedupe (case-insensitive)
+      const seen = new Set<string>();
+      const unique: string[] = [];
+      for (const p of parts) {
+        const key = p.toLowerCase();
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(p);
+        }
+      }
+      if (unique.length > 10) {
+        toast.error("Maximálne 10 príjemcov");
+        return;
+      }
+      normalized = unique.join(", ");
     }
     setSaving(true);
     const { error } = await supabase.from("user_preferences").upsert(
@@ -85,7 +109,7 @@ function SettingsPage() {
         email_notifications: emailNotif,
         deadline_reminders: deadlineReminders,
         digest_frequency: digestFrequency,
-        notification_email: trimmed === "" ? null : trimmed,
+        notification_email: normalized,
         onboarding_completed: true,
       } as any,
       { onConflict: "user_id" },
@@ -94,6 +118,7 @@ function SettingsPage() {
     if (error) toast.error(error.message);
     else {
       toast.success("Notifikácie uložené");
+      setNotificationEmail(normalized ?? "");
       if (emailNotif) void sendWelcomeEmailIfNeeded();
     }
   }
@@ -172,18 +197,18 @@ function SettingsPage() {
           <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
         </div>
         <div className="mt-4 border-t border-primary/10 pt-4">
-          <Label htmlFor="notifEmail">E-mailová adresa pre notifikácie</Label>
+          <Label htmlFor="notifEmail">E-mailové adresy pre notifikácie</Label>
           <p className="text-sm text-muted-foreground">
-            Ak nechcete dostávať e-maily na prihlasovaciu adresu ({email}), zadajte inú.
-            Nechajte prázdne, ak chcete používať prihlasovací e-mail.
+            Jedna alebo viac adries oddelených čiarkou – notifikácie pôjdu všetkým.
+            Ak necháte prázdne, použije sa prihlasovací e-mail ({email}). Max 10 príjemcov.
           </p>
           <Input
             id="notifEmail"
-            type="email"
-            placeholder={email}
+            type="text"
+            placeholder={`${email}, kolega@firma.sk`}
             value={notificationEmail}
             onChange={(e) => setNotificationEmail(e.target.value)}
-            className="mt-2 max-w-sm"
+            className="mt-2 max-w-md"
           />
         </div>
         <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
