@@ -981,12 +981,14 @@ function TenderGridCard({
   hidden,
   tab,
   onToggle,
+  radarLabels,
 }: {
   tender: Tender;
   saved: boolean;
   hidden: boolean;
   tab: "foryou" | "saved" | "hidden";
   onToggle: (id: string, action: Action) => void;
+  radarLabels?: string[];
 }) {
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
@@ -1001,6 +1003,15 @@ function TenderGridCard({
       <div className="flex items-center gap-2 flex-wrap">
         <SourceBadge source={tender.source} />
         <DeadlineBadge daysLeft={daysLeft} expired={expired} />
+        {radarLabels?.map((n) => (
+          <span
+            key={n}
+            className="inline-flex items-center gap-1 border border-primary/40 text-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+            title="Zachytené radarom"
+          >
+            <Radar className="h-3 w-3" /> {n}
+          </span>
+        ))}
       </div>
       <Link
         to="/zakazka/$id"
