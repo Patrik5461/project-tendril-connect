@@ -647,6 +647,11 @@ function Dashboard() {
               hidden={actions[t.id]?.has("hidden") ?? false}
               tab={tab}
               onToggle={toggleAction}
+              radarLabels={
+                tab === "foryou" && userRadars.length > 1
+                  ? matchingRadarsFor(t).map((r) => r.name)
+                  : undefined
+              }
             />
           ))}
         </div>
@@ -660,6 +665,11 @@ function Dashboard() {
               hidden={actions[t.id]?.has("hidden") ?? false}
               tab={tab}
               onToggle={toggleAction}
+              radarLabels={
+                tab === "foryou" && userRadars.length > 1
+                  ? matchingRadarsFor(t).map((r) => r.name)
+                  : undefined
+              }
             />
           ))}
         </div>
