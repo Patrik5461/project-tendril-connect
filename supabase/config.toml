@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.backfill-uvo]
 verify_jwt = false
+
+[functions.send-deadline-reminders]
+verify_jwt = false
