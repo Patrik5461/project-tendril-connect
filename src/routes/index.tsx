@@ -86,10 +86,10 @@ function TenderMock() {
   return (
     <aside
       aria-hidden="true"
-      className="hidden md:block relative border border-foreground bg-card p-6 rotate-[-0.6deg]"
+      className="hidden md:block relative rounded-lg border border-foreground bg-card p-6 rotate-[-0.6deg]"
     >
       <div className="flex items-center justify-between">
-        <span className="inline-flex items-center border border-primary text-primary text-[0.68rem] font-semibold uppercase tracking-[0.16em] px-1.5 py-0.5">
+        <span className="inline-flex items-center rounded-sm border border-primary text-primary text-[0.68rem] font-semibold uppercase tracking-[0.16em] px-1.5 py-0.5">
           ÚVO
         </span>
         <span className="eyebrow text-muted-foreground">Č. 2026 / 184</span>
