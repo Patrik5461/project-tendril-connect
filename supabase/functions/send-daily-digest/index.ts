@@ -68,29 +68,6 @@ function matchesRadar(t: Tender, r: Radar): boolean {
   return kwMatch || cpvMatch;
 }
 
-// Vráti mapu: user_id -> { tender -> [názvy zachytených radarov] }
-function collectMatches(
-  tenders: Tender[],
-  radars: Radar[],
-): Map<string, Map<string, string[]>> {
-  const out = new Map<string, Map<string, string[]>>();
-  const byUser = new Map<string, Radar[]>();
-  for (const r of radars) {
-    if (!r.active) continue;
-    if (!byUser.has(r.user_id)) byUser.set(r.user_id, []);
-    byUser.get(r.user_id)!.push(r);
-  }
-  for (const [uid, list] of byUser) {
-    const userMap = new Map<string, string[]>();
-    for (const t of tenders) {
-      const names: string[] = [];
-      for (const r of list) if (matchesRadar(t, r)) names.push(r.name);
-      if (names.length) userMap.set(t.id, names);
-    }
-    if (userMap.size) out.set(uid, userMap);
-  }
-  return out;
-}
 
 function escapeHtml(s: string): string {
   return s
