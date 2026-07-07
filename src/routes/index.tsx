@@ -56,13 +56,18 @@ function ActiveTendersBlock() {
   if (failed) return null;
 
   return (
-    <div className="mt-8 pt-6 border-t border-border flex flex-col items-start gap-2">
+    <div className="mt-8 pt-6 border-t border-border flex flex-col items-start gap-1">
       {count === null ? (
         <span className="inline-block h-16 w-32 bg-muted" />
       ) : (
-        <span className="num text-6xl md:text-7xl font-bold text-primary leading-none">
-          {formatSk(display)}
-        </span>
+        <div className="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
+          <span className="num text-6xl md:text-7xl font-bold text-primary leading-none">
+            {formatSk(display)}
+          </span>
+          <span className="text-sm sm:text-base font-semibold text-foreground pb-1 sm:pb-2">
+            aktívnych zákaziek
+          </span>
+        </div>
       )}
       {total != null && total > 0 && (
         <span className="text-base md:text-lg text-foreground">
@@ -71,7 +76,7 @@ function ActiveTendersBlock() {
         </span>
       )}
       <span className="eyebrow text-muted-foreground mt-1">
-        Aktívnych zákaziek · Zdroje TED &amp; ÚVO · Aktualizované denne
+        ZDROJE TED &amp; ÚVO · AKTUALIZOVANÉ DENNE
       </span>
     </div>
   );
