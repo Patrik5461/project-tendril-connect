@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { REGIONS, CPV_DIVISIONS } from "@/lib/slovakia";
 import { X } from "lucide-react";
+import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({ meta: [{ title: "Nastavenie filtrov – Tendrik" }] }),
