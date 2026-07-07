@@ -335,7 +335,7 @@ Deno.serve(async (req) => {
               }))
             : undefined;
         const html = renderHtml(limited, flat.length, limitedGroups);
-        const subject = `Tendrik: ${flat.length} ${flat.length === 1 ? "nová zákazka" : flat.length < 5 ? "nové zákazky" : "nových zákaziek"} pre vás`;
+        const subject = `Tendrik: váš týždenný prehľad – ${flat.length} ${flat.length === 1 ? "nová zákazka" : flat.length < 5 ? "nové zákazky" : "nových zákaziek"}`;
         await sendEmail(uRes.user.email, subject, html, resendKey);
         emails_sent++;
         await new Promise((r) => setTimeout(r, 100));
