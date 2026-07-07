@@ -154,13 +154,13 @@ export function HelpChatWidget() {
               rows={2}
               placeholder="Napíš otázku…"
               disabled={busy}
-              className="flex-1 resize-none text-sm px-2 py-1.5 bg-background border border-border focus:outline-none focus:border-foreground disabled:opacity-60"
+              className="flex-1 resize-none text-sm px-2 py-1.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={busy || !input.trim()}
               aria-label="Odoslať"
-              className="h-9 w-9 shrink-0 bg-foreground text-background border-2 border-foreground flex items-center justify-center disabled:opacity-40 hover:bg-primary hover:border-primary transition-colors"
+              className="h-9 w-9 shrink-0 rounded-md bg-foreground text-background border-2 border-foreground flex items-center justify-center disabled:opacity-40 hover:bg-primary hover:border-primary transition-colors"
             >
               <Send className="h-4 w-4" />
             </button>
