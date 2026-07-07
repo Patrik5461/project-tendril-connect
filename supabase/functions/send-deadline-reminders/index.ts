@@ -173,7 +173,7 @@ Deno.serve(async (req) => {
     const userIds = [...new Set(actions.map((a) => a.user_id))];
     const { data: prefs, error: pErr } = await supabase
       .from("user_preferences")
-      .select("user_id, email_notifications, deadline_reminders")
+      .select("user_id, email_notifications, deadline_reminders, notification_email")
       .in("user_id", userIds);
     if (pErr) throw pErr;
     const prefMap = new Map((prefs ?? []).map((p) => [p.user_id, p]));
@@ -213,11 +213,16 @@ Deno.serve(async (req) => {
       const key = `${a.user_id}|${a.tender_id}|${daysLeft}`;
       if (sentKey.has(key)) continue;
 
-      // Zisti email
+      // Zisti email – prefer notification_email z preferencií
       let email = emailCache.get(a.user_id);
       if (email === undefined) {
-        const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(a.user_id);
-        email = uErr ? null : (uRes.user?.email ?? null);
+        const override = (p as any).notification_email as string | null | undefined;
+        if (override && override.trim() !== "") {
+          email = override.trim();
+        } else {
+          const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(a.user_id);
+          email = uErr ? null : (uRes.user?.email ?? null);
+        }
         emailCache.set(a.user_id, email);
       }
       if (!email) {

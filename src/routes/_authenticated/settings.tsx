@@ -34,6 +34,7 @@ function SettingsPage() {
   const [deadlineReminders, setDeadlineReminders] = useState(true);
   const [digestFrequency, setDigestFrequency] = useState<"daily" | "weekly">("daily");
   const [email, setEmail] = useState("");
+  const [notificationEmail, setNotificationEmail] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [list, setList] = useState<Radar[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -54,7 +55,7 @@ function SettingsPage() {
       setEmail(u.user.email ?? "");
       const { data } = await supabase
         .from("user_preferences")
-        .select("email_notifications,deadline_reminders,digest_frequency")
+        .select("email_notifications,deadline_reminders,digest_frequency,notification_email")
         .eq("user_id", u.user.id)
         .maybeSingle();
       if (data) {
@@ -62,6 +63,7 @@ function SettingsPage() {
         setDeadlineReminders((data as any).deadline_reminders ?? true);
         const df = (data as any).digest_frequency;
         setDigestFrequency(df === "weekly" ? "weekly" : "daily");
+        setNotificationEmail((data as any).notification_email ?? "");
       }
       await reloadRadars(u.user.id);
       setLoading(false);
@@ -70,6 +72,11 @@ function SettingsPage() {
 
   async function saveNotifications() {
     if (!userId) return;
+    const trimmed = notificationEmail.trim();
+    if (trimmed && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      toast.error("Zadajte platnú e-mailovú adresu");
+      return;
+    }
     setSaving(true);
     const { error } = await supabase.from("user_preferences").upsert(
       {
@@ -77,6 +84,7 @@ function SettingsPage() {
         email_notifications: emailNotif,
         deadline_reminders: deadlineReminders,
         digest_frequency: digestFrequency,
+        notification_email: trimmed === "" ? null : trimmed,
         onboarding_completed: true,
       } as any,
       { onConflict: "user_id" },
@@ -157,6 +165,21 @@ function SettingsPage() {
             <p className="text-sm text-muted-foreground">Súhrn nových zákaziek na váš e-mail.</p>
           </div>
           <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
+        </div>
+        <div className="mt-4 border-t border-primary/10 pt-4">
+          <Label htmlFor="notifEmail">E-mailová adresa pre notifikácie</Label>
+          <p className="text-sm text-muted-foreground">
+            Ak nechcete dostávať e-maily na prihlasovaciu adresu ({email}), zadajte inú.
+            Nechajte prázdne, ak chcete používať prihlasovací e-mail.
+          </p>
+          <Input
+            id="notifEmail"
+            type="email"
+            placeholder={email}
+            value={notificationEmail}
+            onChange={(e) => setNotificationEmail(e.target.value)}
+            className="mt-2 max-w-sm"
+          />
         </div>
         <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
           <div>

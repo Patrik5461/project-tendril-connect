@@ -285,10 +285,13 @@ Deno.serve(async (req) => {
 
     const { data: notifData, error: pErr } = await supabase
       .from("user_preferences")
-      .select("user_id,email_notifications,digest_frequency")
+      .select("user_id,email_notifications,digest_frequency,notification_email")
       .eq("email_notifications", true)
       .eq("digest_frequency", "weekly");
     if (pErr) throw pErr;
+    const notifEmailMap = new Map<string, string | null>(
+      (notifData ?? []).map((p: any) => [p.user_id as string, (p.notification_email as string | null) ?? null]),
+    );
     const eligibleIds = (notifData ?? []).map((p: any) => p.user_id as string);
     if (eligibleIds.length === 0) {
       return new Response(
@@ -320,11 +323,16 @@ Deno.serve(async (req) => {
         const { flat, groups, activeCount } = buildForUser(userId, radars);
         if (flat.length === 0) continue;
 
-        const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(userId);
-        if (uErr || !uRes.user?.email) {
-          console.error(`No email for user ${userId}`, uErr);
-          errors++;
-          continue;
+        const overrideEmail = notifEmailMap.get(userId);
+        let recipient: string | null = overrideEmail && overrideEmail.trim() !== "" ? overrideEmail.trim() : null;
+        if (!recipient) {
+          const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(userId);
+          if (uErr || !uRes.user?.email) {
+            console.error(`No email for user ${userId}`, uErr);
+            errors++;
+            continue;
+          }
+          recipient = uRes.user.email;
         }
         const limited = flat.slice(0, MAX_ITEMS);
         const limitedGroups =
@@ -336,7 +344,7 @@ Deno.serve(async (req) => {
             : undefined;
         const html = renderHtml(limited, flat.length, limitedGroups);
         const subject = `Tendrik: váš týždenný prehľad – ${flat.length} ${flat.length === 1 ? "nová zákazka" : flat.length < 5 ? "nové zákazky" : "nových zákaziek"}`;
-        await sendEmail(uRes.user.email, subject, html, resendKey);
+        await sendEmail(recipient, subject, html, resendKey);
         emails_sent++;
         await new Promise((r) => setTimeout(r, 100));
       } catch (err) {
