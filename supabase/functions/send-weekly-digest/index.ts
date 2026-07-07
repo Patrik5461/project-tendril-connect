@@ -335,15 +335,15 @@ Deno.serve(async (req) => {
         if (flat.length === 0) continue;
 
         const overrideEmail = notifEmailMap.get(userId);
-        let recipient: string | null = overrideEmail && overrideEmail.trim() !== "" ? overrideEmail.trim() : null;
-        if (!recipient) {
+        let recipients = parseRecipients(overrideEmail, null);
+        if (recipients.length === 0) {
           const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(userId);
           if (uErr || !uRes.user?.email) {
             console.error(`No email for user ${userId}`, uErr);
             errors++;
             continue;
           }
-          recipient = uRes.user.email;
+          recipients = [uRes.user.email];
         }
         const limited = flat.slice(0, MAX_ITEMS);
         const limitedGroups =
@@ -355,7 +355,7 @@ Deno.serve(async (req) => {
             : undefined;
         const html = renderHtml(limited, flat.length, limitedGroups);
         const subject = `Tendrik: váš týždenný prehľad – ${flat.length} ${flat.length === 1 ? "nová zákazka" : flat.length < 5 ? "nové zákazky" : "nových zákaziek"}`;
-        await sendEmail(recipient, subject, html, resendKey);
+        await sendEmail(recipients, subject, html, resendKey);
         emails_sent++;
         await new Promise((r) => setTimeout(r, 100));
       } catch (err) {
