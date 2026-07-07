@@ -130,6 +130,7 @@ export type Database = {
           regions: string[]
           updated_at: string
           user_id: string
+          welcome_email_sent: boolean
         }
         Insert: {
           cpv_codes?: string[]
@@ -144,6 +145,7 @@ export type Database = {
           regions?: string[]
           updated_at?: string
           user_id: string
+          welcome_email_sent?: boolean
         }
         Update: {
           cpv_codes?: string[]
@@ -158,6 +160,7 @@ export type Database = {
           regions?: string[]
           updated_at?: string
           user_id?: string
+          welcome_email_sent?: boolean
         }
         Relationships: []
       }

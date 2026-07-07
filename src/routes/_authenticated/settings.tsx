@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { REGIONS, CPV_DIVISIONS } from "@/lib/slovakia";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
+import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Nastavenia – Tendrik" }] }),
@@ -91,7 +92,10 @@ function SettingsPage() {
     );
     setSaving(false);
     if (error) toast.error(error.message);
-    else toast.success("Notifikácie uložené");
+    else {
+      toast.success("Notifikácie uložené");
+      if (emailNotif) void sendWelcomeEmailIfNeeded();
+    }
   }
 
   async function addRadar() {
@@ -114,6 +118,7 @@ function SettingsPage() {
     }
     setList((prev) => [...prev, data as Radar]);
     setExpanded((prev) => new Set(prev).add((data as Radar).id));
+    void sendWelcomeEmailIfNeeded();
   }
 
   async function updateRadar(id: string, patch: Partial<Radar>) {
