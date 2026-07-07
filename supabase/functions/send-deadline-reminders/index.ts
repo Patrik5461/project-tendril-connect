@@ -173,7 +173,7 @@ Deno.serve(async (req) => {
     const userIds = [...new Set(actions.map((a) => a.user_id))];
     const { data: prefs, error: pErr } = await supabase
       .from("user_preferences")
-      .select("user_id, email_notifications, deadline_reminders")
+      .select("user_id, email_notifications, deadline_reminders, notification_email")
       .in("user_id", userIds);
     if (pErr) throw pErr;
     const prefMap = new Map((prefs ?? []).map((p) => [p.user_id, p]));
