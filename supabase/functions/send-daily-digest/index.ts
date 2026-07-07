@@ -37,27 +37,59 @@ type Tender = {
   created_at: string;
 };
 
-type Prefs = {
+type Radar = {
+  id: string;
   user_id: string;
+  name: string;
   keywords: string[];
   cpv_codes: string[];
   regions: string[];
+  active: boolean;
+};
+
+type NotifPrefs = {
+  user_id: string;
   email_notifications: boolean;
 };
 
-function matches(t: Tender, p: Prefs): boolean {
-  const wholeSk = p.regions.includes("Celé Slovensko");
+function matchesRadar(t: Tender, r: Radar): boolean {
+  const wholeSk = r.regions.includes("Celé Slovensko");
   const regionOk =
-    wholeSk || p.regions.length === 0 || (t.region ? p.regions.includes(t.region) : true);
+    wholeSk || r.regions.length === 0 || (t.region ? r.regions.includes(t.region) : true);
   if (!regionOk) return false;
-  const kws = p.keywords.map((k) => k.toLowerCase());
+  const kws = r.keywords.map((k) => k.toLowerCase());
+  const cpvs = r.cpv_codes;
+  const hasFilters = kws.length > 0 || cpvs.length > 0;
+  if (!hasFilters) return true;
   const text = (t.title + " " + (t.description ?? "")).toLowerCase();
   const kwMatch = kws.length > 0 && kws.some((k) => text.includes(k));
   const cpvMatch =
-    p.cpv_codes.length > 0 &&
-    !!t.cpv_code &&
-    p.cpv_codes.some((c) => t.cpv_code!.startsWith(c));
+    cpvs.length > 0 && !!t.cpv_code && cpvs.some((c) => t.cpv_code!.startsWith(c));
   return kwMatch || cpvMatch;
+}
+
+// Vráti mapu: user_id -> { tender -> [názvy zachytených radarov] }
+function collectMatches(
+  tenders: Tender[],
+  radars: Radar[],
+): Map<string, Map<string, string[]>> {
+  const out = new Map<string, Map<string, string[]>>();
+  const byUser = new Map<string, Radar[]>();
+  for (const r of radars) {
+    if (!r.active) continue;
+    if (!byUser.has(r.user_id)) byUser.set(r.user_id, []);
+    byUser.get(r.user_id)!.push(r);
+  }
+  for (const [uid, list] of byUser) {
+    const userMap = new Map<string, string[]>();
+    for (const t of tenders) {
+      const names: string[] = [];
+      for (const r of list) if (matchesRadar(t, r)) names.push(r.name);
+      if (names.length) userMap.set(t.id, names);
+    }
+    if (userMap.size) out.set(uid, userMap);
+  }
+  return out;
 }
 
 function escapeHtml(s: string): string {
