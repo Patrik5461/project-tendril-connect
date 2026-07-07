@@ -914,7 +914,7 @@ function DeadlineBadge({
   const label =
     daysLeft === 0 ? "Posledný deň" : `${daysLeft} ${daysLeft === 1 ? "deň" : daysLeft < 5 ? "dni" : "dní"}`;
   return (
-    <span className={`eyebrow inline-flex items-center px-2 py-0.5 ${cls}`}>
+    <span className={`eyebrow inline-flex items-center rounded-sm px-2 py-0.5 ${cls}`}>
       {label}
     </span>
   );
