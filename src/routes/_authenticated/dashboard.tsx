@@ -53,10 +53,16 @@ type Tender = {
 };
 
 type Prefs = {
+  onboarding_completed: boolean;
+};
+
+type Radar = {
+  id: string;
+  name: string;
   keywords: string[];
   cpv_codes: string[];
   regions: string[];
-  onboarding_completed: boolean;
+  active: boolean;
 };
 
 type Action = "saved" | "hidden";
@@ -67,6 +73,7 @@ const searchSchema = z.object({
   sort: fallback(z.enum(["deadline", "newest", "value"]), "deadline").default("deadline"),
   q: fallback(z.string(), "").default(""),
   view: fallback(z.enum(["list", "grid"]), "list").default("list"),
+  radar: fallback(z.string(), "all").default("all"),
 });
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
