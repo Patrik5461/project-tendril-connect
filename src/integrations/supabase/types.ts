@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      help_chat_usage: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sent_reminders: {
         Row: {
           days_before: number
