@@ -144,7 +144,7 @@ function TenderDetail() {
             </span>
           ) : (
             <span
-              className={`eyebrow inline-flex items-center px-2 py-0.5 ${
+              className={`eyebrow inline-flex items-center rounded-sm px-2 py-0.5 ${
                 daysLeft < 7
                   ? "border border-primary bg-primary text-primary-foreground"
                   : "border border-foreground bg-transparent text-foreground"

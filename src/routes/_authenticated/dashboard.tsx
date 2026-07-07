@@ -780,7 +780,7 @@ function TenderCard({
             {radarLabels?.map((n) => (
               <span
                 key={n}
-                className="inline-flex items-center gap-1 border border-primary/40 text-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
+                className="inline-flex items-center gap-1 rounded-sm border border-primary/40 text-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
                 title="Zachytené radarom"
               >
                 <Radar className="h-3 w-3" /> {n}
@@ -914,7 +914,7 @@ function DeadlineBadge({
   const label =
     daysLeft === 0 ? "Posledný deň" : `${daysLeft} ${daysLeft === 1 ? "deň" : daysLeft < 5 ? "dni" : "dní"}`;
   return (
-    <span className={`eyebrow inline-flex items-center px-2 py-0.5 ${cls}`}>
+    <span className={`eyebrow inline-flex items-center rounded-sm px-2 py-0.5 ${cls}`}>
       {label}
     </span>
   );
@@ -928,7 +928,7 @@ function SourceBadge({ source }: { source: string }) {
     : "border border-accent text-accent";
   return (
     <span
-      className={`eyebrow inline-flex items-center bg-transparent px-2 py-0.5 ${cls}`}
+      className={`eyebrow inline-flex items-center rounded-sm bg-transparent px-2 py-0.5 ${cls}`}
       title={isUvo ? "Vestník verejného obstarávania ÚVO" : "Tenders Electronic Daily (EÚ)"}
     >
       {label}
@@ -1015,7 +1015,7 @@ function TenderGridCard({
 
   return (
     <article
-      className={`flex flex-col border border-foreground bg-card p-5 transition-colors hover:bg-secondary/60 ${
+      className={`flex flex-col rounded-lg border border-foreground bg-card p-5 transition-colors hover:bg-secondary/60 ${
         expired ? "opacity-70" : ""
       } ${hidden && tab !== "hidden" ? "opacity-60" : ""}`}
     >
@@ -1025,7 +1025,7 @@ function TenderGridCard({
         {radarLabels?.map((n) => (
           <span
             key={n}
-            className="inline-flex items-center gap-1 border border-primary/40 text-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+            className="inline-flex items-center gap-1 rounded-sm border border-primary/40 text-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
             title="Zachytené radarom"
           >
             <Radar className="h-3 w-3" /> {n}

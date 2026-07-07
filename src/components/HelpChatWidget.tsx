@@ -70,7 +70,7 @@ export function HelpChatWidget() {
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Otvoriť pomocníka"
-          className="fixed bottom-5 right-5 z-40 h-14 w-14 bg-primary text-primary-foreground border-2 border-foreground shadow-[4px_4px_0_0_hsl(var(--foreground))] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0_0_hsl(var(--foreground))] transition-all flex items-center justify-center"
+          className="fixed bottom-5 right-5 z-40 h-14 w-14 rounded-md bg-primary text-primary-foreground border-2 border-foreground shadow-[4px_4px_0_0_hsl(var(--foreground))] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0_0_hsl(var(--foreground))] transition-all flex items-center justify-center"
         >
           <MessageSquare className="h-6 w-6" />
         </button>
@@ -80,7 +80,7 @@ export function HelpChatWidget() {
         <div
           role="dialog"
           aria-label="Pomocník Tendrik"
-          className="fixed bottom-5 right-5 z-40 w-[min(380px,calc(100vw-2.5rem))] h-[min(560px,calc(100vh-2.5rem))] flex flex-col bg-background border-2 border-foreground shadow-[6px_6px_0_0_hsl(var(--foreground))]"
+          className="fixed bottom-5 right-5 z-40 w-[min(380px,calc(100vw-2.5rem))] h-[min(560px,calc(100vh-2.5rem))] flex flex-col rounded-md bg-background border-2 border-foreground shadow-[6px_6px_0_0_hsl(var(--foreground))] overflow-hidden"
         >
           <div className="flex items-center justify-between border-b-2 border-foreground bg-foreground text-background px-3 py-2">
             <div className="flex items-center gap-2">
@@ -109,7 +109,7 @@ export function HelpChatWidget() {
                 className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] px-3 py-2 text-sm whitespace-pre-line leading-relaxed border ${
+                  className={`max-w-[85%] px-3 py-2 text-sm whitespace-pre-line leading-relaxed rounded-md border ${
                     m.role === "user"
                       ? "bg-primary text-primary-foreground border-primary"
                       : "bg-secondary text-foreground border-border"
@@ -121,7 +121,7 @@ export function HelpChatWidget() {
             ))}
             {busy && (
               <div className="flex justify-start">
-                <div className="px-3 py-2 text-sm bg-secondary border border-border text-muted-foreground inline-flex items-center gap-2">
+                <div className="px-3 py-2 text-sm bg-secondary rounded-md border border-border text-muted-foreground inline-flex items-center gap-2">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   Píšem…
                 </div>
@@ -154,13 +154,13 @@ export function HelpChatWidget() {
               rows={2}
               placeholder="Napíš otázku…"
               disabled={busy}
-              className="flex-1 resize-none text-sm px-2 py-1.5 bg-background border border-border focus:outline-none focus:border-foreground disabled:opacity-60"
+              className="flex-1 resize-none text-sm px-2 py-1.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground disabled:opacity-60"
             />
             <button
               type="submit"
               disabled={busy || !input.trim()}
               aria-label="Odoslať"
-              className="h-9 w-9 shrink-0 bg-foreground text-background border-2 border-foreground flex items-center justify-center disabled:opacity-40 hover:bg-primary hover:border-primary transition-colors"
+              className="h-9 w-9 shrink-0 rounded-md bg-foreground text-background border-2 border-foreground flex items-center justify-center disabled:opacity-40 hover:bg-primary hover:border-primary transition-colors"
             >
               <Send className="h-4 w-4" />
             </button>

@@ -83,21 +83,21 @@ export function CookieBanner() {
               <button
                 type="button"
                 onClick={rejectOptional}
-                className="border-2 border-foreground bg-white px-3 py-2 text-sm font-medium text-black hover:bg-black/5"
+                className="rounded-md border-2 border-foreground bg-white px-3 py-2 text-sm font-medium text-black hover:bg-black/5"
               >
                 Odmietnuť nepovinné
               </button>
               <button
                 type="button"
                 onClick={openSettings}
-                className="border-2 border-foreground bg-white px-3 py-2 text-sm font-medium text-black hover:bg-black/5"
+                className="rounded-md border-2 border-foreground bg-white px-3 py-2 text-sm font-medium text-black hover:bg-black/5"
               >
                 Nastavenia
               </button>
               <button
                 type="button"
                 onClick={acceptAll}
-                className="border-2 border-foreground bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:brightness-95"
+                className="rounded-md border-2 border-foreground bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:brightness-95"
               >
                 Prijať všetky
               </button>
