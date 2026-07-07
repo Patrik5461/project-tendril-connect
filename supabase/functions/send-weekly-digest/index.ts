@@ -293,10 +293,6 @@ Deno.serve(async (req) => {
       (notifData ?? []).map((p: any) => [p.user_id as string, (p.notification_email as string | null) ?? null]),
     );
     const eligibleIds = (notifData ?? []).map((p: any) => p.user_id as string);
-      .eq("email_notifications", true)
-      .eq("digest_frequency", "weekly");
-    if (pErr) throw pErr;
-    const eligibleIds = (notifData ?? []).map((p: any) => p.user_id as string);
     if (eligibleIds.length === 0) {
       return new Response(
         JSON.stringify({ users_checked: 0, emails_sent: 0, errors: 0 }),
