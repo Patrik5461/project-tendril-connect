@@ -810,15 +810,23 @@ function TenderCard({
               {deadlineDate ? format(deadlineDate, "d.M.yyyy") : "Neurčené"}
             </span>
           </div>
-          {tender.description && (
-            <Link
-              to="/zakazka/$id"
-              params={{ id: tender.id }}
-              className="mt-3 block text-sm text-foreground/70 line-clamp-2 hover:text-foreground"
-            >
-              {tender.description}
-            </Link>
-          )}
+          {(() => {
+            const summary = tender.ai_summary?.trim();
+            const firstSentence = summary
+              ? (summary.match(/[^.!?]+[.!?]/)?.[0] ?? summary).trim()
+              : null;
+            const snippet = firstSentence ?? tender.description;
+            if (!snippet) return null;
+            return (
+              <Link
+                to="/zakazka/$id"
+                params={{ id: tender.id }}
+                className="mt-3 block text-sm text-foreground/70 line-clamp-2 hover:text-foreground"
+              >
+                {snippet}
+              </Link>
+            );
+          })()}
         </div>
 
         <div className="flex flex-col items-end justify-between gap-3 shrink-0 min-h-[6rem]">
