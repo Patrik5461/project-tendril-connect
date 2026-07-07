@@ -24,6 +24,7 @@ function SettingsPage() {
   const [cpvCodes, setCpvCodes] = useState<string[]>([]);
   const [regions, setRegions] = useState<string[]>([]);
   const [emailNotif, setEmailNotif] = useState(true);
+  const [deadlineReminders, setDeadlineReminders] = useState(true);
   const [email, setEmail] = useState("");
 
   useEffect(() => {
