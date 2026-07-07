@@ -254,25 +254,50 @@ Deno.serve(async (req) => {
     if (tErr) throw tErr;
     const tenders = (tendersData ?? []) as Tender[];
 
+    // Helper: build per-user radar match groups + flat list (unique tenders in order)
+    function buildForUser(userId: string, radars: Radar[]) {
+      const active = radars.filter((r) => r.active);
+      const groupMap = new Map<string, (Tender & { estimated_value?: number | null })[]>();
+      const seen = new Set<string>();
+      const flat: (Tender & { estimated_value?: number | null })[] = [];
+      const sorted = tenders
+        .slice()
+        .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
+      for (const t of sorted) {
+        for (const r of active) {
+          if (matchesRadar(t, r)) {
+            if (!groupMap.has(r.name)) groupMap.set(r.name, []);
+            groupMap.get(r.name)!.push(t as any);
+            if (!seen.has(t.id)) {
+              seen.add(t.id);
+              flat.push(t as any);
+            }
+          }
+        }
+      }
+      const groups = Array.from(groupMap.entries()).map(([name, items]) => ({ name, items }));
+      return { flat, groups, activeCount: active.length };
+    }
+
     // PREVIEW MODE
     if (body.preview_user_id) {
-      const { data: p } = await supabase
-        .from("user_preferences")
-        .select("user_id,keywords,cpv_codes,regions,email_notifications")
-        .eq("user_id", body.preview_user_id)
-        .maybeSingle();
-      if (!p) {
-        return new Response(
-          JSON.stringify({ error: "user_preferences not found" }),
-          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
-      const prefs = p as Prefs;
-      const matched = tenders.filter((t) => matches(t, prefs));
-      matched.sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
-      const html = renderHtml(matched.slice(0, MAX_ITEMS), matched.length);
+      const { data: rData } = await supabase
+        .from("user_radars")
+        .select("*")
+        .eq("user_id", body.preview_user_id);
+      const radars = (rData ?? []) as Radar[];
+      const { flat, groups, activeCount } = buildForUser(body.preview_user_id, radars);
+      const limited = flat.slice(0, MAX_ITEMS);
+      const limitedGroups =
+        activeCount > 1
+          ? groups.map((g) => ({
+              name: g.name,
+              items: g.items.filter((t) => limited.some((x) => x.id === t.id)),
+            }))
+          : undefined;
+      const html = renderHtml(limited, flat.length, limitedGroups);
       return new Response(
-        JSON.stringify({ tender_count: matched.length, html }),
+        JSON.stringify({ tender_count: flat.length, html }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -281,50 +306,67 @@ Deno.serve(async (req) => {
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) throw new Error("RESEND_API_KEY not configured");
 
-    const { data: prefsData, error: pErr } = await supabase
+    const { data: notifData, error: pErr } = await supabase
       .from("user_preferences")
-      .select("user_id,keywords,cpv_codes,regions,email_notifications")
+      .select("user_id,email_notifications")
       .eq("email_notifications", true);
     if (pErr) throw pErr;
+    const eligibleIds = (notifData ?? []).map((p: any) => p.user_id as string);
+    if (eligibleIds.length === 0) {
+      return new Response(
+        JSON.stringify({ users_checked: 0, emails_sent: 0, errors: 0 }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
-    const eligible = (prefsData ?? []).filter((p: any) => {
-      const hasFilter =
-        (p.keywords?.length ?? 0) > 0 ||
-        (p.cpv_codes?.length ?? 0) > 0 ||
-        (p.regions?.length ?? 0) > 0;
-      return hasFilter;
-    }) as Prefs[];
+    const { data: allRadars, error: rErr } = await supabase
+      .from("user_radars")
+      .select("*")
+      .in("user_id", eligibleIds);
+    if (rErr) throw rErr;
+    const radarsByUser = new Map<string, Radar[]>();
+    for (const r of (allRadars ?? []) as Radar[]) {
+      if (!radarsByUser.has(r.user_id)) radarsByUser.set(r.user_id, []);
+      radarsByUser.get(r.user_id)!.push(r);
+    }
 
     let users_checked = 0;
     let emails_sent = 0;
     let errors = 0;
 
-    for (const prefs of eligible) {
+    for (const userId of eligibleIds) {
       users_checked++;
       try {
-        const matched = tenders.filter((t) => matches(t, prefs));
-        if (matched.length === 0) continue;
+        const radars = radarsByUser.get(userId) ?? [];
+        if (radars.filter((r) => r.active).length === 0) continue;
+        const { flat, groups, activeCount } = buildForUser(userId, radars);
+        if (flat.length === 0) continue;
 
-        // Fetch user email via admin API
-        const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(
-          prefs.user_id,
-        );
+        const { data: uRes, error: uErr } = await supabase.auth.admin.getUserById(userId);
         if (uErr || !uRes.user?.email) {
-          console.error(`No email for user ${prefs.user_id}`, uErr);
+          console.error(`No email for user ${userId}`, uErr);
           errors++;
           continue;
         }
-        matched.sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""));
-        const html = renderHtml(matched.slice(0, MAX_ITEMS), matched.length);
-        const subject = `Tendrik: ${matched.length} ${matched.length === 1 ? "nová zákazka" : matched.length < 5 ? "nové zákazky" : "nových zákaziek"} pre vás`;
+        const limited = flat.slice(0, MAX_ITEMS);
+        const limitedGroups =
+          activeCount > 1
+            ? groups.map((g) => ({
+                name: g.name,
+                items: g.items.filter((t) => limited.some((x) => x.id === t.id)),
+              }))
+            : undefined;
+        const html = renderHtml(limited, flat.length, limitedGroups);
+        const subject = `Tendrik: ${flat.length} ${flat.length === 1 ? "nová zákazka" : flat.length < 5 ? "nové zákazky" : "nových zákaziek"} pre vás`;
         await sendEmail(uRes.user.email, subject, html, resendKey);
         emails_sent++;
         await new Promise((r) => setTimeout(r, 100));
       } catch (err) {
-        console.error(`Digest failed for user ${prefs.user_id}:`, err);
+        console.error(`Digest failed for user ${userId}:`, err);
         errors++;
       }
     }
+
 
     return new Response(
       JSON.stringify({ users_checked, emails_sent, errors }),
