@@ -219,11 +219,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    const recipient =
-      notificationEmail && notificationEmail.trim() !== ""
-        ? notificationEmail.trim()
-        : user.email;
-    if (!recipient) {
+    const recipients = parseRecipients(notificationEmail, user.email);
+    if (recipients.length === 0) {
       return new Response(
         JSON.stringify({ sent: false, reason: "no_email" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -238,7 +235,7 @@ Deno.serve(async (req) => {
     const html = renderHtml(dashboardUrl, settingsUrl);
 
     try {
-      await sendEmail(recipient, "Vitajte v Tendriku – váš radar je zapnutý", html, resendKey);
+      await sendEmail(recipients, "Vitajte v Tendriku – váš radar je zapnutý", html, resendKey);
     } catch (mailErr) {
       // Roll back the flag so the user can retry later.
       await admin
