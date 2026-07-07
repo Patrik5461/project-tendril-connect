@@ -509,6 +509,27 @@ function Dashboard() {
         </Tabs>
 
         <div className="flex gap-2 flex-col sm:flex-row">
+          {tab === "foryou" && userRadars.length > 1 && (
+            <Select
+              value={radarParam}
+              onValueChange={(v) =>
+                navigate({ search: (p: any) => ({ ...p, radar: v }) })
+              }
+            >
+              <SelectTrigger className="sm:w-56">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Všetky radary</SelectItem>
+                {userRadars.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    {r.name}
+                    {!r.active ? " (vypnutý)" : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
