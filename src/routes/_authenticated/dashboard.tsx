@@ -154,16 +154,21 @@ function Dashboard() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
       setUserId(u.user.id);
-      const [{ data: p }, { data: t }] = await Promise.all([
+      const [{ data: p }, { data: t }, { data: r }] = await Promise.all([
         supabase
           .from("user_preferences")
-          .select("keywords,cpv_codes,regions,onboarding_completed")
+          .select("onboarding_completed")
           .eq("user_id", u.user.id)
           .maybeSingle(),
         supabase.from("tenders").select("*"),
+        (supabase.from("user_radars" as never) as any)
+          .select("*")
+          .eq("user_id", u.user.id)
+          .order("created_at", { ascending: true }),
       ]);
       setPrefs(p as Prefs | null);
       setTenders((t ?? []) as Tender[]);
+      setUserRadars((r ?? []) as Radar[]);
       await loadActions(u.user.id);
       setLoading(false);
     })();
