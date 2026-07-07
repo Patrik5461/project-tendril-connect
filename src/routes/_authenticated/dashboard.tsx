@@ -738,12 +738,14 @@ function TenderCard({
   hidden,
   tab,
   onToggle,
+  radarLabels,
 }: {
   tender: Tender;
   saved: boolean;
   hidden: boolean;
   tab: "foryou" | "saved" | "hidden";
   onToggle: (id: string, action: Action) => void;
+  radarLabels?: string[];
 }) {
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
@@ -764,6 +766,15 @@ function TenderCard({
             {tender.cpv_code && (
               <span className="eyebrow text-muted-foreground">CPV {tender.cpv_code}</span>
             )}
+            {radarLabels?.map((n) => (
+              <span
+                key={n}
+                className="inline-flex items-center gap-1 border border-primary/40 text-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
+                title="Zachytené radarom"
+              >
+                <Radar className="h-3 w-3" /> {n}
+              </span>
+            ))}
           </div>
           <Link
             to="/zakazka/$id"
