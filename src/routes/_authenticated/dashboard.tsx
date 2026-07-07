@@ -1015,7 +1015,7 @@ function TenderGridCard({
 
   return (
     <article
-      className={`flex flex-col border border-foreground bg-card p-5 transition-colors hover:bg-secondary/60 ${
+      className={`flex flex-col rounded-lg border border-foreground bg-card p-5 transition-colors hover:bg-secondary/60 ${
         expired ? "opacity-70" : ""
       } ${hidden && tab !== "hidden" ? "opacity-60" : ""}`}
     >
