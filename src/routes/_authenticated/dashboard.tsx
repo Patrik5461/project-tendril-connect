@@ -438,16 +438,17 @@ function Dashboard() {
     return <div className="mx-auto max-w-6xl px-4 py-8 text-muted-foreground">Načítavam...</div>;
   }
 
-  if (!prefs?.onboarding_completed) {
+  const hasAnyRadar = userRadars.length > 0;
+  if (!prefs?.onboarding_completed || !hasAnyRadar) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">Ešte ste nenastavili filtre</h1>
+        <h1 className="text-2xl font-semibold">Ešte ste nenastavili radar</h1>
         <p className="mt-2 text-muted-foreground">
           Aby sme vám ukázali relevantné zákazky, potrebujeme vaše kľúčové slová, CPV kategórie a
           kraje.
         </p>
         <Link to="/onboarding" className="mt-6 inline-block">
-          <Button size="lg">Nastaviť filtre</Button>
+          <Button size="lg">Nastaviť radar</Button>
         </Link>
       </div>
     );
