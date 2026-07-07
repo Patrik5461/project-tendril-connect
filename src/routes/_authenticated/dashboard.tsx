@@ -928,7 +928,7 @@ function SourceBadge({ source }: { source: string }) {
     : "border border-accent text-accent";
   return (
     <span
-      className={`eyebrow inline-flex items-center bg-transparent px-2 py-0.5 ${cls}`}
+      className={`eyebrow inline-flex items-center rounded-sm bg-transparent px-2 py-0.5 ${cls}`}
       title={isUvo ? "Vestník verejného obstarávania ÚVO" : "Tenders Electronic Daily (EÚ)"}
     >
       {label}
