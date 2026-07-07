@@ -79,20 +79,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Tendrik – Verejné zákazky pre vaše podnikanie" },
+      { title: "Tendrik – Zákazky si ťa nájdu samy" },
       {
         name: "description",
         content:
           "Bezplatná služba, ktorá vám každý deň prinesie verejné zákazky presne podľa vašich kľúčových slov, CPV kódov a krajov Slovenska.",
       },
       { name: "author", content: "Tendrik" },
-      { property: "og:title", content: "Tendrik – Verejné zákazky pre vaše podnikanie" },
+      { property: "og:title", content: "Tendrik – Zákazky si ťa nájdu samy" },
       {
         property: "og:description",
         content: "Bezplatné notifikácie o zákazkach podľa vášho odvetvia a regiónu.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Tendrik – Zákazky si ťa nájdu samy" },
+      { name: "description", content: "Tendrik vám každý deň prinesie verejné zákazky presne podľa vašich kľúčových slov, CPV kódov a krajov. Zadarmo." },
+      { property: "og:description", content: "Tendrik vám každý deň prinesie verejné zákazky presne podľa vašich kľúčových slov, CPV kódov a krajov. Zadarmo." },
+      { name: "twitter:description", content: "Tendrik vám každý deň prinesie verejné zákazky presne podľa vašich kľúčových slov, CPV kódov a krajov. Zadarmo." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/f14a3c1d-bb9c-430c-9f2e-b1ab3d7f9059" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/f14a3c1d-bb9c-430c-9f2e-b1ab3d7f9059" },
     ],
     links: [
       {
