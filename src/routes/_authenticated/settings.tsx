@@ -76,8 +76,9 @@ function SettingsPage() {
         user_id: userId,
         email_notifications: emailNotif,
         deadline_reminders: deadlineReminders,
+        digest_frequency: digestFrequency,
         onboarding_completed: true,
-      },
+      } as any,
       { onConflict: "user_id" },
     );
     setSaving(false);
