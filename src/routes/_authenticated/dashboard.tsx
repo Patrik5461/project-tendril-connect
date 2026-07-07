@@ -91,11 +91,12 @@ function norm(s: string): string {
 }
 
 function Dashboard() {
-  const { tab, sort, q, view } = Route.useSearch();
+  const { tab, sort, q, view, radar: radarParam } = Route.useSearch();
   const navigate = useNavigate({ from: "/dashboard" });
 
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [prefs, setPrefs] = useState<Prefs | null>(null);
+  const [userRadars, setUserRadars] = useState<Radar[]>([]);
   const [actions, setActions] = useState<Record<string, Set<Action>>>({});
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
