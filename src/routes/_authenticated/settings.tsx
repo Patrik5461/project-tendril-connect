@@ -68,6 +68,7 @@ function SettingsPage() {
         cpv_codes: cpvCodes,
         regions,
         email_notifications: emailNotif,
+        deadline_reminders: deadlineReminders,
         onboarding_completed: true,
       },
       { onConflict: "user_id" },
