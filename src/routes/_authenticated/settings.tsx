@@ -118,6 +118,7 @@ function SettingsPage() {
     }
     setList((prev) => [...prev, data as Radar]);
     setExpanded((prev) => new Set(prev).add((data as Radar).id));
+    void sendWelcomeEmailIfNeeded();
   }
 
   async function updateRadar(id: string, patch: Partial<Radar>) {
