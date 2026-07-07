@@ -92,7 +92,10 @@ function SettingsPage() {
     );
     setSaving(false);
     if (error) toast.error(error.message);
-    else toast.success("Notifikácie uložené");
+    else {
+      toast.success("Notifikácie uložené");
+      if (emailNotif) void sendWelcomeEmailIfNeeded();
+    }
   }
 
   async function addRadar() {
