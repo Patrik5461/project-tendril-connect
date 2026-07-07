@@ -121,7 +121,7 @@ export function HelpChatWidget() {
             ))}
             {busy && (
               <div className="flex justify-start">
-                <div className="px-3 py-2 text-sm bg-secondary border border-border text-muted-foreground inline-flex items-center gap-2">
+                <div className="px-3 py-2 text-sm bg-secondary rounded-md border border-border text-muted-foreground inline-flex items-center gap-2">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   Píšem…
                 </div>
