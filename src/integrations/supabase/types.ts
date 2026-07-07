@@ -40,6 +40,8 @@ export type Database = {
       }
       tenders: {
         Row: {
+          ai_summary: string | null
+          ai_summary_generated_at: string | null
           contracting_authority: string
           cpv_code: string | null
           created_at: string
@@ -57,6 +59,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_summary?: string | null
+          ai_summary_generated_at?: string | null
           contracting_authority: string
           cpv_code?: string | null
           created_at?: string
@@ -74,6 +78,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_summary?: string | null
+          ai_summary_generated_at?: string | null
           contracting_authority?: string
           cpv_code?: string | null
           created_at?: string
