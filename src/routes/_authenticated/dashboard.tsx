@@ -350,31 +350,42 @@ function Dashboard() {
     }
   }
 
-  // Match tenders to user preferences (For You audience)
-  const matchesPrefs = useMemo(() => {
-    if (!prefs) return () => false;
-    const kws = prefs.keywords.map((k) => norm(k));
-    const cpvs = prefs.cpv_codes;
-    const regs = prefs.regions;
+  // Match tender against a single radar
+  const matchesRadar = (t: Tender, r: Radar): boolean => {
+    const regs = r.regions;
     const wholeSk = regs.includes("Celé Slovensko");
+    const regionOk =
+      wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
+    if (!regionOk) return false;
+    const kws = r.keywords.map((k) => norm(k));
+    const cpvs = r.cpv_codes;
     const hasFilters = kws.length > 0 || cpvs.length > 0;
-    return (t: Tender) => {
-      const regionOk =
-        wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
-      if (!regionOk) return false;
-      if (!hasFilters) return true;
-      const text = norm(t.title + " " + (t.description ?? ""));
-      const keywordMatch = kws.length > 0 && kws.some((k) => text.includes(k));
-      // A tender is a valid CPV candidate only if its code looks like a real CPV
-      // (digits, at least 2). Missing/garbage codes fall through as "unknown"
-      // so backfilled notices without a parsed CPV still surface in For You.
-      const cpvLooksValid = !!t.cpv_code && /^\d{2,}/.test(t.cpv_code);
-      const cpvMatch =
-        cpvs.length > 0 && cpvLooksValid && cpvs.some((c) => t.cpv_code!.startsWith(c));
-      const cpvUnknown = !cpvLooksValid;
-      return keywordMatch || cpvMatch || cpvUnknown;
-    };
-  }, [prefs]);
+    if (!hasFilters) return true;
+    const text = norm(t.title + " " + (t.description ?? ""));
+    const keywordMatch = kws.length > 0 && kws.some((k) => text.includes(k));
+    const cpvLooksValid = !!t.cpv_code && /^\d{2,}/.test(t.cpv_code);
+    const cpvMatch =
+      cpvs.length > 0 && cpvLooksValid && cpvs.some((c) => t.cpv_code!.startsWith(c));
+    const cpvUnknown = !cpvLooksValid;
+    return keywordMatch || cpvMatch || cpvUnknown;
+  };
+
+  // Aktívne radary (alebo len vybraný)
+  const activeRadars = useMemo(
+    () => userRadars.filter((r) => r.active),
+    [userRadars],
+  );
+  const selectedRadars = useMemo(() => {
+    if (radarParam === "all") return activeRadars;
+    const one = activeRadars.find((r) => r.id === radarParam);
+    return one ? [one] : activeRadars;
+  }, [activeRadars, radarParam]);
+
+  // Vráti radary, ktoré zákazku zachytili
+  const matchingRadarsFor = useMemo(() => {
+    return (t: Tender): Radar[] => selectedRadars.filter((r) => matchesRadar(t, r));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedRadars]);
 
   const isActive = (t: Tender) => {
     const now = Date.now();
@@ -388,7 +399,7 @@ function Dashboard() {
     let result = tenders.slice();
 
     if (tab === "foryou") {
-      result = result.filter(matchesPrefs).filter(isActive);
+      result = result.filter((t) => matchingRadarsFor(t).length > 0).filter(isActive);
       result = result.filter((t) => !actions[t.id]?.has("hidden"));
     } else if (tab === "saved") {
       result = result.filter((t) => actions[t.id]?.has("saved"));
@@ -415,13 +426,13 @@ function Dashboard() {
       if (sort === "newest") {
         return (b.published_at ?? "").localeCompare(a.published_at ?? "");
       }
-      // value — nulls last
       const av = a.estimated_value == null ? -1 : Number(a.estimated_value);
       const bv = b.estimated_value == null ? -1 : Number(b.estimated_value);
       return bv - av;
     });
     return result;
-  }, [tenders, actions, matchesPrefs, tab, q, sort]);
+  }, [tenders, actions, matchingRadarsFor, tab, q, sort]);
+
 
   if (loading) {
     return <div className="mx-auto max-w-6xl px-4 py-8 text-muted-foreground">Načítavam...</div>;
