@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      sent_reminders: {
+        Row: {
+          days_before: number
+          id: string
+          sent_at: string
+          tender_id: string
+          user_id: string
+        }
+        Insert: {
+          days_before: number
+          id?: string
+          sent_at?: string
+          tender_id: string
+          user_id: string
+        }
+        Update: {
+          days_before?: number
+          id?: string
+          sent_at?: string
+          tender_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tenders: {
         Row: {
           contracting_authority: string
@@ -72,6 +96,7 @@ export type Database = {
         Row: {
           cpv_codes: string[]
           created_at: string
+          deadline_reminders: boolean
           email_notifications: boolean
           id: string
           keywords: string[]
@@ -83,6 +108,7 @@ export type Database = {
         Insert: {
           cpv_codes?: string[]
           created_at?: string
+          deadline_reminders?: boolean
           email_notifications?: boolean
           id?: string
           keywords?: string[]
@@ -94,6 +120,7 @@ export type Database = {
         Update: {
           cpv_codes?: string[]
           created_at?: string
+          deadline_reminders?: boolean
           email_notifications?: boolean
           id?: string
           keywords?: string[]

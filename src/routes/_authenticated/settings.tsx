@@ -24,6 +24,7 @@ function SettingsPage() {
   const [cpvCodes, setCpvCodes] = useState<string[]>([]);
   const [regions, setRegions] = useState<string[]>([]);
   const [emailNotif, setEmailNotif] = useState(true);
+  const [deadlineReminders, setDeadlineReminders] = useState(true);
   const [email, setEmail] = useState("");
 
   useEffect(() => {
@@ -41,6 +42,7 @@ function SettingsPage() {
         setCpvCodes(data.cpv_codes ?? []);
         setRegions(data.regions ?? []);
         setEmailNotif(data.email_notifications ?? true);
+        setDeadlineReminders((data as any).deadline_reminders ?? true);
       }
       setLoading(false);
     })();
@@ -66,6 +68,7 @@ function SettingsPage() {
         cpv_codes: cpvCodes,
         regions,
         email_notifications: emailNotif,
+        deadline_reminders: deadlineReminders,
         onboarding_completed: true,
       },
       { onConflict: "user_id" },
@@ -92,6 +95,19 @@ function SettingsPage() {
             <p className="text-sm text-muted-foreground">Denný súhrn na váš e-mail.</p>
           </div>
           <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
+        </div>
+        <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
+          <div>
+            <Label htmlFor="deadlineRem">Pripomienky deadlinov uložených zákaziek</Label>
+            <p className="text-sm text-muted-foreground">
+              E-mail 3 dni a 1 deň pred koncom lehoty pri uložených zákazkách.
+            </p>
+          </div>
+          <Switch
+            id="deadlineRem"
+            checked={deadlineReminders}
+            onCheckedChange={setDeadlineReminders}
+          />
         </div>
       </section>
 
