@@ -24,6 +24,7 @@ type Tender = {
   source_url: string | null;
   estimated_value: number | null;
   source: string;
+  ai_summary?: string | null;
 };
 
 export const Route = createFileRoute("/zakazka/$id")({
