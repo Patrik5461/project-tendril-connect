@@ -216,7 +216,23 @@ Deno.serve(async (req) => {
       const deadline =
         parseTedDate(n["deadline-receipt-tender-date-lot"]) ??
         parseTedDate(n["deadline-receipt-request-date-lot"]);
-      const region = pickRegion(n["place-of-performance"]);
+
+      const popCodes: string[] = [];
+      collectStrings(n["place-of-performance"], popCodes);
+      const buyerCountryCodes: string[] = [];
+      collectStrings(n["buyer-country"], buyerCountryCodes);
+
+      const country =
+        pickCountry(popCodes) ?? pickCountry(buyerCountryCodes);
+      const countryLabel = country ? countryName(country) : null;
+
+      // For SK keep NUTS-3 region granularity; for other countries store the
+      // country name in the region column so existing UI still shows something.
+      const region =
+        country === "SK"
+          ? pickSkRegion(popCodes) ?? "celé Slovensko"
+          : countryLabel;
+
       const { value: estimated_value, currency } = pickTedValue(n);
       const sourceUrl = `https://ted.europa.eu/sk/notice/-/detail/${pubNumber}`;
 
@@ -233,6 +249,8 @@ Deno.serve(async (req) => {
           contracting_authority: buyer ?? "—",
           cpv_code: cpv,
           region,
+          country,
+          country_name: countryLabel,
           published_at: publishedAt,
           deadline,
           estimated_value,
