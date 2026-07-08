@@ -128,7 +128,7 @@ function renderTenderRow(t: Tender & { estimated_value?: number | null }): strin
         <div style="margin-bottom:6px;">${titleHtml}</div>
         <div style="font-family:Inter,-apple-system,sans-serif;font-size:13px;color:#555555;line-height:1.6;">
           <b style="color:#111111;">Obstarávateľ:</b> ${escapeHtml(t.contracting_authority)}<br/>
-          <b style="color:#111111;">Región:</b> ${escapeHtml(t.region ?? "—")}<br/>
+          <b style="color:#111111;">${t.country && t.country !== "SK" ? "Krajina" : "Región"}:</b> ${escapeHtml(t.country && t.country !== "SK" ? (t.country_name ?? t.country) : (t.region ?? "—"))}<br/>
           <b style="color:#111111;">Deadline:</b> <span style="font-variant-numeric:tabular-nums;">${escapeHtml(formatDeadline(t.deadline))}</span>
         </div>
         ${valueRow}
