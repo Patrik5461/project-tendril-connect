@@ -71,26 +71,34 @@ function parseTedDate(value: unknown): string | null {
   return isNaN(d.getTime()) ? null : d.toISOString();
 }
 
-/** Pick the first NUTS-3 SK region code from an array like ["SK010","SVK",…]. */
-function pickRegion(value: unknown): string | null {
-  const collect = (v: unknown, out: string[]) => {
-    if (typeof v === "string") out.push(v);
-    else if (Array.isArray(v)) v.forEach((x) => collect(x, out));
-    else if (v && typeof v === "object") {
-      Object.values(v).forEach((x) => collect(x, out));
-    }
-  };
-  const codes: string[] = [];
-  collect(value, codes);
-
-  for (const c of codes) {
-    if (/^SK0[1-4][0-2]$/.test(c) && NUTS_TO_REGION[c]) {
-      return NUTS_TO_REGION[c];
-    }
+/** Collect every string leaf out of TED's polymorphic values. */
+function collectStrings(value: unknown, out: string[]) {
+  if (value === null || value === undefined) return;
+  if (typeof value === "string") { if (value.trim()) out.push(value.trim()); return; }
+  if (Array.isArray(value)) { value.forEach((v) => collectStrings(v, out)); return; }
+  if (typeof value === "object") {
+    Object.values(value as Record<string, unknown>).forEach((v) => collectStrings(v, out));
   }
-  // SK0 / SKZZ / plain SVK → whole country
-  if (codes.some((c) => /^(SK0?|SKZZ|SVK)$/.test(c))) {
-    return "celé Slovensko";
+}
+
+/** Pick the first NUTS-3 SK region code from an array like ["SK010","SVK",…]. */
+function pickSkRegion(codes: string[]): string | null {
+  for (const c of codes) {
+    if (/^SK0[1-4][0-2]$/.test(c) && NUTS_TO_REGION[c]) return NUTS_TO_REGION[c];
+  }
+  if (codes.some((c) => /^(SK0?|SKZZ|SVK)$/.test(c))) return "celé Slovensko";
+  return null;
+}
+
+/** Detect country (alpha-2) from a mix of NUTS + ISO alpha-3 codes. */
+function pickCountry(codes: string[]): string | null {
+  for (const c of codes) {
+    const a2 = a2FromNuts(c);
+    if (a2) return a2;
+  }
+  for (const c of codes) {
+    const a2 = a2FromA3(c);
+    if (a2) return a2;
   }
   return null;
 }
