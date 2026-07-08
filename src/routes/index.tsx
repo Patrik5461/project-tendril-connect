@@ -65,7 +65,7 @@ function ActiveTendersBlock() {
             {formatSk(display)}
           </span>
           <span className="text-sm sm:text-base font-semibold text-foreground pb-1 sm:pb-2">
-            aktívnych zákaziek
+            aktívnych zákaziek naprieč EÚ
           </span>
         </div>
       )}
