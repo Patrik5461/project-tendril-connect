@@ -1,7 +1,8 @@
 // Supabase Edge Function: fetch-tenders
-// Fetches Slovak public tenders from TED API and upserts them into public.tenders.
+// Fetches EU-wide public tenders from TED API and upserts them into public.tenders.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { a2FromNuts, a2FromA3, countryName } from "../_shared/eu.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
