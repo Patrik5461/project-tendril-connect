@@ -591,115 +591,17 @@ function Dashboard() {
     return keywordMatch || cpvMatch || cpvUnknown;
   };
 
-  // Aktívne radary (alebo len vybraný)
-  const activeRadars = useMemo(
-    () => userRadars.filter((r) => r.active),
-    [userRadars],
-  );
-  const selectedRadars = useMemo(() => {
-    if (radarParam === "all") return activeRadars;
-    const one = activeRadars.find((r) => r.id === radarParam);
-    return one ? [one] : activeRadars;
-  }, [activeRadars, radarParam]);
-
-  // Vráti radary, ktoré zákazku zachytili
+  // Client-side helper used only to label cards ("matched by radar X, Y").
+  // The actual filtering happens server-side in `search_user_tenders`.
   const matchingRadarsFor = useMemo(() => {
     return (t: Tender): Radar[] => selectedRadars.filter((r) => matchesRadar(t, r));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRadars]);
 
-  const isActive = (t: Tender) => {
-    const now = Date.now();
-    if (t.deadline) return new Date(t.deadline).getTime() >= now;
-    return t.published_at
-      ? new Date(t.published_at).getTime() >= now - 30 * 24 * 60 * 60 * 1000
-      : false;
-  };
-
-  const selectedCountries = useMemo(() => parseCountryParam(countryParam), [countryParam]);
-
-  // Everything except the country UI filter — used both to compute facets
-  // (per-country counts) and as the base for the final filtered list.
-  const preCountryFiltered = useMemo(() => {
-    let result = tenders.slice();
-
-    if (tab === "foryou") {
-      result = result.filter((t) => matchingRadarsFor(t).length > 0).filter(isActive);
-      result = result.filter((t) => !actions[t.id]?.has("hidden"));
-    } else if (tab === "saved") {
-      result = result.filter((t) => actions[t.id]?.has("saved"));
-    } else if (tab === "hidden") {
-      result = result.filter((t) => actions[t.id]?.has("hidden"));
-    }
-
-    if (q.trim()) {
-      const nq = norm(q);
-      result = result.filter(
-        (t) =>
-          norm(t.title).includes(nq) ||
-          norm(t.contracting_authority).includes(nq) ||
-          norm(t.description ?? "").includes(nq),
-      );
-    }
-    return result;
-  }, [tenders, actions, matchingRadarsFor, tab, q]);
-
-  // Country counts across the pre-country filtered set (used in the dropdown).
-  const countryFacets = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const t of preCountryFiltered) {
-      const c = (t.country ?? "XX").toUpperCase();
-      counts.set(c, (counts.get(c) ?? 0) + 1);
-    }
-    return Array.from(counts.entries())
-      .map(([code, count]) => ({
-        code,
-        count,
-        label:
-          code === "XX"
-            ? "neznáma krajina"
-            : (countryName(code) ?? code),
-      }))
-      .sort((a, b) => b.count - a.count);
-  }, [preCountryFiltered]);
-
-  const filtered = useMemo(() => {
-    let result = preCountryFiltered;
-    if (selectedCountries.length > 0) {
-      const set = new Set(selectedCountries);
-      result = result.filter((t) => set.has((t.country ?? "XX").toUpperCase()));
-    }
-    const sorted = result.slice();
-    sorted.sort((a, b) => {
-      if (sort === "deadline") {
-        const av = a.deadline ?? "9999";
-        const bv = b.deadline ?? "9999";
-        return av.localeCompare(bv);
-      }
-      if (sort === "newest") {
-        return (b.published_at ?? "").localeCompare(a.published_at ?? "");
-      }
-      const av = a.estimated_value == null ? -1 : Number(a.estimated_value);
-      const bv = b.estimated_value == null ? -1 : Number(b.estimated_value);
-      return bv - av;
-    });
-    return sorted;
-  }, [preCountryFiltered, selectedCountries, sort]);
-
-  const totalCount = filtered.length;
-  const safePageSize = PAGE_SIZE_OPTIONS.includes(
-    pageSize as (typeof PAGE_SIZE_OPTIONS)[number],
-  )
-    ? pageSize
-    : DEFAULT_PAGE_SIZE;
   const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize));
   const safePage = Math.min(Math.max(1, page), totalPages);
-  const pageStart = (safePage - 1) * safePageSize;
+  const pageStart = totalCount === 0 ? 0 : (safePage - 1) * safePageSize;
   const pageEnd = Math.min(pageStart + safePageSize, totalCount);
-  const pageItems = useMemo(
-    () => filtered.slice(pageStart, pageEnd),
-    [filtered, pageStart, pageEnd],
-  );
 
   // If the URL page drifts out of range (e.g. after filter change), snap back.
   useEffect(() => {
@@ -708,6 +610,7 @@ function Dashboard() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [safePage]);
+
 
 
 
