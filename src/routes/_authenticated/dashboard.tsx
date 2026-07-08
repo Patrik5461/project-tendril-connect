@@ -541,7 +541,11 @@ function Dashboard() {
       : false;
   };
 
-  const filtered = useMemo(() => {
+  const selectedCountries = useMemo(() => parseCountryParam(countryParam), [countryParam]);
+
+  // Everything except the country UI filter — used both to compute facets
+  // (per-country counts) and as the base for the final filtered list.
+  const preCountryFiltered = useMemo(() => {
     let result = tenders.slice();
 
     if (tab === "foryou") {
@@ -562,8 +566,36 @@ function Dashboard() {
           norm(t.description ?? "").includes(nq),
       );
     }
+    return result;
+  }, [tenders, actions, matchingRadarsFor, tab, q]);
 
-    result.sort((a, b) => {
+  // Country counts across the pre-country filtered set (used in the dropdown).
+  const countryFacets = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const t of preCountryFiltered) {
+      const c = (t.country ?? "XX").toUpperCase();
+      counts.set(c, (counts.get(c) ?? 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .map(([code, count]) => ({
+        code,
+        count,
+        label:
+          code === "XX"
+            ? "neznáma krajina"
+            : (countryName(code) ?? code),
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [preCountryFiltered]);
+
+  const filtered = useMemo(() => {
+    let result = preCountryFiltered;
+    if (selectedCountries.length > 0) {
+      const set = new Set(selectedCountries);
+      result = result.filter((t) => set.has((t.country ?? "XX").toUpperCase()));
+    }
+    const sorted = result.slice();
+    sorted.sort((a, b) => {
       if (sort === "deadline") {
         const av = a.deadline ?? "9999";
         const bv = b.deadline ?? "9999";
@@ -576,8 +608,33 @@ function Dashboard() {
       const bv = b.estimated_value == null ? -1 : Number(b.estimated_value);
       return bv - av;
     });
-    return result;
-  }, [tenders, actions, matchingRadarsFor, tab, q, sort]);
+    return sorted;
+  }, [preCountryFiltered, selectedCountries, sort]);
+
+  const totalCount = filtered.length;
+  const safePageSize = PAGE_SIZE_OPTIONS.includes(
+    pageSize as (typeof PAGE_SIZE_OPTIONS)[number],
+  )
+    ? pageSize
+    : DEFAULT_PAGE_SIZE;
+  const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const pageStart = (safePage - 1) * safePageSize;
+  const pageEnd = Math.min(pageStart + safePageSize, totalCount);
+  const pageItems = useMemo(
+    () => filtered.slice(pageStart, pageEnd),
+    [filtered, pageStart, pageEnd],
+  );
+
+  // If the URL page drifts out of range (e.g. after filter change), snap back.
+  useEffect(() => {
+    if (page !== safePage) {
+      navigate({ search: (p: any) => ({ ...p, page: safePage }), replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safePage]);
+
+
 
 
   if (loading) {
