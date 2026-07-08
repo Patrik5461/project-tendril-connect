@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { REGIONS, CPV_DIVISIONS } from "@/lib/slovakia";
+import { EU_COUNTRY_LIST, flagEmoji } from "@/lib/eu-countries";
 import { X } from "lucide-react";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 
