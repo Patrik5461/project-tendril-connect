@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { REGIONS, CPV_DIVISIONS } from "@/lib/slovakia";
+import { EU_COUNTRY_LIST, flagEmoji } from "@/lib/eu-countries";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 
