@@ -1,6 +1,6 @@
 // Supabase Edge Function: backfill-ted
-// Manual historical backfill of TED notices for Slovakia (last 365 days).
-// Paginates in chunks of 10 pages per invocation to avoid edge timeouts.
+// Manual historical backfill of TED notices EU-wide (last 60 days).
+// Paginates in chunks of MAX_PAGES_PER_CALL per invocation to avoid edge timeouts.
 // Only saves notices with deadline today-or-later, or (no deadline AND
 // published within last 60 days).
 //
@@ -9,9 +9,10 @@
 //   POST { "next_page": 11 }   -> continues from page 11
 //
 // Returns:
-//   { pages_done, next_page, saved, has_more, processed }
+//   { pages_done, next_page, saved, has_more, processed, db_limit_hit? }
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { a2FromNuts, a2FromA3, countryName } from "../_shared/eu.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,10 +32,11 @@ const NUTS_TO_REGION: Record<string, string> = {
   SK042: "Košický kraj",
 };
 
-const PAGE_LIMIT = 100;
+const PAGE_LIMIT = 250;
 const MAX_PAGES_PER_CALL = 10;
-const MAX_PAGES_TOTAL = 50;
-const PAGE_DELAY_MS = 300;
+const MAX_PAGES_TOTAL = 100;
+const PAGE_DELAY_MS = 250;
+const LOOKBACK_DAYS = 60;
 
 function firstString(value: unknown): string | null {
   if (value === null || value === undefined) return null;
@@ -74,18 +76,32 @@ function parseTedDate(value: unknown): string | null {
   return isNaN(d.getTime()) ? null : d.toISOString();
 }
 
-function pickRegion(value: unknown): string | null {
-  const collect = (v: unknown, out: string[]) => {
-    if (typeof v === "string") out.push(v);
-    else if (Array.isArray(v)) v.forEach((x) => collect(x, out));
-    else if (v && typeof v === "object") Object.values(v).forEach((x) => collect(x, out));
-  };
-  const codes: string[] = [];
-  collect(value, codes);
+function collectStrings(value: unknown, out: string[]) {
+  if (value === null || value === undefined) return;
+  if (typeof value === "string") { if (value.trim()) out.push(value.trim()); return; }
+  if (Array.isArray(value)) { value.forEach((v) => collectStrings(v, out)); return; }
+  if (typeof value === "object") {
+    Object.values(value as Record<string, unknown>).forEach((v) => collectStrings(v, out));
+  }
+}
+
+function pickSkRegion(codes: string[]): string | null {
   for (const c of codes) {
     if (/^SK0[1-4][0-2]$/.test(c) && NUTS_TO_REGION[c]) return NUTS_TO_REGION[c];
   }
   if (codes.some((c) => /^(SK0?|SKZZ|SVK)$/.test(c))) return "celé Slovensko";
+  return null;
+}
+
+function pickCountry(codes: string[]): string | null {
+  for (const c of codes) {
+    const a2 = a2FromNuts(c);
+    if (a2) return a2;
+  }
+  for (const c of codes) {
+    const a2 = a2FromA3(c);
+    if (a2) return a2;
+  }
   return null;
 }
 
@@ -122,11 +138,12 @@ function pickTedValue(n: Record<string, unknown>): { value: number | null; curre
 
 function tedQuery(): string {
   const since = new Date();
-  since.setDate(since.getDate() - 365);
+  since.setDate(since.getDate() - LOOKBACK_DAYS);
   const y = since.getUTCFullYear();
   const m = String(since.getUTCMonth() + 1).padStart(2, "0");
   const d = String(since.getUTCDate()).padStart(2, "0");
-  return `place-of-performance IN (SVK) AND notice-type IN (cn-standard) AND publication-date >= ${y}${m}${d} SORT BY publication-date DESC`;
+  // EU-wide contract-notice variants (open procurements only).
+  return `notice-type IN (cn-standard, cn-social, cn-desg, pin-cfc-standard, pin-cfc-social, qu-sy) AND publication-date >= ${y}${m}${d} SORT BY publication-date DESC`;
 }
 
 async function fetchPage(page: number) {
@@ -139,6 +156,7 @@ async function fetchPage(page: number) {
         "publication-number",
         "notice-title",
         "buyer-name",
+        "buyer-country",
         "publication-date",
         "deadline-receipt-tender-date-lot",
         "deadline-receipt-request-date-lot",
@@ -160,6 +178,23 @@ async function fetchPage(page: number) {
   return await res.json();
 }
 
+// Postgres error codes that indicate storage / row-limit exhaustion.
+function isDbLimitError(err: { code?: string; message?: string } | null): boolean {
+  if (!err) return false;
+  const code = err.code ?? "";
+  const msg = (err.message ?? "").toLowerCase();
+  return (
+    code === "53100" || // disk_full
+    code === "53200" || // out_of_memory
+    code === "53300" || // too_many_connections
+    msg.includes("disk") ||
+    msg.includes("quota") ||
+    msg.includes("storage limit") ||
+    msg.includes("free tier") ||
+    msg.includes("row limit")
+  );
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -174,7 +209,7 @@ Deno.serve(async (req) => {
     const startPage = Math.max(1, body.next_page ?? 1);
 
     const now = Date.now();
-    const publishedCutoff = now - 60 * 24 * 60 * 60 * 1000;
+    const publishedCutoff = now - LOOKBACK_DAYS * 24 * 60 * 60 * 1000;
 
     let saved = 0;
     let processed = 0;
@@ -182,8 +217,10 @@ Deno.serve(async (req) => {
     let pages_done = 0;
     let currentPage = startPage;
     let has_more = false;
+    let db_limit_hit = false;
+    const countryCounts: Record<string, number> = {};
 
-    for (let i = 0; i < MAX_PAGES_PER_CALL; i++) {
+    outer: for (let i = 0; i < MAX_PAGES_PER_CALL; i++) {
       if (currentPage > MAX_PAGES_TOTAL) {
         has_more = false;
         break;
@@ -210,10 +247,26 @@ Deno.serve(async (req) => {
         const deadline =
           parseTedDate(n["deadline-receipt-tender-date-lot"]) ??
           parseTedDate(n["deadline-receipt-request-date-lot"]);
-        const region = pickRegion(n["place-of-performance"]);
+
+        const popCodes: string[] = [];
+        collectStrings(n["place-of-performance"], popCodes);
+        const buyerCountryCodes: string[] = [];
+        collectStrings(n["buyer-country"], buyerCountryCodes);
+
+        const detectedCountry =
+          pickCountry(popCodes) ?? pickCountry(buyerCountryCodes);
+        const country = detectedCountry ?? "XX";
+        const countryLabel = detectedCountry
+          ? countryName(detectedCountry)
+          : "neznáma krajina";
+
+        const region =
+          country === "SK"
+            ? pickSkRegion(popCodes) ?? "celé Slovensko"
+            : countryLabel;
+
         const { value: estimated_value, currency } = pickTedValue(n);
 
-        // Save gate: deadline today-or-future, OR (no deadline AND published within 60d)
         const deadlineOk = deadline ? new Date(deadline).getTime() >= now : false;
         const freshOk = !deadline && publishedAt
           ? new Date(publishedAt).getTime() >= publishedCutoff
@@ -231,6 +284,8 @@ Deno.serve(async (req) => {
             contracting_authority: buyer ?? "—",
             cpv_code: cpv,
             region,
+            country,
+            country_name: countryLabel,
             published_at: publishedAt,
             deadline,
             estimated_value,
@@ -241,13 +296,19 @@ Deno.serve(async (req) => {
           { onConflict: "publication_number" },
         );
         if (error) {
+          if (isDbLimitError(error)) {
+            console.error("DB limit hit, aborting backfill", error);
+            db_limit_hit = true;
+            has_more = false;
+            break outer;
+          }
           console.error("Upsert error", pubNumber, error);
           continue;
         }
         saved += 1;
+        countryCounts[country] = (countryCounts[country] ?? 0) + 1;
       }
 
-      // If fewer than a full page came back, we're at the end.
       if (notices.length < PAGE_LIMIT) {
         has_more = false;
         currentPage += 1;
@@ -260,11 +321,13 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         pages_done,
-        next_page: has_more ? currentPage : null,
+        next_page: has_more && !db_limit_hit ? currentPage : null,
         processed,
         saved,
         skipped_stale,
-        has_more,
+        has_more: has_more && !db_limit_hit,
+        db_limit_hit,
+        country_counts: countryCounts,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

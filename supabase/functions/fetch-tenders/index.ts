@@ -159,9 +159,17 @@ Deno.serve(async (req) => {
             const y = since.getUTCFullYear();
             const m = String(since.getUTCMonth() + 1).padStart(2, "0");
             const d = String(since.getUTCDate()).padStart(2, "0");
-            // EU-wide: no place-of-performance filter.
-            return `notice-type IN (cn-standard) AND publication-date >= ${y}${m}${d} SORT BY publication-date DESC`;
+            // EU-wide contract-notice variants (open procurements only):
+            //   cn-standard        – standard contract notice
+            //   cn-social          – social & other specific services CN
+            //   cn-desg            – design contest notice
+            //   pin-cfc-standard   – PIN used as call for competition
+            //   pin-cfc-social     – PIN used as CFC (social services)
+            //   qu-sy              – qualification system (utilities) — CFC
+            // Excludes results (can-*), cancellations (…-modif/cancel) and corrigenda.
+            return `notice-type IN (cn-standard, cn-social, cn-desg, pin-cfc-standard, pin-cfc-social, qu-sy) AND publication-date >= ${y}${m}${d} SORT BY publication-date DESC`;
           })(),
+
           fields: [
             "publication-number",
             "notice-title",
@@ -222,9 +230,12 @@ Deno.serve(async (req) => {
       const buyerCountryCodes: string[] = [];
       collectStrings(n["buyer-country"], buyerCountryCodes);
 
-      const country =
+      const detectedCountry =
         pickCountry(popCodes) ?? pickCountry(buyerCountryCodes);
-      const countryLabel = country ? countryName(country) : null;
+      const country = detectedCountry ?? "XX";
+      const countryLabel = detectedCountry
+        ? countryName(detectedCountry)
+        : "neznáma krajina";
 
       // For SK keep NUTS-3 region granularity; for other countries store the
       // country name in the region column so existing UI still shows something.
@@ -232,6 +243,7 @@ Deno.serve(async (req) => {
         country === "SK"
           ? pickSkRegion(popCodes) ?? "celé Slovensko"
           : countryLabel;
+
 
       const { value: estimated_value, currency } = pickTedValue(n);
       const sourceUrl = `https://ted.europa.eu/sk/notice/-/detail/${pubNumber}`;
