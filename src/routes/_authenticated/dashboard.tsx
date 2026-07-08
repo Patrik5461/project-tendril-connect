@@ -181,11 +181,14 @@ function Dashboard() {
     toast.success(next ? "Generovanie AI zhrnutí zapnuté" : "Generovanie AI zhrnutí vypnuté");
   }
 
-  // Debounce search input -> URL
+  // Debounce search input -> URL (reset to page 1)
   useEffect(() => {
     const t = setTimeout(() => {
       if (searchInput !== q) {
-        navigate({ search: (p: any) => ({ ...p, q: searchInput }), replace: true });
+        navigate({
+          search: (p: any) => ({ ...p, q: searchInput, page: 1 }),
+          replace: true,
+        });
       }
     }, 250);
     return () => clearTimeout(t);
@@ -196,9 +199,51 @@ function Dashboard() {
     setSearchInput(q);
   }, [q]);
 
+  // Fetch tenders scoped by the union of the user's radar countries + any
+  // tender the user has saved/hidden (so they don't disappear after country
+  // pruning). Uses .range(0, 9999) so we never silently hit the 1000-row
+  // default cap on large radars.
+  async function loadTendersScoped(uid: string, radars: Radar[]) {
+    const countrySet = new Set<string>();
+    let includeAll = false;
+    for (const r of radars) {
+      const cs = r.countries && r.countries.length > 0 ? r.countries : ["SK"];
+      if (cs.includes("ALL")) {
+        includeAll = true;
+        break;
+      }
+      for (const c of cs) countrySet.add(c);
+    }
+
+    let baseQuery = supabase.from("tenders").select("*").range(0, 9999);
+    if (!includeAll && countrySet.size > 0) {
+      baseQuery = baseQuery.in("country", Array.from(countrySet));
+    }
+    const { data: base } = await baseQuery;
+
+    // Union with tenders referenced by user actions (saved / hidden) so they
+    // remain reachable even if outside the radar country set.
+    const { data: actionRows } = await supabase
+      .from("user_tender_actions" as never)
+      .select("tender_id")
+      .eq("user_id", uid);
+    const actionIds = Array.from(
+      new Set(((actionRows ?? []) as { tender_id: string }[]).map((r) => r.tender_id)),
+    );
+    const seen = new Set(((base ?? []) as { id: string }[]).map((t) => t.id));
+    const missing = actionIds.filter((id) => !seen.has(id));
+    let extra: unknown[] = [];
+    if (missing.length > 0) {
+      const { data } = await supabase.from("tenders").select("*").in("id", missing);
+      extra = data ?? [];
+    }
+    return [...((base ?? []) as Tender[]), ...(extra as Tender[])];
+  }
+
   async function loadTenders() {
-    const { data: t } = await supabase.from("tenders").select("*");
-    setTenders((t ?? []) as Tender[]);
+    if (!userId) return;
+    const merged = await loadTendersScoped(userId, userRadars);
+    setTenders(merged);
   }
 
   async function loadActions(uid: string) {
@@ -219,25 +264,52 @@ function Dashboard() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
       setUserId(u.user.id);
-      const [{ data: p }, { data: t }, { data: r }] = await Promise.all([
+      const [{ data: p }, { data: r }] = await Promise.all([
         supabase
           .from("user_preferences")
           .select("onboarding_completed")
           .eq("user_id", u.user.id)
           .maybeSingle(),
-        supabase.from("tenders").select("*"),
         (supabase.from("user_radars" as never) as any)
           .select("*")
           .eq("user_id", u.user.id)
           .order("created_at", { ascending: true }),
       ]);
+      const radars = (r ?? []) as Radar[];
       setPrefs(p as Prefs | null);
-      setTenders((t ?? []) as Tender[]);
-      setUserRadars((r ?? []) as Radar[]);
+      setUserRadars(radars);
+      const merged = await loadTendersScoped(u.user.id, radars);
+      setTenders(merged);
       await loadActions(u.user.id);
       setLoading(false);
     })();
   }, []);
+
+  // Restore pageSize from localStorage on first visit if URL has default.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = Number(window.localStorage.getItem(PAGE_SIZE_STORAGE_KEY));
+    if (
+      stored &&
+      PAGE_SIZE_OPTIONS.includes(stored as (typeof PAGE_SIZE_OPTIONS)[number]) &&
+      stored !== pageSize
+    ) {
+      // Only overwrite if URL is still on the default (user hasn't chosen this session).
+      const url = new URL(window.location.href);
+      if (!url.searchParams.has("pageSize")) {
+        navigate({ search: (p: any) => ({ ...p, pageSize: stored }), replace: true });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist pageSize to localStorage on change.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(pageSize));
+  }, [pageSize]);
+
+
 
   async function toggleAction(tenderId: string, action: Action) {
     if (!userId) return;
