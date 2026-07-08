@@ -469,22 +469,57 @@ function RadarCard({
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm">Kraje</h3>
-            <div className="mt-2 grid sm:grid-cols-2 gap-2">
-              {REGIONS.map((rg) => (
-                <label
-                  key={rg}
-                  className="flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer"
-                >
-                  <Checkbox
-                    checked={radar.regions.includes(rg)}
-                    onCheckedChange={() => toggleArr(radar.regions, rg, "regions")}
-                  />
-                  <span className="text-sm">{rg}</span>
-                </label>
-              ))}
-            </div>
+            <h3 className="font-semibold text-sm">Krajiny</h3>
+            <label className="mt-2 flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer">
+              <Checkbox
+                checked={(radar.countries ?? []).includes("ALL")}
+                onCheckedChange={() =>
+                  onUpdate({
+                    countries: (radar.countries ?? []).includes("ALL") ? ["SK"] : ["ALL"],
+                  })
+                }
+              />
+              <span className="text-sm font-medium">Všetky krajiny EÚ</span>
+            </label>
+            {!(radar.countries ?? []).includes("ALL") && (
+              <div className="mt-2 grid sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-2">
+                {EU_COUNTRY_LIST.map((c) => (
+                  <label
+                    key={c.code}
+                    className="flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={(radar.countries ?? []).includes(c.code)}
+                      onCheckedChange={() => toggleArr(radar.countries ?? [], c.code, "countries")}
+                    />
+                    <span className="text-sm">
+                      {flagEmoji(c.code)} {c.name}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
+
+          {((radar.countries ?? []).includes("SK") || (radar.countries ?? []).includes("ALL")) && (
+            <div>
+              <h3 className="font-semibold text-sm">Kraje (Slovensko)</h3>
+              <div className="mt-2 grid sm:grid-cols-2 gap-2">
+                {REGIONS.map((rg) => (
+                  <label
+                    key={rg}
+                    className="flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={radar.regions.includes(rg)}
+                      onCheckedChange={() => toggleArr(radar.regions, rg, "regions")}
+                    />
+                    <span className="text-sm">{rg}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
