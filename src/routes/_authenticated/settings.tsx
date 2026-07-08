@@ -340,15 +340,23 @@ function RadarCard({
     setKwInput("");
   }
 
-  function toggleArr(arr: string[], v: string, key: "cpv_codes" | "regions") {
+  function toggleArr(arr: string[], v: string, key: "cpv_codes" | "regions" | "countries") {
     const next = arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
     onUpdate({ [key]: next } as Partial<Radar>);
   }
 
+  const countryLabel =
+    (radar.countries ?? []).includes("ALL")
+      ? "všetky krajiny EÚ"
+      : `${(radar.countries ?? []).length || 0} krajín`;
+
   const summary = [
     radar.keywords.length ? `${radar.keywords.length} kľúč. slov` : null,
     radar.cpv_codes.length ? `${radar.cpv_codes.length} CPV` : null,
-    radar.regions.length ? `${radar.regions.length} krajov` : null,
+    countryLabel,
+    (radar.countries ?? []).includes("SK") && radar.regions.length
+      ? `${radar.regions.length} krajov`
+      : null,
   ]
     .filter(Boolean)
     .join(" · ") || "bez filtrov";
