@@ -1122,7 +1122,11 @@ function TenderGridCard({
         </div>
         <div className="flex items-center gap-1.5">
           <MapPin className="h-4 w-4 shrink-0" />
-          <span className="truncate">{tender.region ?? "—"}</span>
+          <span className="truncate">
+            {tender.country && tender.country !== "SK"
+              ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}`
+              : (tender.region ?? "—")}
+          </span>
         </div>
       </div>
       {tender.estimated_value != null && (
