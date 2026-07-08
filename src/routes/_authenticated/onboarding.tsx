@@ -57,8 +57,13 @@ function Onboarding() {
       toast.error("Zadajte aspoň jedno kľúčové slovo alebo CPV kategóriu.");
       return;
     }
-    if (regions.length === 0) {
-      toast.error("Vyberte aspoň jeden kraj.");
+    if (countries.length === 0) {
+      toast.error("Vyberte aspoň jednu krajinu.");
+      return;
+    }
+    const skSelected = countries.includes("SK") || countries.includes("ALL");
+    if (skSelected && regions.length === 0) {
+      toast.error("Vyberte aspoň jeden kraj pre Slovensko (alebo „Celé Slovensko").");
       return;
     }
     setSaving(true);
