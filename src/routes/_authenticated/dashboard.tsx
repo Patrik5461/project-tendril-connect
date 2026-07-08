@@ -131,12 +131,15 @@ function Dashboard() {
   const navigate = useNavigate({ from: "/dashboard" });
 
 
-  const [tenders, setTenders] = useState<Tender[]>([]);
+  const [pageItems, setPageItems] = useState<Tender[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [countryFacets, setCountryFacets] = useState<CountryFacet[]>([]);
   const [prefs, setPrefs] = useState<Prefs | null>(null);
   const [userRadars, setUserRadars] = useState<Radar[]>([]);
   const [actions, setActions] = useState<Record<string, Set<Action>>>({});
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [listLoading, setListLoading] = useState(false);
   const [refreshing, setRefreshing] = useState<"TED" | "UVO" | null>(null);
   const [sendingDigest, setSendingDigest] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -199,53 +202,6 @@ function Dashboard() {
     setSearchInput(q);
   }, [q]);
 
-  // Fetch tenders scoped by the union of the user's radar countries + any
-  // tender the user has saved/hidden (so they don't disappear after country
-  // pruning). Uses .range(0, 9999) so we never silently hit the 1000-row
-  // default cap on large radars.
-  async function loadTendersScoped(uid: string, radars: Radar[]) {
-    const countrySet = new Set<string>();
-    let includeAll = false;
-    for (const r of radars) {
-      const cs = r.countries && r.countries.length > 0 ? r.countries : ["SK"];
-      if (cs.includes("ALL")) {
-        includeAll = true;
-        break;
-      }
-      for (const c of cs) countrySet.add(c);
-    }
-
-    let baseQuery = supabase.from("tenders").select("*").range(0, 9999);
-    if (!includeAll && countrySet.size > 0) {
-      baseQuery = baseQuery.in("country", Array.from(countrySet));
-    }
-    const { data: base } = await baseQuery;
-
-    // Union with tenders referenced by user actions (saved / hidden) so they
-    // remain reachable even if outside the radar country set.
-    const { data: actionRows } = await supabase
-      .from("user_tender_actions" as never)
-      .select("tender_id")
-      .eq("user_id", uid);
-    const actionIds = Array.from(
-      new Set(((actionRows ?? []) as { tender_id: string }[]).map((r) => r.tender_id)),
-    );
-    const seen = new Set(((base ?? []) as { id: string }[]).map((t) => t.id));
-    const missing = actionIds.filter((id) => !seen.has(id));
-    let extra: unknown[] = [];
-    if (missing.length > 0) {
-      const { data } = await supabase.from("tenders").select("*").in("id", missing);
-      extra = data ?? [];
-    }
-    return [...((base ?? []) as Tender[]), ...(extra as Tender[])];
-  }
-
-  async function loadTenders() {
-    if (!userId) return;
-    const merged = await loadTendersScoped(userId, userRadars);
-    setTenders(merged);
-  }
-
   async function loadActions(uid: string) {
     const { data } = await supabase
       .from("user_tender_actions" as never)
@@ -278,8 +234,6 @@ function Dashboard() {
       const radars = (r ?? []) as Radar[];
       setPrefs(p as Prefs | null);
       setUserRadars(radars);
-      const merged = await loadTendersScoped(u.user.id, radars);
-      setTenders(merged);
       await loadActions(u.user.id);
       setLoading(false);
     })();
@@ -294,7 +248,6 @@ function Dashboard() {
       PAGE_SIZE_OPTIONS.includes(stored as (typeof PAGE_SIZE_OPTIONS)[number]) &&
       stored !== pageSize
     ) {
-      // Only overwrite if URL is still on the default (user hasn't chosen this session).
       const url = new URL(window.location.href);
       if (!url.searchParams.has("pageSize")) {
         navigate({ search: (p: any) => ({ ...p, pageSize: stored }), replace: true });
@@ -308,6 +261,128 @@ function Dashboard() {
     if (typeof window === "undefined") return;
     window.localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(pageSize));
   }, [pageSize]);
+
+  // Derive radar_ids for the RPC based on the radar dropdown selection.
+  const activeRadars = useMemo(
+    () => userRadars.filter((r) => r.active),
+    [userRadars],
+  );
+  const selectedRadars = useMemo(() => {
+    if (radarParam === "all") return activeRadars;
+    const one = activeRadars.find((r) => r.id === radarParam);
+    return one ? [one] : activeRadars;
+  }, [activeRadars, radarParam]);
+
+  const selectedCountries = useMemo(() => parseCountryParam(countryParam), [countryParam]);
+
+  const safePageSize = PAGE_SIZE_OPTIONS.includes(
+    pageSize as (typeof PAGE_SIZE_OPTIONS)[number],
+  )
+    ? pageSize
+    : DEFAULT_PAGE_SIZE;
+
+  // Server-side fetch: page + total + facets. Runs whenever any filter changes.
+  // For "saved"/"hidden" tabs we ignore the radar filter (the selected radar
+  // has no effect on which tenders you've saved).
+  const radarIdsForRpc = useMemo(() => {
+    if (tab !== "foryou") return null;
+    if (radarParam === "all") return null;
+    const one = activeRadars.find((r) => r.id === radarParam);
+    return one ? [one.id] : null;
+  }, [tab, radarParam, activeRadars]);
+
+  useEffect(() => {
+    if (loading) return;
+    let cancelled = false;
+    setListLoading(true);
+    const from = (Math.max(1, page) - 1) * safePageSize;
+    const countriesArg = selectedCountries.length > 0 ? selectedCountries : null;
+    Promise.all([
+      (supabase.rpc as any)("search_user_tenders", {
+        _tab: tab,
+        _radar_ids: radarIdsForRpc,
+        _q: q,
+        _countries: countriesArg,
+        _sort: sort,
+        _from: from,
+        _limit: safePageSize,
+      }),
+      (supabase.rpc as any)("user_tenders_country_facets", {
+        _tab: tab,
+        _radar_ids: radarIdsForRpc,
+        _q: q,
+      }),
+    ]).then(([pageRes, facetsRes]: any[]) => {
+      if (cancelled) return;
+      if (pageRes.error) {
+        toast.error(`Chyba pri načítaní: ${pageRes.error.message}`);
+      } else {
+        const payload = pageRes.data ?? {};
+        setPageItems((payload.rows ?? []) as Tender[]);
+        setTotalCount(Number(payload.total ?? 0));
+      }
+      if (facetsRes.error) {
+        setCountryFacets([]);
+      } else {
+        const rows = (facetsRes.data ?? []) as { country: string; cnt: number }[];
+        setCountryFacets(
+          rows.map((r) => ({
+            code: r.country,
+            count: Number(r.cnt),
+            label:
+              r.country === "XX"
+                ? "neznáma krajina"
+                : (countryName(r.country) ?? r.country),
+          })),
+        );
+      }
+      setListLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [loading, tab, radarIdsForRpc, q, countryParam, sort, page, safePageSize, selectedCountries.join(",")]);
+
+  async function refetchPage() {
+    if (!userId) return;
+    const from = (Math.max(1, page) - 1) * safePageSize;
+    const countriesArg = selectedCountries.length > 0 ? selectedCountries : null;
+    const [pageRes, facetsRes] = await Promise.all([
+      (supabase.rpc as any)("search_user_tenders", {
+        _tab: tab,
+        _radar_ids: radarIdsForRpc,
+        _q: q,
+        _countries: countriesArg,
+        _sort: sort,
+        _from: from,
+        _limit: safePageSize,
+      }),
+      (supabase.rpc as any)("user_tenders_country_facets", {
+        _tab: tab,
+        _radar_ids: radarIdsForRpc,
+        _q: q,
+      }),
+    ]);
+    if (!pageRes.error) {
+      const payload = pageRes.data ?? {};
+      setPageItems((payload.rows ?? []) as Tender[]);
+      setTotalCount(Number(payload.total ?? 0));
+    }
+    if (!facetsRes.error) {
+      const rows = (facetsRes.data ?? []) as { country: string; cnt: number }[];
+      setCountryFacets(
+        rows.map((r) => ({
+          code: r.country,
+          count: Number(r.cnt),
+          label:
+            r.country === "XX"
+              ? "neznáma krajina"
+              : (countryName(r.country) ?? r.country),
+        })),
+      );
+    }
+  }
+
+  const loadTenders = refetchPage;
+
 
 
 
@@ -516,123 +591,31 @@ function Dashboard() {
     return keywordMatch || cpvMatch || cpvUnknown;
   };
 
-  // Aktívne radary (alebo len vybraný)
-  const activeRadars = useMemo(
-    () => userRadars.filter((r) => r.active),
-    [userRadars],
-  );
-  const selectedRadars = useMemo(() => {
-    if (radarParam === "all") return activeRadars;
-    const one = activeRadars.find((r) => r.id === radarParam);
-    return one ? [one] : activeRadars;
-  }, [activeRadars, radarParam]);
-
-  // Vráti radary, ktoré zákazku zachytili
+  // Client-side helper used only to label cards ("matched by radar X, Y").
+  // The actual filtering happens server-side in `search_user_tenders`.
   const matchingRadarsFor = useMemo(() => {
     return (t: Tender): Radar[] => selectedRadars.filter((r) => matchesRadar(t, r));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRadars]);
 
-  const isActive = (t: Tender) => {
-    const now = Date.now();
-    if (t.deadline) return new Date(t.deadline).getTime() >= now;
-    return t.published_at
-      ? new Date(t.published_at).getTime() >= now - 30 * 24 * 60 * 60 * 1000
-      : false;
-  };
-
-  const selectedCountries = useMemo(() => parseCountryParam(countryParam), [countryParam]);
-
-  // Everything except the country UI filter — used both to compute facets
-  // (per-country counts) and as the base for the final filtered list.
-  const preCountryFiltered = useMemo(() => {
-    let result = tenders.slice();
-
-    if (tab === "foryou") {
-      result = result.filter((t) => matchingRadarsFor(t).length > 0).filter(isActive);
-      result = result.filter((t) => !actions[t.id]?.has("hidden"));
-    } else if (tab === "saved") {
-      result = result.filter((t) => actions[t.id]?.has("saved"));
-    } else if (tab === "hidden") {
-      result = result.filter((t) => actions[t.id]?.has("hidden"));
-    }
-
-    if (q.trim()) {
-      const nq = norm(q);
-      result = result.filter(
-        (t) =>
-          norm(t.title).includes(nq) ||
-          norm(t.contracting_authority).includes(nq) ||
-          norm(t.description ?? "").includes(nq),
-      );
-    }
-    return result;
-  }, [tenders, actions, matchingRadarsFor, tab, q]);
-
-  // Country counts across the pre-country filtered set (used in the dropdown).
-  const countryFacets = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const t of preCountryFiltered) {
-      const c = (t.country ?? "XX").toUpperCase();
-      counts.set(c, (counts.get(c) ?? 0) + 1);
-    }
-    return Array.from(counts.entries())
-      .map(([code, count]) => ({
-        code,
-        count,
-        label:
-          code === "XX"
-            ? "neznáma krajina"
-            : (countryName(code) ?? code),
-      }))
-      .sort((a, b) => b.count - a.count);
-  }, [preCountryFiltered]);
-
-  const filtered = useMemo(() => {
-    let result = preCountryFiltered;
-    if (selectedCountries.length > 0) {
-      const set = new Set(selectedCountries);
-      result = result.filter((t) => set.has((t.country ?? "XX").toUpperCase()));
-    }
-    const sorted = result.slice();
-    sorted.sort((a, b) => {
-      if (sort === "deadline") {
-        const av = a.deadline ?? "9999";
-        const bv = b.deadline ?? "9999";
-        return av.localeCompare(bv);
-      }
-      if (sort === "newest") {
-        return (b.published_at ?? "").localeCompare(a.published_at ?? "");
-      }
-      const av = a.estimated_value == null ? -1 : Number(a.estimated_value);
-      const bv = b.estimated_value == null ? -1 : Number(b.estimated_value);
-      return bv - av;
-    });
-    return sorted;
-  }, [preCountryFiltered, selectedCountries, sort]);
-
-  const totalCount = filtered.length;
-  const safePageSize = PAGE_SIZE_OPTIONS.includes(
-    pageSize as (typeof PAGE_SIZE_OPTIONS)[number],
-  )
-    ? pageSize
-    : DEFAULT_PAGE_SIZE;
   const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize));
   const safePage = Math.min(Math.max(1, page), totalPages);
-  const pageStart = (safePage - 1) * safePageSize;
+  const pageStart = totalCount === 0 ? 0 : (safePage - 1) * safePageSize;
   const pageEnd = Math.min(pageStart + safePageSize, totalCount);
-  const pageItems = useMemo(
-    () => filtered.slice(pageStart, pageEnd),
-    [filtered, pageStart, pageEnd],
-  );
 
   // If the URL page drifts out of range (e.g. after filter change), snap back.
+  // Guard against the initial render where totalCount is still 0 — otherwise
+  // we'd overwrite a deep-link like ?page=690 back to 1 before data arrives.
   useEffect(() => {
+    if (listLoading) return;
+    if (totalCount === 0) return;
     if (page !== safePage) {
       navigate({ search: (p: any) => ({ ...p, page: safePage }), replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [safePage]);
+  }, [safePage, listLoading, totalCount]);
+
+
 
 
 
@@ -920,7 +903,7 @@ function Dashboard() {
         </div>
       </details>
 
-      {filtered.length === 0 ? (
+      {totalCount === 0 && !listLoading ? (
         <EmptyState tab={tab} query={q} />
       ) : (
         <>
