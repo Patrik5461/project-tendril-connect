@@ -63,7 +63,7 @@ function Onboarding() {
     }
     const skSelected = countries.includes("SK") || countries.includes("ALL");
     if (skSelected && regions.length === 0) {
-      toast.error("Vyberte aspoň jeden kraj pre Slovensko (alebo „Celé Slovensko").");
+      toast.error('Vyberte aspoň jeden kraj pre Slovensko (alebo "Celé Slovensko").');
       return;
     }
     setSaving(true);
