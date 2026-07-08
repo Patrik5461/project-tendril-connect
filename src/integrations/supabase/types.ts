@@ -264,6 +264,36 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _user_tender_base: {
+        Args: { _q: string; _radar_ids: string[]; _tab: string; _uid: string }
+        Returns: {
+          ai_summary: string | null
+          ai_summary_generated_at: string | null
+          contracting_authority: string
+          country: string | null
+          country_name: string | null
+          cpv_code: string | null
+          created_at: string
+          currency: string | null
+          deadline: string | null
+          description: string | null
+          estimated_value: number | null
+          id: string
+          publication_number: string | null
+          published_at: string | null
+          region: string | null
+          source: string
+          source_url: string | null
+          title: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "tenders"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_active_tenders_count: { Args: never; Returns: number }
       get_active_tenders_stats: {
         Args: never
@@ -272,8 +302,27 @@ export type Database = {
           total_value_eur: number
         }[]
       }
+      search_user_tenders: {
+        Args: {
+          _countries: string[]
+          _from: number
+          _limit: number
+          _q: string
+          _radar_ids: string[]
+          _sort: string
+          _tab: string
+        }
+        Returns: Json
+      }
       set_ai_summaries_enabled: { Args: { enabled: boolean }; Returns: boolean }
       unaccent: { Args: { "": string }; Returns: string }
+      user_tenders_country_facets: {
+        Args: { _q: string; _radar_ids: string[]; _tab: string }
+        Returns: {
+          cnt: number
+          country: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
