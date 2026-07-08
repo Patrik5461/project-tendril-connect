@@ -11,6 +11,7 @@ import {
   Tag,
 } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
+import { flagEmoji, countryName } from "@/lib/eu-countries";
 
 type Tender = {
   id: string;
