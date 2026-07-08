@@ -898,7 +898,7 @@ function Dashboard() {
         </div>
       </details>
 
-      {filtered.length === 0 ? (
+      {totalCount === 0 && !listLoading ? (
         <EmptyState tab={tab} query={q} />
       ) : (
         <>
