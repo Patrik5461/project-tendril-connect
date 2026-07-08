@@ -663,9 +663,20 @@ function Dashboard() {
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">Vaše zákazky</h1>
           <p className="text-muted-foreground mt-1">
-            Nájdených <b className="num text-foreground">{filtered.length}</b>{" "}
-            {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
+            {totalCount === 0
+              ? "Žiadne zákazky pre aktuálne filtre."
+              : (
+                <>
+                  Zobrazené{" "}
+                  <b className="num text-foreground">
+                    {pageStart + 1}–{pageEnd}
+                  </b>{" "}
+                  z <b className="num text-foreground">{totalCount}</b>{" "}
+                  {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
+                </>
+              )}
           </p>
+
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button
