@@ -30,6 +30,8 @@ type Tender = {
   description: string | null;
   cpv_code: string | null;
   region: string | null;
+  country: string | null;
+  country_name: string | null;
   deadline: string | null;
   published_at: string | null;
   source_url: string | null;
@@ -44,6 +46,7 @@ type Radar = {
   keywords: string[];
   cpv_codes: string[];
   regions: string[];
+  countries: string[] | null;
   active: boolean;
 };
 
@@ -53,10 +56,17 @@ type NotifPrefs = {
 };
 
 function matchesRadar(t: Tender, r: Radar): boolean {
-  const wholeSk = r.regions.includes("Celé Slovensko");
-  const regionOk =
-    wholeSk || r.regions.length === 0 || (t.region ? r.regions.includes(t.region) : true);
-  if (!regionOk) return false;
+  const countries = (r.countries && r.countries.length > 0) ? r.countries : ["SK"];
+  const allCountries = countries.includes("ALL");
+  if (!allCountries) {
+    if (!t.country || !countries.includes(t.country)) return false;
+  }
+  if (t.country === "SK") {
+    const wholeSk = r.regions.includes("Celé Slovensko");
+    const regionOk =
+      wholeSk || r.regions.length === 0 || (t.region ? r.regions.includes(t.region) : true);
+    if (!regionOk) return false;
+  }
   const kws = r.keywords.map((k) => k.toLowerCase());
   const cpvs = r.cpv_codes;
   const hasFilters = kws.length > 0 || cpvs.length > 0;
