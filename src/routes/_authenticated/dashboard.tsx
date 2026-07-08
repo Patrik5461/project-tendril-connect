@@ -665,6 +665,33 @@ function Dashboard() {
         </div>
       </details>
 
+      <details className="mt-3 rounded-xl border bg-card p-4">
+        <summary className="cursor-pointer text-sm font-medium text-muted-foreground">
+          Generovanie AI zhrnutí (admin)
+        </summary>
+        <div className="mt-4 flex items-start justify-between gap-4">
+          <div className="text-sm text-muted-foreground max-w-lg">
+            Riadi cron job, ktorý generuje AI zhrnutia pre nové zákazky.
+            Vypnutie sa nedotkne už vygenerovaných zhrnutí ani ničoho iného
+            (fetch, e-maily, dashboard, chatbot bežia ďalej).
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-sm font-medium">
+              {aiSummariesEnabled === null
+                ? "Načítavam…"
+                : aiSummariesEnabled
+                  ? "Zapnuté"
+                  : "Vypnuté"}
+            </span>
+            <Switch
+              checked={aiSummariesEnabled === true}
+              disabled={aiSummariesEnabled === null || aiToggleBusy}
+              onCheckedChange={(v) => toggleAiSummaries(v)}
+            />
+          </div>
+        </div>
+      </details>
+
       {filtered.length === 0 ? (
         <EmptyState tab={tab} query={q} />
       ) : view === "grid" ? (
