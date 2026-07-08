@@ -24,6 +24,7 @@ type Radar = {
   keywords: string[];
   cpv_codes: string[];
   regions: string[];
+  countries: string[];
   active: boolean;
 };
 
