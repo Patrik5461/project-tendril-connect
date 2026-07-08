@@ -22,6 +22,7 @@ function Onboarding() {
   const [kwInput, setKwInput] = useState("");
   const [cpvCodes, setCpvCodes] = useState<string[]>([]);
   const [regions, setRegions] = useState<string[]>([]);
+  const [countries, setCountries] = useState<string[]>(["SK"]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
