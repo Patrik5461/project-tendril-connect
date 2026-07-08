@@ -85,8 +85,9 @@ function renderHtml(dashboardUrl: string, settingsUrl: string): string {
 
         <tr><td style="padding:20px 24px 0 24px;">
           <p style="margin:0;font-size:15px;line-height:1.55;">
-            A áno – <strong>Tendrik je a zostáva bezplatný</strong>.
+            <strong>Prvé 2 mesiace máte zadarmo, potom 4,99 €/mesiac.</strong> Kartu teraz nepotrebujete – ozveme sa vám pred koncom skúšobnej doby.
           </p>
+
           <p style="margin:10px 0 0 0;font-size:15px;line-height:1.55;">
             Ak si neviete rady, napíšte nám alebo použite pomocníka priamo v aplikácii.
           </p>

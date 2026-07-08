@@ -191,7 +191,7 @@ function Landing() {
           <div>
             <div className="eyebrow flex items-center text-foreground">
               <span className="red-square" aria-hidden="true" />
-              Bezplatný monitoring verejného obstarávania
+              2 mesiace zdarma · monitoring verejného obstarávania
             </div>
             <h1 className="mt-6 font-display font-bold text-[2.75rem] leading-[1.02] md:text-[5rem] md:leading-[0.98] tracking-tight text-foreground">
               <span className="hero-underline">Zákazky</span> si&nbsp;ťa
@@ -214,6 +214,12 @@ function Landing() {
                 </Button>
               </Link>
             </div>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Vyskúšajte 2 mesiace zadarmo. Potom{" "}
+              <span className="num text-foreground">4,99 €/mesiac</span>. Bez
+              záväzkov, kartu teraz nepotrebujete.
+            </p>
+
             <ActiveTendersBlock />
           </div>
           <div className="md:pt-4">
@@ -270,7 +276,7 @@ function Landing() {
           </div>
           <ul className="divide-y divide-border border-t border-b border-foreground">
             {[
-              "Bez poplatkov, bez skrytých nákladov",
+              "Prvé 2 mesiace zadarmo, potom 4,99 €/mesiac",
               "Nastavenie za menej ako 2 minúty",
               "Odkaz priamo na zdroj zákazky",
               "Farebné upozornenie pri krátkom deadline",
@@ -298,7 +304,7 @@ function Landing() {
             <span className="h-4 w-4 bg-primary" aria-hidden="true" />
             <span className="font-display font-bold">Tendrik</span>
             <span className="text-muted-foreground">
-              · © {new Date().getFullYear()} · Bezplatná služba pre slovenských podnikateľov
+              · © {new Date().getFullYear()} · 2 mesiace zdarma, potom 4,99 €/mesiac
             </span>
           </div>
           <div className="flex items-center gap-4">

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Prihlásenie – Tendrik" },
-      { name: "description", content: "Prihláste sa alebo si vytvorte bezplatný účet Tendrik." },
+      { name: "description", content: "Prihláste sa alebo si vytvorte účet Tendrik. Prvé 2 mesiace zadarmo, potom 4,99 €/mesiac." },
     ],
   }),
   component: AuthPage,

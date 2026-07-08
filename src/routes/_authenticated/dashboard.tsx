@@ -46,6 +46,9 @@ import { differenceInDays, format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { flagEmoji, countryName } from "@/lib/eu-countries";
+import { computeSubscription, MONTHLY_PRICE_EUR, formatEur as formatEurPrice } from "@/lib/subscription";
+import { Lock, Sparkles } from "lucide-react";
+
 
 
 type Tender = {
@@ -67,7 +70,10 @@ type Tender = {
 
 type Prefs = {
   onboarding_completed: boolean;
+  trial_started_at?: string | null;
+  subscription_status?: "trial" | "active" | "expired" | null;
 };
+
 
 type Radar = {
   id: string;
@@ -223,7 +229,7 @@ function Dashboard() {
       const [{ data: p }, { data: r }] = await Promise.all([
         supabase
           .from("user_preferences")
-          .select("onboarding_completed")
+          .select("onboarding_completed, trial_started_at, subscription_status")
           .eq("user_id", u.user.id)
           .maybeSingle(),
         (supabase.from("user_radars" as never) as any)
@@ -233,6 +239,7 @@ function Dashboard() {
       ]);
       const radars = (r ?? []) as Radar[];
       setPrefs(p as Prefs | null);
+
       setUserRadars(radars);
       await loadActions(u.user.id);
       setLoading(false);
@@ -640,8 +647,15 @@ function Dashboard() {
     );
   }
 
+  const subscription = computeSubscription(prefs);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
+      {subscription.status === "trial" && (
+        <TrialBanner daysLeft={subscription.daysLeft} isEndingSoon={subscription.isEndingSoon} />
+      )}
+      {subscription.status === "expired" && <ExpiredBanner />}
+
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">Vaše zákazky</h1>
@@ -903,63 +917,146 @@ function Dashboard() {
         </div>
       </details>
 
-      {totalCount === 0 && !listLoading ? (
-        <EmptyState tab={tab} query={q} />
-      ) : (
-        <>
-          {view === "grid" ? (
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {pageItems.map((t) => (
-                <TenderGridCard
-                  key={t.id}
-                  tender={t}
-                  saved={actions[t.id]?.has("saved") ?? false}
-                  hidden={actions[t.id]?.has("hidden") ?? false}
-                  tab={tab}
-                  onToggle={toggleAction}
-                  radarLabels={
-                    tab === "foryou" && userRadars.length > 1
-                      ? matchingRadarsFor(t).map((r) => r.name)
-                      : undefined
-                  }
-                />
-              ))}
-            </div>
+      <div className="relative">
+        {subscription.isLocked && <LockedOverlay />}
+        <div
+          className={
+            subscription.isLocked
+              ? "pointer-events-none select-none blur-[6px] opacity-70"
+              : ""
+          }
+          aria-hidden={subscription.isLocked || undefined}
+        >
+          {totalCount === 0 && !listLoading ? (
+            <EmptyState tab={tab} query={q} />
           ) : (
-            <div className="mt-6 border-t-2 border-foreground">
-              {pageItems.map((t) => (
-                <TenderCard
-                  key={t.id}
-                  tender={t}
-                  saved={actions[t.id]?.has("saved") ?? false}
-                  hidden={actions[t.id]?.has("hidden") ?? false}
-                  tab={tab}
-                  onToggle={toggleAction}
-                  radarLabels={
-                    tab === "foryou" && userRadars.length > 1
-                      ? matchingRadarsFor(t).map((r) => r.name)
-                      : undefined
-                  }
-                />
-              ))}
-            </div>
+            <>
+              {view === "grid" ? (
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {pageItems.map((t) => (
+                    <TenderGridCard
+                      key={t.id}
+                      tender={t}
+                      saved={actions[t.id]?.has("saved") ?? false}
+                      hidden={actions[t.id]?.has("hidden") ?? false}
+                      tab={tab}
+                      onToggle={toggleAction}
+                      radarLabels={
+                        tab === "foryou" && userRadars.length > 1
+                          ? matchingRadarsFor(t).map((r) => r.name)
+                          : undefined
+                      }
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-6 border-t-2 border-foreground">
+                  {pageItems.map((t) => (
+                    <TenderCard
+                      key={t.id}
+                      tender={t}
+                      saved={actions[t.id]?.has("saved") ?? false}
+                      hidden={actions[t.id]?.has("hidden") ?? false}
+                      tab={tab}
+                      onToggle={toggleAction}
+                      radarLabels={
+                        tab === "foryou" && userRadars.length > 1
+                          ? matchingRadarsFor(t).map((r) => r.name)
+                          : undefined
+                      }
+                    />
+                  ))}
+                </div>
+              )}
+              <Pagination
+                page={safePage}
+                pageSize={safePageSize}
+                totalCount={totalCount}
+                totalPages={totalPages}
+                pageStart={pageStart}
+                pageEnd={pageEnd}
+                onPageChange={(p) =>
+                  navigate({ search: (sp: any) => ({ ...sp, page: p }) })
+                }
+              />
+            </>
           )}
-          <Pagination
-            page={safePage}
-            pageSize={safePageSize}
-            totalCount={totalCount}
-            totalPages={totalPages}
-            pageStart={pageStart}
-            pageEnd={pageEnd}
-            onPageChange={(p) =>
-              navigate({ search: (sp: any) => ({ ...sp, page: p }) })
-            }
-          />
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }
+
+function TrialBanner({ daysLeft, isEndingSoon }: { daysLeft: number; isEndingSoon: boolean }) {
+  const dayWord = daysLeft === 1 ? "deň" : daysLeft >= 2 && daysLeft <= 4 ? "dni" : "dní";
+  return (
+    <div
+      className={`mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-md border px-4 py-3 text-sm ${
+        isEndingSoon
+          ? "border-primary bg-primary/10 text-foreground"
+          : "border-border bg-muted/40 text-foreground/90"
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <Sparkles className={`h-4 w-4 ${isEndingSoon ? "text-primary" : "text-muted-foreground"}`} />
+        <span>
+          Skúšobné obdobie:{" "}
+          <b className="num text-foreground">
+            zostáva {daysLeft} {dayWord}
+          </b>
+          {isEndingSoon && " – potom Tendrik prejde na predplatné."}
+        </span>
+      </div>
+      <Link to="/predplatne">
+        <Button size="sm" variant={isEndingSoon ? "default" : "outline"}>
+          Aktivovať predplatné za {formatEurPrice(MONTHLY_PRICE_EUR)}/mes
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
+function ExpiredBanner() {
+  return (
+    <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-md border-2 border-primary bg-primary/10 px-4 py-3 text-sm">
+      <div className="flex items-center gap-2">
+        <Lock className="h-4 w-4 text-primary" />
+        <span>
+          <b>Vaše skúšobné obdobie skončilo.</b> Pokračujte za{" "}
+          {formatEurPrice(MONTHLY_PRICE_EUR)}/mesiac.
+        </span>
+      </div>
+      <Link to="/predplatne">
+        <Button size="sm">Aktivovať predplatné</Button>
+      </Link>
+    </div>
+  );
+}
+
+function LockedOverlay() {
+  return (
+    <div className="absolute inset-x-0 top-0 z-10 flex justify-center pt-12 pointer-events-none">
+      <div className="pointer-events-auto max-w-md rounded-lg border-2 border-foreground bg-card p-8 text-center shadow-lg">
+        <Lock className="mx-auto h-8 w-8 text-primary" />
+        <h2 className="mt-4 font-display text-2xl font-bold">
+          Skúšobné obdobie skončilo
+        </h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Ak chcete ďalej dostávať upozornenia a vidieť denné zákazky,
+          aktivujte si predplatné za{" "}
+          <b className="text-foreground">
+            {formatEurPrice(MONTHLY_PRICE_EUR)}/mesiac
+          </b>
+          . Bez záväzkov, kedykoľvek zrušíte.
+        </p>
+        <Link to="/predplatne" className="mt-6 inline-block">
+          <Button size="lg">Aktivovať predplatné</Button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 
 
 function EmptyState({
