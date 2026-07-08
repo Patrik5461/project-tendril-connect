@@ -82,13 +82,6 @@ type Radar = {
 type Action = "saved" | "hidden";
 type ActionRow = { tender_id: string; action: Action };
 
-const searchSchema = z.object({
-  tab: fallback(z.enum(["foryou", "saved", "hidden"]), "foryou").default("foryou"),
-  sort: fallback(z.enum(["deadline", "newest", "value"]), "deadline").default("deadline"),
-  q: fallback(z.string(), "").default(""),
-  view: fallback(z.enum(["list", "grid"]), "list").default("list"),
-  radar: fallback(z.string(), "all").default("all"),
-});
 
 const PAGE_SIZE_OPTIONS = [20, 50, 100] as const;
 const DEFAULT_PAGE_SIZE = 20;
