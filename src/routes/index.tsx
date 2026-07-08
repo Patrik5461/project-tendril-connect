@@ -233,8 +233,8 @@ function Landing() {
           },
           {
             icon: Filter,
-            title: "Regionálne filtre",
-            text: "Vyberte 8 slovenských krajov alebo celé Slovensko.",
+            title: "Krajiny a regióny",
+            text: "Vyberte krajiny EÚ, ktoré vás zaujímajú, prípadne konkrétne slovenské kraje.",
           },
           {
             icon: Bell,
