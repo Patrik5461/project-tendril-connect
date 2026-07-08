@@ -135,6 +135,7 @@ function SettingsPage() {
         keywords: [],
         cpv_codes: [],
         regions: [],
+        countries: ["SK"],
         active: true,
       })
       .select()
