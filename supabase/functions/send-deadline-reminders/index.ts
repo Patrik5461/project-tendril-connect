@@ -184,7 +184,7 @@ Deno.serve(async (req) => {
     const userIds = [...new Set(actions.map((a) => a.user_id))];
     const { data: prefs, error: pErr } = await supabase
       .from("user_preferences")
-      .select("user_id, email_notifications, deadline_reminders, notification_email")
+      .select("user_id, email_notifications, deadline_reminders, notification_email, subscription_status")
       .in("user_id", userIds);
     if (pErr) throw pErr;
     const prefMap = new Map((prefs ?? []).map((p) => [p.user_id, p]));
@@ -215,6 +215,8 @@ Deno.serve(async (req) => {
       if (!p) continue;
       if (p.email_notifications === false) continue;
       if (p.deadline_reminders === false) continue;
+      if (p.subscription_status === "expired") continue;
+
 
       const msLeft = new Date(t.deadline).getTime() - now;
       if (msLeft <= 0) continue;

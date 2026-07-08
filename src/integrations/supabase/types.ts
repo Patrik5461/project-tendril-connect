@@ -152,6 +152,8 @@ export type Database = {
           notification_email: string | null
           onboarding_completed: boolean
           regions: string[]
+          subscription_status: string
+          trial_started_at: string
           updated_at: string
           user_id: string
           welcome_email_sent: boolean
@@ -167,6 +169,8 @@ export type Database = {
           notification_email?: string | null
           onboarding_completed?: boolean
           regions?: string[]
+          subscription_status?: string
+          trial_started_at?: string
           updated_at?: string
           user_id: string
           welcome_email_sent?: boolean
@@ -182,6 +186,8 @@ export type Database = {
           notification_email?: string | null
           onboarding_completed?: boolean
           regions?: string[]
+          subscription_status?: string
+          trial_started_at?: string
           updated_at?: string
           user_id?: string
           welcome_email_sent?: boolean
@@ -294,6 +300,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      expire_trials: { Args: never; Returns: number }
       get_active_tenders_count: { Args: never; Returns: number }
       get_active_tenders_stats: {
         Args: never

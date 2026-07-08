@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PredplatneRouteImport } from './routes/predplatne'
 import { Route as OchranaOsobnychUdajovRouteImport } from './routes/ochrana-osobnych-udajov'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -19,6 +20,11 @@ import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiPublicStatsRouteImport } from './routes/api/public/stats'
 
+const PredplatneRoute = PredplatneRouteImport.update({
+  id: '/predplatne',
+  path: '/predplatne',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OchranaOsobnychUdajovRoute = OchranaOsobnychUdajovRouteImport.update({
   id: '/ochrana-osobnych-udajov',
   path: '/ochrana-osobnych-udajov',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
+  '/predplatne': typeof PredplatneRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
+  '/predplatne': typeof PredplatneRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -90,6 +98,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
+  '/predplatne': typeof PredplatneRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -102,6 +111,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/ochrana-osobnych-udajov'
+    | '/predplatne'
     | '/dashboard'
     | '/onboarding'
     | '/settings'
@@ -112,6 +122,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/ochrana-osobnych-udajov'
+    | '/predplatne'
     | '/dashboard'
     | '/onboarding'
     | '/settings'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/ochrana-osobnych-udajov'
+    | '/predplatne'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/settings'
@@ -135,12 +147,20 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   OchranaOsobnychUdajovRoute: typeof OchranaOsobnychUdajovRoute
+  PredplatneRoute: typeof PredplatneRoute
   ZakazkaIdRoute: typeof ZakazkaIdRoute
   ApiPublicStatsRoute: typeof ApiPublicStatsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/predplatne': {
+      id: '/predplatne'
+      path: '/predplatne'
+      fullPath: '/predplatne'
+      preLoaderRoute: typeof PredplatneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ochrana-osobnych-udajov': {
       id: '/ochrana-osobnych-udajov'
       path: '/ochrana-osobnych-udajov'
@@ -227,19 +247,10 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   OchranaOsobnychUdajovRoute: OchranaOsobnychUdajovRoute,
+  PredplatneRoute: PredplatneRoute,
   ZakazkaIdRoute: ZakazkaIdRoute,
   ApiPublicStatsRoute: ApiPublicStatsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
