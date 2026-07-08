@@ -90,6 +90,22 @@ const searchSchema = z.object({
   radar: fallback(z.string(), "all").default("all"),
 });
 
+const PAGE_SIZE_OPTIONS = [20, 50, 100] as const;
+const DEFAULT_PAGE_SIZE = 20;
+const PAGE_SIZE_STORAGE_KEY = "tendrik.dashboard.pageSize";
+
+const searchSchema = z.object({
+  tab: fallback(z.enum(["foryou", "saved", "hidden"]), "foryou").default("foryou"),
+  sort: fallback(z.enum(["deadline", "newest", "value"]), "deadline").default("deadline"),
+  q: fallback(z.string(), "").default(""),
+  view: fallback(z.enum(["list", "grid"]), "list").default("list"),
+  radar: fallback(z.string(), "all").default("all"),
+  // Comma-separated ISO country codes (e.g. "SK,CZ"). Empty = all.
+  country: fallback(z.string(), "").default(""),
+  page: fallback(z.number().int(), 1).default(1),
+  pageSize: fallback(z.number().int(), DEFAULT_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
+});
+
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Zákazky – Tendrik" }] }),
   validateSearch: zodValidator(searchSchema),
@@ -104,9 +120,23 @@ function norm(s: string): string {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+function parseCountryParam(v: string): string[] {
+  return v.split(",").map((s) => s.trim().toUpperCase()).filter(Boolean);
+}
+
 function Dashboard() {
-  const { tab, sort, q, view, radar: radarParam } = Route.useSearch();
+  const {
+    tab,
+    sort,
+    q,
+    view,
+    radar: radarParam,
+    country: countryParam,
+    page,
+    pageSize,
+  } = Route.useSearch();
   const navigate = useNavigate({ from: "/dashboard" });
+
 
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [prefs, setPrefs] = useState<Prefs | null>(null);
