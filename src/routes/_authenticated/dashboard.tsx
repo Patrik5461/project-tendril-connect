@@ -712,7 +712,13 @@ function Dashboard() {
         <Tabs
           value={tab}
           onValueChange={(v) =>
-            navigate({ search: (p: any) => ({ ...p, tab: v as "foryou" | "saved" | "hidden" }) })
+            navigate({
+              search: (p: any) => ({
+                ...p,
+                tab: v as "foryou" | "saved" | "hidden",
+                page: 1,
+              }),
+            })
           }
         >
           <TabsList>
@@ -722,12 +728,12 @@ function Dashboard() {
           </TabsList>
         </Tabs>
 
-        <div className="flex gap-2 flex-col sm:flex-row">
+        <div className="flex gap-2 flex-col sm:flex-row sm:flex-wrap">
           {tab === "foryou" && userRadars.length > 1 && (
             <Select
               value={radarParam}
               onValueChange={(v) =>
-                navigate({ search: (p: any) => ({ ...p, radar: v }) })
+                navigate({ search: (p: any) => ({ ...p, radar: v, page: 1 }) })
               }
             >
               <SelectTrigger className="sm:w-56">
@@ -753,15 +759,33 @@ function Dashboard() {
               className="pl-8 sm:w-64"
             />
           </div>
+          <CountryFilter
+            facets={countryFacets}
+            selected={selectedCountries}
+            onChange={(codes) =>
+              navigate({
+                search: (p: any) => ({
+                  ...p,
+                  country: codes.join(","),
+                  page: 1,
+                }),
+                replace: true,
+              })
+            }
+          />
           <Select
             value={sort}
             onValueChange={(v) =>
               navigate({
-                search: (p: any) => ({ ...p, sort: v as "deadline" | "newest" | "value" }),
+                search: (p: any) => ({
+                  ...p,
+                  sort: v as "deadline" | "newest" | "value",
+                  page: 1,
+                }),
               })
             }
           >
-            <SelectTrigger className="sm:w-56">
+            <SelectTrigger className="sm:w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -770,12 +794,32 @@ function Dashboard() {
               <SelectItem value="value">Najvyššia hodnota</SelectItem>
             </SelectContent>
           </Select>
+          <Select
+            value={String(safePageSize)}
+            onValueChange={(v) =>
+              navigate({
+                search: (p: any) => ({ ...p, pageSize: Number(v), page: 1 }),
+              })
+            }
+          >
+            <SelectTrigger className="sm:w-32" aria-label="Počet na stránku">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n} / str.
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <ViewToggle
             view={view}
             onChange={(v) => navigate({ search: (p: any) => ({ ...p, view: v }) })}
           />
         </div>
       </div>
+
 
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent className="max-w-3xl">
