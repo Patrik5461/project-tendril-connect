@@ -386,11 +386,20 @@ function Dashboard() {
 
   // Match tender against a single radar
   const matchesRadar = (t: Tender, r: Radar): boolean => {
-    const regs = r.regions;
-    const wholeSk = regs.includes("Celé Slovensko");
-    const regionOk =
-      wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
-    if (!regionOk) return false;
+    // Country gate. Empty = SK-only fallback for safety.
+    const countries = (r.countries && r.countries.length > 0) ? r.countries : ["SK"];
+    const includesAll = countries.includes("ALL");
+    if (!includesAll) {
+      if (!t.country || !countries.includes(t.country)) return false;
+    }
+    // SK region gate applies only when tender is SK.
+    if (t.country === "SK") {
+      const regs = r.regions;
+      const wholeSk = regs.includes("Celé Slovensko");
+      const regionOk =
+        wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
+      if (!regionOk) return false;
+    }
     const kws = r.keywords.map((k) => norm(k));
     const cpvs = r.cpv_codes;
     const hasFilters = kws.length > 0 || cpvs.length > 0;
