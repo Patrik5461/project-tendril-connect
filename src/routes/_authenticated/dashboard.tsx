@@ -20,6 +20,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Calendar,
   Building2,
@@ -34,11 +36,17 @@ import {
   Search,
   LayoutList,
   LayoutGrid,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Globe,
 } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { flagEmoji, countryName } from "@/lib/eu-countries";
+
 
 type Tender = {
   id: string;
@@ -74,12 +82,21 @@ type Radar = {
 type Action = "saved" | "hidden";
 type ActionRow = { tender_id: string; action: Action };
 
+
+const PAGE_SIZE_OPTIONS = [20, 50, 100] as const;
+const DEFAULT_PAGE_SIZE = 20;
+const PAGE_SIZE_STORAGE_KEY = "tendrik.dashboard.pageSize";
+
 const searchSchema = z.object({
   tab: fallback(z.enum(["foryou", "saved", "hidden"]), "foryou").default("foryou"),
   sort: fallback(z.enum(["deadline", "newest", "value"]), "deadline").default("deadline"),
   q: fallback(z.string(), "").default(""),
   view: fallback(z.enum(["list", "grid"]), "list").default("list"),
   radar: fallback(z.string(), "all").default("all"),
+  // Comma-separated ISO country codes (e.g. "SK,CZ"). Empty = all.
+  country: fallback(z.string(), "").default(""),
+  page: fallback(z.number().int(), 1).default(1),
+  pageSize: fallback(z.number().int(), DEFAULT_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
 });
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -96,9 +113,23 @@ function norm(s: string): string {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+function parseCountryParam(v: string): string[] {
+  return v.split(",").map((s) => s.trim().toUpperCase()).filter(Boolean);
+}
+
 function Dashboard() {
-  const { tab, sort, q, view, radar: radarParam } = Route.useSearch();
+  const {
+    tab,
+    sort,
+    q,
+    view,
+    radar: radarParam,
+    country: countryParam,
+    page,
+    pageSize,
+  } = Route.useSearch();
   const navigate = useNavigate({ from: "/dashboard" });
+
 
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [prefs, setPrefs] = useState<Prefs | null>(null);
@@ -150,11 +181,14 @@ function Dashboard() {
     toast.success(next ? "Generovanie AI zhrnutí zapnuté" : "Generovanie AI zhrnutí vypnuté");
   }
 
-  // Debounce search input -> URL
+  // Debounce search input -> URL (reset to page 1)
   useEffect(() => {
     const t = setTimeout(() => {
       if (searchInput !== q) {
-        navigate({ search: (p: any) => ({ ...p, q: searchInput }), replace: true });
+        navigate({
+          search: (p: any) => ({ ...p, q: searchInput, page: 1 }),
+          replace: true,
+        });
       }
     }, 250);
     return () => clearTimeout(t);
@@ -165,9 +199,51 @@ function Dashboard() {
     setSearchInput(q);
   }, [q]);
 
+  // Fetch tenders scoped by the union of the user's radar countries + any
+  // tender the user has saved/hidden (so they don't disappear after country
+  // pruning). Uses .range(0, 9999) so we never silently hit the 1000-row
+  // default cap on large radars.
+  async function loadTendersScoped(uid: string, radars: Radar[]) {
+    const countrySet = new Set<string>();
+    let includeAll = false;
+    for (const r of radars) {
+      const cs = r.countries && r.countries.length > 0 ? r.countries : ["SK"];
+      if (cs.includes("ALL")) {
+        includeAll = true;
+        break;
+      }
+      for (const c of cs) countrySet.add(c);
+    }
+
+    let baseQuery = supabase.from("tenders").select("*").range(0, 9999);
+    if (!includeAll && countrySet.size > 0) {
+      baseQuery = baseQuery.in("country", Array.from(countrySet));
+    }
+    const { data: base } = await baseQuery;
+
+    // Union with tenders referenced by user actions (saved / hidden) so they
+    // remain reachable even if outside the radar country set.
+    const { data: actionRows } = await supabase
+      .from("user_tender_actions" as never)
+      .select("tender_id")
+      .eq("user_id", uid);
+    const actionIds = Array.from(
+      new Set(((actionRows ?? []) as { tender_id: string }[]).map((r) => r.tender_id)),
+    );
+    const seen = new Set(((base ?? []) as { id: string }[]).map((t) => t.id));
+    const missing = actionIds.filter((id) => !seen.has(id));
+    let extra: unknown[] = [];
+    if (missing.length > 0) {
+      const { data } = await supabase.from("tenders").select("*").in("id", missing);
+      extra = data ?? [];
+    }
+    return [...((base ?? []) as Tender[]), ...(extra as Tender[])];
+  }
+
   async function loadTenders() {
-    const { data: t } = await supabase.from("tenders").select("*");
-    setTenders((t ?? []) as Tender[]);
+    if (!userId) return;
+    const merged = await loadTendersScoped(userId, userRadars);
+    setTenders(merged);
   }
 
   async function loadActions(uid: string) {
@@ -188,25 +264,52 @@ function Dashboard() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
       setUserId(u.user.id);
-      const [{ data: p }, { data: t }, { data: r }] = await Promise.all([
+      const [{ data: p }, { data: r }] = await Promise.all([
         supabase
           .from("user_preferences")
           .select("onboarding_completed")
           .eq("user_id", u.user.id)
           .maybeSingle(),
-        supabase.from("tenders").select("*"),
         (supabase.from("user_radars" as never) as any)
           .select("*")
           .eq("user_id", u.user.id)
           .order("created_at", { ascending: true }),
       ]);
+      const radars = (r ?? []) as Radar[];
       setPrefs(p as Prefs | null);
-      setTenders((t ?? []) as Tender[]);
-      setUserRadars((r ?? []) as Radar[]);
+      setUserRadars(radars);
+      const merged = await loadTendersScoped(u.user.id, radars);
+      setTenders(merged);
       await loadActions(u.user.id);
       setLoading(false);
     })();
   }, []);
+
+  // Restore pageSize from localStorage on first visit if URL has default.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = Number(window.localStorage.getItem(PAGE_SIZE_STORAGE_KEY));
+    if (
+      stored &&
+      PAGE_SIZE_OPTIONS.includes(stored as (typeof PAGE_SIZE_OPTIONS)[number]) &&
+      stored !== pageSize
+    ) {
+      // Only overwrite if URL is still on the default (user hasn't chosen this session).
+      const url = new URL(window.location.href);
+      if (!url.searchParams.has("pageSize")) {
+        navigate({ search: (p: any) => ({ ...p, pageSize: stored }), replace: true });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist pageSize to localStorage on change.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(PAGE_SIZE_STORAGE_KEY, String(pageSize));
+  }, [pageSize]);
+
+
 
   async function toggleAction(tenderId: string, action: Action) {
     if (!userId) return;
@@ -438,7 +541,11 @@ function Dashboard() {
       : false;
   };
 
-  const filtered = useMemo(() => {
+  const selectedCountries = useMemo(() => parseCountryParam(countryParam), [countryParam]);
+
+  // Everything except the country UI filter — used both to compute facets
+  // (per-country counts) and as the base for the final filtered list.
+  const preCountryFiltered = useMemo(() => {
     let result = tenders.slice();
 
     if (tab === "foryou") {
@@ -459,8 +566,36 @@ function Dashboard() {
           norm(t.description ?? "").includes(nq),
       );
     }
+    return result;
+  }, [tenders, actions, matchingRadarsFor, tab, q]);
 
-    result.sort((a, b) => {
+  // Country counts across the pre-country filtered set (used in the dropdown).
+  const countryFacets = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const t of preCountryFiltered) {
+      const c = (t.country ?? "XX").toUpperCase();
+      counts.set(c, (counts.get(c) ?? 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .map(([code, count]) => ({
+        code,
+        count,
+        label:
+          code === "XX"
+            ? "neznáma krajina"
+            : (countryName(code) ?? code),
+      }))
+      .sort((a, b) => b.count - a.count);
+  }, [preCountryFiltered]);
+
+  const filtered = useMemo(() => {
+    let result = preCountryFiltered;
+    if (selectedCountries.length > 0) {
+      const set = new Set(selectedCountries);
+      result = result.filter((t) => set.has((t.country ?? "XX").toUpperCase()));
+    }
+    const sorted = result.slice();
+    sorted.sort((a, b) => {
       if (sort === "deadline") {
         const av = a.deadline ?? "9999";
         const bv = b.deadline ?? "9999";
@@ -473,8 +608,33 @@ function Dashboard() {
       const bv = b.estimated_value == null ? -1 : Number(b.estimated_value);
       return bv - av;
     });
-    return result;
-  }, [tenders, actions, matchingRadarsFor, tab, q, sort]);
+    return sorted;
+  }, [preCountryFiltered, selectedCountries, sort]);
+
+  const totalCount = filtered.length;
+  const safePageSize = PAGE_SIZE_OPTIONS.includes(
+    pageSize as (typeof PAGE_SIZE_OPTIONS)[number],
+  )
+    ? pageSize
+    : DEFAULT_PAGE_SIZE;
+  const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize));
+  const safePage = Math.min(Math.max(1, page), totalPages);
+  const pageStart = (safePage - 1) * safePageSize;
+  const pageEnd = Math.min(pageStart + safePageSize, totalCount);
+  const pageItems = useMemo(
+    () => filtered.slice(pageStart, pageEnd),
+    [filtered, pageStart, pageEnd],
+  );
+
+  // If the URL page drifts out of range (e.g. after filter change), snap back.
+  useEffect(() => {
+    if (page !== safePage) {
+      navigate({ search: (p: any) => ({ ...p, page: safePage }), replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [safePage]);
+
+
 
 
   if (loading) {
@@ -503,9 +663,20 @@ function Dashboard() {
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">Vaše zákazky</h1>
           <p className="text-muted-foreground mt-1">
-            Nájdených <b className="num text-foreground">{filtered.length}</b>{" "}
-            {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
+            {totalCount === 0
+              ? "Žiadne zákazky pre aktuálne filtre."
+              : (
+                <>
+                  Zobrazené{" "}
+                  <b className="num text-foreground">
+                    {pageStart + 1}–{pageEnd}
+                  </b>{" "}
+                  z <b className="num text-foreground">{totalCount}</b>{" "}
+                  {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
+                </>
+              )}
           </p>
+
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button
@@ -541,7 +712,13 @@ function Dashboard() {
         <Tabs
           value={tab}
           onValueChange={(v) =>
-            navigate({ search: (p: any) => ({ ...p, tab: v as "foryou" | "saved" | "hidden" }) })
+            navigate({
+              search: (p: any) => ({
+                ...p,
+                tab: v as "foryou" | "saved" | "hidden",
+                page: 1,
+              }),
+            })
           }
         >
           <TabsList>
@@ -551,12 +728,12 @@ function Dashboard() {
           </TabsList>
         </Tabs>
 
-        <div className="flex gap-2 flex-col sm:flex-row">
+        <div className="flex gap-2 flex-col sm:flex-row sm:flex-wrap">
           {tab === "foryou" && userRadars.length > 1 && (
             <Select
               value={radarParam}
               onValueChange={(v) =>
-                navigate({ search: (p: any) => ({ ...p, radar: v }) })
+                navigate({ search: (p: any) => ({ ...p, radar: v, page: 1 }) })
               }
             >
               <SelectTrigger className="sm:w-56">
@@ -582,15 +759,33 @@ function Dashboard() {
               className="pl-8 sm:w-64"
             />
           </div>
+          <CountryFilter
+            facets={countryFacets}
+            selected={selectedCountries}
+            onChange={(codes) =>
+              navigate({
+                search: (p: any) => ({
+                  ...p,
+                  country: codes.join(","),
+                  page: 1,
+                }),
+                replace: true,
+              })
+            }
+          />
           <Select
             value={sort}
             onValueChange={(v) =>
               navigate({
-                search: (p: any) => ({ ...p, sort: v as "deadline" | "newest" | "value" }),
+                search: (p: any) => ({
+                  ...p,
+                  sort: v as "deadline" | "newest" | "value",
+                  page: 1,
+                }),
               })
             }
           >
-            <SelectTrigger className="sm:w-56">
+            <SelectTrigger className="sm:w-48">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -599,12 +794,32 @@ function Dashboard() {
               <SelectItem value="value">Najvyššia hodnota</SelectItem>
             </SelectContent>
           </Select>
+          <Select
+            value={String(safePageSize)}
+            onValueChange={(v) =>
+              navigate({
+                search: (p: any) => ({ ...p, pageSize: Number(v), page: 1 }),
+              })
+            }
+          >
+            <SelectTrigger className="sm:w-32" aria-label="Počet na stránku">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n} / str.
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <ViewToggle
             view={view}
             onChange={(v) => navigate({ search: (p: any) => ({ ...p, view: v }) })}
           />
         </div>
       </div>
+
 
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent className="max-w-3xl">
@@ -707,46 +922,62 @@ function Dashboard() {
 
       {filtered.length === 0 ? (
         <EmptyState tab={tab} query={q} />
-      ) : view === "grid" ? (
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((t) => (
-            <TenderGridCard
-              key={t.id}
-              tender={t}
-              saved={actions[t.id]?.has("saved") ?? false}
-              hidden={actions[t.id]?.has("hidden") ?? false}
-              tab={tab}
-              onToggle={toggleAction}
-              radarLabels={
-                tab === "foryou" && userRadars.length > 1
-                  ? matchingRadarsFor(t).map((r) => r.name)
-                  : undefined
-              }
-            />
-          ))}
-        </div>
       ) : (
-        <div className="mt-6 border-t-2 border-foreground">
-          {filtered.map((t) => (
-            <TenderCard
-              key={t.id}
-              tender={t}
-              saved={actions[t.id]?.has("saved") ?? false}
-              hidden={actions[t.id]?.has("hidden") ?? false}
-              tab={tab}
-              onToggle={toggleAction}
-              radarLabels={
-                tab === "foryou" && userRadars.length > 1
-                  ? matchingRadarsFor(t).map((r) => r.name)
-                  : undefined
-              }
-            />
-          ))}
-        </div>
+        <>
+          {view === "grid" ? (
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {pageItems.map((t) => (
+                <TenderGridCard
+                  key={t.id}
+                  tender={t}
+                  saved={actions[t.id]?.has("saved") ?? false}
+                  hidden={actions[t.id]?.has("hidden") ?? false}
+                  tab={tab}
+                  onToggle={toggleAction}
+                  radarLabels={
+                    tab === "foryou" && userRadars.length > 1
+                      ? matchingRadarsFor(t).map((r) => r.name)
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-6 border-t-2 border-foreground">
+              {pageItems.map((t) => (
+                <TenderCard
+                  key={t.id}
+                  tender={t}
+                  saved={actions[t.id]?.has("saved") ?? false}
+                  hidden={actions[t.id]?.has("hidden") ?? false}
+                  tab={tab}
+                  onToggle={toggleAction}
+                  radarLabels={
+                    tab === "foryou" && userRadars.length > 1
+                      ? matchingRadarsFor(t).map((r) => r.name)
+                      : undefined
+                  }
+                />
+              ))}
+            </div>
+          )}
+          <Pagination
+            page={safePage}
+            pageSize={safePageSize}
+            totalCount={totalCount}
+            totalPages={totalPages}
+            pageStart={pageStart}
+            pageEnd={pageEnd}
+            onPageChange={(p) =>
+              navigate({ search: (sp: any) => ({ ...sp, page: p }) })
+            }
+          />
+        </>
       )}
     </div>
   );
 }
+
 
 function EmptyState({
   tab,
@@ -1185,3 +1416,210 @@ function TenderGridCard({
     </article>
   );
 }
+
+type CountryFacet = { code: string; count: number; label: string };
+
+function CountryFilter({
+  facets,
+  selected,
+  onChange,
+}: {
+  facets: CountryFacet[];
+  selected: string[];
+  onChange: (codes: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedSet = new Set(selected);
+  const label =
+    selected.length === 0
+      ? "Všetky krajiny"
+      : selected.length === 1
+        ? `${flagEmoji(selected[0])} ${countryName(selected[0]) ?? selected[0]}`
+        : `${selected.length} krajín`;
+
+  function toggle(code: string) {
+    const next = new Set(selectedSet);
+    if (next.has(code)) next.delete(code);
+    else next.add(code);
+    onChange(Array.from(next));
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="default"
+          className="sm:w-48 justify-between h-9 font-normal"
+          aria-label="Filter krajín"
+        >
+          <span className="flex items-center gap-2 truncate">
+            <Globe className="h-4 w-4 shrink-0" />
+            <span className="truncate">{label}</span>
+          </span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-0" align="end">
+        <div className="flex items-center justify-between p-3 border-b">
+          <span className="text-sm font-medium">Krajiny</span>
+          {selected.length > 0 && (
+            <button
+              type="button"
+              onClick={() => onChange([])}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Vymazať výber
+            </button>
+          )}
+        </div>
+        <div className="max-h-80 overflow-y-auto p-1">
+          {facets.length === 0 ? (
+            <div className="px-3 py-6 text-center text-sm text-muted-foreground">
+              Žiadne krajiny v aktuálnych výsledkoch
+            </div>
+          ) : (
+            facets.map((f) => (
+              <label
+                key={f.code}
+                className="flex items-center gap-3 px-3 py-2 rounded-sm cursor-pointer hover:bg-secondary"
+              >
+                <Checkbox
+                  checked={selectedSet.has(f.code)}
+                  onCheckedChange={() => toggle(f.code)}
+                />
+                <span className="flex-1 flex items-center gap-2 text-sm">
+                  <span>
+                    {f.code === "XX" ? "❓" : flagEmoji(f.code)} {f.label}
+                  </span>
+                </span>
+                <span className="text-xs text-muted-foreground num">
+                  {f.count}
+                </span>
+              </label>
+            ))
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function Pagination({
+  page,
+  pageSize: _pageSize,
+  totalCount,
+  totalPages,
+  pageStart,
+  pageEnd,
+  onPageChange,
+}: {
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  pageStart: number;
+  pageEnd: number;
+  onPageChange: (page: number) => void;
+}) {
+  if (totalPages <= 1) {
+    return (
+      <div className="mt-6 flex items-center justify-center text-sm text-muted-foreground">
+        Zobrazené <b className="num text-foreground mx-1">{pageStart + 1}–{pageEnd}</b>{" "}
+        z <b className="num text-foreground ml-1">{totalCount}</b>
+      </div>
+    );
+  }
+
+  // Build compact page list: 1 … (page-1) page (page+1) … totalPages
+  const pages: (number | "…")[] = [];
+  const push = (n: number) => {
+    if (!pages.includes(n) && n >= 1 && n <= totalPages) pages.push(n);
+  };
+  push(1);
+  if (page - 2 > 2) pages.push("…");
+  for (let i = page - 1; i <= page + 1; i++) push(i);
+  if (page + 2 < totalPages - 1) pages.push("…");
+  push(totalPages);
+
+  const btn =
+    "inline-flex h-9 min-w-9 items-center justify-center border px-2 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+  const inactive =
+    "border-border text-muted-foreground hover:text-foreground hover:border-foreground";
+  const active = "border-foreground bg-secondary text-foreground";
+
+  return (
+    <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="text-sm text-muted-foreground">
+        Zobrazené{" "}
+        <b className="num text-foreground">
+          {pageStart + 1}–{pageEnd}
+        </b>{" "}
+        z <b className="num text-foreground">{totalCount}</b>
+      </div>
+      <div className="flex flex-wrap items-center gap-1" role="navigation" aria-label="Stránkovanie">
+        <button
+          type="button"
+          className={`${btn} ${inactive}`}
+          disabled={page === 1}
+          onClick={() => onPageChange(1)}
+          aria-label="Prvá stránka"
+          title="Prvá stránka"
+        >
+          <ChevronsLeft className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          className={`${btn} ${inactive}`}
+          disabled={page === 1}
+          onClick={() => onPageChange(page - 1)}
+          aria-label="Predchádzajúca stránka"
+          title="Predchádzajúca"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        {pages.map((p, i) =>
+          p === "…" ? (
+            <span
+              key={`e${i}`}
+              className="inline-flex h-9 min-w-9 items-center justify-center text-sm text-muted-foreground"
+            >
+              …
+            </span>
+          ) : (
+            <button
+              key={p}
+              type="button"
+              className={`${btn} ${p === page ? active : inactive} num`}
+              onClick={() => onPageChange(p)}
+              aria-current={p === page ? "page" : undefined}
+              aria-label={`Stránka ${p}`}
+            >
+              {p}
+            </button>
+          ),
+        )}
+        <button
+          type="button"
+          className={`${btn} ${inactive}`}
+          disabled={page === totalPages}
+          onClick={() => onPageChange(page + 1)}
+          aria-label="Nasledujúca stránka"
+          title="Nasledujúca"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          className={`${btn} ${inactive}`}
+          disabled={page === totalPages}
+          onClick={() => onPageChange(totalPages)}
+          aria-label="Posledná stránka"
+          title="Posledná stránka"
+        >
+          <ChevronsRight className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
