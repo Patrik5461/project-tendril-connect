@@ -604,12 +604,17 @@ function Dashboard() {
   const pageEnd = Math.min(pageStart + safePageSize, totalCount);
 
   // If the URL page drifts out of range (e.g. after filter change), snap back.
+  // Guard against the initial render where totalCount is still 0 — otherwise
+  // we'd overwrite a deep-link like ?page=690 back to 1 before data arrives.
   useEffect(() => {
+    if (listLoading) return;
+    if (totalCount === 0) return;
     if (page !== safePage) {
       navigate({ search: (p: any) => ({ ...p, page: safePage }), replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [safePage]);
+  }, [safePage, listLoading, totalCount]);
+
 
 
 
