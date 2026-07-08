@@ -228,8 +228,12 @@ function TenderDetail() {
         />
         <Field
           icon={<MapPin className="h-4 w-4" />}
-          label="Región"
-          value={tender.region ?? "—"}
+          label="Krajina"
+          value={
+            tender.country
+              ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}${tender.country === "SK" && tender.region ? ` · ${tender.region}` : ""}`
+              : (tender.region ?? "—")
+          }
         />
         <Field
           icon={<Tag className="h-4 w-4" />}
