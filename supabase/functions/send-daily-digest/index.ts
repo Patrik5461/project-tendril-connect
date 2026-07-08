@@ -246,7 +246,7 @@ Deno.serve(async (req) => {
     const { data: tendersData, error: tErr } = await supabase
       .from("tenders")
       .select(
-        "id,title,contracting_authority,description,cpv_code,region,deadline,published_at,source_url,source,created_at,estimated_value",
+        "id,title,contracting_authority,description,cpv_code,region,country,country_name,deadline,published_at,source_url,source,created_at,estimated_value",
       )
       .gte("created_at", since);
     if (tErr) throw tErr;
