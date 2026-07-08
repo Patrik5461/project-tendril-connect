@@ -680,7 +680,7 @@ function Dashboard() {
 
       <details className="mt-3 rounded-xl border bg-card p-4">
         <summary className="cursor-pointer text-sm font-medium text-muted-foreground">
-          Generovanie AI zhrnutí (admin)
+          Generovanie AI zhrnutí (admin)-nespúšťať!!!!!
         </summary>
         <div className="mt-4 flex items-start justify-between gap-4">
           <div className="text-sm text-muted-foreground max-w-lg">
