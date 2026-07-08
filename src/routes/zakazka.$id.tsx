@@ -11,6 +11,7 @@ import {
   Tag,
 } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
+import { flagEmoji, countryName } from "@/lib/eu-countries";
 
 type Tender = {
   id: string;
@@ -25,6 +26,8 @@ type Tender = {
   estimated_value: number | null;
   source: string;
   ai_summary?: string | null;
+  country?: string | null;
+  country_name?: string | null;
 };
 
 export const Route = createFileRoute("/zakazka/$id")({
@@ -225,8 +228,12 @@ function TenderDetail() {
         />
         <Field
           icon={<MapPin className="h-4 w-4" />}
-          label="Región"
-          value={tender.region ?? "—"}
+          label="Krajina"
+          value={
+            tender.country
+              ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}${tender.country === "SK" && tender.region ? ` · ${tender.region}` : ""}`
+              : (tender.region ?? "—")
+          }
         />
         <Field
           icon={<Tag className="h-4 w-4" />}

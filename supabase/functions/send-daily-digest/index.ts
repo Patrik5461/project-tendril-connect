@@ -30,6 +30,8 @@ type Tender = {
   description: string | null;
   cpv_code: string | null;
   region: string | null;
+  country: string | null;
+  country_name: string | null;
   deadline: string | null;
   published_at: string | null;
   source_url: string | null;
@@ -44,6 +46,7 @@ type Radar = {
   keywords: string[];
   cpv_codes: string[];
   regions: string[];
+  countries: string[] | null;
   active: boolean;
 };
 
@@ -53,10 +56,17 @@ type NotifPrefs = {
 };
 
 function matchesRadar(t: Tender, r: Radar): boolean {
-  const wholeSk = r.regions.includes("Celé Slovensko");
-  const regionOk =
-    wholeSk || r.regions.length === 0 || (t.region ? r.regions.includes(t.region) : true);
-  if (!regionOk) return false;
+  const countries = (r.countries && r.countries.length > 0) ? r.countries : ["SK"];
+  const allCountries = countries.includes("ALL");
+  if (!allCountries) {
+    if (!t.country || !countries.includes(t.country)) return false;
+  }
+  if (t.country === "SK") {
+    const wholeSk = r.regions.includes("Celé Slovensko");
+    const regionOk =
+      wholeSk || r.regions.length === 0 || (t.region ? r.regions.includes(t.region) : true);
+    if (!regionOk) return false;
+  }
   const kws = r.keywords.map((k) => k.toLowerCase());
   const cpvs = r.cpv_codes;
   const hasFilters = kws.length > 0 || cpvs.length > 0;
@@ -118,7 +128,7 @@ function renderTenderRow(t: Tender & { estimated_value?: number | null }): strin
         <div style="margin-bottom:6px;">${titleHtml}</div>
         <div style="font-family:Inter,-apple-system,sans-serif;font-size:13px;color:#555555;line-height:1.6;">
           <b style="color:#111111;">Obstarávateľ:</b> ${escapeHtml(t.contracting_authority)}<br/>
-          <b style="color:#111111;">Región:</b> ${escapeHtml(t.region ?? "—")}<br/>
+          <b style="color:#111111;">${t.country && t.country !== "SK" ? "Krajina" : "Región"}:</b> ${escapeHtml(t.country && t.country !== "SK" ? (t.country_name ?? t.country) : (t.region ?? "—"))}<br/>
           <b style="color:#111111;">Deadline:</b> <span style="font-variant-numeric:tabular-nums;">${escapeHtml(formatDeadline(t.deadline))}</span>
         </div>
         ${valueRow}
@@ -236,7 +246,7 @@ Deno.serve(async (req) => {
     const { data: tendersData, error: tErr } = await supabase
       .from("tenders")
       .select(
-        "id,title,contracting_authority,description,cpv_code,region,deadline,published_at,source_url,source,created_at,estimated_value",
+        "id,title,contracting_authority,description,cpv_code,region,country,country_name,deadline,published_at,source_url,source,created_at,estimated_value",
       )
       .gte("created_at", since);
     if (tErr) throw tErr;

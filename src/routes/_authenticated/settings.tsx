@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { REGIONS, CPV_DIVISIONS } from "@/lib/slovakia";
+import { EU_COUNTRY_LIST, flagEmoji } from "@/lib/eu-countries";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 
@@ -23,6 +24,7 @@ type Radar = {
   keywords: string[];
   cpv_codes: string[];
   regions: string[];
+  countries: string[];
   active: boolean;
 };
 
@@ -133,6 +135,7 @@ function SettingsPage() {
         keywords: [],
         cpv_codes: [],
         regions: [],
+        countries: ["SK"],
         active: true,
       })
       .select()
@@ -337,15 +340,23 @@ function RadarCard({
     setKwInput("");
   }
 
-  function toggleArr(arr: string[], v: string, key: "cpv_codes" | "regions") {
+  function toggleArr(arr: string[], v: string, key: "cpv_codes" | "regions" | "countries") {
     const next = arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
     onUpdate({ [key]: next } as Partial<Radar>);
   }
 
+  const countryLabel =
+    (radar.countries ?? []).includes("ALL")
+      ? "všetky krajiny EÚ"
+      : `${(radar.countries ?? []).length || 0} krajín`;
+
   const summary = [
     radar.keywords.length ? `${radar.keywords.length} kľúč. slov` : null,
     radar.cpv_codes.length ? `${radar.cpv_codes.length} CPV` : null,
-    radar.regions.length ? `${radar.regions.length} krajov` : null,
+    countryLabel,
+    (radar.countries ?? []).includes("SK") && radar.regions.length
+      ? `${radar.regions.length} krajov`
+      : null,
   ]
     .filter(Boolean)
     .join(" · ") || "bez filtrov";
@@ -458,22 +469,57 @@ function RadarCard({
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm">Kraje</h3>
-            <div className="mt-2 grid sm:grid-cols-2 gap-2">
-              {REGIONS.map((rg) => (
-                <label
-                  key={rg}
-                  className="flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer"
-                >
-                  <Checkbox
-                    checked={radar.regions.includes(rg)}
-                    onCheckedChange={() => toggleArr(radar.regions, rg, "regions")}
-                  />
-                  <span className="text-sm">{rg}</span>
-                </label>
-              ))}
-            </div>
+            <h3 className="font-semibold text-sm">Krajiny</h3>
+            <label className="mt-2 flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer">
+              <Checkbox
+                checked={(radar.countries ?? []).includes("ALL")}
+                onCheckedChange={() =>
+                  onUpdate({
+                    countries: (radar.countries ?? []).includes("ALL") ? ["SK"] : ["ALL"],
+                  })
+                }
+              />
+              <span className="text-sm font-medium">Všetky krajiny EÚ</span>
+            </label>
+            {!(radar.countries ?? []).includes("ALL") && (
+              <div className="mt-2 grid sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-2">
+                {EU_COUNTRY_LIST.map((c) => (
+                  <label
+                    key={c.code}
+                    className="flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={(radar.countries ?? []).includes(c.code)}
+                      onCheckedChange={() => toggleArr(radar.countries ?? [], c.code, "countries")}
+                    />
+                    <span className="text-sm">
+                      {flagEmoji(c.code)} {c.name}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
+
+          {((radar.countries ?? []).includes("SK") || (radar.countries ?? []).includes("ALL")) && (
+            <div>
+              <h3 className="font-semibold text-sm">Kraje (Slovensko)</h3>
+              <div className="mt-2 grid sm:grid-cols-2 gap-2">
+                {REGIONS.map((rg) => (
+                  <label
+                    key={rg}
+                    className="flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={radar.regions.includes(rg)}
+                      onCheckedChange={() => toggleArr(radar.regions, rg, "regions")}
+                    />
+                    <span className="text-sm">{rg}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

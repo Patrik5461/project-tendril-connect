@@ -38,6 +38,7 @@ import {
 import { differenceInDays, format, parseISO } from "date-fns";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
+import { flagEmoji, countryName } from "@/lib/eu-countries";
 
 type Tender = {
   id: string;
@@ -52,6 +53,8 @@ type Tender = {
   estimated_value: number | null;
   source: string;
   ai_summary?: string | null;
+  country?: string | null;
+  country_name?: string | null;
 };
 
 type Prefs = {
@@ -64,6 +67,7 @@ type Radar = {
   keywords: string[];
   cpv_codes: string[];
   regions: string[];
+  countries: string[];
   active: boolean;
 };
 
@@ -382,11 +386,20 @@ function Dashboard() {
 
   // Match tender against a single radar
   const matchesRadar = (t: Tender, r: Radar): boolean => {
-    const regs = r.regions;
-    const wholeSk = regs.includes("Celé Slovensko");
-    const regionOk =
-      wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
-    if (!regionOk) return false;
+    // Country gate. Empty = SK-only fallback for safety.
+    const countries = (r.countries && r.countries.length > 0) ? r.countries : ["SK"];
+    const includesAll = countries.includes("ALL");
+    if (!includesAll) {
+      if (!t.country || !countries.includes(t.country)) return false;
+    }
+    // SK region gate applies only when tender is SK.
+    if (t.country === "SK") {
+      const regs = r.regions;
+      const wholeSk = regs.includes("Celé Slovensko");
+      const regionOk =
+        wholeSk || regs.length === 0 || (t.region ? regs.includes(t.region) : true);
+      if (!regionOk) return false;
+    }
     const kws = r.keywords.map((k) => norm(k));
     const cpvs = r.cpv_codes;
     const hasFilters = kws.length > 0 || cpvs.length > 0;
@@ -859,7 +872,9 @@ function TenderCard({
             </span>
             <span className="inline-flex items-center gap-1.5">
               <MapPin className="h-4 w-4" />
-              {tender.region ?? "—"}
+              {tender.country && tender.country !== "SK"
+                ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}`
+                : (tender.region ?? "—")}
             </span>
             <span className="inline-flex items-center gap-1.5 num">
               <Calendar className="h-4 w-4" />
@@ -1107,7 +1122,11 @@ function TenderGridCard({
         </div>
         <div className="flex items-center gap-1.5">
           <MapPin className="h-4 w-4 shrink-0" />
-          <span className="truncate">{tender.region ?? "—"}</span>
+          <span className="truncate">
+            {tender.country && tender.country !== "SK"
+              ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}`
+              : (tender.region ?? "—")}
+          </span>
         </div>
       </div>
       {tender.estimated_value != null && (

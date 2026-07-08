@@ -303,6 +303,8 @@ Deno.serve(async (req) => {
             contracting_authority: n.buyer || "—",
             cpv_code: d.cpv,
             region: d.region,
+            country: "SK",
+            country_name: "Slovensko",
             deadline: d.deadline,
             estimated_value: d.estimated_value,
             currency: d.currency,

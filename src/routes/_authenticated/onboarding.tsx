@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { REGIONS, CPV_DIVISIONS } from "@/lib/slovakia";
+import { EU_COUNTRY_LIST, flagEmoji } from "@/lib/eu-countries";
 import { X } from "lucide-react";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 
@@ -21,6 +22,7 @@ function Onboarding() {
   const [kwInput, setKwInput] = useState("");
   const [cpvCodes, setCpvCodes] = useState<string[]>([]);
   const [regions, setRegions] = useState<string[]>([]);
+  const [countries, setCountries] = useState<string[]>(["SK"]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -55,8 +57,13 @@ function Onboarding() {
       toast.error("Zadajte aspoň jedno kľúčové slovo alebo CPV kategóriu.");
       return;
     }
-    if (regions.length === 0) {
-      toast.error("Vyberte aspoň jeden kraj.");
+    if (countries.length === 0) {
+      toast.error("Vyberte aspoň jednu krajinu.");
+      return;
+    }
+    const skSelected = countries.includes("SK") || countries.includes("ALL");
+    if (skSelected && regions.length === 0) {
+      toast.error('Vyberte aspoň jeden kraj pre Slovensko (alebo "Celé Slovensko").');
       return;
     }
     setSaving(true);
@@ -79,6 +86,7 @@ function Onboarding() {
         keywords,
         cpv_codes: cpvCodes,
         regions,
+        countries,
         active: true,
       });
       if (rErr) {
@@ -175,22 +183,58 @@ function Onboarding() {
       </section>
 
       <section className="mt-6 rounded-xl border bg-card p-6">
-        <h2 className="font-semibold text-lg">3. Kraje</h2>
-        <div className="mt-4 grid sm:grid-cols-2 gap-2">
-          {REGIONS.map((r) => (
-            <label
-              key={r}
-              className="flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer"
-            >
-              <Checkbox
-                checked={regions.includes(r)}
-                onCheckedChange={() => toggle(regions, r, setRegions)}
-              />
-              <span className="text-sm">{r}</span>
-            </label>
-          ))}
-        </div>
+        <h2 className="font-semibold text-lg">3. Krajiny</h2>
+        <p className="text-sm text-muted-foreground">
+          Ktoré krajiny EÚ sledovať? Predvolene je Slovensko.
+        </p>
+        <label className="mt-3 flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer">
+          <Checkbox
+            checked={countries.includes("ALL")}
+            onCheckedChange={() =>
+              setCountries(countries.includes("ALL") ? ["SK"] : ["ALL"])
+            }
+          />
+          <span className="text-sm font-medium">Všetky krajiny EÚ</span>
+        </label>
+        {!countries.includes("ALL") && (
+          <div className="mt-3 grid sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-2">
+            {EU_COUNTRY_LIST.map((c) => (
+              <label
+                key={c.code}
+                className="flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer"
+              >
+                <Checkbox
+                  checked={countries.includes(c.code)}
+                  onCheckedChange={() => toggle(countries, c.code, setCountries)}
+                />
+                <span className="text-sm">
+                  {flagEmoji(c.code)} {c.name}
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
       </section>
+
+      {(countries.includes("SK") || countries.includes("ALL")) && (
+        <section className="mt-6 rounded-xl border bg-card p-6">
+          <h2 className="font-semibold text-lg">4. Kraje (Slovensko)</h2>
+          <div className="mt-4 grid sm:grid-cols-2 gap-2">
+            {REGIONS.map((r) => (
+              <label
+                key={r}
+                className="flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer"
+              >
+                <Checkbox
+                  checked={regions.includes(r)}
+                  onCheckedChange={() => toggle(regions, r, setRegions)}
+                />
+                <span className="text-sm">{r}</span>
+              </label>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="mt-8 flex justify-end">
         <Button size="lg" onClick={save} disabled={saving}>

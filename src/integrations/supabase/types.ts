@@ -79,6 +79,8 @@ export type Database = {
           ai_summary: string | null
           ai_summary_generated_at: string | null
           contracting_authority: string
+          country: string | null
+          country_name: string | null
           cpv_code: string | null
           created_at: string
           currency: string | null
@@ -98,6 +100,8 @@ export type Database = {
           ai_summary?: string | null
           ai_summary_generated_at?: string | null
           contracting_authority: string
+          country?: string | null
+          country_name?: string | null
           cpv_code?: string | null
           created_at?: string
           currency?: string | null
@@ -117,6 +121,8 @@ export type Database = {
           ai_summary?: string | null
           ai_summary_generated_at?: string | null
           contracting_authority?: string
+          country?: string | null
+          country_name?: string | null
           cpv_code?: string | null
           created_at?: string
           currency?: string | null
@@ -185,6 +191,7 @@ export type Database = {
       user_radars: {
         Row: {
           active: boolean
+          countries: string[]
           cpv_codes: string[]
           created_at: string
           id: string
@@ -196,6 +203,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          countries?: string[]
           cpv_codes?: string[]
           created_at?: string
           id?: string
@@ -207,6 +215,7 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          countries?: string[]
           cpv_codes?: string[]
           created_at?: string
           id?: string

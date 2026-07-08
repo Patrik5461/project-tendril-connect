@@ -1,7 +1,8 @@
 // Supabase Edge Function: fetch-tenders
-// Fetches Slovak public tenders from TED API and upserts them into public.tenders.
+// Fetches EU-wide public tenders from TED API and upserts them into public.tenders.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { a2FromNuts, a2FromA3, countryName } from "../_shared/eu.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -70,26 +71,34 @@ function parseTedDate(value: unknown): string | null {
   return isNaN(d.getTime()) ? null : d.toISOString();
 }
 
-/** Pick the first NUTS-3 SK region code from an array like ["SK010","SVK",…]. */
-function pickRegion(value: unknown): string | null {
-  const collect = (v: unknown, out: string[]) => {
-    if (typeof v === "string") out.push(v);
-    else if (Array.isArray(v)) v.forEach((x) => collect(x, out));
-    else if (v && typeof v === "object") {
-      Object.values(v).forEach((x) => collect(x, out));
-    }
-  };
-  const codes: string[] = [];
-  collect(value, codes);
-
-  for (const c of codes) {
-    if (/^SK0[1-4][0-2]$/.test(c) && NUTS_TO_REGION[c]) {
-      return NUTS_TO_REGION[c];
-    }
+/** Collect every string leaf out of TED's polymorphic values. */
+function collectStrings(value: unknown, out: string[]) {
+  if (value === null || value === undefined) return;
+  if (typeof value === "string") { if (value.trim()) out.push(value.trim()); return; }
+  if (Array.isArray(value)) { value.forEach((v) => collectStrings(v, out)); return; }
+  if (typeof value === "object") {
+    Object.values(value as Record<string, unknown>).forEach((v) => collectStrings(v, out));
   }
-  // SK0 / SKZZ / plain SVK → whole country
-  if (codes.some((c) => /^(SK0?|SKZZ|SVK)$/.test(c))) {
-    return "celé Slovensko";
+}
+
+/** Pick the first NUTS-3 SK region code from an array like ["SK010","SVK",…]. */
+function pickSkRegion(codes: string[]): string | null {
+  for (const c of codes) {
+    if (/^SK0[1-4][0-2]$/.test(c) && NUTS_TO_REGION[c]) return NUTS_TO_REGION[c];
+  }
+  if (codes.some((c) => /^(SK0?|SKZZ|SVK)$/.test(c))) return "celé Slovensko";
+  return null;
+}
+
+/** Detect country (alpha-2) from a mix of NUTS + ISO alpha-3 codes. */
+function pickCountry(codes: string[]): string | null {
+  for (const c of codes) {
+    const a2 = a2FromNuts(c);
+    if (a2) return a2;
+  }
+  for (const c of codes) {
+    const a2 = a2FromA3(c);
+    if (a2) return a2;
   }
   return null;
 }
@@ -150,12 +159,14 @@ Deno.serve(async (req) => {
             const y = since.getUTCFullYear();
             const m = String(since.getUTCMonth() + 1).padStart(2, "0");
             const d = String(since.getUTCDate()).padStart(2, "0");
-            return `place-of-performance IN (SVK) AND notice-type IN (cn-standard) AND publication-date >= ${y}${m}${d} SORT BY publication-date DESC`;
+            // EU-wide: no place-of-performance filter.
+            return `notice-type IN (cn-standard) AND publication-date >= ${y}${m}${d} SORT BY publication-date DESC`;
           })(),
           fields: [
             "publication-number",
             "notice-title",
             "buyer-name",
+            "buyer-country",
             "publication-date",
             "deadline-receipt-tender-date-lot",
             "deadline-receipt-request-date-lot",
@@ -166,7 +177,7 @@ Deno.serve(async (req) => {
             "estimated-value-lot",
             "estimated-value-cur-lot",
           ],
-          limit: 100,
+          limit: 250,
           page: 1,
         }),
       },
@@ -205,7 +216,23 @@ Deno.serve(async (req) => {
       const deadline =
         parseTedDate(n["deadline-receipt-tender-date-lot"]) ??
         parseTedDate(n["deadline-receipt-request-date-lot"]);
-      const region = pickRegion(n["place-of-performance"]);
+
+      const popCodes: string[] = [];
+      collectStrings(n["place-of-performance"], popCodes);
+      const buyerCountryCodes: string[] = [];
+      collectStrings(n["buyer-country"], buyerCountryCodes);
+
+      const country =
+        pickCountry(popCodes) ?? pickCountry(buyerCountryCodes);
+      const countryLabel = country ? countryName(country) : null;
+
+      // For SK keep NUTS-3 region granularity; for other countries store the
+      // country name in the region column so existing UI still shows something.
+      const region =
+        country === "SK"
+          ? pickSkRegion(popCodes) ?? "celé Slovensko"
+          : countryLabel;
+
       const { value: estimated_value, currency } = pickTedValue(n);
       const sourceUrl = `https://ted.europa.eu/sk/notice/-/detail/${pubNumber}`;
 
@@ -222,6 +249,8 @@ Deno.serve(async (req) => {
           contracting_authority: buyer ?? "—",
           cpv_code: cpv,
           region,
+          country,
+          country_name: countryLabel,
           published_at: publishedAt,
           deadline,
           estimated_value,
