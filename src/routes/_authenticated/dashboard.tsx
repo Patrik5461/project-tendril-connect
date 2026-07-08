@@ -52,6 +52,8 @@ type Tender = {
   estimated_value: number | null;
   source: string;
   ai_summary?: string | null;
+  country?: string | null;
+  country_name?: string | null;
 };
 
 type Prefs = {
@@ -64,6 +66,7 @@ type Radar = {
   keywords: string[];
   cpv_codes: string[];
   regions: string[];
+  countries: string[];
   active: boolean;
 };
 
