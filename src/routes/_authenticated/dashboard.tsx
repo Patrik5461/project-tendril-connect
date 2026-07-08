@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 
 type Tender = {
   id: string;
@@ -116,6 +117,34 @@ function Dashboard() {
     done: boolean;
   }>({ source: null, status: "", saved: 0, running: false, done: false });
   const backfillStopRef = useRef(false);
+  const [aiSummariesEnabled, setAiSummariesEnabled] = useState<boolean | null>(null);
+  const [aiToggleBusy, setAiToggleBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "ai_summaries_enabled")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setAiSummariesEnabled(data?.value === true);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  async function toggleAiSummaries(next: boolean) {
+    setAiToggleBusy(true);
+    const { data, error } = await supabase.rpc("set_ai_summaries_enabled", { enabled: next });
+    setAiToggleBusy(false);
+    if (error) {
+      toast.error(`Nepodarilo sa prepnúť: ${error.message}`);
+      return;
+    }
+    setAiSummariesEnabled(data === true);
+    toast.success(next ? "Generovanie AI zhrnutí zapnuté" : "Generovanie AI zhrnutí vypnuté");
+  }
 
   // Debounce search input -> URL
   useEffect(() => {
@@ -633,6 +662,33 @@ function Dashboard() {
               )}
             </div>
           )}
+        </div>
+      </details>
+
+      <details className="mt-3 rounded-xl border bg-card p-4">
+        <summary className="cursor-pointer text-sm font-medium text-muted-foreground">
+          Generovanie AI zhrnutí (admin)
+        </summary>
+        <div className="mt-4 flex items-start justify-between gap-4">
+          <div className="text-sm text-muted-foreground max-w-lg">
+            Riadi cron job, ktorý generuje AI zhrnutia pre nové zákazky.
+            Vypnutie sa nedotkne už vygenerovaných zhrnutí ani ničoho iného
+            (fetch, e-maily, dashboard, chatbot bežia ďalej).
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-sm font-medium">
+              {aiSummariesEnabled === null
+                ? "Načítavam…"
+                : aiSummariesEnabled
+                  ? "Zapnuté"
+                  : "Vypnuté"}
+            </span>
+            <Switch
+              checked={aiSummariesEnabled === true}
+              disabled={aiSummariesEnabled === null || aiToggleBusy}
+              onCheckedChange={(v) => toggleAiSummaries(v)}
+            />
+          </div>
         </div>
       </details>
 
