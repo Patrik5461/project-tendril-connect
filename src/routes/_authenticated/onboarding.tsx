@@ -86,6 +86,7 @@ function Onboarding() {
         keywords,
         cpv_codes: cpvCodes,
         regions,
+        countries,
         active: true,
       });
       if (rErr) {
