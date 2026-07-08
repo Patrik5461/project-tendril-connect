@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       help_chat_usage: {
         Row: {
           created_at: string
@@ -245,6 +263,7 @@ export type Database = {
           total_value_eur: number
         }[]
       }
+      set_ai_summaries_enabled: { Args: { enabled: boolean }; Returns: boolean }
       unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
