@@ -1416,3 +1416,210 @@ function TenderGridCard({
     </article>
   );
 }
+
+type CountryFacet = { code: string; count: number; label: string };
+
+function CountryFilter({
+  facets,
+  selected,
+  onChange,
+}: {
+  facets: CountryFacet[];
+  selected: string[];
+  onChange: (codes: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const selectedSet = new Set(selected);
+  const label =
+    selected.length === 0
+      ? "Všetky krajiny"
+      : selected.length === 1
+        ? `${flagEmoji(selected[0])} ${countryName(selected[0]) ?? selected[0]}`
+        : `${selected.length} krajín`;
+
+  function toggle(code: string) {
+    const next = new Set(selectedSet);
+    if (next.has(code)) next.delete(code);
+    else next.add(code);
+    onChange(Array.from(next));
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="default"
+          className="sm:w-48 justify-between h-9 font-normal"
+          aria-label="Filter krajín"
+        >
+          <span className="flex items-center gap-2 truncate">
+            <Globe className="h-4 w-4 shrink-0" />
+            <span className="truncate">{label}</span>
+          </span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-0" align="end">
+        <div className="flex items-center justify-between p-3 border-b">
+          <span className="text-sm font-medium">Krajiny</span>
+          {selected.length > 0 && (
+            <button
+              type="button"
+              onClick={() => onChange([])}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Vymazať výber
+            </button>
+          )}
+        </div>
+        <div className="max-h-80 overflow-y-auto p-1">
+          {facets.length === 0 ? (
+            <div className="px-3 py-6 text-center text-sm text-muted-foreground">
+              Žiadne krajiny v aktuálnych výsledkoch
+            </div>
+          ) : (
+            facets.map((f) => (
+              <label
+                key={f.code}
+                className="flex items-center gap-3 px-3 py-2 rounded-sm cursor-pointer hover:bg-secondary"
+              >
+                <Checkbox
+                  checked={selectedSet.has(f.code)}
+                  onCheckedChange={() => toggle(f.code)}
+                />
+                <span className="flex-1 flex items-center gap-2 text-sm">
+                  <span>
+                    {f.code === "XX" ? "❓" : flagEmoji(f.code)} {f.label}
+                  </span>
+                </span>
+                <span className="text-xs text-muted-foreground num">
+                  {f.count}
+                </span>
+              </label>
+            ))
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function Pagination({
+  page,
+  pageSize: _pageSize,
+  totalCount,
+  totalPages,
+  pageStart,
+  pageEnd,
+  onPageChange,
+}: {
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  pageStart: number;
+  pageEnd: number;
+  onPageChange: (page: number) => void;
+}) {
+  if (totalPages <= 1) {
+    return (
+      <div className="mt-6 flex items-center justify-center text-sm text-muted-foreground">
+        Zobrazené <b className="num text-foreground mx-1">{pageStart + 1}–{pageEnd}</b>{" "}
+        z <b className="num text-foreground ml-1">{totalCount}</b>
+      </div>
+    );
+  }
+
+  // Build compact page list: 1 … (page-1) page (page+1) … totalPages
+  const pages: (number | "…")[] = [];
+  const push = (n: number) => {
+    if (!pages.includes(n) && n >= 1 && n <= totalPages) pages.push(n);
+  };
+  push(1);
+  if (page - 2 > 2) pages.push("…");
+  for (let i = page - 1; i <= page + 1; i++) push(i);
+  if (page + 2 < totalPages - 1) pages.push("…");
+  push(totalPages);
+
+  const btn =
+    "inline-flex h-9 min-w-9 items-center justify-center border px-2 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+  const inactive =
+    "border-border text-muted-foreground hover:text-foreground hover:border-foreground";
+  const active = "border-foreground bg-secondary text-foreground";
+
+  return (
+    <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="text-sm text-muted-foreground">
+        Zobrazené{" "}
+        <b className="num text-foreground">
+          {pageStart + 1}–{pageEnd}
+        </b>{" "}
+        z <b className="num text-foreground">{totalCount}</b>
+      </div>
+      <div className="flex flex-wrap items-center gap-1" role="navigation" aria-label="Stránkovanie">
+        <button
+          type="button"
+          className={`${btn} ${inactive}`}
+          disabled={page === 1}
+          onClick={() => onPageChange(1)}
+          aria-label="Prvá stránka"
+          title="Prvá stránka"
+        >
+          <ChevronsLeft className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          className={`${btn} ${inactive}`}
+          disabled={page === 1}
+          onClick={() => onPageChange(page - 1)}
+          aria-label="Predchádzajúca stránka"
+          title="Predchádzajúca"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        {pages.map((p, i) =>
+          p === "…" ? (
+            <span
+              key={`e${i}`}
+              className="inline-flex h-9 min-w-9 items-center justify-center text-sm text-muted-foreground"
+            >
+              …
+            </span>
+          ) : (
+            <button
+              key={p}
+              type="button"
+              className={`${btn} ${p === page ? active : inactive} num`}
+              onClick={() => onPageChange(p)}
+              aria-current={p === page ? "page" : undefined}
+              aria-label={`Stránka ${p}`}
+            >
+              {p}
+            </button>
+          ),
+        )}
+        <button
+          type="button"
+          className={`${btn} ${inactive}`}
+          disabled={page === totalPages}
+          onClick={() => onPageChange(page + 1)}
+          aria-label="Nasledujúca stránka"
+          title="Nasledujúca"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          className={`${btn} ${inactive}`}
+          disabled={page === totalPages}
+          onClick={() => onPageChange(totalPages)}
+          aria-label="Posledná stránka"
+          title="Posledná stránka"
+        >
+          <ChevronsRight className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
