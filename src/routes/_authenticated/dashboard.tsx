@@ -872,7 +872,9 @@ function TenderCard({
             </span>
             <span className="inline-flex items-center gap-1.5">
               <MapPin className="h-4 w-4" />
-              {tender.region ?? "—"}
+              {tender.country && tender.country !== "SK"
+                ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}`
+                : (tender.region ?? "—")}
             </span>
             <span className="inline-flex items-center gap-1.5 num">
               <Calendar className="h-4 w-4" />
