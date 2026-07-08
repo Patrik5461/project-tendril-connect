@@ -116,6 +116,34 @@ function Dashboard() {
     done: boolean;
   }>({ source: null, status: "", saved: 0, running: false, done: false });
   const backfillStopRef = useRef(false);
+  const [aiSummariesEnabled, setAiSummariesEnabled] = useState<boolean | null>(null);
+  const [aiToggleBusy, setAiToggleBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "ai_summaries_enabled")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setAiSummariesEnabled(data?.value === true);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  async function toggleAiSummaries(next: boolean) {
+    setAiToggleBusy(true);
+    const { data, error } = await supabase.rpc("set_ai_summaries_enabled", { enabled: next });
+    setAiToggleBusy(false);
+    if (error) {
+      toast.error(`Nepodarilo sa prepnúť: ${error.message}`);
+      return;
+    }
+    setAiSummariesEnabled(data === true);
+    toast.success(next ? "Generovanie AI zhrnutí zapnuté" : "Generovanie AI zhrnutí vypnuté");
+  }
 
   // Debounce search input -> URL
   useEffect(() => {
