@@ -101,6 +101,20 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
+    // Kill switch: skip entirely if disabled via admin toggle.
+    const { data: flag } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "ai_summaries_enabled")
+      .maybeSingle();
+    if (flag?.value !== true) {
+      console.log("generate-missing-summaries: disabled via app_settings, skipping");
+      return new Response(
+        JSON.stringify({ skipped: true, reason: "disabled" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const nowIso = new Date().toISOString();
     const { data, error } = await supabase
       .from("tenders")
