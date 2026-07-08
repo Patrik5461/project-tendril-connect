@@ -159,12 +159,14 @@ Deno.serve(async (req) => {
             const y = since.getUTCFullYear();
             const m = String(since.getUTCMonth() + 1).padStart(2, "0");
             const d = String(since.getUTCDate()).padStart(2, "0");
-            return `place-of-performance IN (SVK) AND notice-type IN (cn-standard) AND publication-date >= ${y}${m}${d} SORT BY publication-date DESC`;
+            // EU-wide: no place-of-performance filter.
+            return `notice-type IN (cn-standard) AND publication-date >= ${y}${m}${d} SORT BY publication-date DESC`;
           })(),
           fields: [
             "publication-number",
             "notice-title",
             "buyer-name",
+            "buyer-country",
             "publication-date",
             "deadline-receipt-tender-date-lot",
             "deadline-receipt-request-date-lot",
@@ -175,7 +177,7 @@ Deno.serve(async (req) => {
             "estimated-value-lot",
             "estimated-value-cur-lot",
           ],
-          limit: 100,
+          limit: 250,
           page: 1,
         }),
       },
