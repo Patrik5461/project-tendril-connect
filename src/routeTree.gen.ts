@@ -11,10 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PredplatneRouteImport } from './routes/predplatne'
 import { Route as OchranaOsobnychUdajovRouteImport } from './routes/ochrana-osobnych-udajov'
+import { Route as ObjednavkaRouteImport } from './routes/objednavka'
+import { Route as KontaktRouteImport } from './routes/kontakt'
+import { Route as CennikRouteImport } from './routes/cennik'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ZakazkaIdRouteImport } from './routes/zakazka.$id'
+import { Route as PravneReklamacnyPoriadokRouteImport } from './routes/pravne.reklamacny-poriadok'
+import { Route as PravneOpakovanePlatbyRouteImport } from './routes/pravne.opakovane-platby'
+import { Route as PravneObchodnePodmienkyRouteImport } from './routes/pravne.obchodne-podmienky'
+import { Route as PravneGdprRouteImport } from './routes/pravne.gdpr'
+import { Route as PravneCookiesRouteImport } from './routes/pravne.cookies'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -28,6 +36,21 @@ const PredplatneRoute = PredplatneRouteImport.update({
 const OchranaOsobnychUdajovRoute = OchranaOsobnychUdajovRouteImport.update({
   id: '/ochrana-osobnych-udajov',
   path: '/ochrana-osobnych-udajov',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ObjednavkaRoute = ObjednavkaRouteImport.update({
+  id: '/objednavka',
+  path: '/objednavka',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KontaktRoute = KontaktRouteImport.update({
+  id: '/kontakt',
+  path: '/kontakt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CennikRoute = CennikRouteImport.update({
+  id: '/cennik',
+  path: '/cennik',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -47,6 +70,32 @@ const IndexRoute = IndexRouteImport.update({
 const ZakazkaIdRoute = ZakazkaIdRouteImport.update({
   id: '/zakazka/$id',
   path: '/zakazka/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PravneReklamacnyPoriadokRoute =
+  PravneReklamacnyPoriadokRouteImport.update({
+    id: '/pravne/reklamacny-poriadok',
+    path: '/pravne/reklamacny-poriadok',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const PravneOpakovanePlatbyRoute = PravneOpakovanePlatbyRouteImport.update({
+  id: '/pravne/opakovane-platby',
+  path: '/pravne/opakovane-platby',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PravneObchodnePodmienkyRoute = PravneObchodnePodmienkyRouteImport.update({
+  id: '/pravne/obchodne-podmienky',
+  path: '/pravne/obchodne-podmienky',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PravneGdprRoute = PravneGdprRouteImport.update({
+  id: '/pravne/gdpr',
+  path: '/pravne/gdpr',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PravneCookiesRoute = PravneCookiesRouteImport.update({
+  id: '/pravne/cookies',
+  path: '/pravne/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
@@ -73,22 +122,38 @@ const ApiPublicStatsRoute = ApiPublicStatsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cennik': typeof CennikRoute
+  '/kontakt': typeof KontaktRoute
+  '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/pravne/cookies': typeof PravneCookiesRoute
+  '/pravne/gdpr': typeof PravneGdprRoute
+  '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
+  '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
+  '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cennik': typeof CennikRoute
+  '/kontakt': typeof KontaktRoute
+  '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/pravne/cookies': typeof PravneCookiesRoute
+  '/pravne/gdpr': typeof PravneGdprRoute
+  '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
+  '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
+  '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
 }
@@ -97,11 +162,19 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/cennik': typeof CennikRoute
+  '/kontakt': typeof KontaktRoute
+  '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/pravne/cookies': typeof PravneCookiesRoute
+  '/pravne/gdpr': typeof PravneGdprRoute
+  '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
+  '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
+  '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
 }
@@ -110,22 +183,38 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/cennik'
+    | '/kontakt'
+    | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
     | '/dashboard'
     | '/onboarding'
     | '/settings'
+    | '/pravne/cookies'
+    | '/pravne/gdpr'
+    | '/pravne/obchodne-podmienky'
+    | '/pravne/opakovane-platby'
+    | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
     | '/api/public/stats'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/cennik'
+    | '/kontakt'
+    | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
     | '/dashboard'
     | '/onboarding'
     | '/settings'
+    | '/pravne/cookies'
+    | '/pravne/gdpr'
+    | '/pravne/obchodne-podmienky'
+    | '/pravne/opakovane-platby'
+    | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
     | '/api/public/stats'
   id:
@@ -133,11 +222,19 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/cennik'
+    | '/kontakt'
+    | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/settings'
+    | '/pravne/cookies'
+    | '/pravne/gdpr'
+    | '/pravne/obchodne-podmienky'
+    | '/pravne/opakovane-platby'
+    | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
     | '/api/public/stats'
   fileRoutesById: FileRoutesById
@@ -146,8 +243,16 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CennikRoute: typeof CennikRoute
+  KontaktRoute: typeof KontaktRoute
+  ObjednavkaRoute: typeof ObjednavkaRoute
   OchranaOsobnychUdajovRoute: typeof OchranaOsobnychUdajovRoute
   PredplatneRoute: typeof PredplatneRoute
+  PravneCookiesRoute: typeof PravneCookiesRoute
+  PravneGdprRoute: typeof PravneGdprRoute
+  PravneObchodnePodmienkyRoute: typeof PravneObchodnePodmienkyRoute
+  PravneOpakovanePlatbyRoute: typeof PravneOpakovanePlatbyRoute
+  PravneReklamacnyPoriadokRoute: typeof PravneReklamacnyPoriadokRoute
   ZakazkaIdRoute: typeof ZakazkaIdRoute
   ApiPublicStatsRoute: typeof ApiPublicStatsRoute
 }
@@ -166,6 +271,27 @@ declare module '@tanstack/react-router' {
       path: '/ochrana-osobnych-udajov'
       fullPath: '/ochrana-osobnych-udajov'
       preLoaderRoute: typeof OchranaOsobnychUdajovRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/objednavka': {
+      id: '/objednavka'
+      path: '/objednavka'
+      fullPath: '/objednavka'
+      preLoaderRoute: typeof ObjednavkaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kontakt': {
+      id: '/kontakt'
+      path: '/kontakt'
+      fullPath: '/kontakt'
+      preLoaderRoute: typeof KontaktRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cennik': {
+      id: '/cennik'
+      path: '/cennik'
+      fullPath: '/cennik'
+      preLoaderRoute: typeof CennikRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -194,6 +320,41 @@ declare module '@tanstack/react-router' {
       path: '/zakazka/$id'
       fullPath: '/zakazka/$id'
       preLoaderRoute: typeof ZakazkaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pravne/reklamacny-poriadok': {
+      id: '/pravne/reklamacny-poriadok'
+      path: '/pravne/reklamacny-poriadok'
+      fullPath: '/pravne/reklamacny-poriadok'
+      preLoaderRoute: typeof PravneReklamacnyPoriadokRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pravne/opakovane-platby': {
+      id: '/pravne/opakovane-platby'
+      path: '/pravne/opakovane-platby'
+      fullPath: '/pravne/opakovane-platby'
+      preLoaderRoute: typeof PravneOpakovanePlatbyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pravne/obchodne-podmienky': {
+      id: '/pravne/obchodne-podmienky'
+      path: '/pravne/obchodne-podmienky'
+      fullPath: '/pravne/obchodne-podmienky'
+      preLoaderRoute: typeof PravneObchodnePodmienkyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pravne/gdpr': {
+      id: '/pravne/gdpr'
+      path: '/pravne/gdpr'
+      fullPath: '/pravne/gdpr'
+      preLoaderRoute: typeof PravneGdprRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pravne/cookies': {
+      id: '/pravne/cookies'
+      path: '/pravne/cookies'
+      fullPath: '/pravne/cookies'
+      preLoaderRoute: typeof PravneCookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/settings': {
@@ -246,8 +407,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CennikRoute: CennikRoute,
+  KontaktRoute: KontaktRoute,
+  ObjednavkaRoute: ObjednavkaRoute,
   OchranaOsobnychUdajovRoute: OchranaOsobnychUdajovRoute,
   PredplatneRoute: PredplatneRoute,
+  PravneCookiesRoute: PravneCookiesRoute,
+  PravneGdprRoute: PravneGdprRoute,
+  PravneObchodnePodmienkyRoute: PravneObchodnePodmienkyRoute,
+  PravneOpakovanePlatbyRoute: PravneOpakovanePlatbyRoute,
+  PravneReklamacnyPoriadokRoute: PravneReklamacnyPoriadokRoute,
   ZakazkaIdRoute: ZakazkaIdRoute,
   ApiPublicStatsRoute: ApiPublicStatsRoute,
 }

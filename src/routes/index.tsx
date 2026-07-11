@@ -298,32 +298,81 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="border-t-2 border-foreground py-8 text-sm">
-        <div className="mx-auto flex max-w-6xl flex-col md:flex-row items-start md:items-center justify-between gap-2 px-4">
-          <div className="flex items-center gap-2">
-            <span className="h-4 w-4 bg-primary" aria-hidden="true" />
-            <span className="font-display font-bold">Tendrik</span>
-            <span className="text-muted-foreground">
-              · © {new Date().getFullYear()} · 2 mesiace zdarma, potom 4,99 €/mesiac
-            </span>
+      <section className="mx-auto max-w-6xl px-4 pb-14">
+        <div className="rounded-lg border-2 border-primary bg-primary/5 p-5 text-sm">
+          <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
+            <div className="flex-1">
+              <b className="text-primary">Cena a opakované platby:</b> 2 mesiace zadarmo, potom{" "}
+              <b>4,99 € / mes bez DPH</b> (<b>6,14 € s DPH 23 %</b>). Predplatné sa
+              automaticky obnovuje každý mesiac cez platobnú bránu GoPay. Zrušiteľné kedykoľvek.
+            </div>
+            <div className="flex items-center gap-3">
+              <Link to="/pravne/opakovane-platby" className="underline text-foreground whitespace-nowrap">
+                Podmienky opakovaných platieb →
+              </Link>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <Link
-              to="/ochrana-osobnych-udajov"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Ochrana osobných údajov
-            </Link>
-            <button
-              type="button"
-              onClick={() => {
-                import("@/lib/cookie-consent").then((m) => m.openCookieSettings());
-              }}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Nastavenia cookies
-            </button>
-            <div className="eyebrow text-muted-foreground">Ver. 1.0</div>
+        </div>
+      </section>
+
+      <footer className="border-t-2 border-foreground bg-background">
+        <div className="mx-auto max-w-6xl px-4 py-10 grid gap-8 md:grid-cols-4 text-sm">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="h-4 w-4 bg-primary" aria-hidden="true" />
+              <span className="font-display font-bold">Tendrik.sk</span>
+            </div>
+            <p className="mt-3 text-muted-foreground">
+              Tobify s. r. o.<br />
+              Športová 707/43, 919 26 Zavar<br />
+              IČO: 56607016 · IČ DPH: SK2122358579
+            </p>
+          </div>
+          <div>
+            <div className="eyebrow text-foreground">Kontakt</div>
+            <ul className="mt-3 space-y-1.5 text-muted-foreground">
+              <li><a href="mailto:info@tendrik.sk" className="hover:text-foreground">info@tendrik.sk</a></li>
+              <li><a href="tel:+421907702422" className="hover:text-foreground">+421 907 702 422</a></li>
+              <li><Link to="/kontakt" className="hover:text-foreground">Kontaktný formulár</Link></li>
+              <li><Link to="/cennik" className="hover:text-foreground">Cenník</Link></li>
+            </ul>
+          </div>
+          <div>
+            <div className="eyebrow text-foreground">Právne</div>
+            <ul className="mt-3 space-y-1.5 text-muted-foreground">
+              <li><Link to="/pravne/obchodne-podmienky" className="hover:text-foreground">Obchodné podmienky</Link></li>
+              <li><Link to="/pravne/opakovane-platby" className="hover:text-foreground">Opakované platby</Link></li>
+              <li><Link to="/pravne/gdpr" className="hover:text-foreground">GDPR</Link></li>
+              <li><Link to="/pravne/reklamacny-poriadok" className="hover:text-foreground">Reklamačný poriadok</Link></li>
+              <li><Link to="/pravne/cookies" className="hover:text-foreground">Cookies</Link></li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => { import("@/lib/cookie-consent").then((m) => m.openCookieSettings()); }}
+                  className="hover:text-foreground"
+                >
+                  Nastavenia cookies
+                </button>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <div className="eyebrow text-foreground">Platby</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="inline-flex items-center rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold">GoPay</span>
+              <span className="inline-flex items-center rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold">VISA</span>
+              <span className="inline-flex items-center rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold">Mastercard</span>
+              <span className="inline-flex items-center rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold">3D&nbsp;Secure</span>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              Platby spracúva GoPay s. r. o.
+            </p>
+          </div>
+        </div>
+        <div className="border-t border-border py-4 text-xs text-muted-foreground">
+          <div className="mx-auto flex max-w-6xl flex-col md:flex-row items-start md:items-center justify-between gap-2 px-4">
+            <span>© {new Date().getFullYear()} Tobify s. r. o. Všetky práva vyhradené.</span>
+            <span>2 mesiace zdarma, potom 4,99 €/mes (6,14 € s DPH)</span>
           </div>
         </div>
       </footer>

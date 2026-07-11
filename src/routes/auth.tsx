@@ -31,6 +31,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreeGdpr, setAgreeGdpr] = useState(false);
   const isSignup = mode === "signup";
 
   async function loginAsTest() {
@@ -65,6 +67,10 @@ function AuthPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSignup && (!agreeTerms || !agreeGdpr)) {
+      toast.error("Musíte súhlasiť s obchodnými podmienkami a spracovaním osobných údajov.");
+      return;
+    }
     setLoading(true);
     try {
       if (isSignup) {
@@ -139,6 +145,50 @@ function AuthPage() {
                 autoComplete={isSignup ? "new-password" : "current-password"}
               />
             </div>
+            {isSignup && (
+              <>
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-xs">
+                  <b className="text-primary">2 mesiace zdarma</b>, potom 4,99 € / mes bez DPH
+                  (6,14 € s DPH). Bez platobnej karty. Zrušiteľné kedykoľvek.
+                </div>
+                <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    Súhlasím s{" "}
+                    <Link to="/pravne/obchodne-podmienky" target="_blank" className="text-primary underline">
+                      obchodnými podmienkami
+                    </Link>{" "}
+                    a s{" "}
+                    <Link to="/pravne/opakovane-platby" target="_blank" className="text-primary underline">
+                      podmienkami opakovaných platieb
+                    </Link>
+                    .
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={agreeGdpr}
+                    onChange={(e) => setAgreeGdpr(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    Beriem na vedomie{" "}
+                    <Link to="/pravne/gdpr" target="_blank" className="text-primary underline">
+                      spracovanie osobných údajov (GDPR)
+                    </Link>
+                    .
+                  </span>
+                </label>
+              </>
+            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Moment..." : isSignup ? "Registrovať sa" : "Prihlásiť sa"}
             </Button>
