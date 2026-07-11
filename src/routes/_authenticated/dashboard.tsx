@@ -132,6 +132,7 @@ function Dashboard() {
     view,
     radar: radarParam,
     country: countryParam,
+    source: sourceParam,
     page,
     pageSize,
   } = Route.useSearch();
