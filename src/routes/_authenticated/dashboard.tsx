@@ -101,7 +101,7 @@ const searchSchema = z.object({
   radar: fallback(z.string(), "all").default("all"),
   // Comma-separated ISO country codes (e.g. "SK,CZ"). Empty = all.
   country: fallback(z.string(), "").default(""),
-  source: fallback(z.enum(["all", "TED", "UVO", "EKS"]), "all").default("all"),
+  source: fallback(z.enum(["all", "TED", "UVO", "EKS", "JOSEPHINE"]), "all").default("all"),
   page: fallback(z.number().int(), 1).default(1),
   pageSize: fallback(z.number().int(), DEFAULT_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
 });
@@ -783,7 +783,7 @@ function Dashboard() {
               navigate({
                 search: (p: any) => ({
                   ...p,
-                  source: v as "all" | "TED" | "UVO" | "EKS",
+                  source: v as "all" | "TED" | "UVO" | "EKS" | "JOSEPHINE",
                   page: 1,
                 }),
               })
@@ -797,6 +797,7 @@ function Dashboard() {
               <SelectItem value="TED">TED</SelectItem>
               <SelectItem value="UVO">ÚVO</SelectItem>
               <SelectItem value="EKS">EKS</SelectItem>
+              <SelectItem value="JOSEPHINE">JOSEPHINE</SelectItem>
             </SelectContent>
           </Select>
           <Select
@@ -1216,17 +1217,22 @@ function DeadlineBadge({
 function SourceBadge({ source }: { source: string }) {
   const isUvo = source === "UVO";
   const isEks = source === "EKS";
-  const label = isEks ? "EKS" : isUvo ? "ÚVO" : "TED";
-  const cls = isEks
-    ? "border border-emerald-600 text-emerald-700 dark:text-emerald-400"
-    : isUvo
-      ? "border border-primary text-primary"
-      : "border border-accent text-accent";
-  const title = isEks
-    ? "Elektronický kontraktačný systém (EKS)"
-    : isUvo
-      ? "Vestník verejného obstarávania ÚVO"
-      : "Tenders Electronic Daily (EÚ)";
+  const isJos = source === "JOSEPHINE";
+  const label = isJos ? "JOSEPHINE" : isEks ? "EKS" : isUvo ? "ÚVO" : "TED";
+  const cls = isJos
+    ? "border border-amber-600 text-amber-700 dark:text-amber-400"
+    : isEks
+      ? "border border-emerald-600 text-emerald-700 dark:text-emerald-400"
+      : isUvo
+        ? "border border-primary text-primary"
+        : "border border-accent text-accent";
+  const title = isJos
+    ? "JOSEPHINE (proEBIZ)"
+    : isEks
+      ? "Elektronický kontraktačný systém (EKS)"
+      : isUvo
+        ? "Vestník verejného obstarávania ÚVO"
+        : "Tenders Electronic Daily (EÚ)";
   return (
     <span
       className={`eyebrow inline-flex items-center rounded-sm bg-transparent px-2 py-0.5 ${cls}`}
