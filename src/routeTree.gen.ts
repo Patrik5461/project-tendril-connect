@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ZakazkaIdRouteImport } from './routes/zakazka.$id'
 import { Route as PravneOpakovanePlatbyRouteImport } from './routes/pravne.opakovane-platby'
 import { Route as PravneObchodnePodmienkyRouteImport } from './routes/pravne.obchodne-podmienky'
+import { Route as PravneGdprRouteImport } from './routes/pravne.gdpr'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -61,6 +62,11 @@ const PravneObchodnePodmienkyRoute = PravneObchodnePodmienkyRouteImport.update({
   path: '/pravne/obchodne-podmienky',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PravneGdprRoute = PravneGdprRouteImport.update({
+  id: '/pravne/gdpr',
+  path: '/pravne/gdpr',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/pravne/gdpr': typeof PravneGdprRoute
   '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
   '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/pravne/gdpr': typeof PravneGdprRoute
   '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
   '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/pravne/gdpr': typeof PravneGdprRoute
   '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
   '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
@@ -133,6 +142,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboarding'
     | '/settings'
+    | '/pravne/gdpr'
     | '/pravne/obchodne-podmienky'
     | '/pravne/opakovane-platby'
     | '/zakazka/$id'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/onboarding'
     | '/settings'
+    | '/pravne/gdpr'
     | '/pravne/obchodne-podmienky'
     | '/pravne/opakovane-platby'
     | '/zakazka/$id'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/settings'
+    | '/pravne/gdpr'
     | '/pravne/obchodne-podmienky'
     | '/pravne/opakovane-platby'
     | '/zakazka/$id'
@@ -172,6 +184,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   OchranaOsobnychUdajovRoute: typeof OchranaOsobnychUdajovRoute
   PredplatneRoute: typeof PredplatneRoute
+  PravneGdprRoute: typeof PravneGdprRoute
   PravneObchodnePodmienkyRoute: typeof PravneObchodnePodmienkyRoute
   PravneOpakovanePlatbyRoute: typeof PravneOpakovanePlatbyRoute
   ZakazkaIdRoute: typeof ZakazkaIdRoute
@@ -236,6 +249,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PravneObchodnePodmienkyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pravne/gdpr': {
+      id: '/pravne/gdpr'
+      path: '/pravne/gdpr'
+      fullPath: '/pravne/gdpr'
+      preLoaderRoute: typeof PravneGdprRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -288,6 +308,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   OchranaOsobnychUdajovRoute: OchranaOsobnychUdajovRoute,
   PredplatneRoute: PredplatneRoute,
+  PravneGdprRoute: PravneGdprRoute,
   PravneObchodnePodmienkyRoute: PravneObchodnePodmienkyRoute,
   PravneOpakovanePlatbyRoute: PravneOpakovanePlatbyRoute,
   ZakazkaIdRoute: ZakazkaIdRoute,
