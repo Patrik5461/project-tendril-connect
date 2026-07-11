@@ -783,7 +783,7 @@ function Dashboard() {
               navigate({
                 search: (p: any) => ({
                   ...p,
-                  source: v as "all" | "TED" | "UVO" | "EKS",
+                  source: v as "all" | "TED" | "UVO" | "EKS" | "JOSEPHINE",
                   page: 1,
                 }),
               })
