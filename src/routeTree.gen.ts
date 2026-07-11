@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PredplatneRouteImport } from './routes/predplatne'
 import { Route as OchranaOsobnychUdajovRouteImport } from './routes/ochrana-osobnych-udajov'
+import { Route as ObjednavkaRouteImport } from './routes/objednavka'
 import { Route as KontaktRouteImport } from './routes/kontakt'
 import { Route as CennikRouteImport } from './routes/cennik'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -35,6 +36,11 @@ const PredplatneRoute = PredplatneRouteImport.update({
 const OchranaOsobnychUdajovRoute = OchranaOsobnychUdajovRouteImport.update({
   id: '/ochrana-osobnych-udajov',
   path: '/ochrana-osobnych-udajov',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ObjednavkaRoute = ObjednavkaRouteImport.update({
+  id: '/objednavka',
+  path: '/objednavka',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KontaktRoute = KontaktRouteImport.update({
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cennik': typeof CennikRoute
   '/kontakt': typeof KontaktRoute
+  '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cennik': typeof CennikRoute
   '/kontakt': typeof KontaktRoute
+  '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cennik': typeof CennikRoute
   '/kontakt': typeof KontaktRoute
+  '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cennik'
     | '/kontakt'
+    | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
     | '/dashboard'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cennik'
     | '/kontakt'
+    | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
     | '/dashboard'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cennik'
     | '/kontakt'
+    | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
     | '/_authenticated/dashboard'
@@ -233,6 +245,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CennikRoute: typeof CennikRoute
   KontaktRoute: typeof KontaktRoute
+  ObjednavkaRoute: typeof ObjednavkaRoute
   OchranaOsobnychUdajovRoute: typeof OchranaOsobnychUdajovRoute
   PredplatneRoute: typeof PredplatneRoute
   PravneCookiesRoute: typeof PravneCookiesRoute
@@ -258,6 +271,13 @@ declare module '@tanstack/react-router' {
       path: '/ochrana-osobnych-udajov'
       fullPath: '/ochrana-osobnych-udajov'
       preLoaderRoute: typeof OchranaOsobnychUdajovRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/objednavka': {
+      id: '/objednavka'
+      path: '/objednavka'
+      fullPath: '/objednavka'
+      preLoaderRoute: typeof ObjednavkaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/kontakt': {
@@ -389,6 +409,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CennikRoute: CennikRoute,
   KontaktRoute: KontaktRoute,
+  ObjednavkaRoute: ObjednavkaRoute,
   OchranaOsobnychUdajovRoute: OchranaOsobnychUdajovRoute,
   PredplatneRoute: PredplatneRoute,
   PravneCookiesRoute: PravneCookiesRoute,
