@@ -23,11 +23,14 @@ function AuthedLayout() {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
-      const { data } = await (supabase.rpc as any)("has_role", {
-        _user_id: u.user.id,
-        _role: "admin",
-      });
-      setIsAdmin(data === true);
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", u.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (error) console.error("[admin-check]", error);
+      setIsAdmin(!!data);
     })();
   }, []);
 
