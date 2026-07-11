@@ -284,6 +284,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_tender_actions: {
         Row: {
           action: string
@@ -351,6 +372,21 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      admin_get_gopay_mode: { Args: never; Returns: string }
+      admin_list_users: {
+        Args: { _limit?: number }
+        Returns: {
+          created_at: string
+          email: string
+          radars_count: number
+          subscription_status: string
+          subscription_valid_until: string
+          trial_started_at: string
+          user_id: string
+        }[]
+      }
+      admin_overview_stats: { Args: never; Returns: Json }
+      admin_set_gopay_mode: { Args: { _mode: string }; Returns: string }
       expire_trials: { Args: never; Returns: number }
       get_active_tenders_count: { Args: never; Returns: number }
       get_active_tenders_stats: {
@@ -359,6 +395,13 @@ export type Database = {
           active_count: number
           total_value_eur: number
         }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
       }
       search_user_tenders: {
         Args: {
@@ -383,7 +426,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -510,6 +553,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "admin"],
+    },
   },
 } as const
