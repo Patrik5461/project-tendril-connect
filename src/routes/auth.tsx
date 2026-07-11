@@ -67,6 +67,10 @@ function AuthPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSignup && (!agreeTerms || !agreeGdpr)) {
+      toast.error("Musíte súhlasiť s obchodnými podmienkami a spracovaním osobných údajov.");
+      return;
+    }
     setLoading(true);
     try {
       if (isSignup) {
