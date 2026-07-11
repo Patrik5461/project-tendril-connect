@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PredplatneRouteImport } from './routes/predplatne'
 import { Route as OchranaOsobnychUdajovRouteImport } from './routes/ochrana-osobnych-udajov'
 import { Route as KontaktRouteImport } from './routes/kontakt'
+import { Route as CennikRouteImport } from './routes/cennik'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -39,6 +40,11 @@ const OchranaOsobnychUdajovRoute = OchranaOsobnychUdajovRouteImport.update({
 const KontaktRoute = KontaktRouteImport.update({
   id: '/kontakt',
   path: '/kontakt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CennikRoute = CennikRouteImport.update({
+  id: '/cennik',
+  path: '/cennik',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -110,6 +116,7 @@ const ApiPublicStatsRoute = ApiPublicStatsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cennik': typeof CennikRoute
   '/kontakt': typeof KontaktRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/cennik': typeof CennikRoute
   '/kontakt': typeof KontaktRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/cennik': typeof CennikRoute
   '/kontakt': typeof KontaktRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/cennik'
     | '/kontakt'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/cennik'
     | '/kontakt'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/cennik'
     | '/kontakt'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
@@ -219,6 +231,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CennikRoute: typeof CennikRoute
   KontaktRoute: typeof KontaktRoute
   OchranaOsobnychUdajovRoute: typeof OchranaOsobnychUdajovRoute
   PredplatneRoute: typeof PredplatneRoute
@@ -252,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/kontakt'
       fullPath: '/kontakt'
       preLoaderRoute: typeof KontaktRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cennik': {
+      id: '/cennik'
+      path: '/cennik'
+      fullPath: '/cennik'
+      preLoaderRoute: typeof CennikRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -367,6 +387,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CennikRoute: CennikRoute,
   KontaktRoute: KontaktRoute,
   OchranaOsobnychUdajovRoute: OchranaOsobnychUdajovRoute,
   PredplatneRoute: PredplatneRoute,
