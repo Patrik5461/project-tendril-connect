@@ -118,17 +118,22 @@ function TenderDetail() {
     : null;
   const isUvo = tender.source === "UVO";
   const isEks = tender.source === "EKS";
-  const sourceLabel = isEks ? "EKS" : isUvo ? "ÚVO" : "TED";
-  const sourceCls = isEks
-    ? "border border-emerald-600 text-emerald-700 dark:text-emerald-400"
-    : isUvo
-      ? "border border-primary text-primary"
-      : "border border-accent text-accent";
-  const sourceTitle = isEks
-    ? "Elektronický kontraktačný systém (EKS)"
-    : isUvo
-      ? "Vestník verejného obstarávania ÚVO"
-      : "Tenders Electronic Daily (EÚ)";
+  const isJos = tender.source === "JOSEPHINE";
+  const sourceLabel = isJos ? "JOSEPHINE" : isEks ? "EKS" : isUvo ? "ÚVO" : "TED";
+  const sourceCls = isJos
+    ? "border border-amber-600 text-amber-700 dark:text-amber-400"
+    : isEks
+      ? "border border-emerald-600 text-emerald-700 dark:text-emerald-400"
+      : isUvo
+        ? "border border-primary text-primary"
+        : "border border-accent text-accent";
+  const sourceTitle = isJos
+    ? "JOSEPHINE (proEBIZ)"
+    : isEks
+      ? "Elektronický kontraktačný systém (EKS)"
+      : isUvo
+        ? "Vestník verejného obstarávania ÚVO"
+        : "Tenders Electronic Daily (EÚ)";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
