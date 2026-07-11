@@ -797,6 +797,7 @@ function Dashboard() {
               <SelectItem value="TED">TED</SelectItem>
               <SelectItem value="UVO">ÚVO</SelectItem>
               <SelectItem value="EKS">EKS</SelectItem>
+              <SelectItem value="JOSEPHINE">JOSEPHINE</SelectItem>
             </SelectContent>
           </Select>
           <Select
