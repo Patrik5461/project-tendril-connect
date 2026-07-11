@@ -325,7 +325,9 @@ function GopayTab() {
       const { data } = await (supabase.rpc as any)("admin_get_gopay_mode");
       setMode(typeof data === "string" ? data : "");
     })();
+    void loadStatus();
   }, []);
+
 
   async function save(next: string) {
     setSaving(true);
@@ -372,7 +374,56 @@ function GopayTab() {
         </p>
       </Card>
 
+      <Card title="Kľúče GoPay (secrets)">
+        <p className="text-sm text-muted-foreground">
+          Kľúče sa ukladajú bezpečne ako secrets (nie do kódu). Po uložení kliknite <b>Test pripojenia</b> – overí sa OAuth token voči GoPay ({status?.env ?? "…"}).
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          {(["GOPAY_GOID","GOPAY_CLIENT_ID","GOPAY_CLIENT_SECRET"] as const).map((k) => {
+            const ok = status?.secrets?.[k] === true;
+            return (
+              <div key={k} className="rounded-md border border-primary/10 p-3">
+                <div className="flex items-center justify-between">
+                  <code className="text-xs">{k}</code>
+                  <span className={`text-xs font-medium ${ok ? "text-primary" : "text-muted-foreground"}`}>
+                    {status ? (ok ? "✓ nastavené" : "chýba") : "…"}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              const url = `https://supabase.com/dashboard/project/${(import.meta as any).env.VITE_SUPABASE_PROJECT_ID}/settings/functions`;
+              window.open(url, "_blank");
+            }}
+          >
+            Nastaviť/upraviť kľúče
+          </Button>
+          <Button onClick={loadStatus} disabled={testing}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${testing ? "animate-spin" : ""}`} />
+            {testing ? "Testujem…" : "Test pripojenia"}
+          </Button>
+          {status && (
+            <span className={`text-sm ${status.oauth?.ok ? "text-primary" : "text-destructive"}`}>
+              {status.oauth?.ok
+                ? `OAuth OK (${status.env})`
+                : status.oauth?.error === "GOPAY_NOT_CONFIGURED"
+                  ? "Kľúče zatiaľ chýbajú"
+                  : `Chyba: ${status.oauth?.error ?? "neznáma"}`}
+            </span>
+          )}
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Placeholdery: kým sú secrety prázdne alebo <code>PLACEHOLDER</code>, integrácia beží v sandbox režime bez reálnych volaní.
+        </p>
+      </Card>
+
       <Card title="Simulátor webhooku">
+
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
             <label className="text-xs text-muted-foreground">User ID</label>
