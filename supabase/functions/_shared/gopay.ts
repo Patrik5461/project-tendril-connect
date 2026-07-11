@@ -4,7 +4,37 @@
 
 export type GoPayEnv = "sandbox" | "production";
 
+let cachedMode: GoPayEnv | null = null;
+
+/** DB override (app_settings.gopay_mode) má prednosť pred GOPAY_ENV secretom. */
+export async function resolveGopayEnv(): Promise<GoPayEnv> {
+  if (cachedMode) return cachedMode;
+  try {
+    const url = Deno.env.get("SUPABASE_URL");
+    const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (url && key) {
+      const r = await fetch(`${url}/rest/v1/app_settings?key=eq.gopay_mode&select=value`, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+      });
+      if (r.ok) {
+        const rows = await r.json();
+        const v = rows?.[0]?.value;
+        const s = typeof v === "string" ? v : "";
+        if (s === "production" || s === "sandbox") {
+          cachedMode = s;
+          return s;
+        }
+      }
+    }
+  } catch { /* ignore, fallback to env */ }
+  const v = (Deno.env.get("GOPAY_ENV") ?? "sandbox").toLowerCase();
+  cachedMode = v === "production" ? "production" : "sandbox";
+  return cachedMode;
+}
+
+/** Synchrónny fallback – používa iba env (bez DB overridu). */
 export function gopayEnv(): GoPayEnv {
+  if (cachedMode) return cachedMode;
   const v = (Deno.env.get("GOPAY_ENV") ?? "sandbox").toLowerCase();
   return v === "production" ? "production" : "sandbox";
 }
