@@ -376,34 +376,6 @@ function Landing() {
           </div>
         </div>
       </footer>
-        <div className="mx-auto flex max-w-6xl flex-col md:flex-row items-start md:items-center justify-between gap-2 px-4">
-          <div className="flex items-center gap-2">
-            <span className="h-4 w-4 bg-primary" aria-hidden="true" />
-            <span className="font-display font-bold">Tendrik</span>
-            <span className="text-muted-foreground">
-              · © {new Date().getFullYear()} · 2 mesiace zdarma, potom 4,99 €/mesiac
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link
-              to="/ochrana-osobnych-udajov"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Ochrana osobných údajov
-            </Link>
-            <button
-              type="button"
-              onClick={() => {
-                import("@/lib/cookie-consent").then((m) => m.openCookieSettings());
-              }}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Nastavenia cookies
-            </button>
-            <div className="eyebrow text-muted-foreground">Ver. 1.0</div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
