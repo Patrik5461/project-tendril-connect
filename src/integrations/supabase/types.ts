@@ -403,18 +403,32 @@ export type Database = {
         }
         Returns: boolean
       }
-      search_user_tenders: {
-        Args: {
-          _countries: string[]
-          _from: number
-          _limit: number
-          _q: string
-          _radar_ids: string[]
-          _sort: string
-          _tab: string
-        }
-        Returns: Json
-      }
+      search_user_tenders:
+        | {
+            Args: {
+              _countries: string[]
+              _from: number
+              _limit: number
+              _q: string
+              _radar_ids: string[]
+              _sort: string
+              _tab: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _countries: string[]
+              _from: number
+              _limit: number
+              _q: string
+              _radar_ids: string[]
+              _sort: string
+              _sources?: string[]
+              _tab: string
+            }
+            Returns: Json
+          }
       set_ai_summaries_enabled: { Args: { enabled: boolean }; Returns: boolean }
       unaccent: { Args: { "": string }; Returns: string }
       user_tenders_country_facets: {
