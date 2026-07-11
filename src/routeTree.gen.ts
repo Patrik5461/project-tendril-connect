@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ZakazkaIdRouteImport } from './routes/zakazka.$id'
+import { Route as PravneOpakovanePlatbyRouteImport } from './routes/pravne.opakovane-platby'
 import { Route as PravneObchodnePodmienkyRouteImport } from './routes/pravne.obchodne-podmienky'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -48,6 +49,11 @@ const IndexRoute = IndexRouteImport.update({
 const ZakazkaIdRoute = ZakazkaIdRouteImport.update({
   id: '/zakazka/$id',
   path: '/zakazka/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PravneOpakovanePlatbyRoute = PravneOpakovanePlatbyRouteImport.update({
+  id: '/pravne/opakovane-platby',
+  path: '/pravne/opakovane-platby',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PravneObchodnePodmienkyRoute = PravneObchodnePodmienkyRouteImport.update({
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
+  '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
 }
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
+  '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
 }
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
+  '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
 }
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/settings'
     | '/pravne/obchodne-podmienky'
+    | '/pravne/opakovane-platby'
     | '/zakazka/$id'
     | '/api/public/stats'
   fileRoutesByTo: FileRoutesByTo
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/settings'
     | '/pravne/obchodne-podmienky'
+    | '/pravne/opakovane-platby'
     | '/zakazka/$id'
     | '/api/public/stats'
   id:
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/settings'
     | '/pravne/obchodne-podmienky'
+    | '/pravne/opakovane-platby'
     | '/zakazka/$id'
     | '/api/public/stats'
   fileRoutesById: FileRoutesById
@@ -161,6 +173,7 @@ export interface RootRouteChildren {
   OchranaOsobnychUdajovRoute: typeof OchranaOsobnychUdajovRoute
   PredplatneRoute: typeof PredplatneRoute
   PravneObchodnePodmienkyRoute: typeof PravneObchodnePodmienkyRoute
+  PravneOpakovanePlatbyRoute: typeof PravneOpakovanePlatbyRoute
   ZakazkaIdRoute: typeof ZakazkaIdRoute
   ApiPublicStatsRoute: typeof ApiPublicStatsRoute
 }
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/zakazka/$id'
       fullPath: '/zakazka/$id'
       preLoaderRoute: typeof ZakazkaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pravne/opakovane-platby': {
+      id: '/pravne/opakovane-platby'
+      path: '/pravne/opakovane-platby'
+      fullPath: '/pravne/opakovane-platby'
+      preLoaderRoute: typeof PravneOpakovanePlatbyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pravne/obchodne-podmienky': {
@@ -269,6 +289,7 @@ const rootRouteChildren: RootRouteChildren = {
   OchranaOsobnychUdajovRoute: OchranaOsobnychUdajovRoute,
   PredplatneRoute: PredplatneRoute,
   PravneObchodnePodmienkyRoute: PravneObchodnePodmienkyRoute,
+  PravneOpakovanePlatbyRoute: PravneOpakovanePlatbyRoute,
   ZakazkaIdRoute: ZakazkaIdRoute,
   ApiPublicStatsRoute: ApiPublicStatsRoute,
 }
