@@ -24,6 +24,12 @@ verify_jwt = false
 [functions.backfill-eks]
 verify_jwt = false
 
+[functions.fetch-josephine-tenders]
+verify_jwt = false
+
+[functions.backfill-josephine]
+verify_jwt = false
+
 [functions.send-deadline-reminders]
 verify_jwt = false
 
