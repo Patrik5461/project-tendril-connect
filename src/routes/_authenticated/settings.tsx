@@ -1,4 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { computeSubscription, formatEur, MONTHLY_PRICE_EUR } from "@/lib/subscription";
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -266,6 +268,10 @@ function SettingsPage() {
         </div>
       </section>
 
+      <SubscriptionSection userId={userId} />
+
+
+
       <section className="mt-6">
         <div className="flex items-end justify-between">
           <div>
@@ -523,5 +529,102 @@ function RadarCard({
         </div>
       )}
     </div>
+  );
+}
+
+function SubscriptionSection({ userId }: { userId: string | null }) {
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [row, setRow] = useState<any>(null);
+
+  async function load() {
+    if (!userId) return;
+    const { data } = await supabase
+      .from("user_preferences")
+      .select("trial_started_at,subscription_status,subscription_valid_until,gopay_recurrence_id,subscription_cancel_requested_at,last_payment_at")
+      .eq("user_id", userId)
+      .maybeSingle();
+    setRow(data);
+    setLoading(false);
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [userId]);
+
+  if (loading) {
+    return (
+      <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
+        <h2 className="font-display font-semibold text-lg tracking-tight">Predplatné</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Načítavam…</p>
+      </section>
+    );
+  }
+
+  const sub = computeSubscription(row);
+  const validUntil = row?.subscription_valid_until ? new Date(row.subscription_valid_until) : null;
+  const cancelRequested = !!row?.subscription_cancel_requested_at;
+
+  const statusLabel =
+    sub.status === "active" ? (cancelRequested ? "Aktívne (zrušené – dobieha)" : "Aktívne")
+    : sub.status === "trial" ? `Skúšobné (zostáva ${sub.daysLeft} dní)`
+    : "Vypršané";
+
+  async function cancel() {
+    if (!confirm("Zrušiť predplatné? Prístup vám zostane do konca zaplateného obdobia.")) return;
+    setBusy(true);
+    const { data, error } = await supabase.functions.invoke("gopay-cancel-subscription", { body: {} });
+    setBusy(false);
+    if (error) { toast.error("Nepodarilo sa zrušiť: " + error.message); return; }
+    toast.success("Predplatné bolo zrušené." + (data?.valid_until ? " Prístup do " + new Date(data.valid_until).toLocaleDateString("sk-SK") + "." : ""));
+    load();
+  }
+
+  return (
+    <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
+      <h2 className="font-display font-semibold text-lg tracking-tight">Predplatné</h2>
+      <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+        <div>
+          <div className="text-muted-foreground">Stav</div>
+          <div className="font-medium">{statusLabel}</div>
+        </div>
+        <div>
+          <div className="text-muted-foreground">Cena</div>
+          <div className="font-medium">{formatEur(MONTHLY_PRICE_EUR)} / mes bez DPH (6,14 € s DPH)</div>
+        </div>
+        {validUntil && (
+          <div>
+            <div className="text-muted-foreground">Zaplatené do</div>
+            <div className="font-medium num">{validUntil.toLocaleDateString("sk-SK")}</div>
+          </div>
+        )}
+        {row?.last_payment_at && (
+          <div>
+            <div className="text-muted-foreground">Posledná platba</div>
+            <div className="font-medium num">{new Date(row.last_payment_at).toLocaleDateString("sk-SK")}</div>
+          </div>
+        )}
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-center gap-3">
+        {sub.status !== "active" && (
+          <Link to="/predplatne">
+            <Button size="sm">Aktivovať predplatné</Button>
+          </Link>
+        )}
+        {sub.status === "active" && !cancelRequested && (
+          <Button size="sm" variant="outline" onClick={cancel} disabled={busy}>
+            {busy ? "Rušim…" : "Zrušiť predplatné"}
+          </Button>
+        )}
+        {cancelRequested && (
+          <p className="text-xs text-muted-foreground">
+            Zrušenie vyžiadané. Prístup zostáva do konca zaplateného obdobia.
+          </p>
+        )}
+      </div>
+
+      <p className="mt-4 text-xs text-muted-foreground">
+        Platby spracúva GoPay. Detaily nájdete v{" "}
+        <Link to="/pravne/opakovane-platby" className="underline">podmienkach opakovaných platieb</Link>.
+      </p>
+    </section>
   );
 }

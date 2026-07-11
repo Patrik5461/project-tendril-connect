@@ -32,6 +32,42 @@ export type Database = {
         }
         Relationships: []
       }
+      gopay_payment_events: {
+        Row: {
+          amount_cents: number | null
+          currency: string | null
+          gopay_payment_id: string | null
+          id: string
+          parent_id: string | null
+          raw: Json | null
+          received_at: string
+          state: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount_cents?: number | null
+          currency?: string | null
+          gopay_payment_id?: string | null
+          id?: string
+          parent_id?: string | null
+          raw?: Json | null
+          received_at?: string
+          state?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount_cents?: number | null
+          currency?: string | null
+          gopay_payment_id?: string | null
+          id?: string
+          parent_id?: string | null
+          raw?: Json | null
+          received_at?: string
+          state?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       help_chat_usage: {
         Row: {
           created_at: string
@@ -147,12 +183,17 @@ export type Database = {
           deadline_reminders: boolean
           digest_frequency: string
           email_notifications: boolean
+          gopay_recurrence_id: string | null
+          gopay_subscription_id: string | null
           id: string
           keywords: string[]
+          last_payment_at: string | null
           notification_email: string | null
           onboarding_completed: boolean
           regions: string[]
+          subscription_cancel_requested_at: string | null
           subscription_status: string
+          subscription_valid_until: string | null
           trial_started_at: string
           updated_at: string
           user_id: string
@@ -164,12 +205,17 @@ export type Database = {
           deadline_reminders?: boolean
           digest_frequency?: string
           email_notifications?: boolean
+          gopay_recurrence_id?: string | null
+          gopay_subscription_id?: string | null
           id?: string
           keywords?: string[]
+          last_payment_at?: string | null
           notification_email?: string | null
           onboarding_completed?: boolean
           regions?: string[]
+          subscription_cancel_requested_at?: string | null
           subscription_status?: string
+          subscription_valid_until?: string | null
           trial_started_at?: string
           updated_at?: string
           user_id: string
@@ -181,12 +227,17 @@ export type Database = {
           deadline_reminders?: boolean
           digest_frequency?: string
           email_notifications?: boolean
+          gopay_recurrence_id?: string | null
+          gopay_subscription_id?: string | null
           id?: string
           keywords?: string[]
+          last_payment_at?: string | null
           notification_email?: string | null
           onboarding_completed?: boolean
           regions?: string[]
+          subscription_cancel_requested_at?: string | null
           subscription_status?: string
+          subscription_valid_until?: string | null
           trial_started_at?: string
           updated_at?: string
           user_id?: string
