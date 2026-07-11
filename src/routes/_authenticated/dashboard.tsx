@@ -1449,7 +1449,7 @@ function CountryFilter({
         <Button
           variant="outline"
           size="default"
-          className="sm:w-48 justify-between h-9 font-normal"
+          className="w-full justify-between h-9 font-normal"
           aria-label="Filter krajín"
         >
           <span className="flex items-center gap-2 truncate">
