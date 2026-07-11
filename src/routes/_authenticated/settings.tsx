@@ -266,6 +266,10 @@ function SettingsPage() {
         </div>
       </section>
 
+      <SubscriptionSection userId={userId} />
+
+
+
       <section className="mt-6">
         <div className="flex items-end justify-between">
           <div>
