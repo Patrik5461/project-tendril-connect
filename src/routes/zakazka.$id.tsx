@@ -117,6 +117,18 @@ function TenderDetail() {
     ? differenceInDays(deadlineDate, new Date())
     : null;
   const isUvo = tender.source === "UVO";
+  const isEks = tender.source === "EKS";
+  const sourceLabel = isEks ? "EKS" : isUvo ? "ÚVO" : "TED";
+  const sourceCls = isEks
+    ? "border border-emerald-600 text-emerald-700 dark:text-emerald-400"
+    : isUvo
+      ? "border border-primary text-primary"
+      : "border border-accent text-accent";
+  const sourceTitle = isEks
+    ? "Elektronický kontraktačný systém (EKS)"
+    : isUvo
+      ? "Vestník verejného obstarávania ÚVO"
+      : "Tenders Electronic Daily (EÚ)";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
@@ -129,16 +141,10 @@ function TenderDetail() {
 
       <div className="mt-6 flex items-center gap-3 flex-wrap">
         <span
-          className={`eyebrow inline-flex items-center bg-transparent px-2 py-0.5 ${
-            isUvo
-              ? "border border-primary text-primary"
-              : "border border-accent text-accent"
-          }`}
-          title={
-            isUvo ? "Vestník verejného obstarávania ÚVO" : "Tenders Electronic Daily (EÚ)"
-          }
+          className={`eyebrow inline-flex items-center bg-transparent px-2 py-0.5 ${sourceCls}`}
+          title={sourceTitle}
         >
-          {isUvo ? "ÚVO" : "TED"}
+          {sourceLabel}
         </span>
         {daysLeft !== null && (
           daysLeft < 0 ? (

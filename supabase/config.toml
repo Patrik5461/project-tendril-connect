@@ -18,6 +18,12 @@ verify_jwt = false
 [functions.backfill-uvo]
 verify_jwt = false
 
+[functions.fetch-eks-tenders]
+verify_jwt = false
+
+[functions.backfill-eks]
+verify_jwt = false
+
 [functions.send-deadline-reminders]
 verify_jwt = false
 
