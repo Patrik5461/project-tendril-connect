@@ -350,12 +350,13 @@ function Dashboard() {
       setListLoading(false);
     });
     return () => { cancelled = true; };
-  }, [loading, tab, radarIdsForRpc, q, countryParam, sort, page, safePageSize, selectedCountries.join(",")]);
+  }, [loading, tab, radarIdsForRpc, q, countryParam, sourceParam, sort, page, safePageSize, selectedCountries.join(",")]);
 
   async function refetchPage() {
     if (!userId) return;
     const from = (Math.max(1, page) - 1) * safePageSize;
     const countriesArg = selectedCountries.length > 0 ? selectedCountries : null;
+    const sourcesArg = sourceParam === "all" ? null : [sourceParam];
     const [pageRes, facetsRes] = await Promise.all([
       (supabase.rpc as any)("search_user_tenders", {
         _tab: tab,
@@ -365,6 +366,7 @@ function Dashboard() {
         _sort: sort,
         _from: from,
         _limit: safePageSize,
+        _sources: sourcesArg,
       }),
       (supabase.rpc as any)("user_tenders_country_facets", {
         _tab: tab,
