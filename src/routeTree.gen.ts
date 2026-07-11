@@ -27,6 +27,7 @@ import { Route as PlatbaVysledokRouteImport } from './routes/platba.vysledok'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiPublicStatsRouteImport } from './routes/api/public/stats'
 
 const PredplatneRoute = PredplatneRouteImport.update({
@@ -119,6 +120,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicStatsRoute = ApiPublicStatsRouteImport.update({
   id: '/api/public/stats',
   path: '/api/public/stats',
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
+    | '/admin'
     | '/dashboard'
     | '/onboarding'
     | '/settings'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
+    | '/admin'
     | '/dashboard'
     | '/onboarding'
     | '/settings'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
+    | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/settings'
@@ -398,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/stats': {
       id: '/api/public/stats'
       path: '/api/public/stats'
@@ -409,12 +428,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,

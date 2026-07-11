@@ -675,35 +675,8 @@ function Dashboard() {
           </p>
 
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <Button
-            onClick={() => handleRefresh("TED")}
-            disabled={refreshing !== null}
-            variant="default"
-            size="sm"
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing === "TED" ? "animate-spin" : ""}`} />
-            {refreshing === "TED" ? "Aktualizujem..." : "TED"}
-          </Button>
-          <Button
-            onClick={() => handleRefresh("UVO")}
-            disabled={refreshing !== null}
-            variant="secondary"
-            size="sm"
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing === "UVO" ? "animate-spin" : ""}`} />
-            {refreshing === "UVO" ? "Aktualizujem..." : "ÚVO"}
-          </Button>
-          <Button onClick={handlePreviewDigest} disabled={previewLoading} variant="outline" size="sm">
-            <Mail className="h-4 w-4 mr-2" />
-            Náhľad e-mailu
-          </Button>
-          <Button onClick={handleSendDigest} disabled={sendingDigest} variant="outline" size="sm">
-            <Send className={`h-4 w-4 mr-2 ${sendingDigest ? "animate-pulse" : ""}`} />
-            {sendingDigest ? "Odosielam..." : "Poslať digest"}
-          </Button>
-        </div>
       </div>
+
 
       <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
         <Tabs
