@@ -31,6 +31,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreeGdpr, setAgreeGdpr] = useState(false);
   const isSignup = mode === "signup";
 
   async function loginAsTest() {
