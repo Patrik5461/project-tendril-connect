@@ -750,6 +750,28 @@ function Dashboard() {
             }
           />
           <Select
+            value={sourceParam}
+            onValueChange={(v) =>
+              navigate({
+                search: (p: any) => ({
+                  ...p,
+                  source: v as "all" | "TED" | "UVO" | "EKS",
+                  page: 1,
+                }),
+              })
+            }
+          >
+            <SelectTrigger className="sm:w-40" aria-label="Zdroj">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Všetky zdroje</SelectItem>
+              <SelectItem value="TED">TED</SelectItem>
+              <SelectItem value="UVO">ÚVO</SelectItem>
+              <SelectItem value="EKS">EKS</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
             value={sort}
             onValueChange={(v) =>
               navigate({
