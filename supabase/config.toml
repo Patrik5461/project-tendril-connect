@@ -42,3 +42,6 @@ verify_jwt = true
 [functions.gopay-webhook]
 verify_jwt = false
 
+[functions.gopay-test-connection]
+verify_jwt = true
+
