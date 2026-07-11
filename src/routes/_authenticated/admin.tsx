@@ -239,6 +239,8 @@ function ActionsTab() {
     { key: "backfill-uvo", label: "Backfill ÚVO", fn: "backfill-uvo", icon: Play },
     { key: "fetch-eks", label: "Aktualizovať EKS", fn: "fetch-eks-tenders", icon: RefreshCw },
     { key: "backfill-eks", label: "Backfill EKS", fn: "backfill-eks", icon: Play },
+    { key: "fetch-josephine", label: "Aktualizovať JOSEPHINE", fn: "fetch-josephine-tenders", icon: RefreshCw },
+    { key: "backfill-josephine", label: "Backfill JOSEPHINE", fn: "backfill-josephine", icon: Play },
     { key: "cleanup", label: "Cleanup expirovaných", fn: "cleanup-tenders", icon: Play },
     { key: "daily", label: "Poslať denný digest", fn: "send-daily-digest", icon: Send, destructive: true },
     { key: "weekly", label: "Poslať týždenný digest", fn: "send-weekly-digest", icon: Send, destructive: true },
