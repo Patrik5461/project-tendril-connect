@@ -303,6 +303,22 @@ function GopayTab() {
   const [simUser, setSimUser] = useState("");
   const [simState, setSimState] = useState("PAID");
   const [simBusy, setSimBusy] = useState(false);
+  const [status, setStatus] = useState<any>(null);
+  const [testing, setTesting] = useState(false);
+
+  async function loadStatus() {
+    setTesting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("gopay-test-connection", { body: {} });
+      if (error) throw error;
+      setStatus(data);
+    } catch (e: any) {
+      toast.error(e.message ?? "Test zlyhal");
+    } finally {
+      setTesting(false);
+    }
+  }
+
 
   useEffect(() => {
     (async () => {
