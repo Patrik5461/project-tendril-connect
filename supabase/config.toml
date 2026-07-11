@@ -32,3 +32,13 @@ verify_jwt = true
 
 [functions.send-welcome-email]
 verify_jwt = true
+
+[functions.gopay-create-subscription]
+verify_jwt = true
+
+[functions.gopay-cancel-subscription]
+verify_jwt = true
+
+[functions.gopay-webhook]
+verify_jwt = false
+
