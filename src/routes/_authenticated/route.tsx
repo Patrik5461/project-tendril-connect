@@ -1,7 +1,8 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Settings, LogOut, ShieldCheck } from "lucide-react";
 import { HelpChatWidget } from "@/components/HelpChatWidget";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -16,6 +17,20 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthedLayout() {
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data } = await (supabase.rpc as any)("has_role", {
+        _user_id: u.user.id,
+        _role: "admin",
+      });
+      setIsAdmin(data === true);
+    })();
+  }, []);
+
   async function signOut() {
     await supabase.auth.signOut();
     navigate({ to: "/auth", search: { mode: "login" }, replace: true });
@@ -41,6 +56,14 @@ function AuthedLayout() {
                 <span className="hidden sm:inline">Nastavenia</span>
               </Button>
             </Link>
+            {isAdmin && (
+              <Link to="/admin">
+                <Button variant="ghost" size="sm">
+                  <ShieldCheck className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Admin</span>
+                </Button>
+              </Link>
+            )}
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Odhlásiť</span>
