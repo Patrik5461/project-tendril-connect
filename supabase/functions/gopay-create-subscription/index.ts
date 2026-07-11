@@ -1,12 +1,13 @@
 // Vytvorí opakovanú platbu (recurring) 4,99 €/mes pre prihláseného používateľa.
 // Vracia gw_url – URL, kam presmerovať používateľa do GoPay brány.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
-import { corsHeaders, getGoPayToken, gopayConfig } from "../_shared/gopay.ts";
+import { corsHeaders, getGoPayToken, gopayConfig, resolveGopayEnv } from "../_shared/gopay.ts";
 
 const PRICE_CENTS = 614; // 6,14 € s DPH (4,99 € bez DPH + 23 %)
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  await resolveGopayEnv();
 
   try {
     const authHeader = req.headers.get("Authorization") ?? "";

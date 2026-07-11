@@ -1,10 +1,11 @@
 // Zruší opakovanú platbu (recurring) v GoPay pre prihláseného používateľa.
 // Prístup zostáva do konca zaplateného obdobia (subscription_valid_until).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
-import { corsHeaders, getGoPayToken, gopayConfig } from "../_shared/gopay.ts";
+import { corsHeaders, getGoPayToken, gopayConfig, resolveGopayEnv } from "../_shared/gopay.ts";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  await resolveGopayEnv();
 
   try {
     const authHeader = req.headers.get("Authorization") ?? "";
