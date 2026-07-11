@@ -684,27 +684,55 @@ function Dashboard() {
       </div>
 
 
-      <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <Tabs
-          value={tab}
-          onValueChange={(v) =>
-            navigate({
-              search: (p: any) => ({
-                ...p,
-                tab: v as "foryou" | "saved" | "hidden",
-                page: 1,
-              }),
-            })
-          }
-        >
-          <TabsList>
-            <TabsTrigger value="foryou">Pre vás</TabsTrigger>
-            <TabsTrigger value="saved">Uložené</TabsTrigger>
-            <TabsTrigger value="hidden">Skryté</TabsTrigger>
-          </TabsList>
-        </Tabs>
+      <div className="mt-6 space-y-3">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <Tabs
+            value={tab}
+            onValueChange={(v) =>
+              navigate({
+                search: (p: any) => ({
+                  ...p,
+                  tab: v as "foryou" | "saved" | "hidden",
+                  page: 1,
+                }),
+              })
+            }
+          >
+            <TabsList>
+              <TabsTrigger value="foryou">Pre vás</TabsTrigger>
+              <TabsTrigger value="saved">Uložené</TabsTrigger>
+              <TabsTrigger value="hidden">Skryté</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        <div className="flex gap-2 flex-col sm:flex-row sm:flex-wrap">
+          <div className="flex items-center gap-2">
+            <Select
+              value={String(safePageSize)}
+              onValueChange={(v) =>
+                navigate({
+                  search: (p: any) => ({ ...p, pageSize: Number(v), page: 1 }),
+                })
+              }
+            >
+              <SelectTrigger className="w-28" aria-label="Počet na stránku">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PAGE_SIZE_OPTIONS.map((n) => (
+                  <SelectItem key={n} value={String(n)}>
+                    {n} / str.
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <ViewToggle
+              view={view}
+              onChange={(v) => navigate({ search: (p: any) => ({ ...p, view: v }) })}
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
           {tab === "foryou" && userRadars.length > 1 && (
             <Select
               value={radarParam}
@@ -712,7 +740,7 @@ function Dashboard() {
                 navigate({ search: (p: any) => ({ ...p, radar: v, page: 1 }) })
               }
             >
-              <SelectTrigger className="sm:w-56">
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -732,7 +760,7 @@ function Dashboard() {
               placeholder="Hľadať v zákazkach..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-8 sm:w-64"
+              className="pl-8 w-full"
             />
           </div>
           <CountryFilter
@@ -761,7 +789,7 @@ function Dashboard() {
               })
             }
           >
-            <SelectTrigger className="sm:w-40" aria-label="Zdroj">
+            <SelectTrigger className="w-full" aria-label="Zdroj">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -783,7 +811,7 @@ function Dashboard() {
               })
             }
           >
-            <SelectTrigger className="sm:w-48">
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -792,31 +820,9 @@ function Dashboard() {
               <SelectItem value="value">Najvyššia hodnota</SelectItem>
             </SelectContent>
           </Select>
-          <Select
-            value={String(safePageSize)}
-            onValueChange={(v) =>
-              navigate({
-                search: (p: any) => ({ ...p, pageSize: Number(v), page: 1 }),
-              })
-            }
-          >
-            <SelectTrigger className="sm:w-32" aria-label="Počet na stránku">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PAGE_SIZE_OPTIONS.map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n} / str.
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <ViewToggle
-            view={view}
-            onChange={(v) => navigate({ search: (p: any) => ({ ...p, view: v }) })}
-          />
         </div>
       </div>
+
 
 
 
@@ -1443,7 +1449,7 @@ function CountryFilter({
         <Button
           variant="outline"
           size="default"
-          className="sm:w-48 justify-between h-9 font-normal"
+          className="w-full justify-between h-9 font-normal"
           aria-label="Filter krajín"
         >
           <span className="flex items-center gap-2 truncate">
