@@ -101,7 +101,7 @@ const searchSchema = z.object({
   radar: fallback(z.string(), "all").default("all"),
   // Comma-separated ISO country codes (e.g. "SK,CZ"). Empty = all.
   country: fallback(z.string(), "").default(""),
-  source: fallback(z.enum(["all", "TED", "UVO", "EKS"]), "all").default("all"),
+  source: fallback(z.enum(["all", "TED", "UVO", "EKS", "JOSEPHINE"]), "all").default("all"),
   page: fallback(z.number().int(), 1).default(1),
   pageSize: fallback(z.number().int(), DEFAULT_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
 });
