@@ -101,6 +101,7 @@ const searchSchema = z.object({
   radar: fallback(z.string(), "all").default("all"),
   // Comma-separated ISO country codes (e.g. "SK,CZ"). Empty = all.
   country: fallback(z.string(), "").default(""),
+  source: fallback(z.enum(["all", "TED", "UVO", "EKS"]), "all").default("all"),
   page: fallback(z.number().int(), 1).default(1),
   pageSize: fallback(z.number().int(), DEFAULT_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
 });
@@ -131,6 +132,7 @@ function Dashboard() {
     view,
     radar: radarParam,
     country: countryParam,
+    source: sourceParam,
     page,
     pageSize,
   } = Route.useSearch();
@@ -304,6 +306,7 @@ function Dashboard() {
     setListLoading(true);
     const from = (Math.max(1, page) - 1) * safePageSize;
     const countriesArg = selectedCountries.length > 0 ? selectedCountries : null;
+    const sourcesArg = sourceParam === "all" ? null : [sourceParam];
     Promise.all([
       (supabase.rpc as any)("search_user_tenders", {
         _tab: tab,
@@ -313,6 +316,7 @@ function Dashboard() {
         _sort: sort,
         _from: from,
         _limit: safePageSize,
+        _sources: sourcesArg,
       }),
       (supabase.rpc as any)("user_tenders_country_facets", {
         _tab: tab,
@@ -346,12 +350,13 @@ function Dashboard() {
       setListLoading(false);
     });
     return () => { cancelled = true; };
-  }, [loading, tab, radarIdsForRpc, q, countryParam, sort, page, safePageSize, selectedCountries.join(",")]);
+  }, [loading, tab, radarIdsForRpc, q, countryParam, sourceParam, sort, page, safePageSize, selectedCountries.join(",")]);
 
   async function refetchPage() {
     if (!userId) return;
     const from = (Math.max(1, page) - 1) * safePageSize;
     const countriesArg = selectedCountries.length > 0 ? selectedCountries : null;
+    const sourcesArg = sourceParam === "all" ? null : [sourceParam];
     const [pageRes, facetsRes] = await Promise.all([
       (supabase.rpc as any)("search_user_tenders", {
         _tab: tab,
@@ -361,6 +366,7 @@ function Dashboard() {
         _sort: sort,
         _from: from,
         _limit: safePageSize,
+        _sources: sourcesArg,
       }),
       (supabase.rpc as any)("user_tenders_country_facets", {
         _tab: tab,
@@ -743,6 +749,28 @@ function Dashboard() {
               })
             }
           />
+          <Select
+            value={sourceParam}
+            onValueChange={(v) =>
+              navigate({
+                search: (p: any) => ({
+                  ...p,
+                  source: v as "all" | "TED" | "UVO" | "EKS",
+                  page: 1,
+                }),
+              })
+            }
+          >
+            <SelectTrigger className="sm:w-40" aria-label="Zdroj">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Všetky zdroje</SelectItem>
+              <SelectItem value="TED">TED</SelectItem>
+              <SelectItem value="UVO">ÚVO</SelectItem>
+              <SelectItem value="EKS">EKS</SelectItem>
+            </SelectContent>
+          </Select>
           <Select
             value={sort}
             onValueChange={(v) =>
