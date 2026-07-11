@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ZakazkaIdRouteImport } from './routes/zakazka.$id'
+import { Route as PravneReklamacnyPoriadokRouteImport } from './routes/pravne.reklamacny-poriadok'
 import { Route as PravneOpakovanePlatbyRouteImport } from './routes/pravne.opakovane-platby'
 import { Route as PravneObchodnePodmienkyRouteImport } from './routes/pravne.obchodne-podmienky'
 import { Route as PravneGdprRouteImport } from './routes/pravne.gdpr'
@@ -52,6 +53,12 @@ const ZakazkaIdRoute = ZakazkaIdRouteImport.update({
   path: '/zakazka/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PravneReklamacnyPoriadokRoute =
+  PravneReklamacnyPoriadokRouteImport.update({
+    id: '/pravne/reklamacny-poriadok',
+    path: '/pravne/reklamacny-poriadok',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const PravneOpakovanePlatbyRoute = PravneOpakovanePlatbyRouteImport.update({
   id: '/pravne/opakovane-platby',
   path: '/pravne/opakovane-platby',
@@ -99,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/pravne/gdpr': typeof PravneGdprRoute
   '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
   '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
+  '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
 }
@@ -113,6 +121,7 @@ export interface FileRoutesByTo {
   '/pravne/gdpr': typeof PravneGdprRoute
   '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
   '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
+  '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
 }
@@ -129,6 +138,7 @@ export interface FileRoutesById {
   '/pravne/gdpr': typeof PravneGdprRoute
   '/pravne/obchodne-podmienky': typeof PravneObchodnePodmienkyRoute
   '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
+  '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
 }
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/pravne/gdpr'
     | '/pravne/obchodne-podmienky'
     | '/pravne/opakovane-platby'
+    | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
     | '/api/public/stats'
   fileRoutesByTo: FileRoutesByTo
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/pravne/gdpr'
     | '/pravne/obchodne-podmienky'
     | '/pravne/opakovane-platby'
+    | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
     | '/api/public/stats'
   id:
@@ -174,6 +186,7 @@ export interface FileRouteTypes {
     | '/pravne/gdpr'
     | '/pravne/obchodne-podmienky'
     | '/pravne/opakovane-platby'
+    | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
     | '/api/public/stats'
   fileRoutesById: FileRoutesById
@@ -187,6 +200,7 @@ export interface RootRouteChildren {
   PravneGdprRoute: typeof PravneGdprRoute
   PravneObchodnePodmienkyRoute: typeof PravneObchodnePodmienkyRoute
   PravneOpakovanePlatbyRoute: typeof PravneOpakovanePlatbyRoute
+  PravneReklamacnyPoriadokRoute: typeof PravneReklamacnyPoriadokRoute
   ZakazkaIdRoute: typeof ZakazkaIdRoute
   ApiPublicStatsRoute: typeof ApiPublicStatsRoute
 }
@@ -233,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: '/zakazka/$id'
       fullPath: '/zakazka/$id'
       preLoaderRoute: typeof ZakazkaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pravne/reklamacny-poriadok': {
+      id: '/pravne/reklamacny-poriadok'
+      path: '/pravne/reklamacny-poriadok'
+      fullPath: '/pravne/reklamacny-poriadok'
+      preLoaderRoute: typeof PravneReklamacnyPoriadokRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pravne/opakovane-platby': {
@@ -311,6 +332,7 @@ const rootRouteChildren: RootRouteChildren = {
   PravneGdprRoute: PravneGdprRoute,
   PravneObchodnePodmienkyRoute: PravneObchodnePodmienkyRoute,
   PravneOpakovanePlatbyRoute: PravneOpakovanePlatbyRoute,
+  PravneReklamacnyPoriadokRoute: PravneReklamacnyPoriadokRoute,
   ZakazkaIdRoute: ZakazkaIdRoute,
   ApiPublicStatsRoute: ApiPublicStatsRoute,
 }
