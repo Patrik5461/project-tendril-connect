@@ -4,7 +4,7 @@
 // (kontrolujeme, či je asociovaná s naším GOID).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
-  corsHeaders, getGoPayToken, gopayConfig, mapPaymentState,, resolveGopayEnv } from "../_shared/gopay.ts";
+  corsHeaders, getGoPayToken, gopayConfig, mapPaymentState, resolveGopayEnv } from "../_shared/gopay.ts";
 
 async function fetchPayment(id: string) {
   const cfg = gopayConfig();
