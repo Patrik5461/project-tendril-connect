@@ -6,7 +6,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { corsHeaders } from "../_shared/gopay.ts";
-import { fakteroAvailableModes, fakteroMode, getInvoicePdfUrl, issueInvoiceForPayment, resolveFakteroMode } from "../_shared/faktero.ts";
+import { fakteroAvailableModes, fakteroMode, getInvoicePdfUrl, issueInvoiceForPayment, resolveFakteroMode, setFakteroKey } from "../_shared/faktero.ts";
 
 async function requireUser(req: Request) {
   const auth = req.headers.get("Authorization") ?? "";
@@ -36,6 +36,24 @@ Deno.serve(async (req) => {
 
     // Rozhodni aktívny režim pre túto požiadavku (číta app_settings.faktero_mode).
     await resolveFakteroMode(admin);
+
+    if (action === "set_key") {
+      if (!(await isAdmin(admin, userId))) throw new Error("forbidden");
+      const which = String(body.mode ?? "");
+      if (which !== "test" && which !== "live") throw new Error("invalid_mode");
+      const value = String(body.value ?? "");
+      try {
+        await setFakteroKey(admin, which, value);
+      } catch (e: any) {
+        const msg = String(e?.message ?? "");
+        if (msg.startsWith("invalid_prefix:")) {
+          return json({ error: msg });
+        }
+        throw e;
+      }
+      await resolveFakteroMode(admin);
+      return json({ ok: true, mode: fakteroMode(), available: fakteroAvailableModes() });
+    }
 
     if (action === "set_mode") {
       if (!(await isAdmin(admin, userId))) throw new Error("forbidden");
