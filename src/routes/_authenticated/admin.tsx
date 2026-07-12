@@ -782,11 +782,11 @@ function SeoEditModal({
 // ---------- Invoices / Faktero Tab ----------
 
 function InvoicesTab() {
-  const [mode, setMode] = React.useState<{ mode: string; counts: any } | null>(null);
-  const [rows, setRows] = React.useState<any[]>([]);
-  const [filter, setFilter] = React.useState<"failed" | "all" | "sent">("failed");
-  const [busy, setBusy] = React.useState<string | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [mode, setMode] = useState<{ mode: string; counts: any } | null>(null);
+  const [rows, setRows] = useState<any[]>([]);
+  const [filter, setFilter] = useState<"failed" | "all" | "sent">("failed");
+  const [busy, setBusy] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   async function loadMode() {
     const { data, error } = await supabase.functions.invoke("faktero-ops", { body: { action: "mode" } });
@@ -803,7 +803,7 @@ function InvoicesTab() {
     setRows(data ?? []);
     setLoading(false);
   }
-  React.useEffect(() => { loadMode(); loadRows(); /* eslint-disable-next-line */ }, [filter]);
+  useEffect(() => { loadMode(); loadRows(); /* eslint-disable-next-line */ }, [filter]);
 
   async function retry(id: string) {
     setBusy(id);
