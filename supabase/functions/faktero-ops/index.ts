@@ -83,6 +83,21 @@ Deno.serve(async (req) => {
       return json(result);
     }
 
+    if (action === "test") {
+      if (!(await isAdmin(admin, userId))) throw new Error("forbidden");
+      if (fakteroMode() !== "test") throw new Error("not_in_test_mode");
+      const gopayId = `test_${Date.now()}`;
+      const result = await issueInvoiceForPayment({
+        admin,
+        userId,
+        gopayPaymentId: gopayId,
+        amountGrossEur: 4.99,
+        currency: "EUR",
+      });
+      return json({ ...result, gopay_payment_id: gopayId });
+    }
+
+
     throw new Error("unknown_action");
   } catch (e) {
     const msg = String((e as Error)?.message ?? e);
