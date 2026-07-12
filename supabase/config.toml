@@ -45,6 +45,9 @@ verify_jwt = true
 [functions.send-welcome-email]
 verify_jwt = true
 
+[functions.send-settings-confirmation]
+verify_jwt = true
+
 [functions.gopay-create-subscription]
 verify_jwt = true
 
