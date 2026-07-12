@@ -78,6 +78,9 @@ function ActiveTendersBlock() {
       <span className="eyebrow text-muted-foreground mt-1">
         ZDROJE TED · ÚVO · EKS · JOSEPHINE · AKTUALIZOVANÉ DENNE
       </span>
+      <p className="mt-3 text-xs md:text-sm text-muted-foreground max-w-md leading-relaxed">
+        Zobrazujeme len zákazky, do ktorých sa dá práve teraz prihlásiť. Žiadny archív ukončených súťaží.
+      </p>
     </div>
   );
 }
