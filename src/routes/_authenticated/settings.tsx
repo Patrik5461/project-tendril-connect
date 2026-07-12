@@ -175,6 +175,7 @@ function SettingsPage() {
       setList(prev);
     } else {
       toast.success("Radar zmazaný");
+      void sendSettingsConfirmationEmail();
     }
   }
 
