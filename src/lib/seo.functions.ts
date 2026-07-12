@@ -32,8 +32,8 @@ export const getSeoPage = createServerFn({ method: "GET" })
     const cat = data.category_slug ? SEO_CATEGORIES.find((c) => c.slug === data.category_slug) : null;
     const reg = data.region_slug ? SEO_REGIONS.find((r) => r.slug === data.region_slug) : null;
     const { data: tenders } = await sb.rpc("get_seo_tenders", {
-      _cpv_prefix: cat?.cpvPrefix ?? null,
-      _region_name: reg?.name ?? null,
+      _cpv_prefix: (cat?.cpvPrefix ?? null) as unknown as string,
+      _region_name: (reg?.name ?? null) as unknown as string,
       _limit: 20,
     });
 
