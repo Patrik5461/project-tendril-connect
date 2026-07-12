@@ -840,7 +840,18 @@ function InvoicesTab() {
             <div><div className="text-muted-foreground">Čakajúce</div><div className="font-semibold num">{mode.counts.pending}</div></div>
           </div>
         )}
+        {mode?.mode === "test" && (
+          <div className="mt-4 flex items-center gap-3">
+            <Button size="sm" onClick={sendTest} disabled={busy === "__test__"}>
+              {busy === "__test__" ? "Posielam…" : "Poslať testovaciu faktúru"}
+            </Button>
+            <p className="text-xs text-muted-foreground">
+              Vystaví testovaciu faktúru na 4,99 € pre vaše konto (podľa vašich fakturačných údajov).
+            </p>
+          </div>
+        )}
       </section>
+
 
       <section className="rounded-lg border border-primary/15 bg-card p-5">
         <div className="flex items-center justify-between gap-3">
