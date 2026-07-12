@@ -151,12 +151,14 @@ function SettingsPage() {
     setList((prev) => [...prev, data as Radar]);
     setExpanded((prev) => new Set(prev).add((data as Radar).id));
     void sendWelcomeEmailIfNeeded();
+    void sendSettingsConfirmationEmail();
   }
 
   async function updateRadar(id: string, patch: Partial<Radar>) {
     setList((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
     const { error } = await radars().update(patch).eq("id", id);
     if (error) toast.error(error.message);
+    else void sendSettingsConfirmationEmail();
   }
 
   async function deleteRadar(id: string) {
