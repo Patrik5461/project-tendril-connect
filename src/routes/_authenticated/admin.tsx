@@ -832,11 +832,31 @@ function InvoicesTab() {
 
 
 
+  async function switchMode(next: "test" | "live") {
+    setBusy("__mode__");
+    const { data, error } = await supabase.functions.invoke("faktero-ops", {
+      body: { action: "set_mode", mode: next },
+    });
+    setBusy(null);
+    if (error) { toast.error("Chyba: " + error.message); return; }
+    const err = (data as any)?.error;
+    if (err) {
+      if (err === "no_test_key_configured") toast.error("Chýba secret FAKTERO_API_KEY_TEST.");
+      else if (err === "no_live_key_configured") toast.error("Chýba secret FAKTERO_API_KEY_LIVE.");
+      else toast.error("Zlyhalo: " + err);
+      return;
+    }
+    toast.success(`Prepnuté na ${next === "test" ? "TEST" : "LIVE"} režim.`);
+    loadMode();
+  }
+
   const badge = mode?.mode === "test"
     ? <span className="rounded-none bg-yellow-500/20 text-yellow-800 dark:text-yellow-300 px-2 py-0.5 text-xs font-medium">TEST režim</span>
     : mode?.mode === "live"
     ? <span className="rounded-none bg-green-600/20 text-green-800 dark:text-green-300 px-2 py-0.5 text-xs font-medium">LIVE režim</span>
     : <span className="rounded-none bg-destructive/20 text-destructive px-2 py-0.5 text-xs font-medium">Chýba kľúč</span>;
+
+  const avail = mode?.available ?? { test: false, live: false };
 
   return (
     <div className="space-y-6">
@@ -846,8 +866,35 @@ function InvoicesTab() {
           {badge}
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
-          Režim sa určuje podľa prefixu <code>FAKTERO_API_KEY</code> (<code>fk_test_</code> / <code>fk_live_</code>).
+          Prepnutie režimu použije <code>FAKTERO_API_KEY_TEST</code> alebo <code>FAKTERO_API_KEY_LIVE</code> (fallback: <code>FAKTERO_API_KEY</code> podľa prefixu).
         </p>
+
+        <div className="mt-3 flex items-center gap-2">
+          <span className="text-sm text-muted-foreground mr-1">Režim:</span>
+          <Button
+            size="sm"
+            variant={mode?.mode === "test" ? "default" : "outline"}
+            disabled={busy === "__mode__" || !avail.test || mode?.mode === "test"}
+            onClick={() => switchMode("test")}
+          >
+            TEST
+          </Button>
+          <Button
+            size="sm"
+            variant={mode?.mode === "live" ? "default" : "outline"}
+            disabled={busy === "__mode__" || !avail.live || mode?.mode === "live"}
+            onClick={() => switchMode("live")}
+          >
+            LIVE
+          </Button>
+          {(!avail.test || !avail.live) && (
+            <span className="text-xs text-muted-foreground ml-2">
+              {!avail.test && "Chýba FAKTERO_API_KEY_TEST. "}
+              {!avail.live && "Chýba FAKTERO_API_KEY_LIVE."}
+            </span>
+          )}
+        </div>
+
         {mode?.counts && (
           <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
             <div><div className="text-muted-foreground">Vystavené</div><div className="font-semibold num">{mode.counts.issued}</div></div>
