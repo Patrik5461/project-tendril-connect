@@ -13,6 +13,7 @@ import { REGIONS, CPV_DIVISIONS } from "@/lib/slovakia";
 import { EU_COUNTRY_LIST, flagEmoji } from "@/lib/eu-countries";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
+import { sendSettingsConfirmationEmail } from "@/lib/settings-email";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Nastavenia – Tendrik" }] }),
