@@ -274,6 +274,9 @@ function SettingsPage() {
       </section>
 
       <SubscriptionSection userId={userId} />
+      <BillingDetailsSection userId={userId} />
+      <InvoicesHistorySection userId={userId} />
+
 
 
 
