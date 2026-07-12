@@ -125,6 +125,7 @@ function SettingsPage() {
       toast.success("Notifikácie uložené");
       setNotificationEmail(normalized ?? "");
       if (emailNotif) void sendWelcomeEmailIfNeeded();
+      void sendSettingsConfirmationEmail();
     }
   }
 
