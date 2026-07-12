@@ -6,16 +6,53 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 
 const BASE_URL = "https://faktero.sk/api/v1";
 
+// Aktívny režim v rámci požiadavky. Nastavuje sa cez resolveFakteroMode(admin).
+let _activeMode: "test" | "live" | null = null;
+
+function keyForMode(mode: "test" | "live"): string {
+  const specific = Deno.env.get(mode === "test" ? "FAKTERO_API_KEY_TEST" : "FAKTERO_API_KEY_LIVE");
+  if (specific) return specific;
+  const fallback = Deno.env.get("FAKTERO_API_KEY") ?? "";
+  if (fallback.startsWith(mode === "test" ? "fk_test_" : "fk_live_")) return fallback;
+  return "";
+}
+
+/** Zisti dostupné režimy podľa uložených secrets a prefixu FAKTERO_API_KEY. */
+export function fakteroAvailableModes(): { test: boolean; live: boolean } {
+  return { test: !!keyForMode("test"), live: !!keyForMode("live") };
+}
+
+/**
+ * Načítaj aktívny režim z app_settings.faktero_mode (test/live).
+ * Fallback: prefix FAKTERO_API_KEY, inak prvý dostupný kľúč.
+ */
+export async function resolveFakteroMode(
+  admin: ReturnType<typeof createClient>,
+): Promise<"test" | "live" | "missing"> {
+  const { data } = await admin.from("app_settings").select("value").eq("key", "faktero_mode").maybeSingle();
+  const stored = (data?.value ?? null) as string | null;
+  const avail = fakteroAvailableModes();
+  let mode: "test" | "live" | null = null;
+  if (stored === "test" || stored === "live") mode = stored;
+  if (!mode) {
+    const fk = Deno.env.get("FAKTERO_API_KEY") ?? "";
+    if (fk.startsWith("fk_test_")) mode = "test";
+    else if (fk.startsWith("fk_live_")) mode = "live";
+  }
+  if (!mode) mode = avail.test ? "test" : avail.live ? "live" : null;
+  if (!mode) { _activeMode = null; return "missing"; }
+  _activeMode = mode;
+  return mode;
+}
+
 export function fakteroMode(): "test" | "live" | "missing" {
-  const key = Deno.env.get("FAKTERO_API_KEY") ?? "";
-  if (key.startsWith("fk_test_")) return "test";
-  if (key.startsWith("fk_live_")) return "live";
-  return "missing";
+  return _activeMode ?? "missing";
 }
 
 export function fakteroKey(): string {
-  const key = Deno.env.get("FAKTERO_API_KEY");
-  if (!key) throw new Error("FAKTERO_API_KEY_MISSING");
+  if (!_activeMode) throw new Error("FAKTERO_MODE_NOT_RESOLVED");
+  const key = keyForMode(_activeMode);
+  if (!key) throw new Error(_activeMode === "test" ? "FAKTERO_API_KEY_TEST_MISSING" : "FAKTERO_API_KEY_LIVE_MISSING");
   return key;
 }
 
