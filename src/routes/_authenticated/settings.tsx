@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { REGIONS, CPV_DIVISIONS } from "@/lib/slovakia";
 import { EU_COUNTRY_LIST, flagEmoji } from "@/lib/eu-countries";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 import { sendSettingsConfirmationEmail } from "@/lib/settings-email";
 
@@ -197,122 +198,133 @@ function SettingsPage() {
       <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Nastavenia</h1>
       <p className="mt-1 text-muted-foreground">Prihlásený ako {email}</p>
 
-      <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-        <h2 className="font-display font-semibold text-lg tracking-tight">E-mailové notifikácie</h2>
-        <div className="mt-3 flex items-center justify-between">
-          <div>
-            <Label htmlFor="notif">Zasielať upozornenia na nové zákazky</Label>
-            <p className="text-sm text-muted-foreground">Súhrn nových zákaziek na váš e-mail.</p>
-          </div>
-          <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
-        </div>
-        <div className="mt-4 border-t border-primary/10 pt-4">
-          <Label htmlFor="notifEmail">E-mailové adresy pre notifikácie</Label>
-          <p className="text-sm text-muted-foreground">
-            Jedna alebo viac adries oddelených čiarkou – notifikácie pôjdu všetkým.
-            Ak necháte prázdne, použije sa prihlasovací e-mail ({email}). Max 10 príjemcov.
-          </p>
-          <Input
-            id="notifEmail"
-            type="text"
-            placeholder={`${email}, kolega@firma.sk`}
-            value={notificationEmail}
-            onChange={(e) => setNotificationEmail(e.target.value)}
-            className="mt-2 max-w-md"
-          />
-        </div>
-        <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
-          <div>
-            <Label>Frekvencia notifikácií</Label>
-            <p className="text-sm text-muted-foreground">
-              Ako často chcete dostávať súhrn nových zákaziek.
-            </p>
-          </div>
-          <div className="inline-flex rounded-md border border-primary/20 overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setDigestFrequency("daily")}
-              className={`px-3 py-1.5 text-sm font-medium ${
-                digestFrequency === "daily"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-transparent text-foreground hover:bg-primary/5"
-              }`}
-            >
-              Denne
-            </button>
-            <button
-              type="button"
-              onClick={() => setDigestFrequency("weekly")}
-              className={`px-3 py-1.5 text-sm font-medium border-l border-primary/20 ${
-                digestFrequency === "weekly"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-transparent text-foreground hover:bg-primary/5"
-              }`}
-            >
-              Týždenne
-            </button>
-          </div>
-        </div>
-        <div className="mt-4 flex items-center justify-between border-t border-primary/10 pt-4">
-          <div>
-            <Label htmlFor="deadlineRem">Pripomienky deadlinov uložených zákaziek</Label>
-            <p className="text-sm text-muted-foreground">
-              E-mail 3 dni a 1 deň pred koncom lehoty pri uložených zákazkách.
-            </p>
-          </div>
-          <Switch
-            id="deadlineRem"
-            checked={deadlineReminders}
-            onCheckedChange={setDeadlineReminders}
-          />
-        </div>
-        <div className="mt-4 flex justify-end">
-          <Button size="sm" onClick={saveNotifications} disabled={saving}>
-            {saving ? "Ukladám..." : "Uložiť notifikácie"}
-          </Button>
-        </div>
-      </section>
+      <Tabs defaultValue="notifications" className="mt-8">
+        <TabsList className="w-full grid grid-cols-3">
+          <TabsTrigger value="notifications">Notifikácie</TabsTrigger>
+          <TabsTrigger value="radars">Radary</TabsTrigger>
+          <TabsTrigger value="billing">Predplatné & fakturácia</TabsTrigger>
+        </TabsList>
 
-      <SubscriptionSection userId={userId} />
-      <BillingDetailsSection userId={userId} />
-      <InvoicesHistorySection userId={userId} />
-
-
-
-
-      <section className="mt-6">
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="font-display font-semibold text-2xl tracking-tight">Radary</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Každý radar má vlastné kľúčové slová, CPV kategórie a kraje. Zákazka sa objaví, ak sedí
-              aspoň jednému aktívnemu radaru.
-            </p>
-          </div>
-          <Button size="sm" onClick={addRadar}>
-            <Plus className="h-4 w-4 mr-1" /> Pridať radar
-          </Button>
-        </div>
-
-        <div className="mt-4 space-y-3">
-          {list.map((r) => (
-            <RadarCard
-              key={r.id}
-              radar={r}
-              expanded={expanded.has(r.id)}
-              onToggleExpanded={() => toggleExpanded(r.id)}
-              onUpdate={(patch) => updateRadar(r.id, patch)}
-              onDelete={() => deleteRadar(r.id)}
-              canDelete={list.length > 1}
-            />
-          ))}
-          {list.length === 0 && (
-            <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-              Zatiaľ nemáte žiadny radar. Pridajte prvý.
+        <TabsContent value="notifications" className="mt-6">
+          <section className="rounded-lg border border-primary/15 bg-card p-6">
+            <h2 className="font-display font-semibold text-lg tracking-tight">E-mailové notifikácie</h2>
+            <div className="mt-3 flex items-center justify-between gap-4">
+              <div>
+                <Label htmlFor="notif">Zasielať upozornenia na nové zákazky</Label>
+                <p className="text-sm text-muted-foreground">Súhrn nových zákaziek na váš e-mail.</p>
+              </div>
+              <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
             </div>
-          )}
-        </div>
-      </section>
+            <div className="mt-4 border-t border-primary/10 pt-4">
+              <Label htmlFor="notifEmail">E-mailové adresy pre notifikácie</Label>
+              <p className="text-sm text-muted-foreground">
+                Jedna alebo viac adries oddelených čiarkou – notifikácie pôjdu všetkým.
+                Ak necháte prázdne, použije sa prihlasovací e-mail ({email}). Max 10 príjemcov.
+              </p>
+              <Input
+                id="notifEmail"
+                type="text"
+                placeholder={`${email}, kolega@firma.sk`}
+                value={notificationEmail}
+                onChange={(e) => setNotificationEmail(e.target.value)}
+                className="mt-2 max-w-md"
+              />
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-4 border-t border-primary/10 pt-4">
+              <div>
+                <Label>Frekvencia notifikácií</Label>
+                <p className="text-sm text-muted-foreground">
+                  Ako často chcete dostávať súhrn nových zákaziek.
+                </p>
+              </div>
+              <div className="inline-flex rounded-md border border-primary/20 overflow-hidden shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setDigestFrequency("daily")}
+                  className={`px-3 py-1.5 text-sm font-medium ${
+                    digestFrequency === "daily"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-transparent text-foreground hover:bg-primary/5"
+                  }`}
+                >
+                  Denne
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDigestFrequency("weekly")}
+                  className={`px-3 py-1.5 text-sm font-medium border-l border-primary/20 ${
+                    digestFrequency === "weekly"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-transparent text-foreground hover:bg-primary/5"
+                  }`}
+                >
+                  Týždenne
+                </button>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-4 border-t border-primary/10 pt-4">
+              <div>
+                <Label htmlFor="deadlineRem">Pripomienky deadlinov uložených zákaziek</Label>
+                <p className="text-sm text-muted-foreground">
+                  E-mail 3 dni a 1 deň pred koncom lehoty pri uložených zákazkách.
+                </p>
+              </div>
+              <Switch
+                id="deadlineRem"
+                checked={deadlineReminders}
+                onCheckedChange={setDeadlineReminders}
+              />
+            </div>
+            <div className="mt-6 flex justify-end">
+              <Button size="sm" onClick={saveNotifications} disabled={saving}>
+                {saving ? "Ukladám..." : "Uložiť notifikácie"}
+              </Button>
+            </div>
+          </section>
+        </TabsContent>
+
+        <TabsContent value="radars" className="mt-6">
+          <section>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h2 className="font-display font-semibold text-xl tracking-tight">Radary</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Každý radar má vlastné kľúčové slová, CPV kategórie a kraje. Zákazka sa objaví,
+                  ak sedí aspoň jednému aktívnemu radaru.
+                </p>
+              </div>
+              <Button size="sm" onClick={addRadar}>
+                <Plus className="h-4 w-4 mr-1" /> Pridať radar
+              </Button>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              {list.map((r) => (
+                <RadarCard
+                  key={r.id}
+                  radar={r}
+                  expanded={expanded.has(r.id)}
+                  onToggleExpanded={() => toggleExpanded(r.id)}
+                  onUpdate={(patch) => updateRadar(r.id, patch)}
+                  onDelete={() => deleteRadar(r.id)}
+                  canDelete={list.length > 1}
+                />
+              ))}
+              {list.length === 0 && (
+                <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
+                  Zatiaľ nemáte žiadny radar. Pridajte prvý.
+                </div>
+              )}
+            </div>
+          </section>
+        </TabsContent>
+
+        <TabsContent value="billing" className="mt-6 space-y-6">
+          <SubscriptionSection userId={userId} />
+          <BillingDetailsSection userId={userId} />
+          <InvoicesHistorySection userId={userId} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
