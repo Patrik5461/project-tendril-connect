@@ -34,12 +34,29 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const action = String(body?.action ?? "");
 
+    // Rozhodni aktívny režim pre túto požiadavku (číta app_settings.faktero_mode).
+    await resolveFakteroMode(admin);
+
+    if (action === "set_mode") {
+      if (!(await isAdmin(admin, userId))) throw new Error("forbidden");
+      const next = String(body.mode ?? "");
+      if (next !== "test" && next !== "live") throw new Error("invalid_mode");
+      const avail = fakteroAvailableModes();
+      if (!avail[next]) throw new Error(next === "test" ? "no_test_key_configured" : "no_live_key_configured");
+      await admin.from("app_settings").upsert(
+        { key: "faktero_mode", value: next, updated_at: new Date().toISOString() } as any,
+        { onConflict: "key" },
+      );
+      await resolveFakteroMode(admin);
+      return json({ ok: true, mode: fakteroMode(), available: avail });
+    }
+
     if (action === "mode") {
       if (!(await isAdmin(admin, userId))) throw new Error("forbidden");
       const { count: issued } = await admin.from("invoices").select("id", { count: "exact", head: true }).in("status", ["issued", "paid_marked", "sent"]);
       const { count: failed } = await admin.from("invoices").select("id", { count: "exact", head: true }).eq("status", "failed");
       const { count: pending } = await admin.from("invoices").select("id", { count: "exact", head: true }).eq("status", "pending");
-      return json({ mode: fakteroMode(), counts: { issued: issued ?? 0, failed: failed ?? 0, pending: pending ?? 0 } });
+      return json({ mode: fakteroMode(), available: fakteroAvailableModes(), counts: { issued: issued ?? 0, failed: failed ?? 0, pending: pending ?? 0 } });
     }
 
     if (action === "pdf") {
