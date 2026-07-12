@@ -787,6 +787,8 @@ function InvoicesTab() {
   const [filter, setFilter] = useState<"failed" | "all" | "sent">("failed");
   const [busy, setBusy] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [testKey, setTestKey] = useState("");
+  const [liveKey, setLiveKey] = useState("");
 
   async function loadMode() {
     const { data, error } = await supabase.functions.invoke("faktero-ops", { body: { action: "mode" } });
