@@ -563,3 +563,216 @@ function UsersTab() {
     </Card>
   );
 }
+
+// ---------- SEO Tab ----------
+
+type SeoPageRow = {
+  id: string;
+  page_type: "category" | "region" | "category_region";
+  category_slug: string | null;
+  region_slug: string | null;
+  h1: string;
+  title: string;
+  description: string;
+  intro_text: string;
+  active_tenders_count: number;
+  last_generated_at: string;
+};
+
+import { useServerFn } from "@tanstack/react-start";
+import { listSeoPages, generateSeoPages, regenerateSeoPage, updateSeoPage } from "@/lib/seo.functions";
+
+function SeoTab() {
+  const listFn = useServerFn(listSeoPages);
+  const genFn = useServerFn(generateSeoPages);
+  const regenFn = useServerFn(regenerateSeoPage);
+  const updateFn = useServerFn(updateSeoPage);
+
+  const [rows, setRows] = useState<SeoPageRow[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [running, setRunning] = useState(false);
+  const [filter, setFilter] = useState<"all" | "category" | "region" | "category_region">("all");
+  const [editing, setEditing] = useState<SeoPageRow | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const data = await listFn();
+      setRows((data as SeoPageRow[]) ?? []);
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const runGenerate = async (onlyMissing: boolean) => {
+    setRunning(true);
+    toast.info(onlyMissing ? "Generujem chýbajúce stránky…" : "Regenerujem všetky stránky…");
+    try {
+      const res = await genFn({ data: { minTenders: 3, onlyMissing } });
+      toast.success(`Hotovo: vytvorené ${res.created}, aktualizované ${res.updated}, preskočené ${res.skipped}`);
+      await load();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  const regenerate = async (id: string) => {
+    try {
+      await regenFn({ data: { id } });
+      toast.success("Text pregenerovaný");
+      await load();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const filtered = (rows ?? []).filter((r) => filter === "all" || r.page_type === filter);
+
+  const pathOf = (r: SeoPageRow) => {
+    if (r.page_type === "category") return `/zakazky/kategoria/${r.category_slug}`;
+    if (r.page_type === "region") return `/zakazky/kraj/${r.region_slug}`;
+    return `/zakazky/kategoria/${r.category_slug}/${r.region_slug}`;
+  };
+
+  return (
+    <div className="space-y-4">
+      <Card title="SEO landing stránky">
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Button onClick={() => runGenerate(true)} disabled={running}>
+            {running ? "Beží…" : "Vygenerovať chýbajúce"}
+          </Button>
+          <Button variant="outline" onClick={() => runGenerate(false)} disabled={running}>
+            Prepočítať počty
+          </Button>
+          <Button variant="ghost" onClick={load} disabled={loading}>
+            <RefreshCw className="h-4 w-4 mr-2" /> Načítať
+          </Button>
+          <div className="ml-auto flex gap-1 text-sm">
+            {(["all", "category", "region", "category_region"] as const).map((k) => (
+              <button
+                key={k}
+                onClick={() => setFilter(k)}
+                className={`px-2 py-1 border ${filter === k ? "bg-primary text-primary-foreground border-primary" : "border-border"}`}
+              >
+                {k === "all" ? "Všetko" : k === "category" ? "Kategórie" : k === "region" ? "Kraje" : "Kombinácie"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground mb-4">
+          Generuje sa iba pre kombinácie s aspoň 3 aktívnymi zákazkami. „Vygenerovať chýbajúce" nezasahuje do už existujúcich textov – iba doplní nové. Ručne upravený text sa neprepíše, kým nedáte „Pregenerovať" na riadku.
+        </p>
+
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Načítavam…</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase text-muted-foreground border-b">
+                  <th className="py-2 pr-3">Typ</th>
+                  <th className="py-2 pr-3">Cesta</th>
+                  <th className="py-2 pr-3">Title</th>
+                  <th className="py-2 pr-3 text-right">Aktívne</th>
+                  <th className="py-2 pr-3">Vygenerované</th>
+                  <th className="py-2 pr-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((r) => (
+                  <tr key={r.id} className="border-b hover:bg-muted/40">
+                    <td className="py-2 pr-3 text-xs uppercase">{r.page_type.replace("_", " ")}</td>
+                    <td className="py-2 pr-3">
+                      <a href={pathOf(r)} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+                        {pathOf(r)}
+                      </a>
+                    </td>
+                    <td className="py-2 pr-3 max-w-md truncate" title={r.title}>{r.title}</td>
+                    <td className="py-2 pr-3 text-right font-medium">{r.active_tenders_count}</td>
+                    <td className="py-2 pr-3 text-xs text-muted-foreground">{fmtDate(r.last_generated_at)}</td>
+                    <td className="py-2 pr-3">
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="ghost" onClick={() => regenerate(r.id)}>Pregenerovať</Button>
+                        <Button size="sm" variant="outline" onClick={() => setEditing(r)}>Upraviť</Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr><td colSpan={6} className="py-6 text-center text-muted-foreground">Zatiaľ žiadne stránky. Spustite generovanie.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      {editing && (
+        <SeoEditModal
+          row={editing}
+          onClose={() => setEditing(null)}
+          onSave={async (patch) => {
+            try {
+              await updateFn({ data: { id: editing.id, ...patch } });
+              toast.success("Uložené");
+              setEditing(null);
+              await load();
+            } catch (e) {
+              toast.error((e as Error).message);
+            }
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function SeoEditModal({
+  row, onClose, onSave,
+}: {
+  row: SeoPageRow;
+  onClose: () => void;
+  onSave: (patch: { h1: string; title: string; description: string; intro_text: string }) => void;
+}) {
+  const [h1, setH1] = useState(row.h1);
+  const [title, setTitle] = useState(row.title);
+  const [description, setDescription] = useState(row.description);
+  const [intro, setIntro] = useState(row.intro_text);
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-background border max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <h3 className="font-display text-lg font-semibold mb-4">Upraviť SEO texty</h3>
+        <div className="space-y-3 text-sm">
+          <label className="block">
+            <span className="text-xs text-muted-foreground">H1</span>
+            <input className="w-full mt-1 border px-3 py-2 bg-background" value={h1} onChange={(e) => setH1(e.target.value)} />
+          </label>
+          <label className="block">
+            <span className="text-xs text-muted-foreground">Title (max 60)</span>
+            <input className="w-full mt-1 border px-3 py-2 bg-background" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80} />
+          </label>
+          <label className="block">
+            <span className="text-xs text-muted-foreground">Description (max 155)</span>
+            <textarea className="w-full mt-1 border px-3 py-2 bg-background" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={200} />
+          </label>
+          <label className="block">
+            <span className="text-xs text-muted-foreground">Úvodný text (2-3 vety)</span>
+            <textarea className="w-full mt-1 border px-3 py-2 bg-background" rows={4} value={intro} onChange={(e) => setIntro(e.target.value)} />
+          </label>
+        </div>
+        <div className="mt-5 flex gap-2 justify-end">
+          <Button variant="ghost" onClick={onClose}>Zrušiť</Button>
+          <Button onClick={() => onSave({ h1, title, description, intro_text: intro })}>Uložiť</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
