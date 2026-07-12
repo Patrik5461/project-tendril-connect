@@ -69,7 +69,7 @@ export const updateSeoPage = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const patch: Record<string, unknown> = {};
+    const patch: { h1?: string; title?: string; description?: string; intro_text?: string } = {};
     for (const k of ["h1", "title", "description", "intro_text"] as const) {
       if (data[k] !== undefined) patch[k] = data[k];
     }
