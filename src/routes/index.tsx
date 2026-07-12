@@ -76,7 +76,7 @@ function ActiveTendersBlock() {
         </span>
       )}
       <span className="eyebrow text-muted-foreground mt-1">
-        ZDROJE TED &amp; ÚVO · AKTUALIZOVANÉ DENNE
+        ZDROJE TED · ÚVO · EKS · JOSEPHINE · AKTUALIZOVANÉ DENNE
       </span>
     </div>
   );
