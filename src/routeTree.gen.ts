@@ -28,6 +28,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ZakazkyKategoriaKategoriaRouteImport } from './routes/zakazky.kategoria.$kategoria'
 import { Route as ApiPublicStatsRouteImport } from './routes/api/public/stats'
 
 const PredplatneRoute = PredplatneRouteImport.update({
@@ -125,6 +126,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ZakazkyKategoriaKategoriaRoute =
+  ZakazkyKategoriaKategoriaRouteImport.update({
+    id: '/zakazky/kategoria/$kategoria',
+    path: '/zakazky/kategoria/$kategoria',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicStatsRoute = ApiPublicStatsRouteImport.update({
   id: '/api/public/stats',
   path: '/api/public/stats',
@@ -151,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
+  '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -172,6 +180,7 @@ export interface FileRoutesByTo {
   '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
+  '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -195,6 +204,7 @@ export interface FileRoutesById {
   '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
+  '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
     | '/api/public/stats'
+    | '/zakazky/kategoria/$kategoria'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -239,6 +250,7 @@ export interface FileRouteTypes {
     | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
     | '/api/public/stats'
+    | '/zakazky/kategoria/$kategoria'
   id:
     | '__root__'
     | '/'
@@ -261,6 +273,7 @@ export interface FileRouteTypes {
     | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
     | '/api/public/stats'
+    | '/zakazky/kategoria/$kategoria'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -280,6 +293,7 @@ export interface RootRouteChildren {
   PravneReklamacnyPoriadokRoute: typeof PravneReklamacnyPoriadokRoute
   ZakazkaIdRoute: typeof ZakazkaIdRoute
   ApiPublicStatsRoute: typeof ApiPublicStatsRoute
+  ZakazkyKategoriaKategoriaRoute: typeof ZakazkyKategoriaKategoriaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -417,6 +431,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/zakazky/kategoria/$kategoria': {
+      id: '/zakazky/kategoria/$kategoria'
+      path: '/zakazky/kategoria/$kategoria'
+      fullPath: '/zakazky/kategoria/$kategoria'
+      preLoaderRoute: typeof ZakazkyKategoriaKategoriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/stats': {
       id: '/api/public/stats'
       path: '/api/public/stats'
@@ -461,6 +482,7 @@ const rootRouteChildren: RootRouteChildren = {
   PravneReklamacnyPoriadokRoute: PravneReklamacnyPoriadokRoute,
   ZakazkaIdRoute: ZakazkaIdRoute,
   ApiPublicStatsRoute: ApiPublicStatsRoute,
+  ZakazkyKategoriaKategoriaRoute: ZakazkyKategoriaKategoriaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
