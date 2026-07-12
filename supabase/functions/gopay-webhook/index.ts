@@ -77,6 +77,22 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
       last_payment_at: new Date().toISOString(),
       gopay_recurrence_id: String(payment.parent_id ?? payment.id),
     }).eq("user_id", userId);
+
+    // Faktero: vystaviť + poslať faktúru. Chyby NIKDY neblokujú aktiváciu.
+    try {
+      const amountGrossEur = Number(payment.amount ?? 0) / 100;
+      if (amountGrossEur > 0) {
+        await issueInvoiceForPayment({
+          admin,
+          userId,
+          gopayPaymentId: String(payment.id),
+          amountGrossEur,
+          currency: payment.currency ?? "EUR",
+        });
+      }
+    } catch (e) {
+      console.error("faktero orchestrator threw (should not happen)", e);
+    }
   } else if (mapped === "expired") {
     // Zrušené / timeout / refund → nastav expired ak už nie je aktívne obdobie.
     await admin.from("user_preferences").update({
