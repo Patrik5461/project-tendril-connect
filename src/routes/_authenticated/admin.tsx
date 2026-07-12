@@ -817,6 +817,21 @@ function InvoicesTab() {
     loadRows(); loadMode();
   }
 
+  async function sendTest() {
+    setBusy("__test__");
+    const { data, error } = await supabase.functions.invoke("faktero-ops", { body: { action: "test" } });
+    setBusy(null);
+    if (error) { toast.error("Chyba: " + error.message); return; }
+    if ((data as any)?.ok) {
+      toast.success("Testovacia faktúra vystavená" + ((data as any)?.invoice_number ? `: ${(data as any).invoice_number}` : "."));
+    } else {
+      toast.error("Zlyhalo: " + ((data as any)?.error ?? "unknown"));
+    }
+    loadRows(); loadMode();
+  }
+
+
+
   const badge = mode?.mode === "test"
     ? <span className="rounded-none bg-yellow-500/20 text-yellow-800 dark:text-yellow-300 px-2 py-0.5 text-xs font-medium">TEST režim</span>
     : mode?.mode === "live"
