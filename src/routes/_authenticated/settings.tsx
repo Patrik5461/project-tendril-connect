@@ -274,6 +274,9 @@ function SettingsPage() {
       </section>
 
       <SubscriptionSection userId={userId} />
+      <BillingDetailsSection userId={userId} />
+      <InvoicesHistorySection userId={userId} />
+
 
 
 
@@ -630,6 +633,225 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
         Platby spracúva GoPay. Detaily nájdete v{" "}
         <Link to="/pravne/opakovane-platby" className="underline">podmienkach opakovaných platieb</Link>.
       </p>
+    </section>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Fakturačné údaje
+// -----------------------------------------------------------------------------
+
+type BillingRow = {
+  name: string;
+  ico: string | null;
+  ic_dph: string | null;
+  street: string | null;
+  city: string | null;
+  zip: string | null;
+  country: string;
+  email: string;
+  faktero_customer_id?: string | null;
+};
+
+function BillingDetailsSection({ userId }: { userId: string | null }) {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [row, setRow] = useState<BillingRow>({
+    name: "",
+    ico: "",
+    ic_dph: "",
+    street: "",
+    city: "",
+    zip: "",
+    country: "SK",
+    email: "",
+  });
+
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      const { data } = await (supabase.from("billing_details" as never) as any)
+        .select("*").eq("user_id", userId).maybeSingle();
+      if (data) {
+        setRow({
+          name: data.name ?? "",
+          ico: data.ico ?? "",
+          ic_dph: data.ic_dph ?? "",
+          street: data.street ?? "",
+          city: data.city ?? "",
+          zip: data.zip ?? "",
+          country: data.country ?? "SK",
+          email: data.email ?? "",
+          faktero_customer_id: data.faktero_customer_id ?? null,
+        });
+      } else {
+        const { data: u } = await supabase.auth.getUser();
+        setRow((r) => ({ ...r, email: u.user?.email ?? "" }));
+      }
+      setLoading(false);
+    })();
+  }, [userId]);
+
+  async function save() {
+    if (!userId) return;
+    if (!row.name.trim()) { toast.error("Zadaj meno alebo názov firmy."); return; }
+    if (!row.email.trim() || !row.email.includes("@")) { toast.error("Zadaj platný e-mail."); return; }
+    setSaving(true);
+    const payload = {
+      user_id: userId,
+      name: row.name.trim(),
+      ico: row.ico?.trim() || null,
+      ic_dph: row.ic_dph?.trim() || null,
+      street: row.street?.trim() || null,
+      city: row.city?.trim() || null,
+      zip: row.zip?.trim() || null,
+      country: (row.country || "SK").trim().toUpperCase(),
+      email: row.email.trim(),
+    };
+    const { error } = await (supabase.from("billing_details" as never) as any)
+      .upsert(payload, { onConflict: "user_id" });
+    setSaving(false);
+    if (error) { toast.error("Nepodarilo sa uložiť: " + error.message); return; }
+    toast.success("Fakturačné údaje uložené.");
+  }
+
+  if (loading) {
+    return (
+      <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
+        <h2 className="font-display font-semibold text-lg tracking-tight">Fakturačné údaje</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Načítavam…</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
+      <h2 className="font-display font-semibold text-lg tracking-tight">Fakturačné údaje</h2>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Používajú sa na vystavenie faktúry po zaplatení predplatného. Faktúra vám príde na fakturačný e-mail.
+      </p>
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="sm:col-span-2">
+          <Label>Meno alebo názov firmy *</Label>
+          <Input value={row.name} onChange={(e) => setRow({ ...row, name: e.target.value })} />
+        </div>
+        <div>
+          <Label>IČO</Label>
+          <Input value={row.ico ?? ""} onChange={(e) => setRow({ ...row, ico: e.target.value })} />
+        </div>
+        <div>
+          <Label>IČ DPH</Label>
+          <Input value={row.ic_dph ?? ""} onChange={(e) => setRow({ ...row, ic_dph: e.target.value })} />
+        </div>
+        <div className="sm:col-span-2">
+          <Label>Ulica a číslo</Label>
+          <Input value={row.street ?? ""} onChange={(e) => setRow({ ...row, street: e.target.value })} />
+        </div>
+        <div>
+          <Label>Mesto</Label>
+          <Input value={row.city ?? ""} onChange={(e) => setRow({ ...row, city: e.target.value })} />
+        </div>
+        <div>
+          <Label>PSČ</Label>
+          <Input value={row.zip ?? ""} onChange={(e) => setRow({ ...row, zip: e.target.value })} />
+        </div>
+        <div>
+          <Label>Krajina</Label>
+          <Input value={row.country} onChange={(e) => setRow({ ...row, country: e.target.value })} />
+        </div>
+        <div>
+          <Label>Fakturačný e-mail *</Label>
+          <Input value={row.email} onChange={(e) => setRow({ ...row, email: e.target.value })} />
+        </div>
+      </div>
+      <div className="mt-4">
+        <Button size="sm" onClick={save} disabled={saving}>
+          {saving ? "Ukladám…" : "Uložiť fakturačné údaje"}
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// História faktúr
+// -----------------------------------------------------------------------------
+
+function InvoicesHistorySection({ userId }: { userId: string | null }) {
+  const [loading, setLoading] = useState(true);
+  const [rows, setRows] = useState<any[]>([]);
+  const [downloading, setDownloading] = useState<string | null>(null);
+
+  async function load() {
+    if (!userId) return;
+    const { data } = await (supabase.from("invoices" as never) as any)
+      .select("id, invoice_number, amount, currency, status, issued_at, created_at, error_message")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+    setRows(data ?? []);
+    setLoading(false);
+  }
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [userId]);
+
+  async function downloadPdf(id: string) {
+    setDownloading(id);
+    const { data, error } = await supabase.functions.invoke("faktero-ops", {
+      body: { action: "pdf", invoice_id: id },
+    });
+    setDownloading(null);
+    if (error || !data?.url) { toast.error("PDF sa nepodarilo načítať."); return; }
+    window.open(data.url, "_blank", "noopener");
+  }
+
+  return (
+    <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
+      <h2 className="font-display font-semibold text-lg tracking-tight">História faktúr</h2>
+      {loading ? (
+        <p className="mt-2 text-sm text-muted-foreground">Načítavam…</p>
+      ) : rows.length === 0 ? (
+        <p className="mt-2 text-sm text-muted-foreground">Zatiaľ žiadne faktúry.</p>
+      ) : (
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-muted-foreground">
+              <tr className="border-b border-primary/10">
+                <th className="py-2 pr-3">Dátum</th>
+                <th className="py-2 pr-3">Číslo</th>
+                <th className="py-2 pr-3">Suma</th>
+                <th className="py-2 pr-3">Stav</th>
+                <th className="py-2 pr-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => {
+                const dt = r.issued_at || r.created_at;
+                const isReady = ["issued", "paid_marked", "sent"].includes(r.status);
+                return (
+                  <tr key={r.id} className="border-b border-primary/5">
+                    <td className="py-2 pr-3 num">{dt ? new Date(dt).toLocaleDateString("sk-SK") : "—"}</td>
+                    <td className="py-2 pr-3 num">{r.invoice_number ?? "—"}</td>
+                    <td className="py-2 pr-3 num">{Number(r.amount).toFixed(2)} {r.currency}</td>
+                    <td className="py-2 pr-3">
+                      {r.status === "sent" ? "Odoslaná"
+                        : r.status === "paid_marked" ? "Vystavená (uhradená)"
+                        : r.status === "issued" ? "Vystavená"
+                        : r.status === "failed" ? <span className="text-destructive">Chyba</span>
+                        : "Čaká sa"}
+                    </td>
+                    <td className="py-2 pr-3">
+                      {isReady && (
+                        <Button size="sm" variant="outline" onClick={() => downloadPdf(r.id)} disabled={downloading === r.id}>
+                          {downloading === r.id ? "…" : "Stiahnuť PDF"}
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </section>
   );
 }

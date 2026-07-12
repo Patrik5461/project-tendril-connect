@@ -89,12 +89,14 @@ function AdminPage() {
           <TabsTrigger value="overview">Prehľad</TabsTrigger>
           <TabsTrigger value="actions">Akcie</TabsTrigger>
           <TabsTrigger value="gopay">GoPay</TabsTrigger>
+          <TabsTrigger value="invoices">Fakturácia</TabsTrigger>
           <TabsTrigger value="users">Používatelia</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-4"><OverviewTab /></TabsContent>
         <TabsContent value="actions" className="mt-4"><ActionsTab /></TabsContent>
         <TabsContent value="gopay" className="mt-4"><GopayTab /></TabsContent>
+        <TabsContent value="invoices" className="mt-4"><InvoicesTab /></TabsContent>
         <TabsContent value="users" className="mt-4"><UsersTab /></TabsContent>
         <TabsContent value="seo" className="mt-4"><SeoTab /></TabsContent>
       </Tabs>
@@ -773,6 +775,126 @@ function SeoEditModal({
           <Button onClick={() => onSave({ h1, title, description, intro_text: intro })}>Uložiť</Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ---------- Invoices / Faktero Tab ----------
+
+function InvoicesTab() {
+  const [mode, setMode] = useState<{ mode: string; counts: any } | null>(null);
+  const [rows, setRows] = useState<any[]>([]);
+  const [filter, setFilter] = useState<"failed" | "all" | "sent">("failed");
+  const [busy, setBusy] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  async function loadMode() {
+    const { data, error } = await supabase.functions.invoke("faktero-ops", { body: { action: "mode" } });
+    if (!error && data) setMode(data as any);
+  }
+  async function loadRows() {
+    setLoading(true);
+    let q = (supabase.from("invoices" as never) as any)
+      .select("id, user_id, gopay_payment_id, invoice_number, amount, currency, status, error_message, retry_count, issued_at, created_at")
+      .order("created_at", { ascending: false }).limit(200);
+    if (filter === "failed") q = q.eq("status", "failed");
+    else if (filter === "sent") q = q.in("status", ["issued", "paid_marked", "sent"]);
+    const { data } = await q;
+    setRows(data ?? []);
+    setLoading(false);
+  }
+  useEffect(() => { loadMode(); loadRows(); /* eslint-disable-next-line */ }, [filter]);
+
+  async function retry(id: string) {
+    setBusy(id);
+    const { data, error } = await supabase.functions.invoke("faktero-ops", {
+      body: { action: "retry", invoice_id: id },
+    });
+    setBusy(null);
+    if (error) { toast.error("Chyba: " + error.message); return; }
+    if ((data as any)?.ok) toast.success("Faktúra vystavená.");
+    else toast.error("Znova zlyhalo: " + ((data as any)?.error ?? "unknown"));
+    loadRows(); loadMode();
+  }
+
+  const badge = mode?.mode === "test"
+    ? <span className="rounded-none bg-yellow-500/20 text-yellow-800 dark:text-yellow-300 px-2 py-0.5 text-xs font-medium">TEST režim</span>
+    : mode?.mode === "live"
+    ? <span className="rounded-none bg-green-600/20 text-green-800 dark:text-green-300 px-2 py-0.5 text-xs font-medium">LIVE režim</span>
+    : <span className="rounded-none bg-destructive/20 text-destructive px-2 py-0.5 text-xs font-medium">Chýba kľúč</span>;
+
+  return (
+    <div className="space-y-6">
+      <section className="rounded-lg border border-primary/15 bg-card p-5">
+        <div className="flex items-center gap-3">
+          <h3 className="font-display font-semibold">Faktero</h3>
+          {badge}
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Režim sa určuje podľa prefixu <code>FAKTERO_API_KEY</code> (<code>fk_test_</code> / <code>fk_live_</code>).
+        </p>
+        {mode?.counts && (
+          <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
+            <div><div className="text-muted-foreground">Vystavené</div><div className="font-semibold num">{mode.counts.issued}</div></div>
+            <div><div className="text-muted-foreground">Nevystavené (chyby)</div><div className="font-semibold num text-destructive">{mode.counts.failed}</div></div>
+            <div><div className="text-muted-foreground">Čakajúce</div><div className="font-semibold num">{mode.counts.pending}</div></div>
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-lg border border-primary/15 bg-card p-5">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="font-display font-semibold">Faktúry</h3>
+          <div className="flex gap-1">
+            {(["failed", "sent", "all"] as const).map((f) => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={"rounded-none border border-primary/20 px-2 py-1 text-xs " + (filter === f ? "bg-primary text-primary-foreground" : "bg-transparent")}>
+                {f === "failed" ? "Nevystavené" : f === "sent" ? "Vystavené" : "Všetky"}
+              </button>
+            ))}
+          </div>
+        </div>
+        {loading ? <p className="mt-3 text-sm text-muted-foreground">Načítavam…</p> : rows.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">Žiadne záznamy.</p>
+        ) : (
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-muted-foreground">
+                <tr className="border-b border-primary/10">
+                  <th className="py-2 pr-3">Vytvorené</th>
+                  <th className="py-2 pr-3">User</th>
+                  <th className="py-2 pr-3">GoPay ID</th>
+                  <th className="py-2 pr-3">Číslo</th>
+                  <th className="py-2 pr-3">Suma</th>
+                  <th className="py-2 pr-3">Stav</th>
+                  <th className="py-2 pr-3">Chyba</th>
+                  <th className="py-2 pr-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.id} className="border-b border-primary/5 align-top">
+                    <td className="py-2 pr-3 num">{new Date(r.created_at).toLocaleString("sk-SK")}</td>
+                    <td className="py-2 pr-3 font-mono text-xs">{String(r.user_id).slice(0, 8)}…</td>
+                    <td className="py-2 pr-3 font-mono text-xs">{r.gopay_payment_id}</td>
+                    <td className="py-2 pr-3 num">{r.invoice_number ?? "—"}</td>
+                    <td className="py-2 pr-3 num">{Number(r.amount).toFixed(2)} {r.currency}</td>
+                    <td className="py-2 pr-3">{r.status}{r.retry_count ? ` (${r.retry_count}×)` : ""}</td>
+                    <td className="py-2 pr-3 text-xs text-destructive max-w-[240px] truncate" title={r.error_message ?? ""}>{r.error_message ?? ""}</td>
+                    <td className="py-2 pr-3">
+                      {r.status === "failed" && (
+                        <Button size="sm" variant="outline" onClick={() => retry(r.id)} disabled={busy === r.id}>
+                          {busy === r.id ? "…" : "Skúsiť znova"}
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
     </div>
   );
 }
