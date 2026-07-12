@@ -110,6 +110,57 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_pages: {
+        Row: {
+          active_tenders_count: number
+          category_slug: string | null
+          cpv_prefix: string | null
+          created_at: string
+          description: string
+          h1: string
+          id: string
+          intro_text: string
+          last_generated_at: string
+          page_type: string
+          region_name: string | null
+          region_slug: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active_tenders_count?: number
+          category_slug?: string | null
+          cpv_prefix?: string | null
+          created_at?: string
+          description: string
+          h1: string
+          id?: string
+          intro_text: string
+          last_generated_at?: string
+          page_type: string
+          region_name?: string | null
+          region_slug?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active_tenders_count?: number
+          category_slug?: string | null
+          cpv_prefix?: string | null
+          created_at?: string
+          description?: string
+          h1?: string
+          id?: string
+          intro_text?: string
+          last_generated_at?: string
+          page_type?: string
+          region_name?: string | null
+          region_slug?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tenders: {
         Row: {
           ai_summary: string | null
@@ -390,6 +441,10 @@ export type Database = {
       }
       admin_overview_stats: { Args: never; Returns: Json }
       admin_set_gopay_mode: { Args: { _mode: string }; Returns: string }
+      count_seo_active_tenders: {
+        Args: { _cpv_prefix: string; _region_name: string }
+        Returns: number
+      }
       expire_trials: { Args: never; Returns: number }
       get_active_tenders_count: { Args: never; Returns: number }
       get_active_tenders_stats: {
@@ -398,6 +453,36 @@ export type Database = {
           active_count: number
           total_value_eur: number
         }[]
+      }
+      get_seo_tenders: {
+        Args: { _cpv_prefix: string; _limit?: number; _region_name: string }
+        Returns: {
+          ai_summary: string | null
+          ai_summary_generated_at: string | null
+          contracting_authority: string
+          country: string | null
+          country_name: string | null
+          cpv_code: string | null
+          created_at: string
+          currency: string | null
+          deadline: string | null
+          description: string | null
+          estimated_value: number | null
+          id: string
+          publication_number: string | null
+          published_at: string | null
+          region: string | null
+          source: string
+          source_url: string | null
+          title: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "tenders"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       has_role: {
         Args: {
