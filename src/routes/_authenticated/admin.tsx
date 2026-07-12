@@ -852,6 +852,29 @@ function InvoicesTab() {
     loadMode();
   }
 
+  async function saveKey(which: "test" | "live", value: string) {
+    setBusy(`__key_${which}__`);
+    const { data, error } = await supabase.functions.invoke("faktero-ops", {
+      body: { action: "set_key", mode: which, value },
+    });
+    setBusy(null);
+    if (error) { toast.error("Chyba: " + error.message); return; }
+    const err = (data as any)?.error;
+    if (err) {
+      if (err.startsWith("invalid_prefix:")) {
+        toast.error(`Neplatný kľúč – musí začínať '${err.split(":")[1]}'.`);
+      } else {
+        toast.error("Zlyhalo: " + err);
+      }
+      return;
+    }
+    toast.success(value.trim() ? `${which.toUpperCase()} kľúč uložený.` : `${which.toUpperCase()} kľúč vymazaný.`);
+    if (which === "test") setTestKey("");
+    else setLiveKey("");
+    loadMode();
+  }
+
+
   const badge = mode?.mode === "test"
     ? <span className="rounded-none bg-yellow-500/20 text-yellow-800 dark:text-yellow-300 px-2 py-0.5 text-xs font-medium">TEST režim</span>
     : mode?.mode === "live"
