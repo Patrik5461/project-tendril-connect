@@ -280,7 +280,7 @@ function Landing() {
               "Nastavenie za menej ako 2 minúty",
               "Odkaz priamo na zdroj zákazky",
               "Farebné upozornenie pri krátkom deadline",
-              "Dáta priamo z oficiálnych zdrojov TED a vestníka ÚVO",
+              "Dáta priamo z oficiálnych zdrojov TED, ÚVO, EKS a JOSEPHINE",
             ].map((t, i) => (
               <li key={t} className="flex items-baseline gap-4 py-4">
                 <span className="num text-sm text-primary font-semibold w-8 tabular-nums">
