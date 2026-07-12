@@ -12,12 +12,15 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
+type SourceBreakdown = { total: number; active: number; expired: number };
 type Overview = {
   users: { total: number; trial: number; active: number; expired: number };
   tenders_by_source: Record<string, number>;
+  tenders_source_breakdown?: Record<string, SourceBreakdown>;
   tenders_by_country: Record<string, number>;
   last_fetch: Record<string, string | null>;
   active_tenders: number;
+  total_tenders?: number;
 };
 
 type UserRow = {
@@ -138,20 +141,49 @@ function OverviewTab() {
           </Card>
           <Card title="Zákazky">
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <Stat label="Aktívne (v DB)" value={ov.active_tenders} />
-              {Object.entries(ov.tenders_by_source).map(([k, v]) => (
-                <Stat key={k} label={`Zdroj: ${k}`} value={v} />
-              ))}
+              <Stat label="Aktívne spolu" value={ov.active_tenders} />
+              <Stat label="Celkom v DB" value={ov.total_tenders ?? Object.values(ov.tenders_by_source).reduce((a, b) => a + b, 0)} />
             </div>
+            <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
+              <b>Aktívne</b> = deadline v budúcnosti alebo bez deadlinu (zverejnené za posledných 30 dní).{" "}
+              <b>Po termíne</b> = čaká na cleanup (automaticky mažeme po 30 dňoch).
+            </p>
           </Card>
-          <Card title="Posledný fetch podľa zdroja">
-            <ul className="text-sm space-y-1">
-              {Object.entries(ov.last_fetch).map(([k, v]) => (
-                <li key={k} className="flex justify-between border-b border-primary/10 py-1">
-                  <span className="font-medium">{k}</span>
-                  <span className="text-muted-foreground">{fmtDate(v)}</span>
-                </li>
-              ))}
+          <Card title="Zdroje">
+            <ul className="text-sm divide-y divide-primary/10">
+              {(() => {
+                const breakdown = ov.tenders_source_breakdown ?? {};
+                const keys = new Set<string>([
+                  ...Object.keys(breakdown),
+                  ...Object.keys(ov.tenders_by_source),
+                  ...Object.keys(ov.last_fetch),
+                ]);
+                return Array.from(keys)
+                  .sort((a, b) => (breakdown[b]?.total ?? ov.tenders_by_source[b] ?? 0) - (breakdown[a]?.total ?? ov.tenders_by_source[a] ?? 0))
+                  .map((k) => {
+                    const b = breakdown[k];
+                    const total = b?.total ?? ov.tenders_by_source[k] ?? 0;
+                    return (
+                      <li key={k} className="py-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold">{k}</span>
+                          <span className="num text-xs text-muted-foreground">
+                            posledný fetch: {fmtDate(ov.last_fetch[k])}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs num">
+                          <span>celkom <b className="text-foreground">{total}</b></span>
+                          {b && (
+                            <>
+                              <span className="text-primary">aktívnych <b>{b.active}</b></span>
+                              <span className="text-muted-foreground">po termíne <b>{b.expired}</b></span>
+                            </>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  });
+              })()}
             </ul>
           </Card>
           <Card title="Top krajiny">
