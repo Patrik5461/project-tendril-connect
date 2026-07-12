@@ -28,6 +28,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ZakazkyKrajKrajRouteImport } from './routes/zakazky.kraj.$kraj'
 import { Route as ZakazkyKategoriaKategoriaRouteImport } from './routes/zakazky.kategoria.$kategoria'
 import { Route as ApiPublicStatsRouteImport } from './routes/api/public/stats'
 import { Route as ZakazkyKategoriaKategoriaKrajRouteImport } from './routes/zakazky.kategoria.$kategoria.$kraj'
@@ -127,6 +128,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ZakazkyKrajKrajRoute = ZakazkyKrajKrajRouteImport.update({
+  id: '/zakazky/kraj/$kraj',
+  path: '/zakazky/kraj/$kraj',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ZakazkyKategoriaKategoriaRoute =
   ZakazkyKategoriaKategoriaRouteImport.update({
     id: '/zakazky/kategoria/$kategoria',
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
+  '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRoutesByTo {
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
+  '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRoutesById {
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/zakazka/$id': typeof ZakazkaIdRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
+  '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRouteTypes {
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/zakazka/$id'
     | '/api/public/stats'
     | '/zakazky/kategoria/$kategoria'
+    | '/zakazky/kraj/$kraj'
     | '/zakazky/kategoria/$kategoria/$kraj'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -262,6 +272,7 @@ export interface FileRouteTypes {
     | '/zakazka/$id'
     | '/api/public/stats'
     | '/zakazky/kategoria/$kategoria'
+    | '/zakazky/kraj/$kraj'
     | '/zakazky/kategoria/$kategoria/$kraj'
   id:
     | '__root__'
@@ -286,6 +297,7 @@ export interface FileRouteTypes {
     | '/zakazka/$id'
     | '/api/public/stats'
     | '/zakazky/kategoria/$kategoria'
+    | '/zakazky/kraj/$kraj'
     | '/zakazky/kategoria/$kategoria/$kraj'
   fileRoutesById: FileRoutesById
 }
@@ -307,6 +319,7 @@ export interface RootRouteChildren {
   ZakazkaIdRoute: typeof ZakazkaIdRoute
   ApiPublicStatsRoute: typeof ApiPublicStatsRoute
   ZakazkyKategoriaKategoriaRoute: typeof ZakazkyKategoriaKategoriaRouteWithChildren
+  ZakazkyKrajKrajRoute: typeof ZakazkyKrajKrajRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -444,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/zakazky/kraj/$kraj': {
+      id: '/zakazky/kraj/$kraj'
+      path: '/zakazky/kraj/$kraj'
+      fullPath: '/zakazky/kraj/$kraj'
+      preLoaderRoute: typeof ZakazkyKrajKrajRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/zakazky/kategoria/$kategoria': {
       id: '/zakazky/kategoria/$kategoria'
       path: '/zakazky/kategoria/$kategoria'
@@ -517,6 +537,7 @@ const rootRouteChildren: RootRouteChildren = {
   ZakazkaIdRoute: ZakazkaIdRoute,
   ApiPublicStatsRoute: ApiPublicStatsRoute,
   ZakazkyKategoriaKategoriaRoute: ZakazkyKategoriaKategoriaRouteWithChildren,
+  ZakazkyKrajKrajRoute: ZakazkyKrajKrajRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
