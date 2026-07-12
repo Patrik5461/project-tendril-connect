@@ -581,8 +581,6 @@ type SeoPageRow = {
   last_generated_at: string;
 };
 
-import { useServerFn } from "@tanstack/react-start";
-import { listSeoPages, generateSeoPages, regenerateSeoPage, updateSeoPage } from "@/lib/seo.functions";
 
 function SeoTab() {
   const listFn = useServerFn(listSeoPages);
