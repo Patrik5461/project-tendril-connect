@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PredplatneRouteImport } from './routes/predplatne'
 import { Route as OchranaOsobnychUdajovRouteImport } from './routes/ochrana-osobnych-udajov'
 import { Route as ObjednavkaRouteImport } from './routes/objednavka'
@@ -33,6 +34,11 @@ import { Route as ZakazkyKategoriaKategoriaRouteImport } from './routes/zakazky.
 import { Route as ApiPublicStatsRouteImport } from './routes/api/public/stats'
 import { Route as ZakazkyKategoriaKategoriaKrajRouteImport } from './routes/zakazky.kategoria.$kategoria.$kraj'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PredplatneRoute = PredplatneRouteImport.update({
   id: '/predplatne',
   path: '/predplatne',
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -209,6 +217,7 @@ export interface FileRoutesById {
   '/objednavka': typeof ObjednavkaRoute
   '/ochrana-osobnych-udajov': typeof OchranaOsobnychUdajovRoute
   '/predplatne': typeof PredplatneRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -235,6 +244,7 @@ export interface FileRouteTypes {
     | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
+    | '/sitemap.xml'
     | '/admin'
     | '/dashboard'
     | '/onboarding'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
+    | '/sitemap.xml'
     | '/admin'
     | '/dashboard'
     | '/onboarding'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/objednavka'
     | '/ochrana-osobnych-udajov'
     | '/predplatne'
+    | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
@@ -310,6 +322,7 @@ export interface RootRouteChildren {
   ObjednavkaRoute: typeof ObjednavkaRoute
   OchranaOsobnychUdajovRoute: typeof OchranaOsobnychUdajovRoute
   PredplatneRoute: typeof PredplatneRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   PlatbaVysledokRoute: typeof PlatbaVysledokRoute
   PravneCookiesRoute: typeof PravneCookiesRoute
   PravneGdprRoute: typeof PravneGdprRoute
@@ -324,6 +337,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/predplatne': {
       id: '/predplatne'
       path: '/predplatne'
@@ -528,6 +548,7 @@ const rootRouteChildren: RootRouteChildren = {
   ObjednavkaRoute: ObjednavkaRoute,
   OchranaOsobnychUdajovRoute: OchranaOsobnychUdajovRoute,
   PredplatneRoute: PredplatneRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   PlatbaVysledokRoute: PlatbaVysledokRoute,
   PravneCookiesRoute: PravneCookiesRoute,
   PravneGdprRoute: PravneGdprRoute,
