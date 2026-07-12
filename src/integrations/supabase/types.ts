@@ -188,6 +188,7 @@ export type Database = {
           id: string
           keywords: string[]
           last_payment_at: string | null
+          last_settings_email_at: string | null
           notification_email: string | null
           onboarding_completed: boolean
           regions: string[]
@@ -210,6 +211,7 @@ export type Database = {
           id?: string
           keywords?: string[]
           last_payment_at?: string | null
+          last_settings_email_at?: string | null
           notification_email?: string | null
           onboarding_completed?: boolean
           regions?: string[]
@@ -232,6 +234,7 @@ export type Database = {
           id?: string
           keywords?: string[]
           last_payment_at?: string | null
+          last_settings_email_at?: string | null
           notification_email?: string | null
           onboarding_completed?: boolean
           regions?: string[]

@@ -13,6 +13,7 @@ import { REGIONS, CPV_DIVISIONS } from "@/lib/slovakia";
 import { EU_COUNTRY_LIST, flagEmoji } from "@/lib/eu-countries";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
+import { sendSettingsConfirmationEmail } from "@/lib/settings-email";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Nastavenia – Tendrik" }] }),
@@ -124,6 +125,7 @@ function SettingsPage() {
       toast.success("Notifikácie uložené");
       setNotificationEmail(normalized ?? "");
       if (emailNotif) void sendWelcomeEmailIfNeeded();
+      void sendSettingsConfirmationEmail();
     }
   }
 
@@ -149,12 +151,14 @@ function SettingsPage() {
     setList((prev) => [...prev, data as Radar]);
     setExpanded((prev) => new Set(prev).add((data as Radar).id));
     void sendWelcomeEmailIfNeeded();
+    void sendSettingsConfirmationEmail();
   }
 
   async function updateRadar(id: string, patch: Partial<Radar>) {
     setList((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
     const { error } = await radars().update(patch).eq("id", id);
     if (error) toast.error(error.message);
+    else void sendSettingsConfirmationEmail();
   }
 
   async function deleteRadar(id: string) {
@@ -171,6 +175,7 @@ function SettingsPage() {
       setList(prev);
     } else {
       toast.success("Radar zmazaný");
+      void sendSettingsConfirmationEmail();
     }
   }
 
