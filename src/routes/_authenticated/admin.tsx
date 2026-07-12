@@ -89,7 +89,7 @@ function AdminPage() {
           <TabsTrigger value="overview">Prehľad</TabsTrigger>
           <TabsTrigger value="actions">Akcie</TabsTrigger>
           <TabsTrigger value="gopay">GoPay</TabsTrigger>
-          <TabsTrigger value="invoices">Fakturácia</TabsTrigger>
+          <TabsTrigger value="invoices">Faktero fakturácia</TabsTrigger>
           <TabsTrigger value="users">Používatelia</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
         </TabsList>
