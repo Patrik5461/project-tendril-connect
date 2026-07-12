@@ -939,6 +939,71 @@ function InvoicesTab() {
         )}
       </section>
 
+      <section className="rounded-lg border border-primary/15 bg-card p-5">
+        <h3 className="font-display font-semibold">API kľúče (Faktero)</h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Zadajte kľúče priamo tu – prepíšu prípadné secrets v prostredí. TEST kľúč musí začínať <code>fk_test_</code>, LIVE kľúč <code>fk_live_</code>. Prázdna hodnota kľúč vymaže.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="rounded-md border border-primary/10 p-3">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-medium">TEST kľúč</label>
+              <span className={`text-xs ${avail.test ? "text-primary" : "text-muted-foreground"}`}>
+                {avail.test ? "✓ nastavený" : "chýba"}
+              </span>
+            </div>
+            <input
+              type="password"
+              autoComplete="off"
+              value={testKey}
+              onChange={(e) => setTestKey(e.target.value)}
+              placeholder="fk_test_…"
+              className="w-full rounded border px-2 py-1.5 text-sm bg-background"
+            />
+            <div className="mt-2 flex gap-2">
+              <Button size="sm" onClick={() => saveKey("test", testKey)} disabled={busy === "__key_test__" || !testKey.trim()}>
+                {busy === "__key_test__" ? "Ukladám…" : "Uložiť"}
+              </Button>
+              {avail.test && (
+                <Button size="sm" variant="ghost" onClick={() => { if (confirm("Vymazať TEST kľúč?")) saveKey("test", ""); }} disabled={busy === "__key_test__"}>
+                  Vymazať
+                </Button>
+              )}
+            </div>
+          </div>
+          <div className="rounded-md border border-primary/10 p-3">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-medium">LIVE kľúč</label>
+              <span className={`text-xs ${avail.live ? "text-primary" : "text-muted-foreground"}`}>
+                {avail.live ? "✓ nastavený" : "chýba"}
+              </span>
+            </div>
+            <input
+              type="password"
+              autoComplete="off"
+              value={liveKey}
+              onChange={(e) => setLiveKey(e.target.value)}
+              placeholder="fk_live_…"
+              className="w-full rounded border px-2 py-1.5 text-sm bg-background"
+            />
+            <div className="mt-2 flex gap-2">
+              <Button size="sm" onClick={() => saveKey("live", liveKey)} disabled={busy === "__key_live__" || !liveKey.trim()}>
+                {busy === "__key_live__" ? "Ukladám…" : "Uložiť"}
+              </Button>
+              {avail.live && (
+                <Button size="sm" variant="ghost" onClick={() => { if (confirm("Vymazať LIVE kľúč?")) saveKey("live", ""); }} disabled={busy === "__key_live__"}>
+                  Vymazať
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Kľúče sú uložené v tabuľke <code>admin_secrets</code> a čítajú ich len edge funkcie cez service role – nie sú prístupné z frontendu.
+        </p>
+      </section>
+
+
 
       <section className="rounded-lg border border-primary/15 bg-card p-5">
         <div className="flex items-center justify-between gap-3">
