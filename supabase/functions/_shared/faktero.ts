@@ -8,10 +8,30 @@ const BASE_URL = "https://faktero.sk/api/v1";
 
 // Aktívny režim v rámci požiadavky. Nastavuje sa cez resolveFakteroMode(admin).
 let _activeMode: "test" | "live" | null = null;
+// Kľúče uložené v DB (admin_secrets) – načítané pri resolveFakteroMode.
+const _dbKeys: { test: string | null; live: string | null } = { test: null, live: null };
+
+async function loadDbKeys(admin: ReturnType<typeof createClient>): Promise<void> {
+  const { data } = await admin
+    .from("admin_secrets")
+    .select("key,value")
+    .in("key", ["FAKTERO_API_KEY_TEST", "FAKTERO_API_KEY_LIVE"]);
+  _dbKeys.test = null;
+  _dbKeys.live = null;
+  for (const row of (data ?? []) as Array<{ key: string; value: string }>) {
+    if (row.key === "FAKTERO_API_KEY_TEST") _dbKeys.test = row.value || null;
+    if (row.key === "FAKTERO_API_KEY_LIVE") _dbKeys.live = row.value || null;
+  }
+}
 
 function keyForMode(mode: "test" | "live"): string {
+  // 1) DB override
+  const db = mode === "test" ? _dbKeys.test : _dbKeys.live;
+  if (db) return db;
+  // 2) dedikovaný env secret
   const specific = Deno.env.get(mode === "test" ? "FAKTERO_API_KEY_TEST" : "FAKTERO_API_KEY_LIVE");
   if (specific) return specific;
+  // 3) fallback FAKTERO_API_KEY podľa prefixu
   const fallback = Deno.env.get("FAKTERO_API_KEY") ?? "";
   if (fallback.startsWith(mode === "test" ? "fk_test_" : "fk_live_")) return fallback;
   return "";
@@ -29,6 +49,7 @@ export function fakteroAvailableModes(): { test: boolean; live: boolean } {
 export async function resolveFakteroMode(
   admin: ReturnType<typeof createClient>,
 ): Promise<"test" | "live" | "missing"> {
+  await loadDbKeys(admin);
   const { data } = await admin.from("app_settings").select("value").eq("key", "faktero_mode").maybeSingle();
   const stored = (data?.value ?? null) as string | null;
   const avail = fakteroAvailableModes();
@@ -55,6 +76,29 @@ export function fakteroKey(): string {
   if (!key) throw new Error(_activeMode === "test" ? "FAKTERO_API_KEY_TEST_MISSING" : "FAKTERO_API_KEY_LIVE_MISSING");
   return key;
 }
+
+/** Uloží / vymaže kľúč do admin_secrets. Prázdny value = vymazať. */
+export async function setFakteroKey(
+  admin: ReturnType<typeof createClient>,
+  mode: "test" | "live",
+  value: string,
+): Promise<void> {
+  const key = mode === "test" ? "FAKTERO_API_KEY_TEST" : "FAKTERO_API_KEY_LIVE";
+  const trimmed = value.trim();
+  if (!trimmed) {
+    await admin.from("admin_secrets").delete().eq("key", key);
+    return;
+  }
+  const expectedPrefix = mode === "test" ? "fk_test_" : "fk_live_";
+  if (!trimmed.startsWith(expectedPrefix)) {
+    throw new Error(`invalid_prefix:${expectedPrefix}`);
+  }
+  await admin.from("admin_secrets").upsert(
+    { key, value: trimmed, updated_at: new Date().toISOString() } as any,
+    { onConflict: "key" },
+  );
+}
+
 
 /** Fetch s exponenciálnym backoffom pre 429/5xx (max 4 pokusy). */
 export async function fakteroFetch(
