@@ -88,11 +88,13 @@ function AdminPage() {
           <TabsTrigger value="actions">Akcie</TabsTrigger>
           <TabsTrigger value="gopay">GoPay</TabsTrigger>
           <TabsTrigger value="users">Používatelia</TabsTrigger>
+          <TabsTrigger value="seo">SEO</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-4"><OverviewTab /></TabsContent>
         <TabsContent value="actions" className="mt-4"><ActionsTab /></TabsContent>
         <TabsContent value="gopay" className="mt-4"><GopayTab /></TabsContent>
         <TabsContent value="users" className="mt-4"><UsersTab /></TabsContent>
+        <TabsContent value="seo" className="mt-4"><SeoTab /></TabsContent>
       </Tabs>
     </div>
   );
