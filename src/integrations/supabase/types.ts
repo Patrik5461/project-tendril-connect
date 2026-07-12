@@ -32,6 +32,54 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_details: {
+        Row: {
+          city: string | null
+          country: string
+          created_at: string
+          email: string
+          faktero_customer_id: string | null
+          ic_dph: string | null
+          ico: string | null
+          id: string
+          name: string
+          street: string | null
+          updated_at: string
+          user_id: string
+          zip: string | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string
+          created_at?: string
+          email: string
+          faktero_customer_id?: string | null
+          ic_dph?: string | null
+          ico?: string | null
+          id?: string
+          name: string
+          street?: string | null
+          updated_at?: string
+          user_id: string
+          zip?: string | null
+        }
+        Update: {
+          city?: string | null
+          country?: string
+          created_at?: string
+          email?: string
+          faktero_customer_id?: string | null
+          ic_dph?: string | null
+          ico?: string | null
+          id?: string
+          name?: string
+          street?: string | null
+          updated_at?: string
+          user_id?: string
+          zip?: string | null
+        }
+        Relationships: []
+      }
       gopay_payment_events: {
         Row: {
           amount_cents: number | null
@@ -82,6 +130,57 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          error_message: string | null
+          faktero_invoice_id: string | null
+          gopay_payment_id: string
+          id: string
+          invoice_number: string | null
+          issued_at: string | null
+          next_retry_at: string | null
+          retry_count: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          error_message?: string | null
+          faktero_invoice_id?: string | null
+          gopay_payment_id: string
+          id?: string
+          invoice_number?: string | null
+          issued_at?: string | null
+          next_retry_at?: string | null
+          retry_count?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          error_message?: string | null
+          faktero_invoice_id?: string | null
+          gopay_payment_id?: string
+          id?: string
+          invoice_number?: string | null
+          issued_at?: string | null
+          next_retry_at?: string | null
+          retry_count?: number
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
