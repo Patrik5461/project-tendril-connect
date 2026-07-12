@@ -6,7 +6,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { corsHeaders } from "../_shared/gopay.ts";
-import { fakteroMode, getInvoicePdfUrl, issueInvoiceForPayment } from "../_shared/faktero.ts";
+import { fakteroAvailableModes, fakteroMode, getInvoicePdfUrl, issueInvoiceForPayment, resolveFakteroMode } from "../_shared/faktero.ts";
 
 async function requireUser(req: Request) {
   const auth = req.headers.get("Authorization") ?? "";
