@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 const searchSchema = z.object({
@@ -114,7 +115,15 @@ function AuthPage() {
           </span>
           Tendrik.sk
         </Link>
-        <div className="rounded-lg border border-primary/15 bg-card p-6">
+        <div className="mt-2 flex justify-center">
+          <Link to="/">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Späť na úvod
+            </Button>
+          </Link>
+        </div>
+        <div className="mt-4 rounded-lg border border-primary/15 bg-card p-6">
           <h1 className="font-display text-2xl font-bold text-center tracking-tight">
             {isSignup ? "Vytvoriť účet" : "Prihlásiť sa"}
           </h1>
