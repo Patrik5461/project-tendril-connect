@@ -1,143 +1,61 @@
-## Cieľ
+# Faktero API – automatické fakturácie
 
-Automaticky generované SEO landing stránky, ktoré chytajú organickú návštevnosť z Google na frázy typu „stavebné zákazky Bratislava". Verejné (bez prihlásenia), s AI-generovaným úvodným textom uloženým v DB a reálnym zoznamom aktuálnych zákaziek.
+Napojenie Tendriku na Faktero (https://faktero.sk/api/v1) tak, aby sa po každej úspešnej GoPay platbe automaticky vystavila, označila ako zaplatená a odoslala faktúra zákazníkovi. Faktúra sa vždy vystavuje s DPH 23 % tak, aby celková suma zodpovedala 4,99 € s DPH (unit_price bez DPH = 4,06 €, zaokrúhlením na 2 desatinné miesta vzniká rozdiel ~0,004 € – ak Faktero prepočíta iným spôsobom, doladíme podľa testovacej faktúry v kroku 8).
 
-## 1. URL štruktúra
+---
 
-- `/zakazky/kategoria/{kategoria-slug}` — napr. `/zakazky/kategoria/stavebne-prace`
-- `/zakazky/kategoria/{kategoria-slug}/{kraj-slug}` — napr. `/zakazky/kategoria/stavebne-prace/bratislavsky-kraj`
-- `/zakazky/kraj/{kraj-slug}` — napr. `/zakazky/kraj/kosicky-kraj`
+## 1. Secrets
 
-Poznámka: pridám `/kategoria/` do cesty aby sa oddelilo od `/zakazky/{id}` (existujúca detail route `zakazka.$id.tsx` — táto je iná, ale prefix `kategoria`/`kraj` predchádza kolíziám).
+- `FAKTERO_API_KEY` – doplní používateľ (`fk_test_...` = test režim, `fk_live_...` = produkcia). Režim sa určí podľa prefixu.
+- Base URL a header pevne v kóde: `https://faktero.sk/api/v1`, `Authorization: Bearer <key>`.
 
-Route súbory (TanStack Start, file-based):
-- `src/routes/zakazky.kategoria.$kategoria.tsx`
-- `src/routes/zakazky.kategoria.$kategoria.$kraj.tsx`
-- `src/routes/zakazky.kraj.$kraj.tsx`
+## 2. Databáza (jedna migrácia)
 
-## 2. Databáza — nová tabuľka `seo_pages`
+- `billing_details` (1:1 na `user_id`): name, ico, ic_dph, street, city, zip, country (default 'SK'), email, faktero_customer_id, timestamps. RLS: vlastník číta/upravuje, service_role všetko.
+- `invoices`: user_id, faktero_invoice_id (nullable kým sa nevystaví), invoice_number, amount, currency, status ('pending'|'issued'|'failed'|'paid_marked'|'sent'), gopay_payment_id (unique, na idempotenciu), error_message, retry_count, next_retry_at, issued_at, timestamps. RLS: vlastník číta, service_role všetko; admin cez `has_role`.
+- Grants pre `authenticated` (SELECT/INSERT/UPDATE billing_details, SELECT invoices) a `service_role` (ALL).
 
-Stĺpce (okrem štandardných id/created_at/updated_at):
-- `page_type` text — `category` | `category_region` | `region`
-- `category_slug` text nullable — napr. `stavebne-prace`
-- `cpv_prefix` text nullable — 2-miestny CPV divízny kód (napr. `45`)
-- `region_slug` text nullable — napr. `bratislavsky-kraj`
-- `region_name` text nullable — napr. `Bratislavský kraj`
-- `h1` text — nadpis
-- `title` text — meta title
-- `description` text — meta description (max 155)
-- `intro_text` text — AI generovaný úvod (2–3 vety)
-- `active_tenders_count` int — cache pre triedenie/filter
-- `last_generated_at` timestamptz
-- unique index na (page_type, category_slug, region_slug)
+## 3. Server funkcie (`createServerFn` + auth middleware)
 
-RLS: verejný SELECT (`TO anon, authenticated`), zápis len service_role. GRANT SELECT to anon, authenticated.
+- `getBillingDetails`, `upsertBillingDetails` – používateľ si edituje fakturačné údaje.
+- `lookupCompanyByIco(ico)` – najprv skúsim, či existuje interná funkcia; ak nie, ostane manuálne (podľa zadania).
+- `listMyInvoices` – zoznam pre sekciu Predplatné.
+- `downloadInvoicePdf(invoiceId)` – zavolá Faktero `GET /invoices/{id}/pdf`, vráti `signed_url` (client urobí redirect).
+- **Admin**: `adminListInvoices({ status })`, `adminRetryInvoice(invoiceId)`, `adminGetFakteroMode()` (vráti test/live podľa prefixu kľúča a počty).
 
-## 3. Katalógy
+## 4. Faktero klient (`src/lib/faktero.server.ts`)
 
-`src/lib/seo-catalog.ts` — 12 kurátorovaných kategórií (subset z `CPV_DIVISIONS`) s ľudským menom + slug + CPV prefix:
+Modul určený len pre server (`.server.ts` = mimo klientského bundlu). Obsahuje:
+- `fakteroFetch(path, init)` – nastaví Bearer header, JSON, retry s exponenciálnym backoffom na 429/5xx (max 4 pokusy, 500 ms → 1 s → 2 s → 4 s + jitter). Iné chyby (4xx okrem 429) sa nerekurzujú.
+- `ensureCustomer(userId)` – ak billing_details.faktero_customer_id je NULL → `POST /customers`, uloží id.
+- `createInvoice({ userId, gopayPaymentId, amountGross })` – prepočet: `unit_price = round(amountGross / 1.23, 2)`, `vat_rate: 23`, položka „Tendrik – mesačné predplatné". Volá `POST /invoices`, potom `POST /invoices/{id}/mark-paid`, potom `POST /invoices/{id}/send` s recipient_email z billing_details.
+- `issueInvoiceForPayment(...)` – celý orchestrátor s idempotenciou cez `gopay_payment_id` unique index; pri chybe zapíše `status='failed'`, `error_message`, `retry_count`, `next_retry_at` a **nehodí** ďalej (aby to nezhodilo webhook).
 
-```
-stavebne-prace           → 45
-it-sluzby                → 72
-zdravotnicke-zariadenia  → 33
-doprava                  → 60
-upratovanie              → 90
-potraviny                → 15
-energie                  → 09
-kancelarska-technika     → 30
-stavebne-materialy       → 44
-architektonicke-sluzby   → 71
-poradenske-sluzby        → 79
-vzdelavanie              → 80
-```
+## 5. Napojenie na GoPay webhook
 
-8 krajov + „celé Slovensko" (slug `celé-slovensko` → `cele-slovensko`).
+V existujúcom `gopay-webhook` handleri, po tom čo sa platba potvrdí ako úspešná a aktivuje predplatné (najprv aktivácia, potom fakturácia), zavoláme `issueInvoiceForPayment` v try/catch. Chyba Faktera **nikdy** neovplyvní odpoveď webhooku ani stav predplatného.
 
-## 4. Generovanie stránok
+## 6. UI
 
-Server function `generateSeoPages` (admin-only, `has_role admin`):
+- **Pred platbou / v nastaveniach → Predplatné**: `BillingDetailsForm` (Zod validácia, IČO/IČ DPH nepovinné, krajina default SK). Ak `faktero_customer_id` už existuje a údaje sa zmenia, aktualizuje sa aj Faktero customer (PUT) – najprv len local uloženie + refresh pri ďalšej faktúre, ak Faktero PUT nemá, ostane iba lokálny update. *(Detail podľa API dokumentácie – ak endpoint chýba, len lokálny update.)*
+- **História faktúr**: tabuľka (dátum, číslo, suma, status, „Stiahnuť PDF"). PDF sa otvorí v novom tabe cez signed_url.
+- **Admin → nová záložka „Fakturácia"**: prepínač Test/Live (informatívny badge podľa prefixu kľúča), počty (vystavené / neúspešné / čakajúce), tabuľka nevystavených s tlačidlom „Skúsiť znova" (volá `adminRetryInvoice`) a manuálne vystavenie pre daný `gopay_payment_id`.
 
-1. Pre každú kategóriu spočítaj aktívne zákazky v celom SK. Ak ≥ 3 → vytvor `page_type='category'`.
-2. Pre každý kraj spočítaj aktívne zákazky. Ak ≥ 3 → vytvor `page_type='region'`.
-3. Pre každú kombináciu kategória × kraj spočítaj. Ak ≥ 3 → vytvor `page_type='category_region'`.
-4. Pre každú novú (alebo pri re-generácii) volaj Lovable AI Gateway `google/gemini-2.5-flash-lite` s promptom v SK → vygeneruj `h1`, `title` (≤60), `description` (≤155), `intro_text` (2–3 vety). Uloží sa do `seo_pages`.
-5. Upsert cez unique index.
+## 7. Idempotencia a odolnosť
 
-RPC `get_seo_tenders(category_prefix, region_name, limit)` (SECURITY DEFINER) — vracia top 20 aktívnych zákaziek pre stránku. Filter: `deadline >= now() OR (deadline IS NULL AND published_at >= now() - 30 days)`; ak `cpv_prefix` → `cpv_code LIKE prefix||'%'`; ak `region_name` a nie je „Celé Slovensko" → `region = region_name AND country = 'SK'`; inak SK všeobecne pri region-only stránke.
+- `invoices.gopay_payment_id` UNIQUE – druhé volanie webhooku na tú istú platbu nevystaví novú faktúru.
+- Zlyhania sa neblokujú, iba logujú a ukladajú do `invoices` so `status='failed'`.
+- Retry v admin tlačidle + backoff v `fakteroFetch`.
 
-## 5. Stránka (verejná)
+## 8. Testovanie
 
-Loader (SSR) — nevolá `requireSupabaseAuth`, používa publishable server client:
-- Načíta `seo_pages` riadok podľa slugu (404 ak neexistuje).
-- Načíta zoznam zákaziek cez `get_seo_tenders`.
-- Načíta zoznam súvisiacich kategórií/krajov (pre interné prelinkovanie).
+Po nasadení požiadam o vloženie `fk_test_` kľúča a spustím end-to-end test cez existujúci sandbox GoPay flow. Ukážem odpovede z `POST /customers`, `POST /invoices`, `mark-paid`, `send` a číslo vytvorenej testovacej faktúry.
 
-Komponenty:
-- H1 (z DB)
-- Krátky úvodný text (`intro_text`)
-- Počet aktívnych: „Aktuálne {N} aktívnych zákaziek"
-- Zoznam max 20 zákaziek — každá s `<Link to="/zakazka/$id">` (title, obstarávateľ, deadline, hodnota, kraj)
-- Prázdny stav: „Aktuálne žiadne aktívne — nastavte si radar a dostávajte emailom, keď pribudnú."
-- CTA blok: „Chcete tieto zákazky dostávať e-mailom? Zaregistrujte sa zadarmo (2 mesiace zdarma)." — button na `/auth`
-- Súvisiace stránky: 6–8 interných linkov (iné kategórie v tom kraji, iné kraje pre túto kategóriu, hlavná kategória)
+---
 
-`head()` — `title`, `description` z DB; `og:title`, `og:description`, `og:type=website`; canonical relatívna.
+## Otvorené otázky pred spustením
 
-## 6. Admin sekcia
+1. Presné názvy polí v Faktero API (`customer_id` vs `customerId`, tvar `mark-paid` vs `mark_paid`, presné pole `signed_url`) – overím proti dokumentácii pri implementácii; ak sa pole odlišuje, upravím klienta. Toto je jediné miesto, kde môžeme naraziť pri prvom teste.
+2. Existujúce IČO-lookup – ak už funkcia v projekte je, znovupoužijem; ak nie, ponechám manuálne (podľa zadania).
 
-Do `/admin` pridám nový tab „SEO":
-- Zoznam všetkých `seo_pages` (page_type, slug, počet aktívnych, last_generated_at, náhľad title).
-- Tlačidlo „Vygenerovať všetky" — spúšťa `generateSeoPages` (batch, s progress feedbackom vo forme toastu).
-- Tlačidlo „Pregenerovať texty" na riadku — pre jednu stránku znova AI.
-- Edit modal — možnosť ručne prepísať `h1`, `title`, `description`, `intro_text`.
-- Filter podľa page_type.
-
-Server functions v `src/lib/seo.functions.ts`:
-- `listSeoPages` (admin)
-- `generateSeoPages` (admin) — hromadné
-- `regenerateSeoPage(id)` (admin)
-- `updateSeoPage(id, patch)` (admin)
-
-## 7. Sitemap
-
-Nová route `src/routes/sitemap[.]xml.ts` (server route). Buduje sa dynamicky:
-- statické stránky: `/`, `/cennik`, `/kontakt`, `/pravne/*`, `/ochrana-osobnych-udajov`
-- všetky `seo_pages` z DB
-- Content-Type `application/xml`, `Cache-Control: public, max-age=3600`
-
-`public/robots.txt` — zabezpečím `Sitemap: https://www.tendrik.sk/sitemap.xml` a `Allow: /zakazky/`.
-
-## 8. AI prompt (skrátene)
-
-System: „Si SEO copywriter pre slovenský portál verejného obstarávania Tendrik. Píšeš stručne, vecne, bez marketingového bullshitu."
-
-User: „Kategória: {name} (CPV {prefix}). Kraj: {region alebo 'celé Slovensko'}. Napíš JSON: h1 (max 70 znakov), title (max 60), description (max 155), intro_text (2–3 vety, ~40–60 slov, opíš pre koho sú tieto zákazky vhodné a čo sa obstaráva)."
-
-Structured output cez `Output.object` + Zod schema. Fallback: ak AI zlyhá, ulož deterministické texty z template.
-
-## 9. Rozsah / limity
-
-- Odhad: ~12 kategórií + 9 krajov + ~100 kombinácií = ~120 stránok. Generovanie beží v pozadí, po dávkach po 10 (aby sa AI nevystrelilo do rate limitu).
-- „Aspoň 3 aktívne zákazky" filter zabezpečí, že nevytvárame prázdne stránky.
-- Cron/re-generácia: manuálne z adminu (na začiatok stačí). Neskôr sa dá pridať pg_cron.
-
-## 10. Súbory (odhad)
-
-Nové:
-- migrácia (tabuľka `seo_pages` + RPC `get_seo_tenders`)
-- `src/lib/seo-catalog.ts`
-- `src/lib/seo.functions.ts`
-- `src/routes/zakazky.kategoria.$kategoria.tsx`
-- `src/routes/zakazky.kategoria.$kategoria.$kraj.tsx`
-- `src/routes/zakazky.kraj.$kraj.tsx`
-- `src/routes/sitemap[.]xml.ts`
-
-Upravené:
-- `src/routes/_authenticated/admin.tsx` (nový tab SEO)
-- `public/robots.txt`
-- prípadne `src/routes/index.tsx` (link „Prehľadať podľa kategórií")
-
-## Poznámka pre používateľa
-
-Model: použijem `google/gemini-2.5-flash-lite` cez Lovable AI Gateway (rýchly a lacný, ideálny na krátke texty). Po vytvorení tabuľky spustíte v admine „Vygenerovať všetky" — dávka ~120 stránok, trvá odhadom 2–3 minúty. Google typicky zaindexuje takéto stránky do 1–4 týždňov, výsledky v SERP záležia od kvality obsahu a interných linkov (obe máme pokryté).
+Ak plán sedí, poviem "OK, choď" a začnem migráciou + Faktero klientom, potom webhook, UI a admin.
