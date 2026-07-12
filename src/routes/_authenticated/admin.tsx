@@ -782,7 +782,7 @@ function SeoEditModal({
 // ---------- Invoices / Faktero Tab ----------
 
 function InvoicesTab() {
-  const [mode, setMode] = useState<{ mode: string; counts: any } | null>(null);
+  const [mode, setMode] = useState<{ mode: string; counts: any; available?: { test: boolean; live: boolean } } | null>(null);
   const [rows, setRows] = useState<any[]>([]);
   const [filter, setFilter] = useState<"failed" | "all" | "sent">("failed");
   const [busy, setBusy] = useState<string | null>(null);
