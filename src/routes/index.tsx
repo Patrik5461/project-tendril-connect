@@ -78,6 +78,9 @@ function ActiveTendersBlock() {
       <span className="eyebrow text-muted-foreground mt-1">
         ZDROJE TED · ÚVO · EKS · JOSEPHINE · AKTUALIZOVANÉ DENNE
       </span>
+      <p className="mt-3 text-xs md:text-sm text-muted-foreground max-w-md leading-relaxed">
+        Zobrazujeme len zákazky, do ktorých sa dá práve teraz prihlásiť. Žiadny archív ukončených súťaží.
+      </p>
     </div>
   );
 }
@@ -278,6 +281,7 @@ function Landing() {
             {[
               "Prvé 2 mesiace zadarmo, potom 4,99 €/mesiac",
               "Nastavenie za menej ako 2 minúty",
+              "Len živé príležitosti – zákazky po termíne automaticky mažeme. Nehľadáte v tisíckach starých súťaží, vidíte len tie, o ktoré sa dá reálne uchádzať.",
               "Odkaz priamo na zdroj zákazky",
               "Farebné upozornenie pri krátkom deadline",
               "Dáta priamo z oficiálnych zdrojov TED, ÚVO, EKS a JOSEPHINE",
@@ -297,6 +301,70 @@ function Landing() {
           </Link>
         </div>
       </section>
+
+      <hr className="rule-thick mx-auto max-w-6xl" />
+
+      <section className="mx-auto max-w-6xl px-4 py-16 md:py-20">
+        <div className="grid md:grid-cols-[1fr_1.4fr] gap-10 md:gap-16 items-start">
+          <div>
+            <div className="eyebrow flex items-center text-foreground">
+              <span className="red-square" aria-hidden="true" />
+              Časté otázky
+            </div>
+            <h2 className="mt-5 font-display text-3xl md:text-5xl font-bold tracking-tight">
+              FAQ
+            </h2>
+            <p className="mt-4 text-sm text-muted-foreground">
+              Čo sa najčastejšie pýtate pred registráciou.
+            </p>
+          </div>
+          <div className="border-t border-b border-foreground divide-y divide-border">
+            {[
+              {
+                q: "Prečo má Tendrik menej zákaziek než iné služby?",
+                a: "Iné služby často uvádzajú celkový počet všetkých zákaziek, ktoré kedy zaznamenali – vrátane tých, ktoré sú roky po termíne. My zobrazujeme len aktívne zákazky, do ktorých sa dá práve teraz prihlásiť. Zákazky po uplynutí lehoty automaticky odstraňujeme, aby ste sa nemuseli prehrabávať v neaktuálnych súťažiach.",
+              },
+              {
+                q: "Odkiaľ berete dáta?",
+                a: "Z oficiálnych verejných zdrojov: TED (Tenders Electronic Daily – celoeurópsky vestník), vestník ÚVO (Úrad pre verejné obstarávanie SR), EKS (Elektronický kontraktačný systém) a JOSEPHINE (platforma pre podlimitné zákazky používaná mestami, nemocnicami a krajmi).",
+              },
+              {
+                q: "Ako často sa zákazky aktualizujú?",
+                a: "Každý deň sťahujeme nové zákazky zo všetkých štyroch zdrojov a odstraňujeme tie, ktorým už uplynula lehota. V praxi teda vidíte aktuálny stav toho, o čo sa dá dnes uchádzať.",
+              },
+              {
+                q: "Je služba spoplatnená?",
+                a: "Prvé 2 mesiace máte zadarmo, potom 4,99 € / mesiac bez DPH (6,14 € s DPH). Kartu pri registrácii nepotrebujete – ozveme sa vám pred koncom skúšobnej doby. Predplatné je zrušiteľné kedykoľvek.",
+              },
+              {
+                q: "Pre koho je Tendrik určený?",
+                a: "Pre malé a stredné firmy, remeselníkov, IT a stavebné spoločnosti, konzultantov, dodávateľov služieb – pre všetkých, ktorí sa chcú uchádzať o verejné zákazky, ale nechcú denne prehrabávať štyri rôzne portály.",
+              },
+            ].map((item, i) => (
+              <details key={item.q} className="group" open={i === 0}>
+                <summary className="flex items-start gap-4 py-5 cursor-pointer list-none select-none">
+                  <span className="num text-sm text-primary font-semibold w-8 tabular-nums shrink-0 pt-0.5">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="flex-1 font-display font-bold text-lg md:text-xl text-foreground leading-snug">
+                    {item.q}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="shrink-0 mt-1 inline-flex h-6 w-6 items-center justify-center border border-foreground text-foreground text-lg leading-none font-bold transition-transform group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p className="pl-12 pr-2 pb-6 text-sm md:text-base text-foreground/80 leading-relaxed">
+                  {item.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
 
       <section className="mx-auto max-w-6xl px-4 pb-14">
         <div className="rounded-lg border-2 border-primary bg-primary/5 p-5 text-sm">
