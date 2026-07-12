@@ -12,12 +12,15 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
+type SourceBreakdown = { total: number; active: number; expired: number };
 type Overview = {
   users: { total: number; trial: number; active: number; expired: number };
   tenders_by_source: Record<string, number>;
+  tenders_source_breakdown?: Record<string, SourceBreakdown>;
   tenders_by_country: Record<string, number>;
   last_fetch: Record<string, string | null>;
   active_tenders: number;
+  total_tenders?: number;
 };
 
 type UserRow = {
