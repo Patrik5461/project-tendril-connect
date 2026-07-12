@@ -82,6 +82,7 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
     try {
       const amountGrossEur = Number(payment.amount ?? 0) / 100;
       if (amountGrossEur > 0) {
+        await resolveFakteroMode(admin);
         await issueInvoiceForPayment({
           admin,
           userId,
