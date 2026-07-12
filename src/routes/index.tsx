@@ -281,6 +281,7 @@ function Landing() {
             {[
               "Prvé 2 mesiace zadarmo, potom 4,99 €/mesiac",
               "Nastavenie za menej ako 2 minúty",
+              "Len živé príležitosti – zákazky po termíne automaticky mažeme. Nehľadáte v tisíckach starých súťaží, vidíte len tie, o ktoré sa dá reálne uchádzať.",
               "Odkaz priamo na zdroj zákazky",
               "Farebné upozornenie pri krátkom deadline",
               "Dáta priamo z oficiálnych zdrojov TED, ÚVO, EKS a JOSEPHINE",
