@@ -60,3 +60,7 @@ verify_jwt = false
 [functions.gopay-test-connection]
 verify_jwt = true
 
+[functions.faktero-ops]
+verify_jwt = true
+
+
