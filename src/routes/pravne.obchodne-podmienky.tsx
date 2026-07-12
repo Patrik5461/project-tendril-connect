@@ -45,7 +45,7 @@ function Page() {
         <ul>
           <li>filtrovať zákazky podľa kľúčových slov, CPV kódov, krajín a regiónov,</li>
           <li>dostávať e-mailové notifikácie o nových zákazkách a blížiacich sa uzávierkach,</li>
-          <li>zobrazovať detail zákazky s odkazom na zdroj (TED / ÚVO).</li>
+          <li>zobrazovať detail zákazky s odkazom na zdroj (TED / ÚVO / EKS / JOSEPHINE).</li>
         </ul>
       </section>
 
@@ -118,7 +118,7 @@ function Page() {
       <section>
         <h2>9. Zodpovednosť za obsah</h2>
         <p>
-          Údaje o zákazkach pochádzajú z verejných zdrojov TED a ÚVO. Prevádzkovateľ
+          Údaje o zákazkach pochádzajú z verejných zdrojov TED, ÚVO, EKS a JOSEPHINE. Prevádzkovateľ
           nezodpovedá za správnosť, úplnosť ani aktuálnosť týchto zdrojových údajov.
           Používanie výsledkov je na vlastnú zodpovednosť používateľa.
         </p>

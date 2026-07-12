@@ -26,7 +26,7 @@ export function LegalFooter() {
         <div>
           <div className="font-display font-bold text-foreground">Tendrik.sk</div>
           <p className="mt-2 text-muted-foreground">
-            Monitoring verejného obstarávania z TED a ÚVO.
+            Monitoring verejného obstarávania z TED, ÚVO, EKS a JOSEPHINE.
           </p>
           <p className="mt-3 text-muted-foreground">
             Prevádzkovateľ:<br />

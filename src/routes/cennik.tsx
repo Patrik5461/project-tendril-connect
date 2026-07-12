@@ -70,7 +70,7 @@ function CennikPage() {
             <ul className="mt-6 space-y-2 text-sm">
               <li className="flex gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />Neobmedzený počet radarov</li>
               <li className="flex gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />Denné e-mailové notifikácie</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />TED + ÚVO v jednom</li>
+              <li className="flex gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />TED, ÚVO, EKS a JOSEPHINE v jednom</li>
               <li className="flex gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />Automatické obnovenie cez GoPay</li>
               <li className="flex gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />Zrušenie kedykoľvek</li>
             </ul>
