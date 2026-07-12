@@ -1,66 +1,143 @@
 ## Cieľ
 
-Zaviesť admin rolu, založiť účet `admin@tendrik.sk`, presunúť všetky admin akcie do samostatnej sekcie `/admin` a skryť admin prvky z bežného UI.
+Automaticky generované SEO landing stránky, ktoré chytajú organickú návštevnosť z Google na frázy typu „stavebné zákazky Bratislava". Verejné (bez prihlásenia), s AI-generovaným úvodným textom uloženým v DB a reálnym zoznamom aktuálnych zákaziek.
 
-## 1. Databáza (migrácia)
+## 1. URL štruktúra
 
-Použijeme kanonický vzor `user_roles` + `has_role()` (nie stĺpec `role` v profiloch — bezpečnostný dôvod: privilege escalation cez UPDATE. Toto je jediná odchýlka od zadania, vysvetlím používateľovi.)
+- `/zakazky/kategoria/{kategoria-slug}` — napr. `/zakazky/kategoria/stavebne-prace`
+- `/zakazky/kategoria/{kategoria-slug}/{kraj-slug}` — napr. `/zakazky/kategoria/stavebne-prace/bratislavsky-kraj`
+- `/zakazky/kraj/{kraj-slug}` — napr. `/zakazky/kraj/kosicky-kraj`
 
-- `create type app_role as enum ('user','admin')`
-- `create table public.user_roles (id, user_id, role, unique(user_id,role))` + GRANTy + RLS
-- `create function public.has_role(_user_id uuid, _role app_role) returns boolean security definer` — používa sa v RLS aj v edge funkciách
-- RLS policy: každý user vidí len svoje role; admin vidí všetky
-- Pridať pomocnú view/RPC `admin_overview_stats()` (security definer) — vracia počty trial/active/expired, počty tendrov podľa zdroja/krajiny, posledný fetch (z `tenders.created_at` max per source)
-- RPC `admin_list_users()` (security definer, guard `has_role(auth.uid(),'admin')`) — spojí `auth.users` + `user_preferences` + počet `user_radars`
-- Nový stĺpec `app_settings.key='gopay_env_override'` nepotrebujeme — GOPAY_ENV je secret; prepínač urobíme cez existujúcu tabuľku `app_settings` (kľúč `gopay_mode`) čítanú v edge funkciách ako override sekundárny voči envu
+Poznámka: pridám `/kategoria/` do cesty aby sa oddelilo od `/zakazky/{id}` (existujúca detail route `zakazka.$id.tsx` — táto je iná, ale prefix `kategoria`/`kraj` predchádza kolíziám).
 
-## 2. Založenie admin účtu
+Route súbory (TanStack Start, file-based):
+- `src/routes/zakazky.kategoria.$kategoria.tsx`
+- `src/routes/zakazky.kategoria.$kategoria.$kraj.tsx`
+- `src/routes/zakazky.kraj.$kraj.tsx`
 
-Nebudeme vkladať heslo v kóde. Postup, ktorý používateľovi napíšem po dokončení:
+## 2. Databáza — nová tabuľka `seo_pages`
 
-**Odporúčaný postup A – cez Supabase dashboard (funguje aj bez doručenia mailu):**
-1. Supabase → Authentication → Users → Add user → `admin@tendrik.sk`, "Auto Confirm User"
-2. Ten istý user → "Send password recovery" (ak schránka funguje) alebo "Send magic link"
-3. Alternatíva: v Add user rovno zadať dočasné heslo, ktoré si po prvom prihlásení hneď zmeníte cez Settings → Password
+Stĺpce (okrem štandardných id/created_at/updated_at):
+- `page_type` text — `category` | `category_region` | `region`
+- `category_slug` text nullable — napr. `stavebne-prace`
+- `cpv_prefix` text nullable — 2-miestny CPV divízny kód (napr. `45`)
+- `region_slug` text nullable — napr. `bratislavsky-kraj`
+- `region_name` text nullable — napr. `Bratislavský kraj`
+- `h1` text — nadpis
+- `title` text — meta title
+- `description` text — meta description (max 155)
+- `intro_text` text — AI generovaný úvod (2–3 vety)
+- `active_tenders_count` int — cache pre triedenie/filter
+- `last_generated_at` timestamptz
+- unique index na (page_type, category_slug, region_slug)
 
-Po vytvorení užívateľa spustí sa naša SQL migrácia, ktorá do `user_roles` vloží `(user_id, 'admin')` pre e-mail `admin@tendrik.sk` (`INSERT ... SELECT id FROM auth.users WHERE email='admin@tendrik.sk' ON CONFLICT DO NOTHING`). Ak účet ešte neexistuje, migrácia neurobí nič a spustíme rovnaký insert znova po vytvorení účtu (pripravím jednorazový SQL snippet, ktorý používateľ pustí v SQL editore).
+RLS: verejný SELECT (`TO anon, authenticated`), zápis len service_role. GRANT SELECT to anon, authenticated.
 
-## 3. `/admin` route (chránená)
+## 3. Katalógy
 
-- `src/routes/_authenticated/admin.tsx` — pri `beforeLoad` overí cez server function `checkIsAdmin` (RPC `has_role`), inak `redirect → /dashboard`
-- Server functions (`src/lib/admin.functions.ts`) — všetky s `requireSupabaseAuth` + kontrolou `has_role(userId,'admin')` a až potom robia prácu:
-  - `getAdminOverview` — počty používateľov, tendrov, posledný fetch per source
-  - `listAdminUsers` — cez `supabaseAdmin` (dynamický import), len bezpečné polia: email, subscription_status, trial_started_at, created_at, radars_count
-  - `triggerFetchTenders` / `triggerFetchUvo` / `triggerBackfillTed` / `triggerBackfillUvo` / `triggerCleanup` / `triggerDailyDigest` / `triggerWeeklyDigest` / `triggerDeadlineReminders` / `triggerGenerateSummaries` — každá invokuje príslušnú edge funkciu cez service role
-  - `getCronJobs` — SELECT z `cron.job` a `cron.job_run_details` (top 20) cez supabaseAdmin
-  - `getAiSummariesEnabled` / `setAiSummariesEnabled` — RPC ktoré už existuje
-  - `getGopayMode` / `setGopayMode` — app_settings kľúč `gopay_mode` (`sandbox`|`production`), read v edge funkciách má prioritu nad env, ak je nastavený
-  - `simulateGopayWebhook` — priame volanie `gopay-webhook` s `simulate:true`
+`src/lib/seo-catalog.ts` — 12 kurátorovaných kategórií (subset z `CPV_DIVISIONS`) s ľudským menom + slug + CPV prefix:
 
-UI: tab layout (Overview / Actions / Cron / Users / GoPay), jednoduchý bez extra knižníc, `Table` z shadcn.
+```
+stavebne-prace           → 45
+it-sluzby                → 72
+zdravotnicke-zariadenia  → 33
+doprava                  → 60
+upratovanie              → 90
+potraviny                → 15
+energie                  → 09
+kancelarska-technika     → 30
+stavebne-materialy       → 44
+architektonicke-sluzby   → 71
+poradenske-sluzby        → 79
+vzdelavanie              → 80
+```
 
-## 4. Skrytie admin prvkov z bežného UI
+8 krajov + „celé Slovensko" (slug `celé-slovensko` → `cele-slovensko`).
 
-Prehľadám `dashboard.tsx` a `settings.tsx` a odstránim / presuniem do `/admin`:
-- prípadné manuálne fetch/backfill/cleanup tlačidlá
-- prepínač AI zhrnutí
-- webhook simulator
-Do hlavičky pre admina pridám nenápadný link „Admin" (viditeľný iba keď `has_role`).
+## 4. Generovanie stránok
 
-## 5. Edge funkcie — GoPay mode override
+Server function `generateSeoPages` (admin-only, `has_role admin`):
 
-V `_shared/gopay.ts` doplním: pred `Deno.env.get("GOPAY_ENV")` pozrieť `app_settings.key='gopay_mode'` (ak je 'production'/'sandbox' použiť to). Cache per invocation.
+1. Pre každú kategóriu spočítaj aktívne zákazky v celom SK. Ak ≥ 3 → vytvor `page_type='category'`.
+2. Pre každý kraj spočítaj aktívne zákazky. Ak ≥ 3 → vytvor `page_type='region'`.
+3. Pre každú kombináciu kategória × kraj spočítaj. Ak ≥ 3 → vytvor `page_type='category_region'`.
+4. Pre každú novú (alebo pri re-generácii) volaj Lovable AI Gateway `google/gemini-2.5-flash-lite` s promptom v SK → vygeneruj `h1`, `title` (≤60), `description` (≤155), `intro_text` (2–3 vety). Uloží sa do `seo_pages`.
+5. Upsert cez unique index.
 
-## 6. Runtime error z prehľadu
+RPC `get_seo_tenders(category_prefix, region_name, limit)` (SECURITY DEFINER) — vracia top 20 aktívnych zákaziek pre stránku. Filter: `deadline >= now() OR (deadline IS NULL AND published_at >= now() - 30 days)`; ak `cpv_prefix` → `cpv_code LIKE prefix||'%'`; ak `region_name` a nie je „Celé Slovensko" → `region = region_name AND country = 'SK'`; inak SK všeobecne pri region-only stránke.
 
-Vidím `GOPAY_NOT_CONFIGURED` 503 — to je očakávané správanie (placeholder kľúče), ošetrené v UI. Nechávam.
+## 5. Stránka (verejná)
 
-## Doručím po implementácii
+Loader (SSR) — nevolá `requireSupabaseAuth`, používa publishable server client:
+- Načíta `seo_pages` riadok podľa slugu (404 ak neexistuje).
+- Načíta zoznam zákaziek cez `get_seo_tenders`.
+- Načíta zoznam súvisiacich kategórií/krajov (pre interné prelinkovanie).
 
-- Presný postup nastavenia hesla pre `admin@tendrik.sk` (dashboard krokmi).
-- Overenie: prihlásený admin uvidí `/admin` a link v hlavičke; bežný účet dostane redirect na `/dashboard`.
+Komponenty:
+- H1 (z DB)
+- Krátky úvodný text (`intro_text`)
+- Počet aktívnych: „Aktuálne {N} aktívnych zákaziek"
+- Zoznam max 20 zákaziek — každá s `<Link to="/zakazka/$id">` (title, obstarávateľ, deadline, hodnota, kraj)
+- Prázdny stav: „Aktuálne žiadne aktívne — nastavte si radar a dostávajte emailom, keď pribudnú."
+- CTA blok: „Chcete tieto zákazky dostávať e-mailom? Zaregistrujte sa zadarmo (2 mesiace zdarma)." — button na `/auth`
+- Súvisiace stránky: 6–8 interných linkov (iné kategórie v tom kraji, iné kraje pre túto kategóriu, hlavná kategória)
 
-## Súbory (odhad)
+`head()` — `title`, `description` z DB; `og:title`, `og:description`, `og:type=website`; canonical relatívna.
 
-Nové: migrácia, `src/routes/_authenticated/admin.tsx`, `src/lib/admin.functions.ts`, tabs komponenty (inline v admin.tsx).
-Upravené: `_shared/gopay.ts`, `src/routes/_authenticated/route.tsx` (admin link), `src/routes/_authenticated/dashboard.tsx` a `settings.tsx` (odstrániť admin akcie), `src/integrations/supabase/types.ts` (regeneruje sa po migrácii).
+## 6. Admin sekcia
+
+Do `/admin` pridám nový tab „SEO":
+- Zoznam všetkých `seo_pages` (page_type, slug, počet aktívnych, last_generated_at, náhľad title).
+- Tlačidlo „Vygenerovať všetky" — spúšťa `generateSeoPages` (batch, s progress feedbackom vo forme toastu).
+- Tlačidlo „Pregenerovať texty" na riadku — pre jednu stránku znova AI.
+- Edit modal — možnosť ručne prepísať `h1`, `title`, `description`, `intro_text`.
+- Filter podľa page_type.
+
+Server functions v `src/lib/seo.functions.ts`:
+- `listSeoPages` (admin)
+- `generateSeoPages` (admin) — hromadné
+- `regenerateSeoPage(id)` (admin)
+- `updateSeoPage(id, patch)` (admin)
+
+## 7. Sitemap
+
+Nová route `src/routes/sitemap[.]xml.ts` (server route). Buduje sa dynamicky:
+- statické stránky: `/`, `/cennik`, `/kontakt`, `/pravne/*`, `/ochrana-osobnych-udajov`
+- všetky `seo_pages` z DB
+- Content-Type `application/xml`, `Cache-Control: public, max-age=3600`
+
+`public/robots.txt` — zabezpečím `Sitemap: https://www.tendrik.sk/sitemap.xml` a `Allow: /zakazky/`.
+
+## 8. AI prompt (skrátene)
+
+System: „Si SEO copywriter pre slovenský portál verejného obstarávania Tendrik. Píšeš stručne, vecne, bez marketingového bullshitu."
+
+User: „Kategória: {name} (CPV {prefix}). Kraj: {region alebo 'celé Slovensko'}. Napíš JSON: h1 (max 70 znakov), title (max 60), description (max 155), intro_text (2–3 vety, ~40–60 slov, opíš pre koho sú tieto zákazky vhodné a čo sa obstaráva)."
+
+Structured output cez `Output.object` + Zod schema. Fallback: ak AI zlyhá, ulož deterministické texty z template.
+
+## 9. Rozsah / limity
+
+- Odhad: ~12 kategórií + 9 krajov + ~100 kombinácií = ~120 stránok. Generovanie beží v pozadí, po dávkach po 10 (aby sa AI nevystrelilo do rate limitu).
+- „Aspoň 3 aktívne zákazky" filter zabezpečí, že nevytvárame prázdne stránky.
+- Cron/re-generácia: manuálne z adminu (na začiatok stačí). Neskôr sa dá pridať pg_cron.
+
+## 10. Súbory (odhad)
+
+Nové:
+- migrácia (tabuľka `seo_pages` + RPC `get_seo_tenders`)
+- `src/lib/seo-catalog.ts`
+- `src/lib/seo.functions.ts`
+- `src/routes/zakazky.kategoria.$kategoria.tsx`
+- `src/routes/zakazky.kategoria.$kategoria.$kraj.tsx`
+- `src/routes/zakazky.kraj.$kraj.tsx`
+- `src/routes/sitemap[.]xml.ts`
+
+Upravené:
+- `src/routes/_authenticated/admin.tsx` (nový tab SEO)
+- `public/robots.txt`
+- prípadne `src/routes/index.tsx` (link „Prehľadať podľa kategórií")
+
+## Poznámka pre používateľa
+
+Model: použijem `google/gemini-2.5-flash-lite` cez Lovable AI Gateway (rýchly a lacný, ideálny na krátke texty). Po vytvorení tabuľky spustíte v admine „Vygenerovať všetky" — dávka ~120 stránok, trvá odhadom 2–3 minúty. Google typicky zaindexuje takéto stránky do 1–4 týždňov, výsledky v SERP záležia od kvality obsahu a interných linkov (obe máme pokryté).
