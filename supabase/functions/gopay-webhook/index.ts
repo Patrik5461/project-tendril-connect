@@ -5,7 +5,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
   corsHeaders, getGoPayToken, gopayConfig, mapPaymentState, resolveGopayEnv } from "../_shared/gopay.ts";
-import { issueInvoiceForPayment } from "../_shared/faktero.ts";
+import { issueInvoiceForPayment, resolveFakteroMode } from "../_shared/faktero.ts";
 
 async function fetchPayment(id: string) {
   const cfg = gopayConfig();
