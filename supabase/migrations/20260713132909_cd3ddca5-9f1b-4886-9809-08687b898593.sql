@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.search_user_tenders(text, uuid[], text, text[], text, integer, integer);
