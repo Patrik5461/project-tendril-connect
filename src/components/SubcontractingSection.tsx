@@ -379,7 +379,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
           })}
 
           {/* Výber + oslovenia */}
-          <div className="pt-4 border-t border-border">
+          <div ref={selectionsRef} className="pt-4 border-t border-border scroll-mt-24">
             <div className="flex items-center justify-between">
               <h3 className="font-display font-semibold">Vybraní subdodávatelia a oslovenia</h3>
               <div className="flex gap-2">
