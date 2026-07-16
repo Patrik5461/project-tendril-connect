@@ -19,7 +19,7 @@ type AnalysisRow = {
 
 type Props = { tenderId: string; defaultCity?: string | null };
 
-export function TenderAnalysisSection({ tenderId }: Props) {
+export function TenderAnalysisSection({ tenderId, defaultCity }: Props) {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
