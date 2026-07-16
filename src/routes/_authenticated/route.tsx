@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Settings, LogOut, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Settings, LogOut, ShieldCheck, Tag } from "lucide-react";
 import { HelpChatWidget } from "@/components/HelpChatWidget";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
