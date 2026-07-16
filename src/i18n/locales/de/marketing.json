@@ -77,7 +77,7 @@
   },
   "billing": {
     "label": "Preis und wiederkehrende Zahlungen:",
-    "body": "2 Monate gratis, danach <b>4,99 € / Monat</b> (Basis) oder <b>14,99 € / Monat</b> (Premium). Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Das Abo verlängert sich automatisch monatlich über das Zahlungs-Gateway GoPay. Jederzeit kündbar.",
+    "body": "30 Tage gratis testen (inkl. 5 KI-Analysen), danach <b>4,99 € / Monat</b> (Basis) oder <b>14,99 € / Monat</b> (Premium). Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Das Abo verlängert sich automatisch monatlich über das Zahlungs-Gateway GoPay. Jederzeit kündbar.",
     "link": "Bedingungen für wiederkehrende Zahlungen →"
   },
   "footer": {
