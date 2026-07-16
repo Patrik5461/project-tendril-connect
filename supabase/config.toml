@@ -15,6 +15,9 @@ verify_jwt = false
 [functions.backfill-ted]
 verify_jwt = false
 
+[functions.backfill-ted-criteria]
+verify_jwt = false
+
 [functions.backfill-uvo]
 verify_jwt = false
 

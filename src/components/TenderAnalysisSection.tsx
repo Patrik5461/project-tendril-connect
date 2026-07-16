@@ -3,10 +3,17 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCircle, RefreshCw } from "lucide-react";
+import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCircle, RefreshCw, Scale, ShieldAlert, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { analyzeTender, getTenderAnalysis, getCompanyProfile } from "@/lib/tender-analysis.functions";
 import { SubcontractingSection } from "@/components/SubcontractingSection";
+import {
+  awardBreakdown,
+  exclusionGroundLabel,
+  hasNoticeSelectionCriteria,
+  selectionCriteriaAreInAttachments,
+  type StructuredCriteria,
+} from "@/lib/ted-criteria";
 
 type AnalysisRow = {
   summary: string | null;
@@ -17,9 +24,14 @@ type AnalysisRow = {
   updated_at?: string;
 };
 
-type Props = { tenderId: string; defaultCity?: string | null };
+type Props = {
+  tenderId: string;
+  defaultCity?: string | null;
+  source?: string | null;
+  structuredCriteria?: StructuredCriteria | null;
+};
 
-export function TenderAnalysisSection({ tenderId, defaultCity }: Props) {
+export function TenderAnalysisSection({ tenderId, defaultCity, source, structuredCriteria }: Props) {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
@@ -84,6 +96,10 @@ export function TenderAnalysisSection({ tenderId, defaultCity }: Props) {
 
   return (
     <div className="mt-12 border-t-2 border-foreground pt-6">
+      {source === "TED" && structuredCriteria && (
+        <TedStructuredFacts sc={structuredCriteria} />
+      )}
+
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
         <div className="eyebrow text-primary">AI analýza spôsobilosti</div>
@@ -295,4 +311,131 @@ function recommendationClass(r: string | null): string {
   if (r === "neodporucame") return "border-red-600/40 bg-red-500/5";
   if (r === "opatrne") return "border-amber-500/40 bg-amber-500/5";
   return "border-border bg-card";
+}
+
+// ---------- TED structured facts (no AI) ----------
+function TedStructuredFacts({ sc }: { sc: StructuredCriteria }) {
+  const award = awardBreakdown(sc);
+  const exclusions = sc.exclusion_grounds ?? [];
+  const inNotice = hasNoticeSelectionCriteria(sc);
+  const inAttachments = selectionCriteriaAreInAttachments(sc);
+
+  const hasAnything =
+    !!award ||
+    exclusions.length > 0 ||
+    inNotice ||
+    inAttachments ||
+    !!sc.guarantee_required_description ||
+    !!sc.tenderer_legal_form_description;
+  if (!hasAnything) return null;
+
+  return (
+    <div className="mb-8 rounded-lg border border-border bg-card p-5 space-y-5">
+      <div className="flex items-center gap-2">
+        <FileText className="h-4 w-4 text-primary" />
+        <div className="eyebrow text-primary">Podmienky z TED registra</div>
+      </div>
+
+      {award && (
+        <section>
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <Scale className="h-4 w-4" /> Kritériá hodnotenia ponúk
+          </div>
+          <div className="mt-2 text-sm">{award.summary}</div>
+          {award.items.length > 1 && (
+            <div className="mt-2 flex gap-1 h-2 overflow-hidden rounded bg-secondary">
+              {award.items.map((it) => (
+                <div
+                  key={it.type}
+                  className={
+                    it.type === "price"
+                      ? "bg-primary"
+                      : it.type === "quality"
+                      ? "bg-emerald-500"
+                      : "bg-amber-500"
+                  }
+                  style={{ width: `${it.weight ?? 100 / award.items.length}%` }}
+                  title={`${it.label}${it.weight ? ` — ${it.weight} %` : ""}`}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {exclusions.length > 0 && (
+        <section>
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <ShieldAlert className="h-4 w-4" /> Dôvody vylúčenia uchádzača
+          </div>
+          <ul className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-1 text-xs text-muted-foreground">
+            {exclusions.map((code) => (
+              <li key={code} className="flex items-start gap-1.5">
+                <span className="text-muted-foreground/60 mt-0.5">•</span>
+                <span>{exclusionGroundLabel(code)}</span>
+              </li>
+            ))}
+          </ul>
+          {sc.exclusion_grounds_description && (
+            <p className="mt-2 text-xs text-muted-foreground italic">{sc.exclusion_grounds_description}</p>
+          )}
+        </section>
+      )}
+
+      {inNotice && (sc.selection_criterion_descriptions?.length ?? 0) > 0 && (
+        <section>
+          <div className="flex items-center gap-2 text-sm font-medium">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Podmienky účasti (overené z oznámenia)
+          </div>
+          <ul className="mt-2 space-y-1.5 text-sm">
+            {sc.selection_criterion_descriptions.slice(0, 8).map((d, i) => (
+              <li key={i} className="rounded border border-border/70 bg-background/50 p-2">
+                {sc.selection_criterion_names?.[i] && (
+                  <div className="text-xs font-medium text-muted-foreground">{sc.selection_criterion_names[i]}</div>
+                )}
+                <div>{d}</div>
+              </li>
+            ))}
+          </ul>
+          {sc.language && sc.language !== "slk" && sc.language !== "sk" && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Text je v pôvodnom jazyku ({sc.language}). AI analýza nižšie ho spracuje po slovensky.
+            </p>
+          )}
+        </section>
+      )}
+
+      {inAttachments && (
+        <section className="rounded border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+            <div>
+              <div className="font-medium">Podmienky sú v prílohách</div>
+              <div className="text-xs text-muted-foreground mt-1">
+                TED oznámenie uvádza, že detailné podmienky účasti sú v súťažných podkladoch (prílohách), nie v samotnom oznámení.
+                AI analýza pracuje s popisom nižšie; presné podmienky nájdete v priloženej dokumentácii.
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {(sc.guarantee_required_description || sc.tenderer_legal_form_description) && (
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+          {sc.guarantee_required_description && (
+            <div className="rounded border border-border p-3">
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">Zábezpeka</div>
+              <div className="mt-1">{sc.guarantee_required_description}</div>
+            </div>
+          )}
+          {sc.tenderer_legal_form_description && (
+            <div className="rounded border border-border p-3">
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">Právna forma uchádzača</div>
+              <div className="mt-1">{sc.tenderer_legal_form_description}</div>
+            </div>
+          )}
+        </section>
+      )}
+    </div>
+  );
 }

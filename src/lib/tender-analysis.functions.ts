@@ -3,6 +3,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { GEMINI_MODELS, geminiGenerate, geminiUserMessage, type GeminiModel } from "./gemini.server";
 import { fetchCompanyFromRegisters, type RegistryCompany } from "./registers.server";
+import type { StructuredCriteria } from "./ted-criteria";
+import { hasNoticeSelectionCriteria, selectionCriteriaAreInAttachments } from "./ted-criteria";
 
 // ---------- Prompts (Slovak) ----------
 const PROMPT_SUMMARY =
@@ -10,6 +12,16 @@ const PROMPT_SUMMARY =
 
 const PROMPT_REQUIREMENTS =
   "Vytiahni z tohto oznámenia všetky podmienky účasti pre uchádzača: požadovaný obrat, referencie (počet, hodnota, typ), certifikáty, technická a personálna spôsobilosť, zábezpeka. Ak niektorá podmienka nie je uvedená, napíš 'neuvedené'. Vráť ako JSON so schémou: {\"obrat\": string, \"referencie\": string, \"certifikaty\": string, \"technicka_sposobilost\": string, \"personalna_sposobilost\": string, \"zabezpeka\": string, \"ostatne\": string}.";
+
+const PROMPT_REQUIREMENTS_TED_VERIFIED = [
+  "Nižšie sú OVEREN\u00c9 podmienky účasti stiahnuté priamo zo štruktúrovaných polí registra TED (nie voľný text).",
+  "Tvoja úloha: usporiadaj ich do slovenských kategórií a preložte do slovenčiny.",
+  "PRAVIDLÁ:",
+  "- Nedomýšľaj, nedopĺňaj, čo tam nie je. Ak kategória nie je v texte pokrytá, napíš 'neuvedené'.",
+  "- Ak podmienka obsahuje konkrétne čísla (počet referencií, hodnota, roky), zachovaj ich presne.",
+  "- Zábezpeku uveď len ak je uvedená; inak 'neuvedené'.",
+  "Vráť JSON: {\"obrat\": string, \"referencie\": string, \"certifikaty\": string, \"technicka_sposobilost\": string, \"personalna_sposobilost\": string, \"zabezpeka\": string, \"ostatne\": string}.",
+].join("\n");
 
 const PROMPT_ELIGIBILITY = `Porovnaj podmienky účasti s profilom firmy. Pre každú podmienku uveď: SPĹŇA / HRANIČNÉ / NESPĹŇA + krátke vysvetlenie. Na záver: celkové odporúčanie (odporúčame/neodporúčame sa uchádzať) a čo firme chýba. Buď presný pri porovnávaní čísel (obrat, počet referencií). Ak údaj o firme chýba, označ ako 'nemožno posúdiť', nie ako nespĺňa.
 Vráť JSON: {"posudenia": [{"podmienka": string, "stav": "SPĹŇA"|"HRANIČNÉ"|"NESPĹŇA"|"NEMOŽNO POSÚDIŤ", "vysvetlenie": string}], "odporucanie": "odporucame"|"neodporucame"|"opatrne", "co_chyba": string, "zhrnutie": string}`;
@@ -28,6 +40,8 @@ type TenderRow = {
   region: string | null;
   country: string | null;
   source_url: string | null;
+  source?: string | null;
+  structured_criteria?: StructuredCriteria | null;
 };
 
 type CompanyForAnalysis = {
@@ -44,7 +58,7 @@ type CompanyForAnalysis = {
 };
 
 function buildTenderContext(t: TenderRow): string {
-  return [
+  const parts: string[] = [
     `Názov: ${t.title}`,
     `Obstarávateľ: ${t.contracting_authority}`,
     `CPV: ${t.cpv_code ?? "—"}`,
@@ -52,10 +66,46 @@ function buildTenderContext(t: TenderRow): string {
     `Termín predkladania: ${t.deadline ?? "—"}`,
     `Región: ${t.region ?? "—"} / ${t.country ?? "—"}`,
     `Zdrojové URL: ${t.source_url ?? "—"}`,
-    "",
-    "Popis / oznámenie:",
-    t.description ?? "(bez popisu)",
-  ].join("\n");
+  ];
+
+  const sc = t.structured_criteria ?? null;
+  if (sc && hasNoticeSelectionCriteria(sc)) {
+    parts.push("", "PODMIENKY ÚČASTI (overené zo štruktúrovaných polí TED — epo-notice):");
+    const names = sc.selection_criterion_names ?? [];
+    const descs = sc.selection_criterion_descriptions ?? [];
+    for (let i = 0; i < descs.length; i++) {
+      const name = names[i] ?? `Podmienka ${i + 1}`;
+      parts.push(`- ${name}: ${descs[i]}`);
+    }
+    if (sc.tenderer_legal_form_description) {
+      parts.push(`- Právna forma uchádzača: ${sc.tenderer_legal_form_description}`);
+    }
+    if (sc.guarantee_required_description) {
+      parts.push(`- Zábezpeka: ${sc.guarantee_required_description}`);
+    }
+    if (sc.contract_conditions_description) {
+      parts.push(`- Zmluvné podmienky: ${sc.contract_conditions_description}`);
+    }
+    if (sc.language && sc.language !== "slk" && sc.language !== "sk") {
+      parts.push(`(Text je v jazyku: ${sc.language}. Preložte do slovenčiny pri odpovedi.)`);
+    }
+  } else if (sc && selectionCriteriaAreInAttachments(sc)) {
+    parts.push(
+      "",
+      "POZNÁMKA: TED oznámenie uvádza, že podmienky účasti sú v prílohách/súťažných podkladoch (epo-procurement-document), nie v tomto texte. Extrahuj len to, čo je dostupné v popise nižšie; ostatné označ ako 'neuvedené'.",
+    );
+    if (sc.description_lot) {
+      parts.push("", "Detailný popis predmetu (z TED):", sc.description_lot);
+    }
+  }
+
+  parts.push("", "Popis / oznámenie:", t.description ?? "(bez popisu)");
+  return parts.join("\n");
+}
+
+function requirementsPromptFor(t: TenderRow): string {
+  const sc = t.structured_criteria ?? null;
+  return sc && hasNoticeSelectionCriteria(sc) ? PROMPT_REQUIREMENTS_TED_VERIFIED : PROMPT_REQUIREMENTS;
 }
 
 function buildCompanyContext(c: CompanyForAnalysis): string {
@@ -124,7 +174,7 @@ export const adminAnalyzeTender = createServerFn({ method: "POST" })
     // 1) Load tender
     const { data: tender, error: tErr } = await context.supabase
       .from("tenders")
-      .select("id,title,description,contracting_authority,cpv_code,estimated_value,currency,deadline,published_at,region,country,source_url")
+      .select("id,title,description,contracting_authority,cpv_code,estimated_value,currency,deadline,published_at,region,country,source_url,source,structured_criteria")
       .eq("id", data.tender_id)
       .maybeSingle<TenderRow>();
     if (tErr) throw tErr;
@@ -160,7 +210,7 @@ export const adminAnalyzeTender = createServerFn({ method: "POST" })
     } catch (e) { errors.push("Súhrn: " + geminiUserMessage(e)); }
 
     try {
-      requirements = await runPart(GEMINI_MODELS.FLASH, PROMPT_REQUIREMENTS, tenderText, { json: true });
+      requirements = await runPart(GEMINI_MODELS.FLASH, requirementsPromptFor(tender), tenderText, { json: true });
     } catch (e) { errors.push("Podmienky: " + geminiUserMessage(e)); }
 
     if (requirements) {
@@ -335,7 +385,7 @@ async function runAnalysisPipeline(tender: TenderRow, companyText: string) {
   let eligibility: Awaited<ReturnType<typeof runPart>> | null = null;
   try { summary = await runPart(GEMINI_MODELS.FLASH, PROMPT_SUMMARY, tenderText); }
   catch (e) { errors.push("Súhrn: " + geminiUserMessage(e)); }
-  try { requirements = await runPart(GEMINI_MODELS.FLASH, PROMPT_REQUIREMENTS, tenderText, { json: true }); }
+  try { requirements = await runPart(GEMINI_MODELS.FLASH, requirementsPromptFor(tender), tenderText, { json: true }); }
   catch (e) { errors.push("Podmienky: " + geminiUserMessage(e)); }
   if (requirements) {
     try {
@@ -405,7 +455,7 @@ export const analyzeTender = createServerFn({ method: "POST" })
     // Load tender
     const { data: tender, error: tErr } = await context.supabase
       .from("tenders")
-      .select("id,title,description,contracting_authority,cpv_code,estimated_value,currency,deadline,published_at,region,country,source_url")
+      .select("id,title,description,contracting_authority,cpv_code,estimated_value,currency,deadline,published_at,region,country,source_url,source,structured_criteria")
       .eq("id", data.tender_id)
       .maybeSingle<TenderRow>();
     if (tErr) throw tErr;

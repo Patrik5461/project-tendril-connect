@@ -29,6 +29,7 @@ type Tender = {
   ai_summary?: string | null;
   country?: string | null;
   country_name?: string | null;
+  structured_criteria?: import("@/lib/ted-criteria").StructuredCriteria | null;
 };
 
 export const Route = createFileRoute("/zakazka/$id")({
@@ -291,7 +292,14 @@ function TenderDetail() {
         </div>
       )}
 
-      {authed && <TenderAnalysisSection tenderId={tender.id} defaultCity={tender.region ?? null} />}
+      {authed && (
+        <TenderAnalysisSection
+          tenderId={tender.id}
+          defaultCity={tender.region ?? null}
+          source={tender.source}
+          structuredCriteria={tender.structured_criteria ?? null}
+        />
+      )}
 
       <div className="mt-10 flex flex-wrap gap-3">
         {tender.source_url && (
