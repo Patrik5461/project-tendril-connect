@@ -3,6 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { GEMINI_MODELS, geminiGenerate, geminiUserMessage } from "./gemini.server";
+import { fetchCompanyFromRegisters } from "./registers.server";
+
 
 // ---------------- Types ----------------
 type SuggestedItem = {
