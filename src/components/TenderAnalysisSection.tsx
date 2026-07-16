@@ -134,6 +134,13 @@ export function TenderAnalysisSection({ tenderId, defaultCity }: Props) {
       {analysis && (
         <AnalysisView analysis={analysis} onRerun={() => run(true)} rerunning={running} locked={!isActive} />
       )}
+
+      <SubcontractingSection
+        tenderId={tenderId}
+        defaultCity={defaultCity ?? null}
+        isActive={isActive}
+        analysisReady={!!analysis}
+      />
     </div>
   );
 }
