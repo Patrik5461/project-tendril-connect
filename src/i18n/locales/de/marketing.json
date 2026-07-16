@@ -4,13 +4,13 @@
     "signup": "Registrieren"
   },
   "hero": {
-    "eyebrow": "2 Monate gratis · Monitoring öffentlicher Ausschreibungen",
+    "eyebrow": "30 Tage gratis · Monitoring öffentlicher Ausschreibungen",
     "titleEmphasis": "Ausschreibungen",
     "titleRest": "finden dich\nvon selbst.",
     "subtitle": "Gib Schlüsselwörter, CPV-Kategorien und Regionen an.\nTendrik liefert dir täglich die Ausschreibungen, die dich wirklich betreffen.",
     "ctaPrimary": "Gratis starten",
     "ctaSecondary": "Ich habe schon ein Konto",
-    "priceNote": "2 Monate gratis testen. Danach <price>4,99 €/Monat</price>. Ohne Bindung, keine Kartendaten nötig."
+    "priceNote": "30 Tage gratis testen. Danach <price>ab 4,99 €/Monat</price>. Ohne Bindung, keine Kartendaten nötig."
   },
   "stats": {
     "activeSuffix": "aktive Ausschreibungen EU-weit",
