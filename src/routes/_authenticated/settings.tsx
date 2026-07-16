@@ -619,7 +619,7 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
         <div>
           <div className="text-muted-foreground">Plán / Cena</div>
           <div className="font-medium">
-            Tendrik {sub.tier === "premium" ? "Prémium" : "Základ"} · {formatEur(sub.tier === "premium" ? 15 : MONTHLY_PRICE_EUR)} / mes bez DPH
+            Tendrik {sub.tier === "premium" ? "Prémium" : "Základ"} · {formatEur(sub.tier === "premium" ? 14.99 : MONTHLY_PRICE_EUR)} / mes
           </div>
         </div>
         {validUntil && (
