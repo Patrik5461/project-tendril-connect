@@ -85,7 +85,7 @@ function renderHtml(dashboardUrl: string, settingsUrl: string): string {
 
         <tr><td style="padding:20px 24px 0 24px;">
           <p style="margin:0;font-size:15px;line-height:1.55;">
-            <strong>Prvé 2 mesiace máte zadarmo, potom 4,99 €/mesiac.</strong> Kartu teraz nepotrebujete – ozveme sa vám pred koncom skúšobnej doby.
+            <strong>30 dní zdarma na vyskúšanie</strong> (vrátane 5 AI analýz zákaziek), potom 4,99 €/mes (Základ) alebo 14,99 €/mes (Prémium). Kartu teraz nepotrebujete – ozveme sa vám pred koncom skúšobnej doby.
           </p>
 
           <p style="margin:10px 0 0 0;font-size:15px;line-height:1.55;">
