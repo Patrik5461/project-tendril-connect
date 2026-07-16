@@ -198,6 +198,17 @@ function SettingsPage() {
       <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Nastavenia</h1>
       <p className="mt-1 text-muted-foreground">Prihlásený ako {email}</p>
 
+      <Link
+        to="/firma"
+        className="mt-6 flex items-center justify-between gap-4 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 hover:bg-primary/10 transition-colors"
+      >
+        <div>
+          <div className="font-medium">Firemný profil</div>
+          <div className="text-sm text-muted-foreground">IČO, obrat po rokoch, referencie, certifikáty – vstup pre AI analýzu zákaziek.</div>
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+      </Link>
+
       <Tabs defaultValue="notifications" className="mt-8">
         <TabsList className="w-full grid grid-cols-3">
           <TabsTrigger value="notifications">Notifikácie</TabsTrigger>
