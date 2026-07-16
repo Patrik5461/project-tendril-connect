@@ -52,12 +52,12 @@ function Page() {
       <section>
         <h2>3. Cena a platobné podmienky</h2>
         <p>
-          Používanie Služby je spoplatnené paušálnou mesačnou sumou:
+          Používanie Služby je spoplatnené paušálnou mesačnou sumou podľa zvoleného tieru:
         </p>
         <ul>
-          <li>Cena bez DPH: <b>4,99&nbsp;€ / mesiac</b></li>
-          <li>DPH 23&nbsp;%: 1,15&nbsp;€</li>
-          <li>Cena s DPH: <b>6,14&nbsp;€ / mesiac</b></li>
+          <li>Základ: <b>4,99&nbsp;€ / mesiac</b></li>
+          <li>Prémium (s AI): <b>14,99&nbsp;€ / mesiac</b></li>
+          <li>Dodávateľ <b>Tobify s.&nbsp;r.&nbsp;o.</b> nie je platiteľom DPH – uvedené sumy sú konečné.</li>
         </ul>
         <p>
           Platba prebieha prostredníctvom platobnej brány <b>GoPay</b> platobnou kartou (Visa,
