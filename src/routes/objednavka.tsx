@@ -8,7 +8,7 @@ export const Route = createFileRoute("/objednavka")({
   head: () => ({
     meta: [
       { title: "Objednávka predplatného – Tendrik" },
-      { name: "description", content: "Objednajte si Tendrik Premium za 14,99 € mesačne. Prvé 2 mesiace zdarma. Platba cez GoPay." },
+      { name: "description", content: "Objednajte si Tendrik Premium za 14,99 € mesačne. 30 dní zdarma na vyskúšanie. Platba cez GoPay." },
     ],
     links: [{ rel: "canonical", href: "https://www.tendrik.sk/objednavka" }],
   }),
