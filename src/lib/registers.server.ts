@@ -83,7 +83,7 @@ export async function lookupSkNaceName(
  */
 export async function fetchCompanyFromRegisters(
   icoInput: string,
-  sb: { rpc: (...a: any[]) => Promise<any>; from: (...a: any[]) => any },
+  sb: any,
 ): Promise<RegistryCompany> {
   const ico = normalizeIco(icoInput);
   const errors: string[] = [];
