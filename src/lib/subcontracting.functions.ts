@@ -43,7 +43,14 @@ Pre každú položku uveď:
 - nazov (krátky, konkrétny; napr. "Elektroinštalačné práce" alebo "Doprava a logistika")
 - dovod (ktorá podmienka to vyžaduje / prečo firma nezvládne sama)
 - nace_kod (odhadovaný 2- alebo 4-miestny SK-NACE kód, napr. "43.21", ak neviete napíšte null)
-- hladane_slovo — JEDEN krátky koreň slova (5–8 znakov, bez koncovky), ktorý zodpovedá tomu, AKO JE ČINNOSŤ ZAPÍSANÁ v slovenskom obchodnom / živnostenskom registri, NIE hovorovému názvu remesla. Registrové činnosti sú formulované formálne (napr. "elektroinštalačné práce", "záhradnícke služby", "veľkoobchod so strojmi"), nie ľudovo ("elektrikár", "záhradník").
+- hladane_slovo — JEDEN krátky KOREŇ slova, MAXIMÁLNE 10 znakov, BEZ KONCOVKY. Odsekni koncovku! RPO fulltext matchuje presný podreťazec, takže dlhé slová s koncovkou zlyhajú. Nikdy nevracaj slovo dlhšie ako 10 znakov ani slovo končiace na -ácie, -ácia, -ícke, -ické, -níctvo, -tvo, -ské, -ská, -é, -ý, -a, -y. Príklady ÁNO/NIE:
+    ÁNO "elektroinštal" — NIE "elektroinštalácie", NIE "elektroinštalačné"
+    ÁNO "záhradn" — NIE "záhradnícke", NIE "záhradníctvo"
+    ÁNO "stavebn" — NIE "stavebníctvo", NIE "stavebné"
+    ÁNO "vodoinštal" — NIE "vodoinštalácie"
+    ÁNO "murár" — NIE "murárske práce"
+    ÁNO "doprav" — NIE "doprava", NIE "dopravné"
+  Koreň zodpovedá tomu, AKO JE ČINNOSŤ ZAPÍSANÁ v slovenskom obchodnom / živnostenskom registri, NIE hovorovému názvu remesla ("elektrikár", "záhradník").
   Príklady správne (formálny koreň):
     elektro → "elektroinštal" / "elektromontáž" / "elektrotechn"
     záhrada → "záhradn" / "záhradníc"
