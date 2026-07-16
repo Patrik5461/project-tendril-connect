@@ -34,7 +34,7 @@ export function LegalFooter() {
             Športová 707/43<br />
             919 26 Zavar, SR<br />
             IČO: 56607016<br />
-            IČ DPH: SK2122358579
+            Neplatiteľ DPH
           </p>
         </div>
         <div>
