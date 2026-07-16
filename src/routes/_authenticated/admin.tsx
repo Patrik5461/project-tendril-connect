@@ -508,6 +508,7 @@ function UsersTab() {
   const [rows, setRows] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const [editing, setEditing] = useState<UserRow | null>(null);
 
   async function load() {
     setLoading(true);
@@ -524,8 +525,25 @@ function UsersTab() {
     return rows.filter((r) => (r.email ?? "").toLowerCase().includes(s));
   }, [q, rows]);
 
+  const counts = useMemo(() => {
+    let paid = 0, manual = 0, trial = 0, expired = 0;
+    for (const r of rows) {
+      if (r.subscription_status === "active" && r.subscription_source === "manual") manual++;
+      else if (r.subscription_status === "active") paid++;
+      else if (r.subscription_status === "trial") trial++;
+      else if (r.subscription_status === "expired") expired++;
+    }
+    return { paid, manual, trial, expired };
+  }, [rows]);
+
   return (
     <Card title={`Používatelia (${rows.length})`}>
+      <div className="flex flex-wrap items-center gap-2 mb-3 text-xs">
+        <span className="rounded bg-primary/10 text-primary px-2 py-0.5">Platiaci: <b>{counts.paid}</b></span>
+        <span className="rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2 py-0.5">Manuálni/zadarmo: <b>{counts.manual}</b></span>
+        <span className="rounded bg-muted px-2 py-0.5">Trial: <b>{counts.trial}</b></span>
+        <span className="rounded bg-destructive/10 text-destructive px-2 py-0.5">Exspirovaní: <b>{counts.expired}</b></span>
+      </div>
       <div className="flex items-center gap-2 mb-3">
         <UsersIcon className="h-4 w-4 text-muted-foreground" />
         <input
@@ -543,10 +561,12 @@ function UsersTab() {
             <tr>
               <th className="py-2 pr-3">E-mail</th>
               <th className="py-2 pr-3">Predplatné</th>
-              <th className="py-2 pr-3">Trial od</th>
+              <th className="py-2 pr-3">Zdroj</th>
               <th className="py-2 pr-3">Platné do</th>
+              <th className="py-2 pr-3">Poznámka</th>
               <th className="py-2 pr-3">Registrácia</th>
               <th className="py-2 pr-3 text-right">Radary</th>
+              <th className="py-2 pr-3 text-right">Akcia</th>
             </tr>
           </thead>
           <tbody>
@@ -560,19 +580,159 @@ function UsersTab() {
                     "bg-muted text-muted-foreground"
                   }`}>{r.subscription_status ?? "—"}</span>
                 </td>
-                <td className="py-2 pr-3">{fmtDate(r.trial_started_at)}</td>
+                <td className="py-2 pr-3">
+                  <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
+                    r.subscription_source === "manual" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400" :
+                    r.subscription_source === "paid" ? "bg-primary/10 text-primary" :
+                    "bg-muted text-muted-foreground"
+                  }`}>{r.subscription_source ?? "trial"}</span>
+                </td>
                 <td className="py-2 pr-3">{fmtDate(r.subscription_valid_until)}</td>
+                <td className="py-2 pr-3 max-w-[16ch] truncate" title={r.subscription_note ?? ""}>{r.subscription_note ?? "—"}</td>
                 <td className="py-2 pr-3">{fmtDate(r.created_at)}</td>
                 <td className="py-2 pr-3 text-right num">{r.radars_count}</td>
+                <td className="py-2 pr-3 text-right">
+                  <Button size="sm" variant="outline" onClick={() => setEditing(r)}>
+                    <Settings2 className="h-3.5 w-3.5 mr-1" /> Spravovať
+                  </Button>
+                </td>
               </tr>
             ))}
             {filtered.length === 0 && !loading && (
-              <tr><td colSpan={6} className="py-6 text-center text-muted-foreground">Žiadne záznamy.</td></tr>
+              <tr><td colSpan={8} className="py-6 text-center text-muted-foreground">Žiadne záznamy.</td></tr>
             )}
           </tbody>
         </table>
       </div>
+      {editing && (
+        <SubscriptionDialog
+          user={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => { setEditing(null); void load(); }}
+        />
+      )}
     </Card>
+  );
+}
+
+function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose: () => void; onSaved: () => void }) {
+  const [status, setStatus] = useState<string>(user.subscription_status ?? "trial");
+  const [source, setSource] = useState<string>(user.subscription_source ?? "trial");
+  const [validUntil, setValidUntil] = useState<string>(
+    user.subscription_valid_until ? new Date(user.subscription_valid_until).toISOString().slice(0, 10) : ""
+  );
+  const [note, setNote] = useState<string>(user.subscription_note ?? "");
+  const [saving, setSaving] = useState(false);
+
+  function setPreset(months: number | "forever") {
+    if (months === "forever") {
+      setValidUntil("");
+    } else {
+      const d = new Date();
+      d.setMonth(d.getMonth() + months);
+      setValidUntil(d.toISOString().slice(0, 10));
+    }
+    setStatus("active");
+    setSource("manual");
+  }
+
+  async function save() {
+    setSaving(true);
+    const { error } = await (supabase.rpc as any)("admin_set_subscription", {
+      _user_id: user.user_id,
+      _status: status,
+      _valid_until: validUntil ? new Date(validUntil + "T23:59:59").toISOString() : null,
+      _note: note || null,
+      _source: source,
+    });
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Predplatné aktualizované");
+    onSaved();
+  }
+
+  async function revertToTrial() {
+    if (!confirm("Vrátiť používateľa na trial?")) return;
+    setSaving(true);
+    const { error } = await (supabase.rpc as any)("admin_set_subscription", {
+      _user_id: user.user_id, _status: "trial", _valid_until: null, _note: note || null, _source: "trial",
+    });
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Vrátené na trial"); onSaved();
+  }
+
+  async function expire() {
+    if (!confirm("Nastaviť ako expirovaný (odobrať prístup)?")) return;
+    setSaving(true);
+    const { error } = await (supabase.rpc as any)("admin_set_subscription", {
+      _user_id: user.user_id, _status: "expired", _valid_until: null, _note: note || null, _source: source === "manual" ? "manual" : "paid",
+    });
+    setSaving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Predplatné zrušené"); onSaved();
+  }
+
+  return (
+    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Spravovať predplatné</DialogTitle>
+          <DialogDescription>{user.email}</DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-2">
+          <div>
+            <Label className="text-xs">Rýchle voľby (aktivovať zadarmo)</Label>
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant="outline" onClick={() => setPreset(1)}>+1 mesiac</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => setPreset(6)}>+6 mesiacov</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => setPreset(12)}>+1 rok</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => setPreset("forever")}>Natrvalo</Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="sub-status" className="text-xs">Stav</Label>
+              <select id="sub-status" value={status} onChange={(e) => setStatus(e.target.value)}
+                className="mt-1 w-full rounded border px-2 py-1.5 text-sm bg-background">
+                <option value="trial">trial</option>
+                <option value="active">active</option>
+                <option value="expired">expired</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="sub-source" className="text-xs">Zdroj</Label>
+              <select id="sub-source" value={source} onChange={(e) => setSource(e.target.value)}
+                className="mt-1 w-full rounded border px-2 py-1.5 text-sm bg-background">
+                <option value="trial">trial</option>
+                <option value="paid">paid (platiaci)</option>
+                <option value="manual">manual (zadarmo)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="sub-valid" className="text-xs">Platné do (nechať prázdne = natrvalo)</Label>
+            <Input id="sub-valid" type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} className="mt-1" />
+          </div>
+
+          <div>
+            <Label htmlFor="sub-note" className="text-xs">Poznámka (tester, partner, známy…)</Label>
+            <Textarea id="sub-note" value={note} onChange={(e) => setNote(e.target.value)} rows={2} className="mt-1" />
+          </div>
+        </div>
+
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button variant="ghost" onClick={revertToTrial} disabled={saving}>Vrátiť na trial</Button>
+          <Button variant="ghost" onClick={expire} disabled={saving} className="text-destructive">Zrušiť prístup</Button>
+          <div className="flex-1" />
+          <Button variant="outline" onClick={onClose} disabled={saving}>Zrušiť</Button>
+          <Button onClick={save} disabled={saving}>{saving ? "Ukladám…" : "Uložiť"}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
