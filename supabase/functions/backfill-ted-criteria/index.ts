@@ -26,13 +26,16 @@ Deno.serve(async (req) => {
     const batchSize = Math.min(Math.max(Number(body.batch_size) || 50, 1), 100);
     const dryRun = !!body.dry_run;
 
-    // Pick TED rows still missing structured_criteria, oldest published first
-    // (older data is more likely to be corrigendum-frozen; new data flows through fetch-tenders).
+    // Pick only ACTIVE TED rows still missing structured_criteria.
+    // Active = deadline in the future OR deadline NULL (cleanup keeps these).
+    // No point backfilling tenders that cleanup will soon delete.
+    const nowIso = new Date().toISOString();
     const { data: rows, error } = await supabase
       .from("tenders")
       .select("id, publication_number")
       .eq("source", "TED")
       .is("structured_criteria", null)
+      .or(`deadline.gte.${nowIso},deadline.is.null`)
       .order("published_at", { ascending: false, nullsFirst: false })
       .limit(limit);
     if (error) throw error;
