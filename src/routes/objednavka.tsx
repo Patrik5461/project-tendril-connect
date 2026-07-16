@@ -94,7 +94,7 @@ function ObjednavkaPage() {
             <div>
               <div className="eyebrow">Súhrn</div>
               <p className="mt-1 text-sm text-muted-foreground">
-                {plan === "trial" ? "Free trial – 2 mesiace zdarma" : "Tendrik Premium – mesačné predplatné"}
+                {plan === "trial" ? "Free trial – 30 dní zdarma" : "Tendrik Premium – mesačné predplatné"}
               </p>
             </div>
             <p className="num text-2xl font-bold">
