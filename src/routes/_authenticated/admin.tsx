@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { listSeoPages, generateSeoPages, regenerateSeoPage, updateSeoPage } from "@/lib/seo.functions";
+import { adminAnalyzeTender, adminListTendersForTest } from "@/lib/tender-analysis.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin – Tendrik" }] }),
