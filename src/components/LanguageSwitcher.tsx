@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { Globe } from "lucide-react";
 import { SUPPORTED_LANGS, LANG_LABELS, type Lang } from "@/i18n/config";
 import { changeLang } from "@/i18n/I18nProvider";
 import {
