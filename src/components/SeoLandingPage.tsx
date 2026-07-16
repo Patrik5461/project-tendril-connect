@@ -76,7 +76,7 @@ export function SeoLandingPage({ page, tenders }: { page: SeoPageRow; tenders: S
             <Bell className="h-4 w-4 text-primary" /> Chcete tieto zákazky dostávať e-mailom?
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            Zaregistrujte sa zadarmo. Prvé 2 mesiace bez platby, potom 4,99&nbsp;€/mes.
+            Zaregistrujte sa zadarmo. 30 dní na vyskúšanie, potom od 4,99&nbsp;€/mes.
           </p>
         </div>
         <Link to="/auth" search={{ mode: "signup" }}>
