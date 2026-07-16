@@ -143,6 +143,8 @@ function OverviewTab() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <Stat label="Celkom" value={ov.users.total} />
               <Stat label="Aktívni" value={ov.users.active} />
+              <Stat label="Platiaci" value={ov.users.paid ?? 0} />
+              <Stat label="Manuálni/zadarmo" value={ov.users.manual ?? 0} />
               <Stat label="Trial" value={ov.users.trial} />
               <Stat label="Exspirovaní" value={ov.users.expired} />
             </div>
