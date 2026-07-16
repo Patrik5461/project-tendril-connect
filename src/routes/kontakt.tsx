@@ -76,7 +76,7 @@ function KontaktPage() {
               <p className="text-sm text-muted-foreground">
                 IČO: 56607016<br />
                 DIČ: 2122358579<br />
-                IČ DPH: SK2122358579
+                Neplatiteľ DPH
               </p>
             </div>
             <div className="flex items-start gap-3">

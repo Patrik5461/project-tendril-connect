@@ -188,11 +188,11 @@ export async function ensureFakteroCustomer(
 }
 
 /**
- * Prepočet unit_price bez DPH tak, aby suma s DPH sedela na `amountGross`.
- * 4.99 / 1.23 = 4.056… → 4.06 EUR bez DPH.
+ * Tobify s.r.o. nie je platca DPH – jednotková cena = konečná cena.
+ * Ponechané pre spätnú kompatibilitu; sadzba DPH sa neprepočítava.
  */
-export function unitPriceExVat(amountGross: number, vatRate = 23): number {
-  return Math.round((amountGross / (1 + vatRate / 100)) * 100) / 100;
+export function unitPriceExVat(amountGross: number, _vatRate = 0): number {
+  return Math.round(amountGross * 100) / 100;
 }
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -211,7 +211,8 @@ export async function issueFakteroInvoice(params: {
   recipientEmail: string;
   tier?: "basic" | "premium";
 }): Promise<IssueResult> {
-  const unit = unitPriceExVat(params.amountGross, 23);
+  // Neplatca DPH – konečná suma = unit_price, DPH 0 %.
+  const unit = Math.round(params.amountGross * 100) / 100;
   const tierLabel = params.tier === "premium" ? "Prémium" : params.tier === "basic" ? "Základ" : "";
   const itemName = tierLabel
     ? `Tendrik ${tierLabel} – mesačné predplatné`
@@ -221,12 +222,15 @@ export async function issueFakteroInvoice(params: {
     issue_date: today(),
     due_date: today(),
     currency: params.currency || "EUR",
+    // Príznak neplatca DPH – Faktero podľa nastavenia dodávateľa DPH neuvádza.
+    vat_payer: false,
+    note: "Dodávateľ nie je platiteľom DPH.",
     items: [{
       name: itemName,
       quantity: 1,
       unit: "ks",
       unit_price: unit,
-      vat_rate: 23,
+      vat_rate: 0,
     }],
   };
 

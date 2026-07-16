@@ -22,7 +22,7 @@ export const Route = createFileRoute("/predplatne")({
   head: () => ({
     meta: [
       { title: "Aktivovať predplatné – Tendrik" },
-      { name: "description", content: "Vyberte si Základ (4,99 €/mes) alebo Prémium s AI (15 €/mes)." },
+      { name: "description", content: "Vyberte si Základ (4,99 €/mes) alebo Prémium s AI (14,99 €/mes)." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -64,7 +64,6 @@ function PredplatnePage() {
   }
 
   const priceEur = tier === "premium" ? PRICE_PREMIUM_EUR : PRICE_BASIC_EUR;
-  const priceGross = tier === "premium" ? PRICE_PREMIUM_GROSS_EUR : PRICE_BASIC_GROSS_EUR;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
@@ -132,7 +131,7 @@ function PredplatnePage() {
           <div className="text-right">
             <div className="num text-2xl font-bold">{formatEur(priceEur)}</div>
             <div className="text-xs text-muted-foreground">
-              {formatEur(priceGross)} s DPH / mes
+              konečná cena / mes
             </div>
           </div>
         </div>
@@ -165,10 +164,10 @@ function PredplatnePage() {
 }
 
 function TierCard({
-  selected, onSelect, eyebrow, title, priceEur, priceGrossEur, features, highlight,
+  selected, onSelect, eyebrow, title, priceEur, features, highlight,
 }: {
   selected: boolean; onSelect: () => void; eyebrow: string; title: string;
-  priceEur: number; priceGrossEur: number; features: string[]; highlight?: boolean;
+  priceEur: number; priceGrossEur?: number; features: string[]; highlight?: boolean;
 }) {
   return (
     <button
@@ -192,9 +191,9 @@ function TierCard({
         <div className={`h-5 w-5 rounded-full border-2 shrink-0 ${selected ? "border-primary bg-primary" : "border-muted-foreground"}`} />
       </div>
       <p className="mt-3 num text-3xl font-bold">
-        {formatEur(priceEur)} <span className="text-sm font-medium text-muted-foreground">/ mes bez DPH</span>
+        {formatEur(priceEur)} <span className="text-sm font-medium text-muted-foreground">/ mes</span>
       </p>
-      <p className="text-xs text-muted-foreground">{formatEur(priceGrossEur)} s DPH</p>
+      <p className="text-xs text-muted-foreground">Konečná cena (neplatca DPH)</p>
       <ul className="mt-4 space-y-1.5 text-sm">
         {features.map((f) => (
           <li key={f} className="flex gap-2">

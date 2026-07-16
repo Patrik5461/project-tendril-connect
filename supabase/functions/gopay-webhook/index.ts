@@ -29,7 +29,7 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
     payment = {
       id: paymentId,
       state: simulate.state ?? "PAID",
-      amount: 614,
+      amount: 499,
       currency: "EUR",
       target: { goid: Number(cfg.goid) || 0 },
       parent_id: paymentId,
@@ -48,10 +48,11 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
   const tierParam: string | undefined =
     payment.additional_params?.find((p: any) => p.name === "tier")?.value;
   // Ak parent-recurring nemá tier v parametroch, odvodíme z ceny.
+  // basic = 499 c (4,99 €), premium = 1499 c (14,99 €).
   const inferredTier: "basic" | "premium" =
     tierParam === "premium" ? "premium"
     : tierParam === "basic" ? "basic"
-    : (Number(payment.amount ?? 0) >= 1500 ? "premium" : "basic");
+    : (Number(payment.amount ?? 0) >= 1000 ? "premium" : "basic");
 
   // Audit log
   await admin.from("gopay_payment_events").insert({

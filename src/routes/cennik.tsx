@@ -7,7 +7,7 @@ export const Route = createFileRoute("/cennik")({
   head: () => ({
     meta: [
       { title: "Cenník – Tendrik" },
-      { name: "description", content: "Základ 4,99 €/mes (monitoring) alebo Prémium 15 €/mes s AI analýzou. Prvé 2 mesiace zdarma." },
+      { name: "description", content: "Základ 4,99 €/mes (monitoring) alebo Prémium 14,99 €/mes s AI analýzou. Prvé 2 mesiace zdarma." },
     ],
     links: [{ rel: "canonical", href: "https://www.tendrik.sk/cennik" }],
   }),
@@ -44,9 +44,9 @@ function CennikPage() {
             <div className="eyebrow">Základ</div>
             <h2 className="mt-2 font-display text-2xl font-bold">Monitoring zákaziek</h2>
             <p className="mt-4 num text-4xl font-bold">
-              4,99 € <span className="text-base font-medium text-muted-foreground">/ mes bez DPH</span>
+              4,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span>
             </p>
-            <p className="text-sm text-muted-foreground">6,14 € s DPH 23 % · fakturované mesačne</p>
+            <p className="text-sm text-muted-foreground">Konečná cena · fakturované mesačne</p>
             <ul className="mt-6 space-y-2 text-sm flex-1">
               <li className="flex gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />Neobmedzené radary a filtre</li>
               <li className="flex gap-2"><Check className="h-4 w-4 text-primary mt-0.5" />Denné e-mailové digesty</li>
@@ -68,9 +68,9 @@ function CennikPage() {
             <div className="eyebrow text-primary">Prémium</div>
             <h2 className="mt-2 font-display text-2xl font-bold">Všetko + AI</h2>
             <p className="mt-4 num text-4xl font-bold">
-              15 € <span className="text-base font-medium text-muted-foreground">/ mes bez DPH</span>
+              14,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span>
             </p>
-            <p className="text-sm text-muted-foreground">18,45 € s DPH 23 % · fakturované mesačne</p>
+            <p className="text-sm text-muted-foreground">Konečná cena · fakturované mesačne</p>
             <ul className="mt-6 space-y-2 text-sm flex-1">
               <li className="flex gap-2"><Check className="h-4 w-4 text-primary mt-0.5" /><b>Všetko zo Základu</b></li>
               <li className="flex gap-2"><Sparkles className="h-4 w-4 text-primary mt-0.5" />AI analýza zákazky a spôsobilosti</li>
@@ -97,7 +97,7 @@ function CennikPage() {
         </div>
 
         <p className="mt-8 text-xs text-muted-foreground">
-          Prevádzkovateľ: Tobify s. r. o., IČO 56607016, IČ DPH SK2122358579. Platby spracúva
+          Prevádzkovateľ: Tobify s. r. o., IČO 56607016 (neplatca DPH). Platby spracúva
           GoPay s. r. o. Podmienky:{" "}
           <Link to="/pravne/obchodne-podmienky" className="underline">Obchodné podmienky</Link> ·{" "}
           <Link to="/pravne/opakovane-platby" className="underline">Opakované platby</Link>.

@@ -28,11 +28,11 @@ function Page() {
           <li>Sídlo: Športová 707/43, 919 26 Zavar, Slovenská republika</li>
           <li>IČO: 56607016</li>
           <li>DIČ: 2122358579</li>
-          <li>IČ DPH: SK2122358579</li>
+          <li>Neplatiteľ DPH</li>
           <li>E-mail: <a href="mailto:info@tendrik.sk">info@tendrik.sk</a></li>
           <li>Telefón: <a href="tel:+421907702422">+421 907 702 422</a></li>
         </ul>
-        <p>Spoločnosť je platiteľom DPH.</p>
+        <p>Spoločnosť <b>nie je platiteľom DPH</b>; ceny uvedené na Tendrik.sk sú konečné.</p>
       </section>
 
       <section>
@@ -52,12 +52,12 @@ function Page() {
       <section>
         <h2>3. Cena a platobné podmienky</h2>
         <p>
-          Používanie Služby je spoplatnené paušálnou mesačnou sumou:
+          Používanie Služby je spoplatnené paušálnou mesačnou sumou podľa zvoleného tieru:
         </p>
         <ul>
-          <li>Cena bez DPH: <b>4,99&nbsp;€ / mesiac</b></li>
-          <li>DPH 23&nbsp;%: 1,15&nbsp;€</li>
-          <li>Cena s DPH: <b>6,14&nbsp;€ / mesiac</b></li>
+          <li>Základ: <b>4,99&nbsp;€ / mesiac</b></li>
+          <li>Prémium (s AI): <b>14,99&nbsp;€ / mesiac</b></li>
+          <li>Dodávateľ <b>Tobify s.&nbsp;r.&nbsp;o.</b> nie je platiteľom DPH – uvedené sumy sú konečné.</li>
         </ul>
         <p>
           Platba prebieha prostredníctvom platobnej brány <b>GoPay</b> platobnou kartou (Visa,

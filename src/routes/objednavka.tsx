@@ -8,7 +8,7 @@ export const Route = createFileRoute("/objednavka")({
   head: () => ({
     meta: [
       { title: "Objednávka predplatného – Tendrik" },
-      { name: "description", content: "Objednajte si Tendrik Premium za 6,14 € s DPH mesačne. Prvé 2 mesiace zdarma. Platba cez GoPay." },
+      { name: "description", content: "Objednajte si Tendrik Premium za 14,99 € mesačne. Prvé 2 mesiace zdarma. Platba cez GoPay." },
     ],
     links: [{ rel: "canonical", href: "https://www.tendrik.sk/objednavka" }],
   }),
@@ -38,7 +38,7 @@ function ObjednavkaPage() {
           Vyberte si plán
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Prvé 2 mesiace zadarmo, potom 4,99 € / mes bez DPH (6,14 € s DPH). Bez záväzku.
+          Prvé 2 mesiace zadarmo, potom 4,99 € / mes (Základ) alebo 14,99 € / mes (Prémium). Konečná cena, bez záväzku.
         </p>
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
@@ -70,8 +70,8 @@ function ObjednavkaPage() {
               </div>
               <div className={`h-5 w-5 rounded-full border-2 ${plan === "premium" ? "border-primary bg-primary" : "border-muted-foreground"}`} />
             </div>
-            <p className="mt-2 num text-3xl font-bold">6,14 € <span className="text-base font-medium text-muted-foreground">/ mes s DPH</span></p>
-            <p className="text-sm text-muted-foreground">4,99 € bez DPH + 23 % DPH. Automatické obnovenie každý mesiac.</p>
+            <p className="mt-2 num text-3xl font-bold">14,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span></p>
+            <p className="text-sm text-muted-foreground">Konečná cena (neplatca DPH). Automatické obnovenie každý mesiac.</p>
           </button>
         </div>
 
@@ -80,7 +80,7 @@ function ObjednavkaPage() {
             <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div className="text-sm">
               <b className="text-primary">Ide o opakovanú platbu.</b> Po skončení 2-mesačného
-              skúšobného obdobia sa z vašej karty automaticky strhne <b>6,14 € s DPH</b> každý
+              skúšobného obdobia sa z vašej karty automaticky strhne <b>14,99 €</b> každý
               mesiac. Predplatné môžete kedykoľvek zrušiť v nastaveniach účtu alebo e-mailom na{" "}
               <a href="mailto:info@tendrik.sk" className="underline">info@tendrik.sk</a>.
               Podrobnosti nájdete v dokumente{" "}
@@ -98,13 +98,13 @@ function ObjednavkaPage() {
               </p>
             </div>
             <p className="num text-2xl font-bold">
-              {plan === "trial" ? "0,00 €" : "6,14 € / mes"}
+              {plan === "trial" ? "0,00 €" : "14,99 € / mes"}
             </p>
           </div>
           {plan === "premium" && (
             <ul className="mt-4 space-y-1 text-sm text-muted-foreground">
-              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Základ dane: 4,99 €</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />DPH 23 %: 1,15 €</li>
+              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Konečná cena: 14,99 € / mesiac</li>
+              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Dodávateľ nie je platiteľom DPH</li>
               <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Platba cez GoPay (Visa / Mastercard, 3D&nbsp;Secure)</li>
             </ul>
           )}
@@ -123,8 +123,8 @@ function ObjednavkaPage() {
         </div>
 
         <p className="mt-6 text-xs text-muted-foreground">
-          Predávajúci: <b>Tobify s. r. o.</b>, Športová 707/43, 919 26 Zavar, IČO 56607016,
-          IČ DPH SK2122358579. Platby spracúva GoPay s. r. o.
+          Predávajúci: <b>Tobify s. r. o.</b>, Športová 707/43, 919 26 Zavar, IČO 56607016
+          (neplatca DPH). Platby spracúva GoPay s. r. o.
         </p>
       </main>
 

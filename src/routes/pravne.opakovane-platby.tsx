@@ -22,7 +22,7 @@ function Page() {
       <div className="rounded-lg border-2 border-primary bg-primary/5 p-5">
         <div className="eyebrow text-primary">Zhrnutie</div>
         <ul className="mt-2 space-y-1 text-foreground">
-          <li>💳 Suma: <b>4,99 € / mesiac bez DPH</b> (<b>6,14 € s DPH 23 %</b>)</li>
+          <li>💳 Suma: <b>4,99 € / mesiac</b> (Základ) alebo <b>14,99 € / mesiac</b> (Prémium) – konečná cena</li>
           <li>🔁 Frekvencia: <b>každý mesiac</b>, automaticky</li>
           <li>🎁 Prvé <b>2 mesiace</b> zadarmo (skúšobné obdobie)</li>
           <li>❌ Zrušenie kedykoľvek v nastaveniach účtu</li>
@@ -43,9 +43,9 @@ function Page() {
       <section>
         <h2>Výška platby</h2>
         <ul>
-          <li>Základ dane: 4,99 €</li>
-          <li>DPH 23 %: 1,15 €</li>
-          <li><b>Celkom: 6,14 € / mesiac</b></li>
+          <li>Základ: <b>4,99 € / mesiac</b></li>
+          <li>Prémium: <b>14,99 € / mesiac</b></li>
+          <li>Dodávateľ (Tobify s. r. o.) nie je platiteľom DPH – uvedené sumy sú konečné.</li>
         </ul>
         <p>
           O prípadnej zmene ceny vás budeme informovať e-mailom najmenej 15 dní vopred.

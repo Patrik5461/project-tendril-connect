@@ -67,7 +67,7 @@
       },
       {
         "q": "Is the service paid?",
-        "a": "The first 2 months are free, then €4.99 / month excl. VAT (€6.14 incl. VAT). No card required at signup – we'll reach out before the trial ends. Cancel anytime."
+        "a": "The first 2 months are free, then €4.99 / month (Basic) or €14.99 / month (Premium with AI). Final price – Tobify s. r. o. is not a VAT payer. No card required at signup – we'll reach out before the trial ends. Cancel anytime."
       },
       {
         "q": "Who is Tendrik for?",
@@ -77,13 +77,13 @@
   },
   "billing": {
     "label": "Pricing and recurring payments:",
-    "body": "2 months free, then <b>€4.99 / mo excl. VAT</b> (<b>€6.14 incl. 23% VAT</b>). The subscription renews automatically every month via the GoPay payment gateway. Cancel anytime.",
+    "body": "2 months free, then <b>€4.99 / mo</b> (Basic) or <b>€14.99 / mo</b> (Premium). Final price – Tobify s. r. o. is not a VAT payer. The subscription renews automatically every month via the GoPay payment gateway. Cancel anytime.",
     "link": "Recurring payment terms →"
   },
   "footer": {
     "company": "Tobify s. r. o.",
     "address": "Športová 707/43, 919 26 Zavar, Slovakia",
-    "ico": "Reg. No.: 56607016 · VAT ID: SK2122358579",
+    "ico": "Reg. No.: 56607016 · Not a VAT payer",
     "contact": "Contact",
     "contactForm": "Contact form",
     "pricing": "Pricing",
@@ -97,7 +97,7 @@
     "payments": "Payments",
     "paymentsNote": "Payments processed by GoPay s. r. o.",
     "rights": "© {{year}} Tobify s. r. o. All rights reserved.",
-    "priceInline": "2 months free, then €4.99/mo (€6.14 incl. VAT)"
+    "priceInline": "2 months free, then from €4.99/mo (final price)"
   },
   "meta": {
     "title": "Tendrik – Tenders find you on their own",

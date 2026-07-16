@@ -67,7 +67,7 @@
       },
       {
         "q": "Ist der Dienst kostenpflichtig?",
-        "a": "Die ersten 2 Monate sind gratis, danach 4,99 € / Monat netto (6,14 € brutto). Bei der Registrierung ist keine Karte nötig – wir melden uns vor Ende der Testphase. Jederzeit kündbar."
+        "a": "Die ersten 2 Monate sind gratis, danach 4,99 € / Monat (Basis) oder 14,99 € / Monat (Premium mit KI). Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Bei der Registrierung ist keine Karte nötig – wir melden uns vor Ende der Testphase. Jederzeit kündbar."
       },
       {
         "q": "Für wen ist Tendrik gedacht?",
@@ -77,13 +77,13 @@
   },
   "billing": {
     "label": "Preis und wiederkehrende Zahlungen:",
-    "body": "2 Monate gratis, danach <b>4,99 € / Monat netto</b> (<b>6,14 € brutto, 23 % USt.</b>). Das Abo verlängert sich automatisch monatlich über das Zahlungs-Gateway GoPay. Jederzeit kündbar.",
+    "body": "2 Monate gratis, danach <b>4,99 € / Monat</b> (Basis) oder <b>14,99 € / Monat</b> (Premium). Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Das Abo verlängert sich automatisch monatlich über das Zahlungs-Gateway GoPay. Jederzeit kündbar.",
     "link": "Bedingungen für wiederkehrende Zahlungen →"
   },
   "footer": {
     "company": "Tobify s. r. o.",
     "address": "Športová 707/43, 919 26 Zavar, Slowakei",
-    "ico": "Reg.-Nr.: 56607016 · USt-IdNr.: SK2122358579",
+    "ico": "Reg.-Nr.: 56607016 · Kein USt-Zahler",
     "contact": "Kontakt",
     "contactForm": "Kontaktformular",
     "pricing": "Preise",
@@ -97,7 +97,7 @@
     "payments": "Zahlungen",
     "paymentsNote": "Zahlungen werden von GoPay s. r. o. abgewickelt.",
     "rights": "© {{year}} Tobify s. r. o. Alle Rechte vorbehalten.",
-    "priceInline": "2 Monate gratis, danach 4,99 €/Mon. (6,14 € brutto)"
+    "priceInline": "2 Monate gratis, danach ab 4,99 €/Mon. (Endpreis)"
   },
   "meta": {
     "title": "Tendrik – Ausschreibungen finden dich von selbst",

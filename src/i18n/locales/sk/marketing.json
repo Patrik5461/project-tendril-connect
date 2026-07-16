@@ -67,7 +67,7 @@
       },
       {
         "q": "Je služba spoplatnená?",
-        "a": "Prvé 2 mesiace máte zadarmo, potom 4,99 € / mesiac bez DPH (6,14 € s DPH). Kartu pri registrácii nepotrebujete – ozveme sa vám pred koncom skúšobnej doby. Predplatné je zrušiteľné kedykoľvek."
+        "a": "Prvé 2 mesiace máte zadarmo, potom 4,99 € / mesiac (Základ) alebo 14,99 € / mesiac (Prémium s AI). Konečná cena – Tobify s. r. o. nie je platca DPH. Kartu pri registrácii nepotrebujete – ozveme sa vám pred koncom skúšobnej doby. Predplatné je zrušiteľné kedykoľvek."
       },
       {
         "q": "Pre koho je Tendrik určený?",
@@ -77,13 +77,13 @@
   },
   "billing": {
     "label": "Cena a opakované platby:",
-    "body": "2 mesiace zdarma, potom <b>4,99 € / mes bez DPH</b> (<b>6,14 € s DPH 23 %</b>). Predplatné sa automaticky obnovuje každý mesiac cez platobnú bránu GoPay. Zrušiteľné kedykoľvek.",
+    "body": "2 mesiace zdarma, potom <b>4,99 € / mes</b> (Základ) alebo <b>14,99 € / mes</b> (Prémium). Konečná cena – Tobify s. r. o. nie je platca DPH. Predplatné sa automaticky obnovuje každý mesiac cez platobnú bránu GoPay. Zrušiteľné kedykoľvek.",
     "link": "Podmienky opakovaných platieb →"
   },
   "footer": {
     "company": "Tobify s. r. o.",
     "address": "Športová 707/43, 919 26 Zavar",
-    "ico": "IČO: 56607016 · IČ DPH: SK2122358579",
+    "ico": "IČO: 56607016 · Neplatca DPH",
     "contact": "Kontakt",
     "contactForm": "Kontaktný formulár",
     "pricing": "Cenník",
@@ -97,7 +97,7 @@
     "payments": "Platby",
     "paymentsNote": "Platby spracúva GoPay s. r. o.",
     "rights": "© {{year}} Tobify s. r. o. Všetky práva vyhradené.",
-    "priceInline": "2 mesiace zdarma, potom 4,99 €/mes (6,14 € s DPH)"
+    "priceInline": "2 mesiace zdarma, potom od 4,99 €/mes (konečná cena)"
   },
   "meta": {
     "title": "Tendrik – Zákazky si ťa nájdu samy",

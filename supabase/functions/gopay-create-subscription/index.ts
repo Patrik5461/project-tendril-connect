@@ -1,10 +1,11 @@
 // Vytvorí opakovanú platbu (recurring) pre prihláseného používateľa.
-// Suma závisí od zvoleného tieru: basic = 6,14 € s DPH, premium = 18,45 € s DPH.
+// Tobify s.r.o. nie je platca DPH – suma je konečná, bez pripočítania DPH.
+// basic = 4,99 €, premium = 14,99 €.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { corsHeaders, getGoPayToken, gopayConfig, resolveGopayEnv } from "../_shared/gopay.ts";
 
-const PRICE_CENTS_BASIC = 614;    // 4,99 € + 23 % DPH = 6,14 €
-const PRICE_CENTS_PREMIUM = 1845; // 15,00 € + 23 % DPH = 18,45 €
+const PRICE_CENTS_BASIC = 499;    // 4,99 € (konečná cena, neplatca DPH)
+const PRICE_CENTS_PREMIUM = 1499; // 14,99 € (konečná cena, neplatca DPH)
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
