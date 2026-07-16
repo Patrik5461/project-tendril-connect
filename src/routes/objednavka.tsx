@@ -98,13 +98,13 @@ function ObjednavkaPage() {
               </p>
             </div>
             <p className="num text-2xl font-bold">
-              {plan === "trial" ? "0,00 €" : "6,14 € / mes"}
+              {plan === "trial" ? "0,00 €" : "14,99 € / mes"}
             </p>
           </div>
           {plan === "premium" && (
             <ul className="mt-4 space-y-1 text-sm text-muted-foreground">
-              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Základ dane: 4,99 €</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />DPH 23 %: 1,15 €</li>
+              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Konečná cena: 14,99 € / mesiac</li>
+              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Dodávateľ nie je platiteľom DPH</li>
               <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Platba cez GoPay (Visa / Mastercard, 3D&nbsp;Secure)</li>
             </ul>
           )}
