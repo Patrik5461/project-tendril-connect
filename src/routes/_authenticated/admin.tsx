@@ -1265,6 +1265,9 @@ function AiTestTab() {
     setLoading(true);
     setResult(null);
     setTotalMs(null);
+    setSubResult(null);
+    setCandidates({});
+    setOutreach({});
     const t0 = Date.now();
     try {
       const r = await analyzeFn({ data: { tender_id: tenderId, ico } });
@@ -1276,6 +1279,64 @@ function AiTestTab() {
       setLoading(false);
     }
   }
+
+  async function runSuggest() {
+    if (!result) return;
+    setSubLoading(true);
+    setSubResult(null);
+    setCandidates({});
+    setOutreach({});
+    try {
+      const r = await suggestFn({
+        data: {
+          tender_id: tenderId,
+          ico,
+          requirements: result.parts?.requirements?.parsed ?? null,
+          eligibility: result.parts?.eligibility?.parsed ?? null,
+        },
+      });
+      setSubResult(r);
+    } catch (e: any) {
+      toast.error("Návrh subdodávok zlyhal: " + (e?.message ?? String(e)));
+    } finally {
+      setSubLoading(false);
+    }
+  }
+
+  async function runFindCandidates(idx: number, keyword: string, city?: string | null) {
+    setCandLoadingIdx(idx);
+    try {
+      const r = await findFn({ data: { keyword, city: city ?? null, limit: 15 } });
+      setCandidates((prev) => ({ ...prev, [idx]: r }));
+    } catch (e: any) {
+      toast.error("Hľadanie firiem zlyhalo: " + (e?.message ?? String(e)));
+    } finally {
+      setCandLoadingIdx(null);
+    }
+  }
+
+  async function runOutreach(idx: number, need: any, candidate: any) {
+    const key = `${idx}:${candidate.ico ?? candidate.nazov}`;
+    setOutreachLoading(key);
+    try {
+      const r = await outreachFn({
+        data: {
+          tender_id: tenderId,
+          need_nazov: need.nazov,
+          specifikacia: need.dovod ?? need.nazov,
+          subcontractor_nazov: candidate.nazov ?? "Vážený partner",
+          our_firm_nazov: subResult?.registry?.nazov ?? "Naša firma",
+          our_firm_ico: subResult?.registry?.ico ?? null,
+        },
+      });
+      setOutreach((prev) => ({ ...prev, [key]: r }));
+    } catch (e: any) {
+      toast.error("Generovanie oslovenia zlyhalo: " + (e?.message ?? String(e)));
+    } finally {
+      setOutreachLoading(null);
+    }
+  }
+
 
   return (
     <div className="space-y-4">
