@@ -1,61 +1,79 @@
-# Faktero API – automatické fakturácie
 
-Napojenie Tendriku na Faktero (https://faktero.sk/api/v1) tak, aby sa po každej úspešnej GoPay platbe automaticky vystavila, označila ako zaplatená a odoslala faktúra zákazníkovi. Faktúra sa vždy vystavuje s DPH 23 % tak, aby celková suma zodpovedala 4,99 € s DPH (unit_price bez DPH = 4,06 €, zaokrúhlením na 2 desatinné miesta vzniká rozdiel ~0,004 € – ak Faktero prepočíta iným spôsobom, doladíme podľa testovacej faktúry v kroku 8).
+# Prémiová AI „Analýza zákazky" – plán
 
----
-
-## 1. Secrets
-
-- `FAKTERO_API_KEY` – doplní používateľ (`fk_test_...` = test režim, `fk_live_...` = produkcia). Režim sa určí podľa prefixu.
-- Base URL a header pevne v kóde: `https://faktero.sk/api/v1`, `Authorization: Bearer <key>`.
-
-## 2. Databáza (jedna migrácia)
-
-- `billing_details` (1:1 na `user_id`): name, ico, ic_dph, street, city, zip, country (default 'SK'), email, faktero_customer_id, timestamps. RLS: vlastník číta/upravuje, service_role všetko.
-- `invoices`: user_id, faktero_invoice_id (nullable kým sa nevystaví), invoice_number, amount, currency, status ('pending'|'issued'|'failed'|'paid_marked'|'sent'), gopay_payment_id (unique, na idempotenciu), error_message, retry_count, next_retry_at, issued_at, timestamps. RLS: vlastník číta, service_role všetko; admin cez `has_role`.
-- Grants pre `authenticated` (SELECT/INSERT/UPDATE billing_details, SELECT invoices) a `service_role` (ALL).
-
-## 3. Server funkcie (`createServerFn` + auth middleware)
-
-- `getBillingDetails`, `upsertBillingDetails` – používateľ si edituje fakturačné údaje.
-- `lookupCompanyByIco(ico)` – najprv skúsim, či existuje interná funkcia; ak nie, ostane manuálne (podľa zadania).
-- `listMyInvoices` – zoznam pre sekciu Predplatné.
-- `downloadInvoicePdf(invoiceId)` – zavolá Faktero `GET /invoices/{id}/pdf`, vráti `signed_url` (client urobí redirect).
-- **Admin**: `adminListInvoices({ status })`, `adminRetryInvoice(invoiceId)`, `adminGetFakteroMode()` (vráti test/live podľa prefixu kľúča a počty).
-
-## 4. Faktero klient (`src/lib/faktero.server.ts`)
-
-Modul určený len pre server (`.server.ts` = mimo klientského bundlu). Obsahuje:
-- `fakteroFetch(path, init)` – nastaví Bearer header, JSON, retry s exponenciálnym backoffom na 429/5xx (max 4 pokusy, 500 ms → 1 s → 2 s → 4 s + jitter). Iné chyby (4xx okrem 429) sa nerekurzujú.
-- `ensureCustomer(userId)` – ak billing_details.faktero_customer_id je NULL → `POST /customers`, uloží id.
-- `createInvoice({ userId, gopayPaymentId, amountGross })` – prepočet: `unit_price = round(amountGross / 1.23, 2)`, `vat_rate: 23`, položka „Tendrik – mesačné predplatné". Volá `POST /invoices`, potom `POST /invoices/{id}/mark-paid`, potom `POST /invoices/{id}/send` s recipient_email z billing_details.
-- `issueInvoiceForPayment(...)` – celý orchestrátor s idempotenciou cez `gopay_payment_id` unique index; pri chybe zapíše `status='failed'`, `error_message`, `retry_count`, `next_retry_at` a **nehodí** ďalej (aby to nezhodilo webhook).
-
-## 5. Napojenie na GoPay webhook
-
-V existujúcom `gopay-webhook` handleri, po tom čo sa platba potvrdí ako úspešná a aktivuje predplatné (najprv aktivácia, potom fakturácia), zavoláme `issueInvoiceForPayment` v try/catch. Chyba Faktera **nikdy** neovplyvní odpoveď webhooku ani stav predplatného.
-
-## 6. UI
-
-- **Pred platbou / v nastaveniach → Predplatné**: `BillingDetailsForm` (Zod validácia, IČO/IČ DPH nepovinné, krajina default SK). Ak `faktero_customer_id` už existuje a údaje sa zmenia, aktualizuje sa aj Faktero customer (PUT) – najprv len local uloženie + refresh pri ďalšej faktúre, ak Faktero PUT nemá, ostane iba lokálny update. *(Detail podľa API dokumentácie – ak endpoint chýba, len lokálny update.)*
-- **História faktúr**: tabuľka (dátum, číslo, suma, status, „Stiahnuť PDF"). PDF sa otvorí v novom tabe cez signed_url.
-- **Admin → nová záložka „Fakturácia"**: prepínač Test/Live (informatívny badge podľa prefixu kľúča), počty (vystavené / neúspešné / čakajúce), tabuľka nevystavených s tlačidlom „Skúsiť znova" (volá `adminRetryInvoice`) a manuálne vystavenie pre daný `gopay_payment_id`.
-
-## 7. Idempotencia a odolnosť
-
-- `invoices.gopay_payment_id` UNIQUE – druhé volanie webhooku na tú istú platbu nevystaví novú faktúru.
-- Zlyhania sa neblokujú, iba logujú a ukladajú do `invoices` so `status='failed'`.
-- Retry v admin tlačidle + backoff v `fakteroFetch`.
-
-## 8. Testovanie
-
-Po nasadení požiadam o vloženie `fk_test_` kľúča a spustím end-to-end test cez existujúci sandbox GoPay flow. Ukážem odpovede z `POST /customers`, `POST /invoices`, `mark-paid`, `send` a číslo vytvorenej testovacej faktúry.
+Rozsah je veľký, tak to rozdelím do 3 fáz. Najprv urobíme **fázu 1 (diagnostiku registrov)**, ukážem ti výsledky a až potom pôjdeme ďalej. To zodpovedá tvojmu poslednému bodu – „najprv over, potom stavaj".
 
 ---
 
-## Otvorené otázky pred spustením
+## Fáza 1 — Diagnostika slovenských registrov (urobím ako prvé)
 
-1. Presné názvy polí v Faktero API (`customer_id` vs `customerId`, tvar `mark-paid` vs `mark_paid`, presné pole `signed_url`) – overím proti dokumentácii pri implementácii; ak sa pole odlišuje, upravím klienta. Toto je jediné miesto, kde môžeme naraziť pri prvom teste.
-2. Existujúce IČO-lookup – ak už funkcia v projekte je, znovupoužijem; ak nie, ponechám manuálne (podľa zadania).
+Cieľ: zistiť, čo sa z IČO reálne dá automaticky vytiahnuť. Bez tohto by som staval naslepo.
 
-Ak plán sedí, poviem "OK, choď" a začnem migráciou + Faktero klientom, potom webhook, UI a admin.
+Otestujem tieto zdroje z Node/servera (skript v `/tmp`, nie do projektu):
+
+1. **RPO – Register právnických osôb (ŠÚ SR / statistics.sk)**
+   - `https://api.statistics.sk/rpo/v1/search?identifier={ICO}` – overí, či ide o verejné REST API bez kľúča, aké polia vracia (názov, adresa, právna forma, predmety činnosti, dátum vzniku/zániku).
+2. **ÚVO – RPO/register partnerov VS**
+   - `https://www.uvo.gov.sk/…` – skúsim verejné endpointy (často to je len HTML), rozhodneme, či scrape má zmysel.
+3. **FinStat / Register účtovných závierok (registeruz.sk)**
+   - `https://www.registeruz.sk/cruz-public/api/…` – overím, či existuje verejné API pre účtovné závierky (obrat, výsledok hospodárenia, počet zamestnancov) podľa IČO.
+4. **OR SR (orsr.sk)** – čisto HTML, len ako záloha ak RPO zlyhá.
+
+Výstup fázy 1 (dostaneš do chatu):
+- pre 2–3 reálne IČO tabuľku: **pole → zdroj → hodnota / „nedostupné programovo"**
+- záver: čo pôjde automaticky, čo necháme na ručné doplnenie.
+
+Až podľa toho dokončíme dizajn tabuľky `company_profile` a fetcher.
+
+---
+
+## Fáza 2 — Backend + firemný profil
+
+### 2.1 Secrets a Gemini klient
+- Pridám secret `GEMINI_API_KEY` (vyžiadam si od teba cez `add_secret`).
+- `src/lib/gemini.server.ts` – tenký klient nad `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key=…`, ošetrí 429 / 400 / 401 / 5xx s čitateľnou hláškou, retry len na 429/5xx.
+- Konštanty modelov na jednom mieste:
+  ```ts
+  export const GEMINI_MODELS = {
+    LITE:  "gemini-flash-lite-latest",   // existujúce zhrnutia
+    FLASH: "gemini-flash-latest",        // detail + podmienky
+    PRO:   "gemini-pro-latest",          // spôsobilosť
+  }
+  ```
+  Aktuálne názvy si overím proti live API v tej istej fáze (list models endpoint) a prípadne opravím.
+
+### 2.2 Migrácie
+- `company_profile` (1 riadok na `user_id`): `ico`, `nazov`, `adresa`, `pravna_forma`, `predmety_cinnosti text[]`, `obrat_roky jsonb`, `zamestnanci int`, `referencie jsonb`, `certifikaty text[]`, `doplnkove_info text`, `auto_data jsonb` (raw z registrov), `updated_at`. RLS `auth.uid() = user_id`, GRANTy pre `authenticated` + `service_role`.
+- `tender_analysis`: `(user_id, tender_id)` unique, `summary text`, `requirements jsonb`, `eligibility jsonb`, `overall text`, `model_versions jsonb`, `created_at`. RLS „vlastník".
+
+### 2.3 Server funkcie (`createServerFn`, `requireSupabaseAuth`)
+- `fetchCompanyByIco({ ico })` – volá registre z fázy 1, vráti normalizovaný objekt + čo sa nepodarilo.
+- `saveCompanyProfile(...)` – upsert.
+- `getCompanyProfile()`
+- `analyzeTender({ tenderId })` – **len pre `subscription_status = 'active'`** (kontrola cez `user_preferences`). Načíta tender + profil, pošle 3 Gemini volania (FLASH, FLASH, PRO), uloží do `tender_analysis`, vráti. Ak už záznam existuje, len vráti (žiadne opakované generovanie).
+- `getTenderAnalysis({ tenderId })`.
+
+### 2.4 Existujúce zhrnutia
+Nechám ako sú (edge function stále beží cez Lovable AI Gateway), lebo nová práca cez tvoj Gemini kľúč je len pre analýzu. Ak chceš, v ďalšej iterácii ich prepneme tiež na tvoj kľúč.
+
+---
+
+## Fáza 3 — Frontend
+
+### 3.1 Firemný profil
+- Nová route `src/routes/_authenticated/firma.tsx` (odkaz zo `settings`).
+- Formulár: IČO + tlačidlo „Načítať z registrov" → volá `fetchCompanyByIco` → predvyplní polia (readonly + „upraviť"). Ručné polia: referencie (dynamický zoznam: názov, hodnota, rok), certifikáty (chips), technické/personálne vybavenie (textarea).
+- Uloženie cez `saveCompanyProfile`.
+
+### 3.2 Detail zákazky
+V `src/routes/zakazka.$id.tsx` pridám sekciu „Analýza zákazky":
+- Ak `subscription_status !== 'active'` → karta so zámkom + CTA na `/predplatne`.
+- Ak nie je vyplnený profil → CTA „Doplň firemný profil" (link na `/firma`).
+- Inak tlačidlo „Analyzovať zákazku" → volá `analyzeTender`, počas behu spinner s krokmi (súhrn → podmienky → spôsobilosť).
+- Výsledok: 3 sekcie (Súhrn / Podmienky účasti / Analýza spôsobilosti s ✅⚠️❌ + celkové odporúčanie) + disclaimer.
+
+---
+
+## Čo urobím teraz
+
+Iba **Fáza 1**: spustím diagnostický skript proti verejným registrom s 2–3 vzorovými IČO a nahlásim ti výsledky. Žiadne migrácie ani zmeny v projekte v tomto kroku. Po tvojom OK pokračujem fázou 2 a 3, a potom si vypýtam `GEMINI_API_KEY`.
