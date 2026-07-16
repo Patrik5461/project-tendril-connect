@@ -1,9 +1,10 @@
-// Vytvorí opakovanú platbu (recurring) 4,99 €/mes pre prihláseného používateľa.
-// Vracia gw_url – URL, kam presmerovať používateľa do GoPay brány.
+// Vytvorí opakovanú platbu (recurring) pre prihláseného používateľa.
+// Suma závisí od zvoleného tieru: basic = 6,14 € s DPH, premium = 18,45 € s DPH.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { corsHeaders, getGoPayToken, gopayConfig, resolveGopayEnv } from "../_shared/gopay.ts";
 
-const PRICE_CENTS = 614; // 6,14 € s DPH (4,99 € bez DPH + 23 %)
+const PRICE_CENTS_BASIC = 614;    // 4,99 € + 23 % DPH = 6,14 €
+const PRICE_CENTS_PREMIUM = 1845; // 15,00 € + 23 % DPH = 18,45 €
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -24,11 +25,16 @@ Deno.serve(async (req) => {
     }
     const user = userRes.user;
 
+    const body = await req.json().catch(() => ({}));
+    const tier: "basic" | "premium" = body?.tier === "premium" ? "premium" : "basic";
+    const priceCents = tier === "premium" ? PRICE_CENTS_PREMIUM : PRICE_CENTS_BASIC;
+    const tierLabel = tier === "premium" ? "Prémium" : "Základ";
+
     const cfg = gopayConfig();
     if (!cfg.configured) {
       return new Response(JSON.stringify({
         error: "GOPAY_NOT_CONFIGURED",
-        message: "GoPay kľúče zatiaľ nie sú vyplnené (GOPAY_GOID / GOPAY_CLIENT_ID / GOPAY_CLIENT_SECRET). Sandbox tok bude funkčný hneď po ich doplnení.",
+        message: "GoPay kľúče zatiaľ nie sú vyplnené.",
         env: cfg.env,
       }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
@@ -38,9 +44,6 @@ Deno.serve(async (req) => {
 
     const token = await getGoPayToken("payment-create");
 
-    // Recurring platba – mesačne, bez dátumu konca (do zrušenia).
-    // Podľa GoPay API v3: recurrence.recurrence_cycle=MONTH, recurrence_period=1, recurrence_date_to=YYYY-MM-DD.
-    // Pretože GoPay vyžaduje date_to, dáme +10 rokov (efektívne "do zrušenia").
     const dateTo = new Date();
     dateTo.setFullYear(dateTo.getFullYear() + 10);
     const dateToStr = dateTo.toISOString().slice(0, 10);
@@ -49,16 +52,14 @@ Deno.serve(async (req) => {
       payer: {
         default_payment_instrument: "PAYMENT_CARD",
         allowed_payment_instruments: ["PAYMENT_CARD"],
-        contact: {
-          email: user.email ?? "",
-        },
+        contact: { email: user.email ?? "" },
       },
-      amount: PRICE_CENTS,
+      amount: priceCents,
       currency: "EUR",
-      order_number: `sub_${user.id.slice(0, 8)}_${Date.now()}`,
-      order_description: "Tendrik Premium – mesačné predplatné",
+      order_number: `sub_${tier}_${user.id.slice(0, 8)}_${Date.now()}`,
+      order_description: `Tendrik ${tierLabel} – mesačné predplatné`,
       items: [
-        { name: "Tendrik Premium (1 mesiac)", amount: PRICE_CENTS, count: 1 },
+        { name: `Tendrik ${tierLabel} (1 mesiac)`, amount: priceCents, count: 1 },
       ],
       recurrence: {
         recurrence_cycle: "MONTH",
@@ -71,6 +72,7 @@ Deno.serve(async (req) => {
       },
       additional_params: [
         { name: "user_id", value: user.id },
+        { name: "tier", value: tier },
       ],
       lang: "SK",
       target: { type: "ACCOUNT", goid: Number(cfg.goid) },
@@ -92,7 +94,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Zapamätaj payment_id (parent recurring) na user_preferences.
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -100,12 +101,14 @@ Deno.serve(async (req) => {
     await admin.from("user_preferences").update({
       gopay_subscription_id: String(j.id),
       gopay_recurrence_id: String(j.id),
+      subscription_tier: tier,
     }).eq("user_id", user.id);
 
     return new Response(JSON.stringify({
       payment_id: j.id,
       gw_url: j.gw_url,
       state: j.state,
+      tier,
       env: cfg.env,
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {

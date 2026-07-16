@@ -34,6 +34,7 @@ type Props = {
 export function TenderAnalysisSection({ tenderId, defaultCity, source, structuredCriteria }: Props) {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [tier, setTier] = useState<string>("basic");
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisRow | null>(null);
   const [checking, setChecking] = useState(true);
@@ -50,11 +51,12 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
       if (!u.user) { setAuthed(false); setChecking(false); return; }
       setAuthed(true);
       const [{ data: prefs }, profile, existing] = await Promise.all([
-        supabase.from("user_preferences").select("subscription_status").eq("user_id", u.user.id).maybeSingle(),
+        supabase.from("user_preferences").select("subscription_status,subscription_tier").eq("user_id", u.user.id).maybeSingle(),
         getP().catch(() => null),
         getA({ data: { tender_id: tenderId } }).catch(() => null),
       ]);
       setStatus(prefs?.subscription_status ?? "trial");
+      setTier(((prefs as any)?.subscription_tier as string) ?? "basic");
       setHasProfile(!!(profile && profile.ico));
       if (existing) setAnalysis(existing as AnalysisRow);
       setChecking(false);
@@ -66,7 +68,6 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
     setProgress(5);
     const started = Date.now();
     const iv = setInterval(() => {
-      // curve toward 90% over ~35s
       const elapsed = (Date.now() - started) / 1000;
       const pct = Math.min(90, 5 + (elapsed / 35) * 85);
       setProgress(pct);
@@ -90,9 +91,11 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
   }
 
   if (checking || authed === null) return null;
-  if (!authed) return null; // public view: nothing shown
+  if (!authed) return null;
 
-  const isActive = status === "active";
+  const hasAiAccess = status === "trial" || (status === "active" && tier === "premium");
+  const needsUpgrade = status === "active" && tier !== "premium";
+  const isExpired = status === "expired";
 
   return (
     <div className="mt-12 border-t-2 border-foreground pt-6">
@@ -105,11 +108,11 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
         <div className="eyebrow text-primary">AI analýza spôsobilosti</div>
       </div>
 
-      {!isActive && !analysis && (
-        <LockedTeaser />
+      {!hasAiAccess && !analysis && (
+        <LockedTeaser needsUpgrade={needsUpgrade} isExpired={isExpired} />
       )}
 
-      {isActive && !hasProfile && !analysis && (
+      {hasAiAccess && !hasProfile && !analysis && (
         <div className="mt-4 rounded-lg border border-border bg-card p-6">
           <h3 className="font-display font-semibold text-lg">Vyplňte firemný profil</h3>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -119,7 +122,7 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
         </div>
       )}
 
-      {isActive && hasProfile && !analysis && !running && (
+      {hasAiAccess && hasProfile && !analysis && !running && (
         <div className="mt-4">
           <Button onClick={() => run(false)} size="lg">
             <Sparkles className="h-4 w-4 mr-2" /> Analyzovať zákazku
@@ -148,26 +151,37 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
       )}
 
       {analysis && (
-        <AnalysisView analysis={analysis} onRerun={() => run(true)} rerunning={running} locked={!isActive} />
+        <AnalysisView analysis={analysis} onRerun={() => run(true)} rerunning={running} locked={!hasAiAccess} />
       )}
 
       <SubcontractingSection
         tenderId={tenderId}
         defaultCity={defaultCity ?? null}
-        isActive={isActive}
+        isActive={hasAiAccess}
         analysisReady={!!analysis}
       />
     </div>
   );
 }
 
-function LockedTeaser() {
+function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isExpired: boolean }) {
+  const title = needsUpgrade
+    ? "AI analýza je v balíku Prémium"
+    : isExpired
+    ? "Ukážka – vyžaduje aktívne predplatné"
+    : "Ukážka – vyžaduje aktívne predplatné";
+  const cta = needsUpgrade
+    ? "Upgradni na Prémium (15 €/mes) a odomkni AI analýzu"
+    : "Odomknúť analýzu – aktivovať predplatné";
+  const body = needsUpgrade
+    ? "V balíku Základ máte monitoring, radary a notifikácie. AI porovnanie podmienok s vašou firmou (spôsobilosť, subdodávky) je súčasťou Prémia."
+    : "AI porovná podmienky účasti s vašou firmou a povie, či sa oplatí uchádzať.";
   return (
     <div className="mt-4 relative overflow-hidden rounded-lg border border-border bg-card p-6">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/60 to-card pointer-events-none" />
       <div className="relative">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <Lock className="h-4 w-4" /> Ukážka – vyžaduje aktívne predplatné
+          <Lock className="h-4 w-4" /> {title}
         </div>
         <div className="mt-4 space-y-3 blur-sm select-none">
           <div className="h-4 w-3/4 bg-muted rounded" />
@@ -176,10 +190,10 @@ function LockedTeaser() {
           <div className="h-4 w-4/5 bg-muted rounded" />
         </div>
         <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
-          <p className="text-sm text-muted-foreground max-w-md">
-            AI porovná podmienky účasti s vašou firmou a povie, či sa oplatí uchádzať.
-          </p>
-          <Link to="/predplatne"><Button>Odomknúť analýzu – aktivovať predplatné</Button></Link>
+          <p className="text-sm text-muted-foreground max-w-md">{body}</p>
+          <Link to="/predplatne" search={needsUpgrade ? { tier: "premium" } as never : undefined as never}>
+            <Button>{cta}</Button>
+          </Link>
         </div>
       </div>
     </div>

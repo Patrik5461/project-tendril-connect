@@ -209,15 +209,20 @@ export async function issueFakteroInvoice(params: {
   amountGross: number;
   currency: string;
   recipientEmail: string;
+  tier?: "basic" | "premium";
 }): Promise<IssueResult> {
   const unit = unitPriceExVat(params.amountGross, 23);
+  const tierLabel = params.tier === "premium" ? "Prémium" : params.tier === "basic" ? "Základ" : "";
+  const itemName = tierLabel
+    ? `Tendrik ${tierLabel} – mesačné predplatné`
+    : "Tendrik – mesačné predplatné";
   const invoicePayload = {
     customer_id: params.customerId,
     issue_date: today(),
     due_date: today(),
     currency: params.currency || "EUR",
     items: [{
-      name: "Tendrik – mesačné predplatné",
+      name: itemName,
       quantity: 1,
       unit: "ks",
       unit_price: unit,
@@ -262,6 +267,7 @@ export async function issueInvoiceForPayment(params: {
   gopayPaymentId: string;
   amountGrossEur: number;
   currency?: string;
+  tier?: "basic" | "premium";
 }): Promise<{ ok: boolean; error?: string; invoice_id?: string; invoice_number?: string | null }> {
   const { admin, userId, gopayPaymentId, amountGrossEur } = params;
 
@@ -303,6 +309,7 @@ export async function issueInvoiceForPayment(params: {
       amountGross: amountGrossEur,
       currency: params.currency || "EUR",
       recipientEmail: (billing as any).email,
+      tier: params.tier,
     });
 
     await admin.from("invoices").update({

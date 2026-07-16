@@ -572,7 +572,7 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
     if (!userId) return;
     const { data } = await supabase
       .from("user_preferences")
-      .select("trial_started_at,subscription_status,subscription_valid_until,gopay_recurrence_id,subscription_cancel_requested_at,last_payment_at")
+      .select("trial_started_at,subscription_status,subscription_tier,subscription_valid_until,gopay_recurrence_id,subscription_cancel_requested_at,last_payment_at")
       .eq("user_id", userId)
       .maybeSingle();
     setRow(data);
@@ -617,8 +617,10 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
           <div className="font-medium">{statusLabel}</div>
         </div>
         <div>
-          <div className="text-muted-foreground">Cena</div>
-          <div className="font-medium">{formatEur(MONTHLY_PRICE_EUR)} / mes bez DPH (6,14 € s DPH)</div>
+          <div className="text-muted-foreground">Plán / Cena</div>
+          <div className="font-medium">
+            Tendrik {sub.tier === "premium" ? "Prémium" : "Základ"} · {formatEur(sub.tier === "premium" ? 15 : MONTHLY_PRICE_EUR)} / mes bez DPH
+          </div>
         </div>
         {validUntil && (
           <div>

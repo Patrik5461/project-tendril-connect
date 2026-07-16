@@ -585,6 +585,7 @@ export type Database = {
           subscription_note: string | null
           subscription_source: string
           subscription_status: string
+          subscription_tier: string
           subscription_valid_until: string | null
           trial_started_at: string
           updated_at: string
@@ -610,6 +611,7 @@ export type Database = {
           subscription_note?: string | null
           subscription_source?: string
           subscription_status?: string
+          subscription_tier?: string
           subscription_valid_until?: string | null
           trial_started_at?: string
           updated_at?: string
@@ -635,6 +637,7 @@ export type Database = {
           subscription_note?: string | null
           subscription_source?: string
           subscription_status?: string
+          subscription_tier?: string
           subscription_valid_until?: string | null
           trial_started_at?: string
           updated_at?: string
@@ -781,6 +784,7 @@ export type Database = {
           subscription_note: string
           subscription_source: string
           subscription_status: string
+          subscription_tier: string
           subscription_valid_until: string
           trial_started_at: string
           user_id: string
@@ -793,6 +797,7 @@ export type Database = {
           _note: string
           _source: string
           _status: string
+          _tier?: string
           _user_id: string
           _valid_until: string
         }
