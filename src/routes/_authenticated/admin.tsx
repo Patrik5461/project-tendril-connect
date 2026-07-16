@@ -30,6 +30,8 @@ type UserRow = {
   email: string | null;
   created_at: string;
   subscription_status: string | null;
+  subscription_source: string | null;
+  subscription_note: string | null;
   trial_started_at: string | null;
   subscription_valid_until: string | null;
   radars_count: number;
