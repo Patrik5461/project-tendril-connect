@@ -29,7 +29,7 @@ VEDOMOSTNÝ KONTEXT O TENDRIKU:
 - Zobrazenie zoznam alebo mriežka, vyhľadávanie a triedenie podľa deadlinu, novosti alebo hodnoty.
 - AI zhrnutie: pri každej zákazke krátke AI zhrnutie v detaile zákazky.
 - Nastavenia: správa radarov, frekvencia e-mailov, prepínače notifikácií, odhlásenie.
-- Cena: prvé 2 mesiace sú zadarmo (skúšobné obdobie), potom 4,99 €/mesiac. Registrácia nevyžaduje kartu. Platba sa spúšťa neskôr – zatiaľ používatelia využívajú skúšobnú dobu.`;
+- Cena: 30 dní zdarma na vyskúšanie (vrátane 5 AI analýz zákaziek), potom 4,99 €/mes (Základ, monitoring) alebo 14,99 €/mes (Prémium, s AI analýzou). Konečná cena – Tobify s. r. o. nie je platca DPH. Registrácia nevyžaduje kartu.`;
 
 
 Deno.serve(async (req) => {
