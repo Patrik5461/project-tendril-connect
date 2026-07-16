@@ -433,7 +433,7 @@ export const analyzeTender = createServerFn({ method: "POST" })
       throw new Error(
         status === "expired"
           ? "AI analýza je dostupná len s aktívnym predplatným."
-          : "AI analýza je súčasťou balíka Prémium (15 €/mes). Upgradnite predplatné a odomknite ju.",
+          : "AI analýza je súčasťou balíka Prémium (14,99 €/mes). Upgradnite predplatné a odomknite ju.",
       );
     }
 
