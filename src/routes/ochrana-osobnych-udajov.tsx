@@ -28,7 +28,7 @@ function PrivacyPage() {
         Ochrana osobných údajov
       </h1>
       <p className="mt-2 text-muted-foreground">
-        Tendrik je služba pre podnikateľov (prvé 2 mesiace zdarma, potom 4,99 €/mesiac). Osobné údaje
+        Tendrik je služba pre podnikateľov (30 dní zdarma, potom od 4,99 €/mesiac). Osobné údaje
         spracúvame len v rozsahu potrebnom na fungovanie služby.
       </p>
 
