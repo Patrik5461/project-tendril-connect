@@ -7,7 +7,7 @@ export const Route = createFileRoute("/cennik")({
   head: () => ({
     meta: [
       { title: "Cenník – Tendrik" },
-      { name: "description", content: "Základ 4,99 €/mes (monitoring) alebo Prémium 14,99 €/mes s AI analýzou. Prvé 2 mesiace zdarma." },
+      { name: "description", content: "Základ 4,99 €/mes (monitoring) alebo Prémium 14,99 €/mes s AI analýzou. 30 dní zdarma na vyskúšanie." },
     ],
     links: [{ rel: "canonical", href: "https://www.tendrik.sk/cennik" }],
   }),
