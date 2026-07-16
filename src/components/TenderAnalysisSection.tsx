@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { analyzeTender, getTenderAnalysis, getCompanyProfile } from "@/lib/tender-analysis.functions";
+import { SubcontractingSection } from "@/components/SubcontractingSection";
 
 type AnalysisRow = {
   summary: string | null;
