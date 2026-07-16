@@ -22,7 +22,7 @@ function Page() {
       <div className="rounded-lg border-2 border-primary bg-primary/5 p-5">
         <div className="eyebrow text-primary">Zhrnutie</div>
         <ul className="mt-2 space-y-1 text-foreground">
-          <li>💳 Suma: <b>4,99 € / mesiac bez DPH</b> (<b>6,14 € s DPH 23 %</b>)</li>
+          <li>💳 Suma: <b>4,99 € / mesiac</b> (Základ) alebo <b>14,99 € / mesiac</b> (Prémium) – konečná cena</li>
           <li>🔁 Frekvencia: <b>každý mesiac</b>, automaticky</li>
           <li>🎁 Prvé <b>2 mesiace</b> zadarmo (skúšobné obdobie)</li>
           <li>❌ Zrušenie kedykoľvek v nastaveniach účtu</li>
