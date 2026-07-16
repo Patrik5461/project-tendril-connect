@@ -572,7 +572,7 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
     if (!userId) return;
     const { data } = await supabase
       .from("user_preferences")
-      .select("trial_started_at,subscription_status,subscription_valid_until,gopay_recurrence_id,subscription_cancel_requested_at,last_payment_at")
+      .select("trial_started_at,subscription_status,subscription_tier,subscription_valid_until,gopay_recurrence_id,subscription_cancel_requested_at,last_payment_at")
       .eq("user_id", userId)
       .maybeSingle();
     setRow(data);
