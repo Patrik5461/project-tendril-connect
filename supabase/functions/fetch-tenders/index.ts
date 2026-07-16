@@ -3,6 +3,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { a2FromNuts, a2FromA3, countryName } from "../_shared/eu.ts";
+import { TED_STRUCTURED_FIELDS, buildStructuredCriteria } from "../_shared/ted-criteria.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -184,6 +185,7 @@ Deno.serve(async (req) => {
             "estimated-value-cur-glo",
             "estimated-value-lot",
             "estimated-value-cur-lot",
+            ...TED_STRUCTURED_FIELDS,
           ],
           limit: 250,
           page: 1,
@@ -247,6 +249,7 @@ Deno.serve(async (req) => {
 
       const { value: estimated_value, currency } = pickTedValue(n);
       const sourceUrl = `https://ted.europa.eu/sk/notice/-/detail/${pubNumber}`;
+      const structured_criteria = buildStructuredCriteria(n);
 
       const { data: existing } = await supabase
         .from("tenders")
@@ -269,6 +272,7 @@ Deno.serve(async (req) => {
           currency,
           source: "TED",
           source_url: sourceUrl,
+          structured_criteria,
         },
         { onConflict: "publication_number" },
       );

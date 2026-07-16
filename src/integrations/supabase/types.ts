@@ -515,6 +515,7 @@ export type Database = {
           region: string | null
           source: string
           source_url: string | null
+          structured_criteria: Json | null
           title: string
           updated_at: string
         }
@@ -536,6 +537,7 @@ export type Database = {
           region?: string | null
           source?: string
           source_url?: string | null
+          structured_criteria?: Json | null
           title: string
           updated_at?: string
         }
@@ -557,6 +559,7 @@ export type Database = {
           region?: string | null
           source?: string
           source_url?: string | null
+          structured_criteria?: Json | null
           title?: string
           updated_at?: string
         }
@@ -757,6 +760,7 @@ export type Database = {
           region: string | null
           source: string
           source_url: string | null
+          structured_criteria: Json | null
           title: string
           updated_at: string
         }[]
@@ -827,6 +831,7 @@ export type Database = {
           region: string | null
           source: string
           source_url: string | null
+          structured_criteria: Json | null
           title: string
           updated_at: string
         }[]
