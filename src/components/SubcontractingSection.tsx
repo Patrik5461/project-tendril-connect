@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ type SuggestedItem = {
   dovod: string;
   nace_kod?: string | null;
   hladane_slovo?: string | null;
+  hladane_slova?: string[] | null;
   sam_zvladne?: boolean;
 };
 
@@ -69,7 +70,8 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
   }>({ loaded: false, suggested: [], firma_zvladne_sama: false, poznamka: null, selections: [] });
 
   const [running, setRunning] = useState(false);
-  const [candidates, setCandidates] = useState<Record<string, { loading: boolean; items: Candidate[]; city: string; note?: string }>>({});
+  const [candidates, setCandidates] = useState<Record<string, { loading: boolean; items: Candidate[]; city: string; keyword: string; note?: string; used_keyword?: string; dropped_city?: boolean; searched?: boolean }>>({});
+  const selectionsRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!isActive || !analysisReady) return;
@@ -100,6 +102,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
         poznamka: (row as any).poznamka ?? null,
         selections: (row as any).selections ?? [],
       });
+      setCandidates({});
       toast.success((row as any).cached ? "Načítané uložené návrhy" : "Návrhy pripravené");
     } catch (e: any) {
       toast.error(e?.message ?? "Nepodarilo sa navrhnúť subdodávky");
@@ -108,18 +111,44 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
     }
   }
 
-  async function searchFor(item: SuggestedItem, idx: number) {
+  function initialKeyword(item: SuggestedItem): string {
+    return (item.hladane_slovo || item.hladane_slova?.[0] || item.nazov || "").trim();
+  }
+
+  async function searchFor(item: SuggestedItem, idx: number, overrideKeyword?: string) {
     const key = String(idx);
-    const kw = item.hladane_slovo || item.nazov;
-    const city = candidates[key]?.city ?? defaultCity ?? "";
-    setCandidates((c) => ({ ...c, [key]: { loading: true, items: [], city } }));
+    const existing = candidates[key];
+    const kw = (overrideKeyword ?? existing?.keyword ?? initialKeyword(item)).trim();
+    const city = existing?.city ?? defaultCity ?? "";
+    if (kw.length < 2) {
+      toast.error("Zadajte aspoň 2 znaky pre hľadaný pojem.");
+      return;
+    }
+    setCandidates((c) => ({ ...c, [key]: { loading: true, items: [], city, keyword: kw } }));
+    const alternatives = (item.hladane_slova ?? []).filter((s) => s && s.trim() && s.trim() !== kw);
     try {
-      const res: any = await findCandidates({ data: { keyword: kw, city: city || null, limit: 15 } });
-      setCandidates((c) => ({ ...c, [key]: { loading: false, items: res.results ?? [], city, note: res.note } }));
+      const res: any = await findCandidates({ data: { keyword: kw, alternatives, city: city || null, limit: 15 } });
+      setCandidates((c) => ({
+        ...c,
+        [key]: {
+          loading: false,
+          items: res.results ?? [],
+          city,
+          keyword: kw,
+          note: res.note,
+          used_keyword: res.used_keyword,
+          dropped_city: !!res.dropped_city,
+          searched: true,
+        },
+      }));
     } catch (e: any) {
-      setCandidates((c) => ({ ...c, [key]: { loading: false, items: [], city, note: e?.message } }));
+      setCandidates((c) => ({ ...c, [key]: { loading: false, items: [], city, keyword: kw, note: e?.message, searched: true } }));
       toast.error(e?.message ?? "Vyhľadávanie zlyhalo");
     }
+  }
+
+  function scrollToSelections() {
+    setTimeout(() => selectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   }
 
   function addSelection(need: SuggestedItem, c?: Candidate) {
@@ -133,19 +162,23 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
       co_dopyt: need.dovod,
     };
     setState((s) => ({ ...s, selections: [...s.selections, sel] }));
+    toast.success(c?.nazov ? `Pridané: ${c.nazov}` : `Pridané prázdne — doplňte firmu pre „${need.nazov}"`);
+    scrollToSelections();
   }
 
   function addManual() {
     setState((s) => ({
       ...s,
       selections: [...s.selections, {
-        key: `${Date.now()}-m`,
+        key: `${Date.now()}-m-${Math.random().toString(36).slice(2, 6)}`,
         need_nazov: "",
         nazov_firmy: "",
         co_dopyt: "",
         email: "",
       }],
     }));
+    toast.success("Pridaný prázdny záznam – vyplňte údaje firmy nižšie.");
+    scrollToSelections();
   }
 
   function updateSel(key: string, patch: Partial<Selection>) {
@@ -235,25 +268,41 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
           {state.suggested.map((item, idx) => {
             const key = String(idx);
             const c = candidates[key];
+            const currentKw = c?.keyword ?? initialKeyword(item);
+            const alts = (item.hladane_slova ?? []).filter((s) => s && s.trim() && s.trim() !== currentKw);
             return (
               <div key={idx} className="rounded-lg border border-border p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="font-medium">{item.nazov}</div>
                     <div className="text-sm text-muted-foreground mt-1">{item.dovod}</div>
-                    <div className="text-xs text-muted-foreground mt-2 flex flex-wrap gap-3">
-                      {item.nace_kod && <span>SK-NACE: <code>{item.nace_kod}</code></span>}
-                      {item.hladane_slovo && <span>Hľadané: „{item.hladane_slovo}"</span>}
-                    </div>
+                    {item.nace_kod && (
+                      <div className="text-xs text-muted-foreground mt-2">SK-NACE: <code>{item.nace_kod}</code></div>
+                    )}
                   </div>
                 </div>
 
-                <div className="mt-3 flex flex-wrap items-end gap-2">
-                  <div className="flex-1 min-w-[180px]">
+                <div className="mt-3 grid grid-cols-1 md:grid-cols-[2fr_1.5fr_auto] gap-2 items-end">
+                  <div>
+                    <Label className="text-xs">Hľadaný pojem (upravte ak treba)</Label>
+                    <Input
+                      value={currentKw}
+                      onChange={(e) => setCandidates((s) => ({
+                        ...s,
+                        [key]: { ...(s[key] ?? { loading: false, items: [], city: defaultCity ?? "" }), keyword: e.target.value },
+                      }))}
+                      placeholder="napr. záhradn, kosačk, elektroinštal"
+                      className="h-9"
+                    />
+                  </div>
+                  <div>
                     <Label className="text-xs">Obec (voliteľné)</Label>
                     <Input
                       value={c?.city ?? defaultCity ?? ""}
-                      onChange={(e) => setCandidates((s) => ({ ...s, [key]: { ...(s[key] ?? { loading: false, items: [] }), city: e.target.value } }))}
+                      onChange={(e) => setCandidates((s) => ({
+                        ...s,
+                        [key]: { ...(s[key] ?? { loading: false, items: [], keyword: currentKw }), city: e.target.value },
+                      }))}
                       placeholder="napr. Bratislava"
                       className="h-9"
                     />
@@ -264,10 +313,36 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
                   </Button>
                 </div>
 
-                {c && !c.loading && (
+                {alts.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5 items-center">
+                    <span className="text-xs text-muted-foreground">Skúsiť aj:</span>
+                    {alts.map((a, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => searchFor(item, idx, a)}
+                        className="text-xs px-2 py-0.5 rounded-full border border-border hover:bg-accent"
+                      >
+                        {a}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {c && !c.loading && c.searched && (
                   <div className="mt-3">
                     {c.items.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">Žiadne výsledky. Skúste iný pojem alebo iné mesto.</p>
+                      <div className="rounded border border-amber-500/40 bg-amber-500/5 p-3 text-sm space-y-2">
+                        <p>
+                          Nenašli sme firmy podľa registrovanej činnosti (skúšané:{" "}
+                          {(c as any).tried ? (c as any).tried.join(", ") : currentKw}
+                          {c.dropped_city ? "; aj bez mesta" : ""}). Upravte hľadaný pojem vyššie a skúste znova, alebo pridajte vlastnú firmu.
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Tip: registrové činnosti bývajú formulované všeobecne. Použite krátky koreň slova
+                          (napr. „záhradn", „komunálna technika", „elektrikár") namiesto celej frázy.
+                        </p>
+                      </div>
                     ) : (
                       <>
                         <p className="text-xs text-muted-foreground mb-2">{c.note}</p>
@@ -294,8 +369,8 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
                   </div>
                 )}
 
-                <div className="mt-2">
-                  <Button size="sm" variant="ghost" onClick={() => addSelection(item)}>
+                <div className="mt-3">
+                  <Button size="sm" variant="outline" onClick={() => addSelection(item)}>
                     <Plus className="h-4 w-4 mr-1" /> Pridať vlastnú firmu pre toto plnenie
                   </Button>
                 </div>
@@ -304,7 +379,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
           })}
 
           {/* Výber + oslovenia */}
-          <div className="pt-4 border-t border-border">
+          <div ref={selectionsRef} className="pt-4 border-t border-border scroll-mt-24">
             <div className="flex items-center justify-between">
               <h3 className="font-display font-semibold">Vybraní subdodávatelia a oslovenia</h3>
               <div className="flex gap-2">

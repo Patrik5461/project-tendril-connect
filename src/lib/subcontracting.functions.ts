@@ -12,6 +12,7 @@ type SuggestedItem = {
   dovod: string;
   nace_kod?: string | null;
   hladane_slovo?: string | null;
+  hladane_slova?: string[] | null;
   sam_zvladne: boolean;
 };
 
@@ -42,11 +43,14 @@ Pre každú položku uveď:
 - nazov (krátky, konkrétny; napr. "Elektroinštalačné práce" alebo "Doprava a logistika")
 - dovod (ktorá podmienka to vyžaduje / prečo firma nezvládne sama)
 - nace_kod (odhadovaný 2- alebo 4-miestny SK-NACE kód, napr. "43.21", ak neviete napíšte null)
-- hladane_slovo (1–3 slovné spojenie na fulltextové hľadanie v registri firiem podľa hlavnej činnosti, napr. "elektroinštalácie", "cestná nákladná doprava")
+- hladane_slovo — JEDNO krátke slovo alebo koreň slova (max 1–2 slová) na fulltextové hľadanie v registri firiem podľa registrovanej hlavnej činnosti. NIE celá fráza! Použi koreň slova bez koncoviek, ktorý chytí viac tvarov.
+  Príklady správne: "elektroinštal", "záhradn", "kosačk", "doprav", "nákladn", "stráženie", "účtovníc", "zvárač"
+  Príklady NESPRÁVNE (príliš špecifická fráza): "predaj záhradnej techniky", "elektroinštalačné práce a revízie", "cestná nákladná doprava tovaru"
+- hladane_slova — pole 2–3 alternatívnych krátkych hľadaných slov (rôzne korene / synonymá), pre prípad že hlavné slovo nenájde nič. Napr. pre "záhradná technika": ["záhradn", "kosačk", "komunálna technika"]. Pre "elektroinštal": ["elektroinštal", "elektrikár", "revízie"].
 
 Ak firma pravdepodobne zvládne všetko sama, vráť prázdny zoznam a firma_zvladne_sama=true s krátkou poznámkou.
 
-Vráť LEN JSON: {"firma_zvladne_sama": boolean, "poznamka": string, "polozky": [{"nazov": string, "dovod": string, "nace_kod": string|null, "hladane_slovo": string|null, "sam_zvladne": false}]}`;
+Vráť LEN JSON: {"firma_zvladne_sama": boolean, "poznamka": string, "polozky": [{"nazov": string, "dovod": string, "nace_kod": string|null, "hladane_slovo": string, "hladane_slova": string[], "sam_zvladne": false}]}`;
 
 export const suggestSubcontracting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -199,18 +203,61 @@ async function rpoSearch(keyword: string, city?: string | null, limit = 15): Pro
   return out;
 }
 
+async function rpoSearchWithFallback(
+  keyword: string,
+  alternatives: string[] | undefined,
+  city: string | null | undefined,
+  limit: number,
+): Promise<{ results: Candidate[]; used_keyword: string; used_city: string | null; tried: string[]; dropped_city: boolean }> {
+  const tried: string[] = [];
+  const variants = [keyword, ...(alternatives ?? [])]
+    .map((s) => (s ?? "").trim())
+    .filter((s, i, arr) => s.length >= 2 && arr.indexOf(s) === i);
+
+  const cityStr = city && city.trim().length >= 3 ? city.trim() : null;
+
+  // 1) Every variant with city (if any)
+  if (cityStr) {
+    for (const v of variants) {
+      tried.push(v);
+      const results = await rpoSearch(v, cityStr, limit);
+      if (results.length > 0) return { results, used_keyword: v, used_city: cityStr, tried, dropped_city: false };
+    }
+  }
+  // 2) Every variant without city
+  for (const v of variants) {
+    if (!cityStr) tried.push(v);
+    const results = await rpoSearch(v, null, limit);
+    if (results.length > 0) return { results, used_keyword: v, used_city: null, tried, dropped_city: !!cityStr };
+  }
+  return { results: [], used_keyword: keyword, used_city: cityStr, tried, dropped_city: !!cityStr };
+}
+
 export const findSubcontractorCandidates = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => z.object({
     keyword: z.string().min(2).max(80),
+    alternatives: z.array(z.string().min(2).max(80)).max(6).optional(),
     city: z.string().nullable().optional(),
     limit: z.number().int().min(1).max(30).optional().default(15),
   }).parse(raw))
   .handler(async ({ data, context }) => {
     await requireActive(context);
     try {
-      const results = await rpoSearch(data.keyword, data.city ?? null, data.limit);
-      return { results, source: "RPO Štatistický úrad SR", note: "Firmy podľa registrovanej hlavnej činnosti a obce sídla. Nie sú overení subdodávatelia — overte referencie, kapacitu a spoľahlivosť sami." };
+      const r = await rpoSearchWithFallback(data.keyword, data.alternatives, data.city ?? null, data.limit);
+      const notes: string[] = [];
+      if (r.used_keyword !== data.keyword) notes.push(`Použitý alternatívny pojem „${r.used_keyword}".`);
+      if (r.dropped_city) notes.push("Filter mesta bol uvoľnený — inak neboli žiadne výsledky.");
+      const base = "Firmy podľa registrovanej hlavnej činnosti a obce sídla. Nie sú overení subdodávatelia — overte referencie, kapacitu a spoľahlivosť sami.";
+      return {
+        results: r.results,
+        source: "RPO Štatistický úrad SR",
+        used_keyword: r.used_keyword,
+        used_city: r.used_city,
+        tried: r.tried,
+        dropped_city: r.dropped_city,
+        note: [notes.join(" "), base].filter(Boolean).join(" "),
+      };
     } catch (e: any) {
       return { results: [], source: "RPO", error: e?.message ?? "RPO nedostupné" };
     }
@@ -426,6 +473,7 @@ export const adminFindSubcontractorCandidates = createServerFn({ method: "POST" 
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => z.object({
     keyword: z.string().min(2).max(80),
+    alternatives: z.array(z.string().min(2).max(80)).max(6).optional(),
     city: z.string().nullable().optional(),
     limit: z.number().int().min(1).max(30).optional().default(15),
   }).parse(raw))
@@ -433,8 +481,16 @@ export const adminFindSubcontractorCandidates = createServerFn({ method: "POST" 
     await assertAdmin(context);
     const t0 = Date.now();
     try {
-      const results = await rpoSearch(data.keyword, data.city ?? null, data.limit);
-      return { results, elapsedMs: Date.now() - t0, source: "RPO Štatistický úrad SR" };
+      const r = await rpoSearchWithFallback(data.keyword, data.alternatives, data.city ?? null, data.limit);
+      return {
+        results: r.results,
+        elapsedMs: Date.now() - t0,
+        source: "RPO Štatistický úrad SR",
+        used_keyword: r.used_keyword,
+        used_city: r.used_city,
+        tried: r.tried,
+        dropped_city: r.dropped_city,
+      };
     } catch (e: any) {
       return { results: [], elapsedMs: Date.now() - t0, source: "RPO", error: e?.message ?? "RPO nedostupné" };
     }
