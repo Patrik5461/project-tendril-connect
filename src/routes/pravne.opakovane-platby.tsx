@@ -24,7 +24,7 @@ function Page() {
         <ul className="mt-2 space-y-1 text-foreground">
           <li>💳 Suma: <b>4,99 € / mesiac</b> (Základ) alebo <b>14,99 € / mesiac</b> (Prémium) – konečná cena</li>
           <li>🔁 Frekvencia: <b>každý mesiac</b>, automaticky</li>
-          <li>🎁 Prvé <b>2 mesiace</b> zadarmo (skúšobné obdobie)</li>
+          <li>🎁 <b>30 dní zdarma</b> na vyskúšanie (skúšobné obdobie, vrátane 5 AI analýz)</li>
           <li>❌ Zrušenie kedykoľvek v nastaveniach účtu</li>
         </ul>
         <PaymentBadges className="mt-4" />
