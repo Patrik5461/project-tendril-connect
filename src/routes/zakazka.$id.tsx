@@ -291,7 +291,7 @@ function TenderDetail() {
         </div>
       )}
 
-      {authed && <TenderAnalysisSection tenderId={tender.id} />}
+      {authed && <TenderAnalysisSection tenderId={tender.id} defaultCity={tender.region ?? null} />}
 
       <div className="mt-10 flex flex-wrap gap-3">
         {tender.source_url && (
