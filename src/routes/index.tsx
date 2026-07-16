@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Search, Bell, Filter } from "lucide-react";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 function formatSk(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
@@ -179,6 +180,7 @@ function Landing() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Logo />
           <div className="flex items-center gap-2">
+            <LanguageSwitcher compact />
             <Link to="/auth" search={{ mode: "login" }}>
               <Button variant="ghost">Prihlásiť sa</Button>
             </Link>

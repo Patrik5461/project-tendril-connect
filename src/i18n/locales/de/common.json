@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "features": "Funktionen",
+    "pricing": "Preise",
+    "contact": "Kontakt",
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "dashboard": "Ausschreibungen",
+    "settings": "Einstellungen",
+    "admin": "Admin",
+    "logout": "Abmelden"
+  },
+  "footer": {
+    "tagline": "Vergabemonitoring aus TED, ÚVO, EKS und JOSEPHINE.",
+    "contact": "Kontakt",
+    "legal": "Rechtliches",
+    "payments": "Zahlungen",
+    "paymentsNote": "Zahlungen werden von GoPay s.r.o. über ein sicheres Zahlungs-Gateway mit 3D Secure abgewickelt.",
+    "rights": "Alle Rechte vorbehalten.",
+    "monitoring": "Tendrik.sk – Vergabemonitoring"
+  },
+  "language": {
+    "switch": "Sprache"
+  },
+  "common": {
+    "back": "Zurück",
+    "loading": "Wird geladen…",
+    "error": "Fehler",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "close": "Schließen"
+  }
+}
