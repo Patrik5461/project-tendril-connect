@@ -68,9 +68,9 @@ function CennikPage() {
             <div className="eyebrow text-primary">Prémium</div>
             <h2 className="mt-2 font-display text-2xl font-bold">Všetko + AI</h2>
             <p className="mt-4 num text-4xl font-bold">
-              15 € <span className="text-base font-medium text-muted-foreground">/ mes bez DPH</span>
+              14,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span>
             </p>
-            <p className="text-sm text-muted-foreground">18,45 € s DPH 23 % · fakturované mesačne</p>
+            <p className="text-sm text-muted-foreground">Konečná cena · fakturované mesačne</p>
             <ul className="mt-6 space-y-2 text-sm flex-1">
               <li className="flex gap-2"><Check className="h-4 w-4 text-primary mt-0.5" /><b>Všetko zo Základu</b></li>
               <li className="flex gap-2"><Sparkles className="h-4 w-4 text-primary mt-0.5" />AI analýza zákazky a spôsobilosti</li>
