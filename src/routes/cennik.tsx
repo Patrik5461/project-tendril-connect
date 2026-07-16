@@ -35,7 +35,7 @@ function CennikPage() {
           Dva plány. <span className="hero-underline">Vy si vyberáte.</span>
         </h1>
         <p className="mt-4 text-lg text-foreground/80">
-          Prvé 2 mesiace zdarma s plnou AI analýzou. Potom si vyberte Základ alebo Prémium.
+          30 dní zdarma na vyskúšanie. Potom si vyberte Základ alebo Prémium.
         </p>
 
         <div className="mt-10 grid gap-6 md:grid-cols-2">
