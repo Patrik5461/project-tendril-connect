@@ -171,7 +171,7 @@ function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isEx
     ? "Ukážka – vyžaduje aktívne predplatné"
     : "Ukážka – vyžaduje aktívne predplatné";
   const cta = needsUpgrade
-    ? "Upgradni na Prémium (15 €/mes) a odomkni AI analýzu"
+    ? "Upgradni na Prémium (14,99 €/mes) a odomkni AI analýzu"
     : "Odomknúť analýzu – aktivovať predplatné";
   const body = needsUpgrade
     ? "V balíku Základ máte monitoring, radary a notifikácie. AI porovnanie podmienok s vašou firmou (spôsobilosť, subdodávky) je súčasťou Prémia."
