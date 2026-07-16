@@ -28,11 +28,11 @@ function Page() {
           <li>Sídlo: Športová 707/43, 919 26 Zavar, Slovenská republika</li>
           <li>IČO: 56607016</li>
           <li>DIČ: 2122358579</li>
-          <li>IČ DPH: SK2122358579</li>
+          <li>Neplatiteľ DPH</li>
           <li>E-mail: <a href="mailto:info@tendrik.sk">info@tendrik.sk</a></li>
           <li>Telefón: <a href="tel:+421907702422">+421 907 702 422</a></li>
         </ul>
-        <p>Spoločnosť je platiteľom DPH.</p>
+        <p>Spoločnosť <b>nie je platiteľom DPH</b>; ceny uvedené na Tendrik.sk sú konečné.</p>
       </section>
 
       <section>
