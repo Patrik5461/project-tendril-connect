@@ -98,6 +98,7 @@ function AdminPage() {
           <TabsTrigger value="invoices">Faktero fakturácia</TabsTrigger>
           <TabsTrigger value="users">Používatelia</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
+          <TabsTrigger value="ai-test">AI test</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-4"><OverviewTab /></TabsContent>
         <TabsContent value="actions" className="mt-4"><ActionsTab /></TabsContent>
@@ -105,6 +106,7 @@ function AdminPage() {
         <TabsContent value="invoices" className="mt-4"><InvoicesTab /></TabsContent>
         <TabsContent value="users" className="mt-4"><UsersTab /></TabsContent>
         <TabsContent value="seo" className="mt-4"><SeoTab /></TabsContent>
+        <TabsContent value="ai-test" className="mt-4"><AiTestTab /></TabsContent>
       </Tabs>
     </div>
   );
