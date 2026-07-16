@@ -96,13 +96,10 @@ export async function fetchCompanyFromRegisters(
   const rpoAddr = rpo?.addresses?.[0] ?? {};
   const ruzDetail = ruz?.detail ?? {};
 
-  const roky_zavierok: number[] = Array.from(
-    new Set(
-      (ruz?.zavierky?.zavierky ?? ruz?.zavierky?.items ?? [])
-        .map((z: any) => Number(z?.obdobieOd?.slice?.(0, 4) ?? z?.rok))
-        .filter((n: number) => Number.isFinite(n) && n > 1990 && n < 2100),
-    ),
-  ).sort((a: any, b: any) => (b as number) - (a as number));
+  const rokyRaw: number[] = ((ruz?.zavierky?.zavierky ?? ruz?.zavierky?.items ?? []) as any[])
+    .map((z: any) => Number(z?.obdobieOd?.slice?.(0, 4) ?? z?.rok))
+    .filter((n: number) => Number.isFinite(n) && n > 1990 && n < 2100);
+  const roky_zavierok: number[] = Array.from(new Set<number>(rokyRaw)).sort((a, b) => b - a);
 
   const skNaceCode =
     ruzDetail?.skNace ?? ruzDetail?.sknace ?? rpo?.mainActivityCode ?? null;
