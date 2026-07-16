@@ -188,6 +188,9 @@ function Landing() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Logo />
           <div className="flex items-center gap-2">
+            <Link to="/cennik" className="hidden sm:inline-flex items-center px-3 py-2 text-sm font-semibold text-foreground hover:text-primary">
+              Cenník
+            </Link>
             <LanguageSwitcher compact />
             <Link to="/auth" search={{ mode: "login" }}>
               <Button variant="ghost">{t("header.login")}</Button>
