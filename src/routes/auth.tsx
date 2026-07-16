@@ -23,9 +23,6 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const TEST_EMAIL = "test@tendrik.sk";
-const TEST_PASSWORD = "Tendrik123!";
-
 function AuthPage() {
   const { mode } = Route.useSearch();
   const navigate = useNavigate();
@@ -36,34 +33,7 @@ function AuthPage() {
   const [agreeGdpr, setAgreeGdpr] = useState(false);
   const isSignup = mode === "signup";
 
-  async function loginAsTest() {
-    setLoading(true);
-    try {
-      let res = await supabase.auth.signInWithPassword({
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-      });
-      if (res.error) {
-        const signup = await supabase.auth.signUp({
-          email: TEST_EMAIL,
-          password: TEST_PASSWORD,
-          options: { emailRedirectTo: window.location.origin + "/onboarding" },
-        });
-        if (signup.error) throw signup.error;
-        res = await supabase.auth.signInWithPassword({
-          email: TEST_EMAIL,
-          password: TEST_PASSWORD,
-        });
-        if (res.error) throw res.error;
-      }
-      toast.success("Prihlásené ako testovací účet");
-      navigate({ to: "/dashboard" });
-    } catch (err: any) {
-      toast.error(err.message ?? "Nastala chyba");
-    } finally {
-      setLoading(false);
-    }
-  }
+
 
 
   async function handleSubmit(e: React.FormEvent) {
@@ -221,24 +191,6 @@ function AuthPage() {
           </div>
         </div>
 
-
-        <div className="mt-4 rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-sm">
-          <p className="font-semibold text-primary">Testovací účet (dočasné)</p>
-          <p className="mt-1 text-muted-foreground">
-            E-mail: <span className="font-mono">{TEST_EMAIL}</span>
-            <br />
-            Heslo: <span className="font-mono">{TEST_PASSWORD}</span>
-          </p>
-          <Button
-            type="button"
-            variant="outline"
-            className="mt-3 w-full"
-            onClick={loginAsTest}
-            disabled={loading}
-          >
-            Prihlásiť sa ako test
-          </Button>
-        </div>
       </div>
     </div>
   );
