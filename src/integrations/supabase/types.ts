@@ -457,6 +457,45 @@ export type Database = {
           },
         ]
       }
+      tender_subcontracting: {
+        Row: {
+          created_at: string
+          firma_zvladne_sama: boolean
+          id: string
+          model_versions: Json | null
+          poznamka: string | null
+          selections: Json
+          suggested: Json
+          tender_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          firma_zvladne_sama?: boolean
+          id?: string
+          model_versions?: Json | null
+          poznamka?: string | null
+          selections?: Json
+          suggested?: Json
+          tender_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          firma_zvladne_sama?: boolean
+          id?: string
+          model_versions?: Json | null
+          poznamka?: string | null
+          selections?: Json
+          suggested?: Json
+          tender_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tenders: {
         Row: {
           ai_summary: string | null

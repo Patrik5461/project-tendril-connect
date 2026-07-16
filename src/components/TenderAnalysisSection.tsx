@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCircle, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { analyzeTender, getTenderAnalysis, getCompanyProfile } from "@/lib/tender-analysis.functions";
+import { SubcontractingSection } from "@/components/SubcontractingSection";
 
 type AnalysisRow = {
   summary: string | null;
@@ -16,9 +17,9 @@ type AnalysisRow = {
   updated_at?: string;
 };
 
-type Props = { tenderId: string };
+type Props = { tenderId: string; defaultCity?: string | null };
 
-export function TenderAnalysisSection({ tenderId }: Props) {
+export function TenderAnalysisSection({ tenderId, defaultCity }: Props) {
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
@@ -133,6 +134,13 @@ export function TenderAnalysisSection({ tenderId }: Props) {
       {analysis && (
         <AnalysisView analysis={analysis} onRerun={() => run(true)} rerunning={running} locked={!isActive} />
       )}
+
+      <SubcontractingSection
+        tenderId={tenderId}
+        defaultCity={defaultCity ?? null}
+        isActive={isActive}
+        analysisReady={!!analysis}
+      />
     </div>
   );
 }
