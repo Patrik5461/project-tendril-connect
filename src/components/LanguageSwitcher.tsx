@@ -24,7 +24,9 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
           aria-label={t("language.switch")}
           className="gap-1.5"
         >
-          <Globe className="h-4 w-4" />
+          <span className="text-base leading-none" aria-hidden="true">
+            {label.flag}
+          </span>
           {!compact && <span className="text-xs font-semibold">{label.label}</span>}
         </Button>
       </DropdownMenuTrigger>
