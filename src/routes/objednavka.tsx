@@ -80,7 +80,7 @@ function ObjednavkaPage() {
             <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div className="text-sm">
               <b className="text-primary">Ide o opakovanú platbu.</b> Po skončení 2-mesačného
-              skúšobného obdobia sa z vašej karty automaticky strhne <b>6,14 € s DPH</b> každý
+              skúšobného obdobia sa z vašej karty automaticky strhne <b>14,99 €</b> každý
               mesiac. Predplatné môžete kedykoľvek zrušiť v nastaveniach účtu alebo e-mailom na{" "}
               <a href="mailto:info@tendrik.sk" className="underline">info@tendrik.sk</a>.
               Podrobnosti nájdete v dokumente{" "}
