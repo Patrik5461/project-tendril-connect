@@ -97,7 +97,7 @@ function CennikPage() {
         </div>
 
         <p className="mt-8 text-xs text-muted-foreground">
-          Prevádzkovateľ: Tobify s. r. o., IČO 56607016, IČ DPH SK2122358579. Platby spracúva
+          Prevádzkovateľ: Tobify s. r. o., IČO 56607016 (neplatca DPH). Platby spracúva
           GoPay s. r. o. Podmienky:{" "}
           <Link to="/pravne/obchodne-podmienky" className="underline">Obchodné podmienky</Link> ·{" "}
           <Link to="/pravne/opakovane-platby" className="underline">Opakované platby</Link>.
