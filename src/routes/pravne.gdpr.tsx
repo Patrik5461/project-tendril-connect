@@ -22,7 +22,7 @@ function Page() {
         <h2>1. Prevádzkovateľ</h2>
         <ul>
           <li><b>Tobify s. r. o.</b>, Športová 707/43, 919 26 Zavar, SR</li>
-          <li>IČO: 56607016, IČ DPH: SK2122358579</li>
+          <li>IČO: 56607016, DIČ: 2122358579 (neplatiteľ DPH)</li>
           <li>E-mail: <a href="mailto:info@tendrik.sk">info@tendrik.sk</a></li>
           <li>Telefón: <a href="tel:+421907702422">+421 907 702 422</a></li>
         </ul>
