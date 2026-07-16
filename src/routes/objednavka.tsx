@@ -70,8 +70,8 @@ function ObjednavkaPage() {
               </div>
               <div className={`h-5 w-5 rounded-full border-2 ${plan === "premium" ? "border-primary bg-primary" : "border-muted-foreground"}`} />
             </div>
-            <p className="mt-2 num text-3xl font-bold">6,14 € <span className="text-base font-medium text-muted-foreground">/ mes s DPH</span></p>
-            <p className="text-sm text-muted-foreground">4,99 € bez DPH + 23 % DPH. Automatické obnovenie každý mesiac.</p>
+            <p className="mt-2 num text-3xl font-bold">14,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span></p>
+            <p className="text-sm text-muted-foreground">Konečná cena (neplatca DPH). Automatické obnovenie každý mesiac.</p>
           </button>
         </div>
 
