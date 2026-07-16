@@ -1,0 +1,108 @@
+{
+  "header": {
+    "login": "Přihlásit se",
+    "signup": "Registrovat se"
+  },
+  "hero": {
+    "eyebrow": "2 měsíce zdarma · monitoring veřejných zakázek",
+    "titleEmphasis": "Zakázky",
+    "titleRest": "si tě\nnajdou samy.",
+    "subtitle": "Zadej klíčová slova, CPV kategorie a kraje.\nTendrik ti každý den přinese zakázky, které se tě opravdu týkají.",
+    "ctaPrimary": "Začít zdarma",
+    "ctaSecondary": "Už mám účet",
+    "priceNote": "Vyzkoušejte 2 měsíce zdarma. Poté <price>4,99 €/měsíc</price>. Bez závazků, kartu teď nepotřebujete."
+  },
+  "stats": {
+    "activeSuffix": "aktivních zakázek napříč EU",
+    "valuePrefix": "v hodnotě více než",
+    "sources": "ZDROJE TED · ÚVO · EKS · JOSEPHINE · AKTUALIZOVÁNO DENNĚ",
+    "note": "Zobrazujeme jen zakázky, do kterých se dá právě teď přihlásit. Žádný archiv ukončených soutěží."
+  },
+  "mock": {
+    "number": "Č. 2026 / 184",
+    "title": "Rekonstrukce základní školy v Hviezdoslavově ulici",
+    "location": "Město Prievidza · Trenčínský kraj",
+    "value": "Hodnota",
+    "cpv": "CPV",
+    "published": "Zveřejněno",
+    "deadline": "Deadline",
+    "days": "8 dní",
+    "sample": "Ukázka záznamu"
+  },
+  "features": {
+    "featureLabel": "Funkce {{n}}",
+    "matching": { "title": "Přesné párování", "text": "Klíčová slova a CPV kódy najdou jen relevantní zakázky." },
+    "regions": { "title": "Země a regiony", "text": "Vyberte země EU, které vás zajímají, případně konkrétní slovenské kraje." },
+    "notifications": { "title": "E-mailová upozornění", "text": "Zapněte si upozornění a nezmeškáte deadline." }
+  },
+  "why": {
+    "eyebrow": "Proč Tendrik",
+    "title": "Úřední věstník, který pracuje za vás.",
+    "items": [
+      "První 2 měsíce zdarma, poté 4,99 €/měsíc",
+      "Nastavení za méně než 2 minuty",
+      "Jen živé příležitosti – zakázky po termínu automaticky mažeme. Nehledáte v tisících starých soutěží, vidíte jen ty, o které se dá reálně ucházet.",
+      "Odkaz přímo na zdroj zakázky",
+      "Barevné upozornění při krátkém deadlinu",
+      "Data přímo z oficiálních zdrojů TED, ÚVO, EKS a JOSEPHINE"
+    ],
+    "cta": "Vytvořit účet zdarma"
+  },
+  "faq": {
+    "eyebrow": "Časté dotazy",
+    "title": "FAQ",
+    "subtitle": "Co se nejčastěji ptáte před registrací.",
+    "items": [
+      {
+        "q": "Proč má Tendrik méně zakázek než jiné služby?",
+        "a": "Jiné služby často uvádějí celkový počet všech zakázek, které kdy zaznamenaly – včetně těch, které jsou roky po termínu. My zobrazujeme jen aktivní zakázky, do kterých se dá právě teď přihlásit. Zakázky po uplynutí lhůty automaticky odstraňujeme, abyste se nemuseli prohrabávat v neaktuálních soutěžích."
+      },
+      {
+        "q": "Odkud berete data?",
+        "a": "Z oficiálních veřejných zdrojů: TED (Tenders Electronic Daily – celoevropský věstník), věstník ÚVO (Úřad pro veřejné zakázky SR), EKS (Elektronický kontraktační systém) a JOSEPHINE (platforma pro podlimitní zakázky používaná městy, nemocnicemi a kraji)."
+      },
+      {
+        "q": "Jak často se zakázky aktualizují?",
+        "a": "Každý den stahujeme nové zakázky ze všech čtyř zdrojů a odstraňujeme ty, kterým už uplynula lhůta. V praxi tedy vidíte aktuální stav toho, o co se dá dnes ucházet."
+      },
+      {
+        "q": "Je služba zpoplatněná?",
+        "a": "Prvních 2 měsíce máte zdarma, poté 4,99 € / měsíc bez DPH (6,14 € s DPH). Kartu při registraci nepotřebujete – ozveme se vám před koncem zkušební doby. Předplatné je kdykoli zrušitelné."
+      },
+      {
+        "q": "Pro koho je Tendrik určen?",
+        "a": "Pro malé a střední firmy, řemeslníky, IT a stavební společnosti, konzultanty, dodavatele služeb – pro všechny, kdo se chtějí ucházet o veřejné zakázky, ale nechtějí denně prohrabávat čtyři různé portály."
+      }
+    ]
+  },
+  "billing": {
+    "label": "Cena a opakované platby:",
+    "body": "2 měsíce zdarma, poté <b>4,99 € / měs bez DPH</b> (<b>6,14 € s DPH 23 %</b>). Předplatné se automaticky obnovuje každý měsíc přes platební bránu GoPay. Kdykoli zrušitelné.",
+    "link": "Podmínky opakovaných plateb →"
+  },
+  "footer": {
+    "company": "Tobify s. r. o.",
+    "address": "Športová 707/43, 919 26 Zavar",
+    "ico": "IČO: 56607016 · IČ DPH: SK2122358579",
+    "contact": "Kontakt",
+    "contactForm": "Kontaktní formulář",
+    "pricing": "Ceník",
+    "legal": "Právní",
+    "terms": "Obchodní podmínky",
+    "recurring": "Opakované platby",
+    "gdpr": "GDPR",
+    "complaints": "Reklamační řád",
+    "cookies": "Cookies",
+    "cookiesSettings": "Nastavení cookies",
+    "payments": "Platby",
+    "paymentsNote": "Platby zpracovává GoPay s. r. o.",
+    "rights": "© {{year}} Tobify s. r. o. Všechna práva vyhrazena.",
+    "priceInline": "2 měsíce zdarma, poté 4,99 €/měs (6,14 € s DPH)"
+  },
+  "meta": {
+    "title": "Tendrik – Zakázky si tě najdou samy",
+    "description": "Tendrik vám každý den přinese veřejné zakázky přesně podle vašich klíčových slov, CPV kódů a krajů. Zdarma.",
+    "ogTitle": "Tendrik – zakázky si tě najdou samy",
+    "ogDescription": "Bezplatná služba, která spáruje veřejné zakázky s vaším odvětvím a regionem."
+  }
+}

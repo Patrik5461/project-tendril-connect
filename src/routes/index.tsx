@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Search, Bell, Filter } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -18,6 +19,7 @@ function formatBigEur(n: number): string {
 }
 
 function ActiveTendersBlock() {
+  const { t } = useTranslation("marketing");
   const [count, setCount] = useState<number | null>(null);
   const [total, setTotal] = useState<number | null>(null);
   const [display, setDisplay] = useState(0);
@@ -66,27 +68,26 @@ function ActiveTendersBlock() {
             {formatSk(display)}
           </span>
           <span className="text-sm sm:text-base font-semibold text-foreground pb-1 sm:pb-2">
-            aktívnych zákaziek naprieč EÚ
+            {t("stats.activeSuffix")}
           </span>
         </div>
       )}
       {total != null && total > 0 && (
         <span className="text-base md:text-lg text-foreground">
-          v hodnote viac než{" "}
+          {t("stats.valuePrefix")}{" "}
           <span className="num font-semibold text-foreground">{formatBigEur(total)}</span>
         </span>
       )}
-      <span className="eyebrow text-muted-foreground mt-1">
-        ZDROJE TED · ÚVO · EKS · JOSEPHINE · AKTUALIZOVANÉ DENNE
-      </span>
+      <span className="eyebrow text-muted-foreground mt-1">{t("stats.sources")}</span>
       <p className="mt-3 text-xs md:text-sm text-muted-foreground max-w-md leading-relaxed">
-        Zobrazujeme len zákazky, do ktorých sa dá práve teraz prihlásiť. Žiadny archív ukončených súťaží.
+        {t("stats.note")}
       </p>
     </div>
   );
 }
 
 function TenderMock() {
+  const { t } = useTranslation("marketing");
   return (
     <aside
       aria-hidden="true"
@@ -96,39 +97,37 @@ function TenderMock() {
         <span className="inline-flex items-center rounded-sm border border-primary text-primary text-[0.68rem] font-semibold uppercase tracking-[0.16em] px-1.5 py-0.5">
           ÚVO
         </span>
-        <span className="eyebrow text-muted-foreground">Č. 2026 / 184</span>
+        <span className="eyebrow text-muted-foreground">{t("mock.number")}</span>
       </div>
       <h3 className="mt-5 font-display font-bold text-2xl leading-tight text-foreground">
-        Rekonštrukcia základnej školy na Hviezdoslavovej ulici
+        {t("mock.title")}
       </h3>
-      <p className="mt-2 text-sm text-foreground/70">
-        Mesto Prievidza · Trenčiansky kraj
-      </p>
+      <p className="mt-2 text-sm text-foreground/70">{t("mock.location")}</p>
       <hr className="my-5 border-border" />
       <dl className="grid grid-cols-2 gap-y-3 gap-x-4">
         <div>
-          <dt className="eyebrow text-muted-foreground">Hodnota</dt>
+          <dt className="eyebrow text-muted-foreground">{t("mock.value")}</dt>
           <dd className="num mt-1 text-lg font-semibold text-foreground">1&nbsp;250&nbsp;000&nbsp;€</dd>
         </div>
         <div>
-          <dt className="eyebrow text-muted-foreground">CPV</dt>
+          <dt className="eyebrow text-muted-foreground">{t("mock.cpv")}</dt>
           <dd className="num mt-1 text-sm text-foreground">45214210</dd>
         </div>
         <div>
-          <dt className="eyebrow text-muted-foreground">Zverejnené</dt>
+          <dt className="eyebrow text-muted-foreground">{t("mock.published")}</dt>
           <dd className="num mt-1 text-sm text-foreground">04.&nbsp;07.&nbsp;2026</dd>
         </div>
         <div>
-          <dt className="eyebrow text-muted-foreground">Deadline</dt>
+          <dt className="eyebrow text-muted-foreground">{t("mock.deadline")}</dt>
           <dd className="mt-1">
             <span className="inline-flex items-center bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.14em] px-2 py-1">
-              8 dní
+              {t("mock.days")}
             </span>
           </dd>
         </div>
       </dl>
       <div className="mt-6 pt-4 border-t-2 border-foreground flex items-center justify-between">
-        <span className="eyebrow text-muted-foreground">Ukážka záznamu</span>
+        <span className="eyebrow text-muted-foreground">{t("mock.sample")}</span>
         <span className="h-2.5 w-2.5 bg-primary" aria-hidden="true" />
       </div>
     </aside>
@@ -174,6 +173,15 @@ function Logo() {
 }
 
 function Landing() {
+  const { t } = useTranslation("marketing");
+  const features = [
+    { icon: Search, key: "matching" },
+    { icon: Filter, key: "regions" },
+    { icon: Bell, key: "notifications" },
+  ] as const;
+  const whyItems = t("why.items", { returnObjects: true }) as string[];
+  const faqItems = t("faq.items", { returnObjects: true }) as Array<{ q: string; a: string }>;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b-2 border-foreground bg-background">
@@ -182,10 +190,10 @@ function Landing() {
           <div className="flex items-center gap-2">
             <LanguageSwitcher compact />
             <Link to="/auth" search={{ mode: "login" }}>
-              <Button variant="ghost">Prihlásiť sa</Button>
+              <Button variant="ghost">{t("header.login")}</Button>
             </Link>
             <Link to="/auth" search={{ mode: "signup" }}>
-              <Button>Registrovať sa</Button>
+              <Button>{t("header.signup")}</Button>
             </Link>
           </div>
         </div>
@@ -196,33 +204,33 @@ function Landing() {
           <div>
             <div className="eyebrow flex items-center text-foreground">
               <span className="red-square" aria-hidden="true" />
-              2 mesiace zdarma · monitoring verejného obstarávania
+              {t("hero.eyebrow")}
             </div>
             <h1 className="mt-6 font-display font-bold text-[2.75rem] leading-[1.02] md:text-[5rem] md:leading-[0.98] tracking-tight text-foreground">
-              <span className="hero-underline">Zákazky</span> si&nbsp;ťa
-              <br />
-              nájdu samy.
+              <span className="hero-underline">{t("hero.titleEmphasis")}</span>{" "}
+              <span className="whitespace-pre-line">{t("hero.titleRest")}</span>
             </h1>
             <p className="mt-8 text-lg md:text-xl text-foreground/80 max-w-2xl whitespace-pre-line">
-              Zadaj kľúčové slová, CPV kategórie a kraje.{"\n"}
-              Tendrik ti každý deň prinesie zákazky, ktoré sa ťa naozaj týkajú.
+              {t("hero.subtitle")}
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-3">
               <Link to="/auth" search={{ mode: "signup" }}>
                 <Button size="lg" className="w-full sm:w-auto">
-                  Začať zadarmo
+                  {t("hero.ctaPrimary")}
                 </Button>
               </Link>
               <Link to="/auth" search={{ mode: "login" }}>
                 <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  Mám už účet
+                  {t("hero.ctaSecondary")}
                 </Button>
               </Link>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              Vyskúšajte 2 mesiace zadarmo. Potom{" "}
-              <span className="num text-foreground">4,99 €/mesiac</span>. Bez
-              záväzkov, kartu teraz nepotrebujete.
+              <Trans
+                i18nKey="hero.priceNote"
+                ns="marketing"
+                components={{ price: <span className="num text-foreground" /> }}
+              />
             </p>
 
             <ActiveTendersBlock />
@@ -236,31 +244,19 @@ function Landing() {
       <hr className="rule-thick mx-auto max-w-6xl" />
 
       <section className="mx-auto max-w-6xl px-4 py-14 grid md:grid-cols-3 gap-0 md:divide-x md:divide-border">
-        {[
-          {
-            icon: Search,
-            title: "Presné párovanie",
-            text: "Kľúčové slová a CPV kódy nájdu len relevantné zákazky.",
-          },
-          {
-            icon: Filter,
-            title: "Krajiny a regióny",
-            text: "Vyberte krajiny EÚ, ktoré vás zaujímajú, prípadne konkrétne slovenské kraje.",
-          },
-          {
-            icon: Bell,
-            title: "E-mailové notifikácie",
-            text: "Zapnite si upozornenia a nezmeškajte deadline.",
-          },
-        ].map((f, i) => (
-          <div key={f.title} className={`px-0 md:px-8 py-6 ${i === 0 ? "md:pl-0" : ""}`}>
-            <div className="eyebrow text-primary">Funkcia 0{i + 1}</div>
+        {features.map((f, i) => (
+          <div key={f.key} className={`px-0 md:px-8 py-6 ${i === 0 ? "md:pl-0" : ""}`}>
+            <div className="eyebrow text-primary">
+              {t("features.featureLabel", { n: String(i + 1).padStart(2, "0") })}
+            </div>
             <div className="mt-3 flex items-center gap-3">
               <f.icon className="h-5 w-5 text-foreground" />
-              <h3 className="font-display font-bold text-xl text-foreground">{f.title}</h3>
+              <h3 className="font-display font-bold text-xl text-foreground">
+                {t(`features.${f.key}.title`)}
+              </h3>
             </div>
             <p className="mt-3 text-sm text-foreground/75 leading-relaxed">
-              {f.text}
+              {t(`features.${f.key}.text`)}
             </p>
           </div>
         ))}
@@ -273,33 +269,26 @@ function Landing() {
           <div>
             <div className="eyebrow flex items-center text-foreground">
               <span className="red-square" aria-hidden="true" />
-              Prečo Tendrik
+              {t("why.eyebrow")}
             </div>
             <h2 className="mt-5 font-display text-3xl md:text-5xl font-bold tracking-tight">
-              Úradný vestník, ktorý pracuje za vás.
+              {t("why.title")}
             </h2>
           </div>
           <ul className="divide-y divide-border border-t border-b border-foreground">
-            {[
-              "Prvé 2 mesiace zadarmo, potom 4,99 €/mesiac",
-              "Nastavenie za menej ako 2 minúty",
-              "Len živé príležitosti – zákazky po termíne automaticky mažeme. Nehľadáte v tisíckach starých súťaží, vidíte len tie, o ktoré sa dá reálne uchádzať.",
-              "Odkaz priamo na zdroj zákazky",
-              "Farebné upozornenie pri krátkom deadline",
-              "Dáta priamo z oficiálnych zdrojov TED, ÚVO, EKS a JOSEPHINE",
-            ].map((t, i) => (
-              <li key={t} className="flex items-baseline gap-4 py-4">
+            {whyItems.map((line, i) => (
+              <li key={i} className="flex items-baseline gap-4 py-4">
                 <span className="num text-sm text-primary font-semibold w-8 tabular-nums">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="text-base md:text-lg text-foreground">{t}</span>
+                <span className="text-base md:text-lg text-foreground">{line}</span>
               </li>
             ))}
           </ul>
         </div>
         <div className="mt-10">
           <Link to="/auth" search={{ mode: "signup" }}>
-            <Button size="lg">Vytvoriť účet zadarmo</Button>
+            <Button size="lg">{t("why.cta")}</Button>
           </Link>
         </div>
       </section>
@@ -311,39 +300,16 @@ function Landing() {
           <div>
             <div className="eyebrow flex items-center text-foreground">
               <span className="red-square" aria-hidden="true" />
-              Časté otázky
+              {t("faq.eyebrow")}
             </div>
             <h2 className="mt-5 font-display text-3xl md:text-5xl font-bold tracking-tight">
-              FAQ
+              {t("faq.title")}
             </h2>
-            <p className="mt-4 text-sm text-muted-foreground">
-              Čo sa najčastejšie pýtate pred registráciou.
-            </p>
+            <p className="mt-4 text-sm text-muted-foreground">{t("faq.subtitle")}</p>
           </div>
           <div className="border-t border-b border-foreground divide-y divide-border">
-            {[
-              {
-                q: "Prečo má Tendrik menej zákaziek než iné služby?",
-                a: "Iné služby často uvádzajú celkový počet všetkých zákaziek, ktoré kedy zaznamenali – vrátane tých, ktoré sú roky po termíne. My zobrazujeme len aktívne zákazky, do ktorých sa dá práve teraz prihlásiť. Zákazky po uplynutí lehoty automaticky odstraňujeme, aby ste sa nemuseli prehrabávať v neaktuálnych súťažiach.",
-              },
-              {
-                q: "Odkiaľ berete dáta?",
-                a: "Z oficiálnych verejných zdrojov: TED (Tenders Electronic Daily – celoeurópsky vestník), vestník ÚVO (Úrad pre verejné obstarávanie SR), EKS (Elektronický kontraktačný systém) a JOSEPHINE (platforma pre podlimitné zákazky používaná mestami, nemocnicami a krajmi).",
-              },
-              {
-                q: "Ako často sa zákazky aktualizujú?",
-                a: "Každý deň sťahujeme nové zákazky zo všetkých štyroch zdrojov a odstraňujeme tie, ktorým už uplynula lehota. V praxi teda vidíte aktuálny stav toho, o čo sa dá dnes uchádzať.",
-              },
-              {
-                q: "Je služba spoplatnená?",
-                a: "Prvé 2 mesiace máte zadarmo, potom 4,99 € / mesiac bez DPH (6,14 € s DPH). Kartu pri registrácii nepotrebujete – ozveme sa vám pred koncom skúšobnej doby. Predplatné je zrušiteľné kedykoľvek.",
-              },
-              {
-                q: "Pre koho je Tendrik určený?",
-                a: "Pre malé a stredné firmy, remeselníkov, IT a stavebné spoločnosti, konzultantov, dodávateľov služieb – pre všetkých, ktorí sa chcú uchádzať o verejné zákazky, ale nechcú denne prehrabávať štyri rôzne portály.",
-              },
-            ].map((item, i) => (
-              <details key={item.q} className="group" open={i === 0}>
+            {faqItems.map((item, i) => (
+              <details key={i} className="group" open={i === 0}>
                 <summary className="flex items-start gap-4 py-5 cursor-pointer list-none select-none">
                   <span className="num text-sm text-primary font-semibold w-8 tabular-nums shrink-0 pt-0.5">
                     {String(i + 1).padStart(2, "0")}
@@ -372,13 +338,12 @@ function Landing() {
         <div className="rounded-lg border-2 border-primary bg-primary/5 p-5 text-sm">
           <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
             <div className="flex-1">
-              <b className="text-primary">Cena a opakované platby:</b> 2 mesiace zadarmo, potom{" "}
-              <b>4,99 € / mes bez DPH</b> (<b>6,14 € s DPH 23 %</b>). Predplatné sa
-              automaticky obnovuje každý mesiac cez platobnú bránu GoPay. Zrušiteľné kedykoľvek.
+              <b className="text-primary">{t("billing.label")}</b>{" "}
+              <Trans i18nKey="billing.body" ns="marketing" components={{ b: <b /> }} />
             </div>
             <div className="flex items-center gap-3">
               <Link to="/pravne/opakovane-platby" className="underline text-foreground whitespace-nowrap">
-                Podmienky opakovaných platieb →
+                {t("billing.link")}
               </Link>
             </div>
           </div>
@@ -393,56 +358,54 @@ function Landing() {
               <span className="font-display font-bold">Tendrik.sk</span>
             </div>
             <p className="mt-3 text-muted-foreground">
-              Tobify s. r. o.<br />
-              Športová 707/43, 919 26 Zavar<br />
-              IČO: 56607016 · IČ DPH: SK2122358579
+              {t("footer.company")}<br />
+              {t("footer.address")}<br />
+              {t("footer.ico")}
             </p>
           </div>
           <div>
-            <div className="eyebrow text-foreground">Kontakt</div>
+            <div className="eyebrow text-foreground">{t("footer.contact")}</div>
             <ul className="mt-3 space-y-1.5 text-muted-foreground">
               <li><a href="mailto:info@tendrik.sk" className="hover:text-foreground">info@tendrik.sk</a></li>
               <li><a href="tel:+421907702422" className="hover:text-foreground">+421 907 702 422</a></li>
-              <li><Link to="/kontakt" className="hover:text-foreground">Kontaktný formulár</Link></li>
-              <li><Link to="/cennik" className="hover:text-foreground">Cenník</Link></li>
+              <li><Link to="/kontakt" className="hover:text-foreground">{t("footer.contactForm")}</Link></li>
+              <li><Link to="/cennik" className="hover:text-foreground">{t("footer.pricing")}</Link></li>
             </ul>
           </div>
           <div>
-            <div className="eyebrow text-foreground">Právne</div>
+            <div className="eyebrow text-foreground">{t("footer.legal")}</div>
             <ul className="mt-3 space-y-1.5 text-muted-foreground">
-              <li><Link to="/pravne/obchodne-podmienky" className="hover:text-foreground">Obchodné podmienky</Link></li>
-              <li><Link to="/pravne/opakovane-platby" className="hover:text-foreground">Opakované platby</Link></li>
-              <li><Link to="/pravne/gdpr" className="hover:text-foreground">GDPR</Link></li>
-              <li><Link to="/pravne/reklamacny-poriadok" className="hover:text-foreground">Reklamačný poriadok</Link></li>
-              <li><Link to="/pravne/cookies" className="hover:text-foreground">Cookies</Link></li>
+              <li><Link to="/pravne/obchodne-podmienky" className="hover:text-foreground">{t("footer.terms")}</Link></li>
+              <li><Link to="/pravne/opakovane-platby" className="hover:text-foreground">{t("footer.recurring")}</Link></li>
+              <li><Link to="/pravne/gdpr" className="hover:text-foreground">{t("footer.gdpr")}</Link></li>
+              <li><Link to="/pravne/reklamacny-poriadok" className="hover:text-foreground">{t("footer.complaints")}</Link></li>
+              <li><Link to="/pravne/cookies" className="hover:text-foreground">{t("footer.cookies")}</Link></li>
               <li>
                 <button
                   type="button"
                   onClick={() => { import("@/lib/cookie-consent").then((m) => m.openCookieSettings()); }}
                   className="hover:text-foreground"
                 >
-                  Nastavenia cookies
+                  {t("footer.cookiesSettings")}
                 </button>
               </li>
             </ul>
           </div>
           <div>
-            <div className="eyebrow text-foreground">Platby</div>
+            <div className="eyebrow text-foreground">{t("footer.payments")}</div>
             <div className="mt-3 flex flex-wrap gap-2">
               <span className="inline-flex items-center rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold">GoPay</span>
               <span className="inline-flex items-center rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold">VISA</span>
               <span className="inline-flex items-center rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold">Mastercard</span>
               <span className="inline-flex items-center rounded-md border border-border bg-card px-2.5 py-1 text-xs font-semibold">3D&nbsp;Secure</span>
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Platby spracúva GoPay s. r. o.
-            </p>
+            <p className="mt-3 text-xs text-muted-foreground">{t("footer.paymentsNote")}</p>
           </div>
         </div>
         <div className="border-t border-border py-4 text-xs text-muted-foreground">
           <div className="mx-auto flex max-w-6xl flex-col md:flex-row items-start md:items-center justify-between gap-2 px-4">
-            <span>© {new Date().getFullYear()} Tobify s. r. o. Všetky práva vyhradené.</span>
-            <span>2 mesiace zdarma, potom 4,99 €/mes (6,14 € s DPH)</span>
+            <span>{t("footer.rights", { year: new Date().getFullYear() })}</span>
+            <span>{t("footer.priceInline")}</span>
           </div>
         </div>
       </footer>

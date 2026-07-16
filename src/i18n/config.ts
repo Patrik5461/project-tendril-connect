@@ -5,6 +5,10 @@ import skCommon from "./locales/sk/common.json";
 import csCommon from "./locales/cs/common.json";
 import enCommon from "./locales/en/common.json";
 import deCommon from "./locales/de/common.json";
+import skMarketing from "./locales/sk/marketing.json";
+import csMarketing from "./locales/cs/marketing.json";
+import enMarketing from "./locales/en/marketing.json";
+import deMarketing from "./locales/de/marketing.json";
 
 export const SUPPORTED_LANGS = ["sk", "cs", "en", "de"] as const;
 export type Lang = (typeof SUPPORTED_LANGS)[number];
@@ -23,10 +27,10 @@ export function ensureI18n(initialLang?: Lang) {
   if (initialized) return i18n;
   i18n.use(initReactI18next).init({
     resources: {
-      sk: { common: skCommon },
-      cs: { common: csCommon },
-      en: { common: enCommon },
-      de: { common: deCommon },
+      sk: { common: skCommon, marketing: skMarketing },
+      cs: { common: csCommon, marketing: csMarketing },
+      en: { common: enCommon, marketing: enMarketing },
+      de: { common: deCommon, marketing: deMarketing },
     },
     lng: initialLang ?? DEFAULT_LANG,
     fallbackLng: DEFAULT_LANG,
