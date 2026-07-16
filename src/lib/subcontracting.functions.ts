@@ -29,7 +29,7 @@ async function requireActive(context: any) {
     throw new Error(
       status === "expired"
         ? "Funkcia je dostupná len s aktívnym predplatným."
-        : "AI funkcie sú v balíku Prémium (15 €/mes). Upgradnite predplatné.",
+        : "AI funkcie sú v balíku Prémium (14,99 €/mes). Upgradnite predplatné.",
     );
   }
 }
