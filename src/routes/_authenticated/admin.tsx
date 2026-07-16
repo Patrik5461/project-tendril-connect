@@ -1406,6 +1406,112 @@ function AiTestTab() {
           <PartBlock title="1. Súhrn zákazky" part={result.parts?.summary} />
           <PartBlock title="2. Podmienky účasti" part={result.parts?.requirements} />
           <PartBlock title="3. Spôsobilosť firmy" part={result.parts?.eligibility} />
+
+          <div className="pt-2 border-t">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="font-medium">Fáza 3 — Subdodávky a partneri</div>
+                <div className="text-xs text-muted-foreground">Testovacie spustenie (nič sa neukladá do tender_subcontracting).</div>
+              </div>
+              <Button onClick={runSuggest} disabled={subLoading} size="sm">
+                {subLoading ? "Navrhujem…" : "Navrhnúť subdodávky"}
+              </Button>
+            </div>
+          </div>
+
+          {subResult && (
+            <div className="rounded border p-3 space-y-3">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Model: {subResult.model} · {(subResult.elapsedMs / 1000).toFixed(1)} s</span>
+                {subResult.firma_zvladne_sama && <span className="text-primary">Firma pravdepodobne zvládne sama</span>}
+              </div>
+              {subResult.poznamka && (
+                <div className="text-sm bg-muted p-2 rounded">{subResult.poznamka}</div>
+              )}
+              {(subResult.polozky ?? []).length === 0 ? (
+                <div className="text-sm text-muted-foreground italic">Žiadne návrhy subdodávok.</div>
+              ) : (
+                <ul className="space-y-3">
+                  {subResult.polozky.map((p: any, idx: number) => {
+                    const cand = candidates[idx];
+                    return (
+                      <li key={idx} className="rounded border p-3 space-y-2">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{p.nazov}</div>
+                            <div className="text-xs text-muted-foreground mt-1">{p.dovod}</div>
+                            <div className="text-xs mt-1">
+                              NACE: <b>{p.nace_kod ?? "—"}</b> · Kľúč hľadania: <b>{p.hladane_slovo ?? "—"}</b>
+                            </div>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!p.hladane_slovo || candLoadingIdx === idx}
+                            onClick={() => runFindCandidates(idx, p.hladane_slovo, subResult?.registry?.mesto)}
+                          >
+                            {candLoadingIdx === idx ? "Hľadám…" : "Nájsť firmy (RPO)"}
+                          </Button>
+                        </div>
+                        {cand && (
+                          <div className="text-xs space-y-2">
+                            <div className="text-muted-foreground">
+                              Nájdených {cand.results?.length ?? 0} firiem · {(cand.elapsedMs / 1000).toFixed(1)} s
+                              {cand.error && <span className="text-destructive"> · {cand.error}</span>}
+                            </div>
+                            {(cand.results ?? []).slice(0, 10).map((c: any, ci: number) => {
+                              const key = `${idx}:${c.ico ?? c.nazov}`;
+                              const em = outreach[key];
+                              return (
+                                <div key={ci} className="rounded border p-2 space-y-1">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div>
+                                      <div className="font-medium">{c.nazov ?? "?"} <span className="text-muted-foreground">· IČO {c.ico ?? "—"}</span></div>
+                                      <div className="text-muted-foreground">{[c.ulica, c.psc, c.mesto].filter(Boolean).join(", ")}</div>
+                                      <div className="text-muted-foreground italic">{c.hlavna_cinnost}</div>
+                                    </div>
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      disabled={outreachLoading === key}
+                                      onClick={() => runOutreach(idx, p, c)}
+                                    >
+                                      {outreachLoading === key ? "Píšem…" : "Ukážka oslovenia"}
+                                    </Button>
+                                  </div>
+                                  {em?.parsed && (
+                                    <details className="mt-1" open>
+                                      <summary className="cursor-pointer text-muted-foreground">Vygenerované oslovenia ({em.model} · {(em.elapsedMs / 1000).toFixed(1)} s)</summary>
+                                      <div className="mt-2 space-y-2">
+                                        <div className="bg-muted p-2 rounded">
+                                          <div className="font-medium">Neutrálny dopyt</div>
+                                          <div className="text-xs"><b>Predmet:</b> {em.parsed.neutralne?.predmet}</div>
+                                          <pre className="whitespace-pre-wrap text-xs mt-1">{em.parsed.neutralne?.telo}</pre>
+                                        </div>
+                                        <div className="bg-muted p-2 rounded">
+                                          <div className="font-medium">Dopyt + spolupráca</div>
+                                          <div className="text-xs"><b>Predmet:</b> {em.parsed.spolupraca?.predmet}</div>
+                                          <pre className="whitespace-pre-wrap text-xs mt-1">{em.parsed.spolupraca?.telo}</pre>
+                                        </div>
+                                      </div>
+                                    </details>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              <details className="text-xs">
+                <summary className="cursor-pointer text-muted-foreground">Raw JSON (vrstva A)</summary>
+                <pre className="whitespace-pre-wrap mt-2 bg-muted p-2 rounded">{JSON.stringify(subResult.parsed, null, 2)}</pre>
+              </details>
+            </div>
+          )}
         </section>
       )}
     </div>
