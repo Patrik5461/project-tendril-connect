@@ -48,8 +48,8 @@ Deno.serve(async (req) => {
       const pns = batch.map((r) => r.publication_number).filter(Boolean) as string[];
       if (!pns.length) continue;
 
-      // TED expert query: IN() with unquoted values (matches pattern [0-9]{1,8}-[0-9]{4}).
-      const query = `publication-number IN (${pns.join(",")})`;
+      // TED expert query: IN() with unquoted values separated by ", " (space after comma is required).
+      const query = `publication-number IN (${pns.join(", ")})`;
 
       const res = await fetch("https://api.ted.europa.eu/v3/notices/search", {
         method: "POST",
