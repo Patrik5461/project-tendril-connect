@@ -278,6 +278,39 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_admin_log: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          id: string
+          note: string | null
+          status: string | null
+          user_id: string
+          valid_until: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          status?: string | null
+          user_id: string
+          valid_until?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          status?: string | null
+          user_id?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       tenders: {
         Row: {
           ai_summary: string | null
@@ -361,6 +394,8 @@ export type Database = {
           onboarding_completed: boolean
           regions: string[]
           subscription_cancel_requested_at: string | null
+          subscription_note: string | null
+          subscription_source: string
           subscription_status: string
           subscription_valid_until: string | null
           trial_started_at: string
@@ -384,6 +419,8 @@ export type Database = {
           onboarding_completed?: boolean
           regions?: string[]
           subscription_cancel_requested_at?: string | null
+          subscription_note?: string | null
+          subscription_source?: string
           subscription_status?: string
           subscription_valid_until?: string | null
           trial_started_at?: string
@@ -407,6 +444,8 @@ export type Database = {
           onboarding_completed?: boolean
           regions?: string[]
           subscription_cancel_requested_at?: string | null
+          subscription_note?: string | null
+          subscription_source?: string
           subscription_status?: string
           subscription_valid_until?: string | null
           trial_started_at?: string
@@ -550,6 +589,8 @@ export type Database = {
           created_at: string
           email: string
           radars_count: number
+          subscription_note: string
+          subscription_source: string
           subscription_status: string
           subscription_valid_until: string
           trial_started_at: string
@@ -558,6 +599,16 @@ export type Database = {
       }
       admin_overview_stats: { Args: never; Returns: Json }
       admin_set_gopay_mode: { Args: { _mode: string }; Returns: string }
+      admin_set_subscription: {
+        Args: {
+          _note: string
+          _source: string
+          _status: string
+          _user_id: string
+          _valid_until: string
+        }
+        Returns: Json
+      }
       count_seo_active_tenders: {
         Args: { _cpv_prefix: string; _region_name: string }
         Returns: number
