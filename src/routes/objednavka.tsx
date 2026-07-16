@@ -38,7 +38,7 @@ function ObjednavkaPage() {
           Vyberte si plán
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Prvé 2 mesiace zadarmo, potom 4,99 € / mes bez DPH (6,14 € s DPH). Bez záväzku.
+          Prvé 2 mesiace zadarmo, potom 4,99 € / mes (Základ) alebo 14,99 € / mes (Prémium). Konečná cena, bez záväzku.
         </p>
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
