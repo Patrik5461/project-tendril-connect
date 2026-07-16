@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Settings, LogOut, ShieldCheck } from "lucide-react";
 import { HelpChatWidget } from "@/components/HelpChatWidget";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -71,6 +72,7 @@ function AuthedLayout() {
               <LogOut className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Odhlásiť</span>
             </Button>
+            <LanguageSwitcher compact />
           </nav>
         </div>
       </header>

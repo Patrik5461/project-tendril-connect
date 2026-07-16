@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { LegalFooter } from "@/components/LegalFooter";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export function LegalPage({
   title,
@@ -19,7 +20,10 @@ export function LegalPage({
             <span className="inline-flex h-8 w-8 items-center justify-center bg-primary text-primary-foreground font-display font-bold">T</span>
             Tendrik
           </Link>
-          <Link to="/" className="eyebrow text-muted-foreground hover:text-foreground">← Späť na úvod</Link>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher compact />
+            <Link to="/" className="eyebrow text-muted-foreground hover:text-foreground">← Späť na úvod</Link>
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-4 py-12">
