@@ -740,6 +740,18 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
           </div>
 
           <div>
+            <Label htmlFor="sub-tier" className="text-xs">Tier (AI prístup)</Label>
+            <select id="sub-tier" value={tier} onChange={(e) => setTier(e.target.value)}
+              className="mt-1 w-full rounded border px-2 py-1.5 text-sm bg-background">
+              <option value="basic">Základ – iba monitoring (bez AI)</option>
+              <option value="premium">Prémium – s AI analýzou</option>
+            </select>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Trial má AI automaticky. Pre platiacich/manuálnych rozhodni tu.
+            </p>
+          </div>
+
+          <div>
             <Label htmlFor="sub-valid" className="text-xs">Platné do (nechať prázdne = natrvalo)</Label>
             <Input id="sub-valid" type="date" value={validUntil} onChange={(e) => setValidUntil(e.target.value)} className="mt-1" />
           </div>
