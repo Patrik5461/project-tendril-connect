@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { flagEmoji, countryName } from "@/lib/eu-countries";
+import { TenderAnalysisSection } from "@/components/TenderAnalysisSection";
 
 type Tender = {
   id: string;
