@@ -60,6 +60,12 @@ function AuthedLayout() {
                 <span className="hidden sm:inline">Nastavenia</span>
               </Button>
             </Link>
+            <Link to="/cennik">
+              <Button variant="ghost" size="sm">
+                <Tag className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Cenník</span>
+              </Button>
+            </Link>
             {isAdmin && (
               <Link to="/admin">
                 <Button variant="ghost" size="sm">
