@@ -64,7 +64,6 @@ function PredplatnePage() {
   }
 
   const priceEur = tier === "premium" ? PRICE_PREMIUM_EUR : PRICE_BASIC_EUR;
-  const priceGross = tier === "premium" ? PRICE_PREMIUM_GROSS_EUR : PRICE_BASIC_GROSS_EUR;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
