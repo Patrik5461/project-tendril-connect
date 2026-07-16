@@ -4,13 +4,13 @@
     "signup": "Registrovať sa"
   },
   "hero": {
-    "eyebrow": "2 mesiace zdarma · monitoring verejného obstarávania",
+    "eyebrow": "30 dní zdarma · monitoring verejného obstarávania",
     "titleEmphasis": "Zákazky",
     "titleRest": "si ťa\nnájdu samy.",
     "subtitle": "Zadaj kľúčové slová, CPV kategórie a kraje.\nTendrik ti každý deň prinesie zákazky, ktoré sa ťa naozaj týkajú.",
     "ctaPrimary": "Začať zadarmo",
     "ctaSecondary": "Mám už účet",
-    "priceNote": "Vyskúšajte 2 mesiace zadarmo. Potom <price>4,99 €/mesiac</price>. Bez záväzkov, kartu teraz nepotrebujete."
+    "priceNote": "30 dní zdarma na vyskúšanie. Potom <price>od 4,99 €/mesiac</price>. Bez záväzkov, kartu teraz nepotrebujete."
   },
   "stats": {
     "activeSuffix": "aktívnych zákaziek naprieč EÚ",
@@ -39,7 +39,7 @@
     "eyebrow": "Prečo Tendrik",
     "title": "Úradný vestník, ktorý pracuje za vás.",
     "items": [
-      "Prvé 2 mesiace zadarmo, potom 4,99 €/mesiac",
+      "30 dní zdarma na vyskúšanie, potom od 4,99 €/mesiac",
       "Nastavenie za menej ako 2 minúty",
       "Len živé príležitosti – zákazky po termíne automaticky mažeme. Nehľadáte v tisíckach starých súťaží, vidíte len tie, o ktoré sa dá reálne uchádzať.",
       "Odkaz priamo na zdroj zákazky",
@@ -67,7 +67,7 @@
       },
       {
         "q": "Je služba spoplatnená?",
-        "a": "Prvé 2 mesiace máte zadarmo, potom 4,99 € / mesiac (Základ) alebo 14,99 € / mesiac (Prémium s AI). Konečná cena – Tobify s. r. o. nie je platca DPH. Kartu pri registrácii nepotrebujete – ozveme sa vám pred koncom skúšobnej doby. Predplatné je zrušiteľné kedykoľvek."
+        "a": "30 dní máte zdarma na vyskúšanie (vrátane 5 AI analýz zákaziek), potom 4,99 € / mesiac (Základ, monitoring) alebo 14,99 € / mesiac (Prémium s neobmedzenou AI). Konečná cena – Tobify s. r. o. nie je platca DPH. Kartu pri registrácii nepotrebujete – ozveme sa vám pred koncom skúšobnej doby. Predplatné je zrušiteľné kedykoľvek."
       },
       {
         "q": "Pre koho je Tendrik určený?",
@@ -77,7 +77,7 @@
   },
   "billing": {
     "label": "Cena a opakované platby:",
-    "body": "2 mesiace zdarma, potom <b>4,99 € / mes</b> (Základ) alebo <b>14,99 € / mes</b> (Prémium). Konečná cena – Tobify s. r. o. nie je platca DPH. Predplatné sa automaticky obnovuje každý mesiac cez platobnú bránu GoPay. Zrušiteľné kedykoľvek.",
+    "body": "30 dní zdarma na vyskúšanie (vrátane 5 AI analýz), potom <b>4,99 € / mes</b> (Základ) alebo <b>14,99 € / mes</b> (Prémium). Konečná cena – Tobify s. r. o. nie je platca DPH. Predplatné sa automaticky obnovuje každý mesiac cez platobnú bránu GoPay. Zrušiteľné kedykoľvek.",
     "link": "Podmienky opakovaných platieb →"
   },
   "footer": {
@@ -97,7 +97,7 @@
     "payments": "Platby",
     "paymentsNote": "Platby spracúva GoPay s. r. o.",
     "rights": "© {{year}} Tobify s. r. o. Všetky práva vyhradené.",
-    "priceInline": "2 mesiace zdarma, potom od 4,99 €/mes (konečná cena)"
+    "priceInline": "30 dní zdarma, potom od 4,99 €/mes (konečná cena)"
   },
   "meta": {
     "title": "Tendrik – Zákazky si ťa nájdu samy",

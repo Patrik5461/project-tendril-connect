@@ -3,7 +3,7 @@
 export type SubscriptionStatus = "trial" | "active" | "expired";
 export type SubscriptionTier = "basic" | "premium";
 
-export const TRIAL_DAYS = 60;
+export const TRIAL_DAYS = 30;
 // Tobify s.r.o. nie je platca DPH – uvedená cena je konečná.
 export const MONTHLY_PRICE_EUR = 4.99;       // legacy alias (Základ)
 export const PRICE_BASIC_EUR = 4.99;

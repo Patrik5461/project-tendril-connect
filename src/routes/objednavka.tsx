@@ -8,7 +8,7 @@ export const Route = createFileRoute("/objednavka")({
   head: () => ({
     meta: [
       { title: "Objednávka predplatného – Tendrik" },
-      { name: "description", content: "Objednajte si Tendrik Premium za 14,99 € mesačne. Prvé 2 mesiace zdarma. Platba cez GoPay." },
+      { name: "description", content: "Objednajte si Tendrik Premium za 14,99 € mesačne. 30 dní zdarma na vyskúšanie. Platba cez GoPay." },
     ],
     links: [{ rel: "canonical", href: "https://www.tendrik.sk/objednavka" }],
   }),
@@ -38,7 +38,7 @@ function ObjednavkaPage() {
           Vyberte si plán
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Prvé 2 mesiace zadarmo, potom 4,99 € / mes (Základ) alebo 14,99 € / mes (Prémium). Konečná cena, bez záväzku.
+          30 dní zdarma na vyskúšanie, potom 4,99 € / mes (Základ) alebo 14,99 € / mes (Prémium). Konečná cena, bez záväzku.
         </p>
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
@@ -50,7 +50,7 @@ function ObjednavkaPage() {
             <div className="flex items-start justify-between">
               <div>
                 <div className="eyebrow">Free trial</div>
-                <div className="mt-1 font-display text-2xl font-bold">2 mesiace zdarma</div>
+                <div className="mt-1 font-display text-2xl font-bold">30 dní zdarma</div>
               </div>
               <div className={`h-5 w-5 rounded-full border-2 ${plan === "trial" ? "border-primary bg-primary" : "border-muted-foreground"}`} />
             </div>
@@ -79,7 +79,7 @@ function ObjednavkaPage() {
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div className="text-sm">
-              <b className="text-primary">Ide o opakovanú platbu.</b> Po skončení 2-mesačného
+              <b className="text-primary">Ide o opakovanú platbu.</b> Po skončení 30-dňového
               skúšobného obdobia sa z vašej karty automaticky strhne <b>14,99 €</b> každý
               mesiac. Predplatné môžete kedykoľvek zrušiť v nastaveniach účtu alebo e-mailom na{" "}
               <a href="mailto:info@tendrik.sk" className="underline">info@tendrik.sk</a>.
@@ -94,7 +94,7 @@ function ObjednavkaPage() {
             <div>
               <div className="eyebrow">Súhrn</div>
               <p className="mt-1 text-sm text-muted-foreground">
-                {plan === "trial" ? "Free trial – 2 mesiace zdarma" : "Tendrik Premium – mesačné predplatné"}
+                {plan === "trial" ? "Free trial – 30 dní zdarma" : "Tendrik Premium – mesačné predplatné"}
               </p>
             </div>
             <p className="num text-2xl font-bold">

@@ -70,9 +70,11 @@ function Page() {
       <section>
         <h2>4. Skúšobné obdobie (trial)</h2>
         <p>
-          Nový používateľ získava <b>2 mesiace zdarma</b> od registrácie, bez potreby zadávania
-          platobnej karty. Po uplynutí skúšobného obdobia sa prístup k plateným funkciám
-          uzamkne, kým používateľ neaktivuje platené predplatné.
+          Nový používateľ získava <b>30 dní zdarma</b> od registrácie, bez potreby zadávania
+          platobnej karty. Trial obsahuje neobmedzený monitoring, radary a e-maily, a
+          <b> 5 kompletných AI analýz zákaziek</b> počas trvania trialu. Po uplynutí skúšobného
+          obdobia sa prístup k plateným funkciám uzamkne, kým používateľ neaktivuje platené
+          predplatné.
         </p>
       </section>
 

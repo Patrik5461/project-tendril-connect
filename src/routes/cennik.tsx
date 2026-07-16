@@ -7,7 +7,7 @@ export const Route = createFileRoute("/cennik")({
   head: () => ({
     meta: [
       { title: "Cenník – Tendrik" },
-      { name: "description", content: "Základ 4,99 €/mes (monitoring) alebo Prémium 14,99 €/mes s AI analýzou. Prvé 2 mesiace zdarma." },
+      { name: "description", content: "Základ 4,99 €/mes (monitoring) alebo Prémium 14,99 €/mes s AI analýzou. 30 dní zdarma na vyskúšanie." },
     ],
     links: [{ rel: "canonical", href: "https://www.tendrik.sk/cennik" }],
   }),
@@ -35,7 +35,7 @@ function CennikPage() {
           Dva plány. <span className="hero-underline">Vy si vyberáte.</span>
         </h1>
         <p className="mt-4 text-lg text-foreground/80">
-          Prvé 2 mesiace zdarma s plnou AI analýzou. Potom si vyberte Základ alebo Prémium.
+          30 dní zdarma na vyskúšanie. Potom si vyberte Základ alebo Prémium.
         </p>
 
         <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -86,8 +86,9 @@ function CennikPage() {
         </div>
 
         <div className="mt-10 rounded-lg border-2 border-primary bg-primary/5 p-4 text-sm">
-          <b className="text-primary">2 mesiace zdarma s plnou AI:</b> Trial obsahuje všetko z Prémia
-          vrátane AI analýzy — nech si funkcie stihnete vyskúšať. Po skončení trialu si vyberiete tier.
+          <b className="text-primary">30 dní zdarma:</b> Vyskúšajte monitoring, radary a e-maily
+          neobmedzene a AI analýzu zákaziek (5 analýz zdarma). Po skončení trialu si vyberiete
+          tier – Základ alebo Prémium.
         </div>
 
         <div className="mt-6 rounded-lg border-2 border-foreground/20 bg-background p-4 text-sm">

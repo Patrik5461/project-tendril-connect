@@ -4,13 +4,13 @@
     "signup": "Registrieren"
   },
   "hero": {
-    "eyebrow": "2 Monate gratis · Monitoring öffentlicher Ausschreibungen",
+    "eyebrow": "30 Tage gratis · Monitoring öffentlicher Ausschreibungen",
     "titleEmphasis": "Ausschreibungen",
     "titleRest": "finden dich\nvon selbst.",
     "subtitle": "Gib Schlüsselwörter, CPV-Kategorien und Regionen an.\nTendrik liefert dir täglich die Ausschreibungen, die dich wirklich betreffen.",
     "ctaPrimary": "Gratis starten",
     "ctaSecondary": "Ich habe schon ein Konto",
-    "priceNote": "2 Monate gratis testen. Danach <price>4,99 €/Monat</price>. Ohne Bindung, keine Kartendaten nötig."
+    "priceNote": "30 Tage gratis testen. Danach <price>ab 4,99 €/Monat</price>. Ohne Bindung, keine Kartendaten nötig."
   },
   "stats": {
     "activeSuffix": "aktive Ausschreibungen EU-weit",
@@ -39,7 +39,7 @@
     "eyebrow": "Warum Tendrik",
     "title": "Das Amtsblatt, das für dich arbeitet.",
     "items": [
-      "Erste 2 Monate gratis, danach 4,99 €/Monat",
+      "30 Tage gratis testen, danach ab 4,99 €/Monat",
       "Einrichtung in unter 2 Minuten",
       "Nur aktive Verfahren – abgelaufene Ausschreibungen entfernen wir automatisch. Du musst nicht Tausende alter Verfahren durchsuchen, du siehst nur die, um die man sich wirklich bewerben kann.",
       "Direkter Link zur Quelle der Ausschreibung",
@@ -67,7 +67,7 @@
       },
       {
         "q": "Ist der Dienst kostenpflichtig?",
-        "a": "Die ersten 2 Monate sind gratis, danach 4,99 € / Monat (Basis) oder 14,99 € / Monat (Premium mit KI). Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Bei der Registrierung ist keine Karte nötig – wir melden uns vor Ende der Testphase. Jederzeit kündbar."
+        "a": "Sie erhalten 30 Tage gratis zum Testen (inkl. 5 KI-Analysen), danach 4,99 € / Monat (Basis, Monitoring) oder 14,99 € / Monat (Premium mit unbegrenzter KI). Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Bei der Registrierung ist keine Karte nötig – wir melden uns vor Ende der Testphase. Jederzeit kündbar."
       },
       {
         "q": "Für wen ist Tendrik gedacht?",
@@ -77,7 +77,7 @@
   },
   "billing": {
     "label": "Preis und wiederkehrende Zahlungen:",
-    "body": "2 Monate gratis, danach <b>4,99 € / Monat</b> (Basis) oder <b>14,99 € / Monat</b> (Premium). Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Das Abo verlängert sich automatisch monatlich über das Zahlungs-Gateway GoPay. Jederzeit kündbar.",
+    "body": "30 Tage gratis testen (inkl. 5 KI-Analysen), danach <b>4,99 € / Monat</b> (Basis) oder <b>14,99 € / Monat</b> (Premium). Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Das Abo verlängert sich automatisch monatlich über das Zahlungs-Gateway GoPay. Jederzeit kündbar.",
     "link": "Bedingungen für wiederkehrende Zahlungen →"
   },
   "footer": {
@@ -97,7 +97,7 @@
     "payments": "Zahlungen",
     "paymentsNote": "Zahlungen werden von GoPay s. r. o. abgewickelt.",
     "rights": "© {{year}} Tobify s. r. o. Alle Rechte vorbehalten.",
-    "priceInline": "2 Monate gratis, danach ab 4,99 €/Mon. (Endpreis)"
+    "priceInline": "30 Tage gratis, danach ab 4,99 €/Mon. (Endpreis)"
   },
   "meta": {
     "title": "Tendrik – Ausschreibungen finden dich von selbst",

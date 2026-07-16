@@ -346,7 +346,7 @@ function Landing() {
         </div>
         <div className="mt-5 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight">
-            Dva plány. <span className="hero-underline">Prvé 2 mesiace zdarma.</span>
+            Dva plány. <span className="hero-underline">30 dní zdarma na vyskúšanie.</span>
           </h2>
           <p className="text-sm text-muted-foreground md:max-w-sm">
             Konečné ceny – Tobify s. r. o. nie je platca DPH.
