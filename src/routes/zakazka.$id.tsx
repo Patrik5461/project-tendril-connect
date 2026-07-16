@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { flagEmoji, countryName } from "@/lib/eu-countries";
+import { TenderAnalysisSection } from "@/components/TenderAnalysisSection";
 
 type Tender = {
   id: string;
@@ -289,6 +290,8 @@ function TenderDetail() {
           </p>
         </div>
       )}
+
+      {authed && <TenderAnalysisSection tenderId={tender.id} />}
 
       <div className="mt-10 flex flex-wrap gap-3">
         {tender.source_url && (

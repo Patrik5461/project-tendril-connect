@@ -239,3 +239,207 @@ export const adminListTendersForTest = createServerFn({ method: "GET" })
     if (error) throw error;
     return data ?? [];
   });
+
+// ---------- Company profile (user-owned) ----------
+
+const CompanyProfileSchema = z.object({
+  ico: z.string().nullable().optional(),
+  dic: z.string().nullable().optional(),
+  nazov: z.string().nullable().optional(),
+  adresa: z.string().nullable().optional(),
+  psc: z.string().nullable().optional(),
+  mesto: z.string().nullable().optional(),
+  kraj: z.string().nullable().optional(),
+  pravna_forma: z.string().nullable().optional(),
+  datum_vzniku: z.string().nullable().optional(),
+  sk_nace_code: z.string().nullable().optional(),
+  sk_nace_name: z.string().nullable().optional(),
+  velkost_kategoria: z.string().nullable().optional(),
+  financne_roky: z.array(
+    z.object({
+      rok: z.number().int(),
+      obrat: z.number().nullable().optional(),
+      zamestnanci: z.number().int().nullable().optional(),
+    }),
+  ).default([]),
+  referencie: z.array(
+    z.object({
+      nazov: z.string(),
+      obstaravatel: z.string().optional().default(""),
+      hodnota: z.number().nullable().optional(),
+      rok: z.number().int().nullable().optional(),
+    }),
+  ).default([]),
+  certifikaty: z.array(z.string()).default([]),
+  technicke_vybavenie: z.string().nullable().optional(),
+  kluc_odbornici: z.string().nullable().optional(),
+  doplnkove_info: z.string().nullable().optional(),
+  auto_data: z.any().optional(),
+});
+
+export const getCompanyProfile = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("company_profile")
+      .select("*")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (error) throw error;
+    return data ?? null;
+  });
+
+export const saveCompanyProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => CompanyProfileSchema.parse(raw))
+  .handler(async ({ data, context }) => {
+    const row: any = {
+      ...data,
+      user_id: context.userId,
+      financne_roky: data.financne_roky ?? [],
+      referencie: data.referencie ?? [],
+      certifikaty: data.certifikaty ?? [],
+      updated_at: new Date().toISOString(),
+    };
+    const { data: saved, error } = await context.supabase
+      .from("company_profile")
+      .upsert(row, { onConflict: "user_id" })
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    return saved;
+  });
+
+// ---------- Tender analysis (user-facing, subscription-gated) ----------
+
+function profileToCompanyCtx(p: any): CompanyForAnalysis {
+  return {
+    ico: p?.ico,
+    nazov: p?.nazov,
+    sk_nace: p?.sk_nace_name ? `${p.sk_nace_code} — ${p.sk_nace_name}` : p?.sk_nace_code,
+    velkost: p?.velkost_kategoria,
+    financne_roky: (p?.financne_roky ?? []) as any,
+    referencie: (p?.referencie ?? []) as any,
+    certifikaty: (p?.certifikaty ?? []) as string[],
+    technicke_vybavenie: p?.technicke_vybavenie,
+    kluc_odbornici: p?.kluc_odbornici,
+    doplnkove_info: p?.doplnkove_info,
+  };
+}
+
+async function runAnalysisPipeline(tender: TenderRow, companyText: string) {
+  const errors: string[] = [];
+  const tenderText = buildTenderContext(tender);
+  let summary: Awaited<ReturnType<typeof runPart>> | null = null;
+  let requirements: Awaited<ReturnType<typeof runPart>> | null = null;
+  let eligibility: Awaited<ReturnType<typeof runPart>> | null = null;
+  try { summary = await runPart(GEMINI_MODELS.FLASH, PROMPT_SUMMARY, tenderText); }
+  catch (e) { errors.push("Súhrn: " + geminiUserMessage(e)); }
+  try { requirements = await runPart(GEMINI_MODELS.FLASH, PROMPT_REQUIREMENTS, tenderText, { json: true }); }
+  catch (e) { errors.push("Podmienky: " + geminiUserMessage(e)); }
+  if (requirements) {
+    try {
+      eligibility = await runPart(
+        GEMINI_MODELS.PRO,
+        PROMPT_ELIGIBILITY,
+        `PODMIENKY ÚČASTI (JSON):\n${requirements.text}\n\nPROFIL FIRMY:\n${companyText}`,
+        { json: true },
+      );
+    } catch (e) { errors.push("Spôsobilosť: " + geminiUserMessage(e)); }
+  }
+  return { summary, requirements, eligibility, errors };
+}
+
+export const getTenderAnalysis = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => z.object({ tender_id: z.string().uuid() }).parse(raw))
+  .handler(async ({ data, context }) => {
+    const { data: row } = await context.supabase
+      .from("tender_analysis")
+      .select("*")
+      .eq("user_id", context.userId)
+      .eq("tender_id", data.tender_id)
+      .maybeSingle();
+    return row ?? null;
+  });
+
+export const analyzeTender = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => z.object({
+    tender_id: z.string().uuid(),
+    force: z.boolean().optional().default(false),
+  }).parse(raw))
+  .handler(async ({ data, context }) => {
+    // Subscription check
+    const { data: prefs } = await context.supabase
+      .from("user_preferences")
+      .select("subscription_status,trial_started_at")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    const status = prefs?.subscription_status ?? "trial";
+    if (status !== "active") {
+      throw new Error("Analýza je dostupná len s aktívnym predplatným.");
+    }
+
+    // Company profile check
+    const { data: profile } = await context.supabase
+      .from("company_profile")
+      .select("*")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (!profile || !profile.ico) {
+      throw new Error("Najprv vyplňte firemný profil (aspoň IČO).");
+    }
+
+    // Cache
+    if (!data.force) {
+      const { data: cached } = await context.supabase
+        .from("tender_analysis")
+        .select("*")
+        .eq("user_id", context.userId)
+        .eq("tender_id", data.tender_id)
+        .maybeSingle();
+      if (cached) return { ...cached, cached: true };
+    }
+
+    // Load tender
+    const { data: tender, error: tErr } = await context.supabase
+      .from("tenders")
+      .select("id,title,description,contracting_authority,cpv_code,estimated_value,currency,deadline,published_at,region,country,source_url")
+      .eq("id", data.tender_id)
+      .maybeSingle<TenderRow>();
+    if (tErr) throw tErr;
+    if (!tender) throw new Error("Zákazka nenájdená");
+
+    const companyCtx = profileToCompanyCtx(profile);
+    const companyText = buildCompanyContext(companyCtx);
+    const { summary, requirements, eligibility, errors } = await runAnalysisPipeline(tender, companyText);
+
+    const eligibilityParsed = eligibility ? safeJson<any>(eligibility.text) : null;
+    const requirementsParsed = requirements ? safeJson<any>(requirements.text) : null;
+
+    const row = {
+      user_id: context.userId,
+      tender_id: data.tender_id,
+      summary: summary?.text ?? null,
+      requirements: requirementsParsed ?? (requirements ? { raw: requirements.text } : null),
+      eligibility: eligibilityParsed ?? (eligibility ? { raw: eligibility.text } : null),
+      recommendation: eligibilityParsed?.odporucanie ?? null,
+      overall: eligibilityParsed?.zhrnutie ?? null,
+      model_versions: {
+        summary: summary?.model,
+        requirements: requirements?.model,
+        eligibility: eligibility?.model,
+        errors,
+      },
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data: saved, error: sErr } = await context.supabase
+      .from("tender_analysis")
+      .upsert(row, { onConflict: "user_id,tender_id" })
+      .select()
+      .maybeSingle();
+    if (sErr) throw sErr;
+    return { ...saved, cached: false };
+  });
