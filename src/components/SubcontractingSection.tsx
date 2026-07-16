@@ -18,6 +18,7 @@ type SuggestedItem = {
   dovod: string;
   nace_kod?: string | null;
   hladane_slovo?: string | null;
+  hladane_slova?: string[] | null;
   sam_zvladne?: boolean;
 };
 
