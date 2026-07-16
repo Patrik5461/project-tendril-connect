@@ -164,10 +164,10 @@ function PredplatnePage() {
 }
 
 function TierCard({
-  selected, onSelect, eyebrow, title, priceEur, priceGrossEur, features, highlight,
+  selected, onSelect, eyebrow, title, priceEur, features, highlight,
 }: {
   selected: boolean; onSelect: () => void; eyebrow: string; title: string;
-  priceEur: number; priceGrossEur: number; features: string[]; highlight?: boolean;
+  priceEur: number; priceGrossEur?: number; features: string[]; highlight?: boolean;
 }) {
   return (
     <button
