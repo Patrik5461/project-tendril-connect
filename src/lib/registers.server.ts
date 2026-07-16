@@ -68,10 +68,10 @@ async function fetchRegisteruz(ico: string): Promise<any | null> {
 /** Lookup SK-NACE name for a code (e.g. "62.01" → "Počítačové programovanie…"). Prefix match on 2-digit division. */
 export async function lookupSkNaceName(
   code: string | null | undefined,
-  sb: { rpc: (...a: any[]) => Promise<any>; from: (...a: any[]) => any },
+  sb: any,
 ): Promise<string | null> {
   if (!code) return null;
-  const twoDigit = code.replace(/\D/g, "").slice(0, 2);
+  const twoDigit = String(code).replace(/\D/g, "").slice(0, 2);
   if (!twoDigit) return null;
   const { data } = await sb.from("sk_nace").select("code,name").eq("code", twoDigit).maybeSingle();
   return data?.name ?? null;
