@@ -98,6 +98,84 @@ export type Database = {
         }
         Relationships: []
       }
+      company_profile: {
+        Row: {
+          adresa: string | null
+          auto_data: Json | null
+          auto_fetched_at: string | null
+          certifikaty: string[]
+          created_at: string
+          datum_vzniku: string | null
+          dic: string | null
+          doplnkove_info: string | null
+          financne_roky: Json
+          ico: string | null
+          kluc_odbornici: string | null
+          kraj: string | null
+          mesto: string | null
+          nazov: string | null
+          pravna_forma: string | null
+          psc: string | null
+          referencie: Json
+          sk_nace_code: string | null
+          sk_nace_name: string | null
+          technicke_vybavenie: string | null
+          updated_at: string
+          user_id: string
+          velkost_kategoria: string | null
+        }
+        Insert: {
+          adresa?: string | null
+          auto_data?: Json | null
+          auto_fetched_at?: string | null
+          certifikaty?: string[]
+          created_at?: string
+          datum_vzniku?: string | null
+          dic?: string | null
+          doplnkove_info?: string | null
+          financne_roky?: Json
+          ico?: string | null
+          kluc_odbornici?: string | null
+          kraj?: string | null
+          mesto?: string | null
+          nazov?: string | null
+          pravna_forma?: string | null
+          psc?: string | null
+          referencie?: Json
+          sk_nace_code?: string | null
+          sk_nace_name?: string | null
+          technicke_vybavenie?: string | null
+          updated_at?: string
+          user_id: string
+          velkost_kategoria?: string | null
+        }
+        Update: {
+          adresa?: string | null
+          auto_data?: Json | null
+          auto_fetched_at?: string | null
+          certifikaty?: string[]
+          created_at?: string
+          datum_vzniku?: string | null
+          dic?: string | null
+          doplnkove_info?: string | null
+          financne_roky?: Json
+          ico?: string | null
+          kluc_odbornici?: string | null
+          kraj?: string | null
+          mesto?: string | null
+          nazov?: string | null
+          pravna_forma?: string | null
+          psc?: string | null
+          referencie?: Json
+          sk_nace_code?: string | null
+          sk_nace_name?: string | null
+          technicke_vybavenie?: string | null
+          updated_at?: string
+          user_id?: string
+          velkost_kategoria?: string | null
+        }
+        Relationships: []
+      }
       gopay_payment_events: {
         Row: {
           amount_cents: number | null
@@ -278,6 +356,24 @@ export type Database = {
         }
         Relationships: []
       }
+      sk_nace: {
+        Row: {
+          code: string
+          name: string
+          parent_code: string | null
+        }
+        Insert: {
+          code: string
+          name: string
+          parent_code?: string | null
+        }
+        Update: {
+          code?: string
+          name?: string
+          parent_code?: string | null
+        }
+        Relationships: []
+      }
       subscription_admin_log: {
         Row: {
           action: string
@@ -310,6 +406,56 @@ export type Database = {
           valid_until?: string | null
         }
         Relationships: []
+      }
+      tender_analysis: {
+        Row: {
+          created_at: string
+          eligibility: Json | null
+          id: string
+          model_versions: Json | null
+          overall: string | null
+          recommendation: string | null
+          requirements: Json | null
+          summary: string | null
+          tender_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          eligibility?: Json | null
+          id?: string
+          model_versions?: Json | null
+          overall?: string | null
+          recommendation?: string | null
+          requirements?: Json | null
+          summary?: string | null
+          tender_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          eligibility?: Json | null
+          id?: string
+          model_versions?: Json | null
+          overall?: string | null
+          recommendation?: string | null
+          requirements?: Json | null
+          summary?: string | null
+          tender_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tender_analysis_tender_id_fkey"
+            columns: ["tender_id"]
+            isOneToOne: false
+            referencedRelation: "tenders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tenders: {
         Row: {
