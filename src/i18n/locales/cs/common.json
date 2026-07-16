@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "features": "Funkce",
+    "pricing": "Ceník",
+    "contact": "Kontakt",
+    "login": "Přihlásit se",
+    "signup": "Registrovat",
+    "dashboard": "Zakázky",
+    "settings": "Nastavení",
+    "admin": "Admin",
+    "logout": "Odhlásit"
+  },
+  "footer": {
+    "tagline": "Monitoring veřejných zakázek z TED, ÚVO, EKS a JOSEPHINE.",
+    "contact": "Kontakt",
+    "legal": "Právní",
+    "payments": "Platby",
+    "paymentsNote": "Platby zpracovává GoPay s.r.o. přes zabezpečenou platební bránu s podporou 3D Secure.",
+    "rights": "Všechna práva vyhrazena.",
+    "monitoring": "Tendrik.sk – monitoring veřejných zakázek"
+  },
+  "language": {
+    "switch": "Jazyk"
+  },
+  "common": {
+    "back": "Zpět",
+    "loading": "Načítám…",
+    "error": "Chyba",
+    "save": "Uložit",
+    "cancel": "Zrušit",
+    "close": "Zavřít"
+  }
+}

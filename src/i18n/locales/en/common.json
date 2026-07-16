@@ -1,0 +1,33 @@
+{
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "contact": "Contact",
+    "login": "Sign in",
+    "signup": "Sign up",
+    "dashboard": "Tenders",
+    "settings": "Settings",
+    "admin": "Admin",
+    "logout": "Sign out"
+  },
+  "footer": {
+    "tagline": "Public procurement monitoring from TED, ÚVO, EKS and JOSEPHINE.",
+    "contact": "Contact",
+    "legal": "Legal",
+    "payments": "Payments",
+    "paymentsNote": "Payments processed by GoPay s.r.o. via a secure 3D Secure payment gateway.",
+    "rights": "All rights reserved.",
+    "monitoring": "Tendrik.sk – public procurement monitoring"
+  },
+  "language": {
+    "switch": "Language"
+  },
+  "common": {
+    "back": "Back",
+    "loading": "Loading…",
+    "error": "Error",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close"
+  }
+}
