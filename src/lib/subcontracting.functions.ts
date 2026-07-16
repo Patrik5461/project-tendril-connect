@@ -3,6 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import { GEMINI_MODELS, geminiGenerate, geminiUserMessage } from "./gemini.server";
+import { fetchCompanyFromRegisters } from "./registers.server";
+
 
 // ---------------- Types ----------------
 type SuggestedItem = {
@@ -332,3 +334,167 @@ export const saveSubcontractingSelections = createServerFn({ method: "POST" })
     if (error) throw error;
     return saved;
   });
+
+// ============================================================
+// ADMIN VARIANTS (Phase 3) — testovanie bez firemného profilu a bez ukladania
+// ============================================================
+
+async function assertAdmin(context: any) {
+  const { data: isAdmin } = await context.supabase.rpc("has_role", {
+    _user_id: context.userId,
+    _role: "admin",
+  });
+  if (!isAdmin) throw new Error("forbidden");
+}
+
+// Layer A — návrhy subdodávok bez profilu, bez ukladania
+export const adminSuggestSubcontracting = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => z.object({
+    tender_id: z.string().uuid(),
+    ico: z.string().min(6).max(12),
+    requirements: z.any().optional(),
+    eligibility: z.any().optional(),
+  }).parse(raw))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+
+    const { data: tender } = await context.supabase
+      .from("tenders")
+      .select("id,title,description,cpv_code,region,country")
+      .eq("id", data.tender_id).maybeSingle();
+    if (!tender) throw new Error("Zákazka nenájdená");
+
+    const registry = await fetchCompanyFromRegisters(data.ico, context.supabase);
+
+    const req = data.requirements ?? {};
+    const elig = data.eligibility ?? {};
+
+    const userText = [
+      `ZÁKAZKA: ${tender.title}`,
+      `CPV: ${tender.cpv_code ?? "—"} | Región: ${tender.region ?? "—"} / ${tender.country ?? "—"}`,
+      "",
+      "POPIS ZÁKAZKY:",
+      (tender.description ?? "").slice(0, 4000),
+      "",
+      "PODMIENKY ÚČASTI (JSON, ak k dispozícii):",
+      JSON.stringify(req, null, 2),
+      "",
+      "ČO FIRME CHÝBA (z analýzy spôsobilosti):",
+      elig?.co_chyba ?? "—",
+      "",
+      "PROFIL FIRMY (z registrov, bez doplnkových údajov):",
+      `IČO ${registry.ico} | Názov ${registry.nazov ?? "—"}`,
+      `SK-NACE hlavná: ${registry.sk_nace_code ?? "—"} — ${registry.sk_nace_name ?? "?"}`,
+      `Právna forma: ${registry.pravna_forma ?? "—"} | Veľkosť: ${registry.velkost_kategoria ?? "—"}`,
+    ].join("\n");
+
+    const t0 = Date.now();
+    let raw = "";
+    try {
+      raw = await geminiGenerate(GEMINI_MODELS.FLASH, userText, {
+        system: PROMPT_SUGGEST,
+        temperature: 0.3,
+        maxOutputTokens: 3072,
+        responseJson: true,
+        disableThinking: true,
+        fallback: GEMINI_MODELS.LITE,
+      });
+    } catch (e) {
+      throw new Error(geminiUserMessage(e));
+    }
+    const parsed = safeJson<{ firma_zvladne_sama: boolean; poznamka: string; polozky: SuggestedItem[] }>(raw);
+    return {
+      registry: {
+        ico: registry.ico,
+        nazov: registry.nazov,
+        sk_nace: registry.sk_nace_code ? `${registry.sk_nace_code} — ${registry.sk_nace_name ?? "?"}` : null,
+        mesto: registry.mesto,
+      },
+      model: GEMINI_MODELS.FLASH,
+      elapsedMs: Date.now() - t0,
+      raw,
+      parsed,
+      polozky: Array.isArray(parsed?.polozky) ? parsed!.polozky : [],
+      firma_zvladne_sama: !!parsed?.firma_zvladne_sama,
+      poznamka: parsed?.poznamka ?? null,
+    };
+  });
+
+// Layer B — kandidáti z RPO bez subscription checku
+export const adminFindSubcontractorCandidates = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => z.object({
+    keyword: z.string().min(2).max(80),
+    city: z.string().nullable().optional(),
+    limit: z.number().int().min(1).max(30).optional().default(15),
+  }).parse(raw))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const t0 = Date.now();
+    try {
+      const results = await rpoSearch(data.keyword, data.city ?? null, data.limit);
+      return { results, elapsedMs: Date.now() - t0, source: "RPO Štatistický úrad SR" };
+    } catch (e: any) {
+      return { results: [], elapsedMs: Date.now() - t0, source: "RPO", error: e?.message ?? "RPO nedostupné" };
+    }
+  });
+
+// Layer C — generovanie oslovení bez profilu a bez ukladania
+export const adminGenerateOutreach = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => z.object({
+    tender_id: z.string().uuid(),
+    need_nazov: z.string().min(2),
+    specifikacia: z.string().min(2),
+    subcontractor_nazov: z.string().min(2),
+    our_firm_nazov: z.string().min(2),
+    our_firm_ico: z.string().nullable().optional(),
+    termin_ponuky: z.string().nullable().optional(),
+    termin_dodania: z.string().nullable().optional(),
+  }).parse(raw))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+
+    const { data: tender } = await context.supabase
+      .from("tenders")
+      .select("title,contracting_authority,deadline,source_url")
+      .eq("id", data.tender_id).maybeSingle();
+    if (!tender) throw new Error("Zákazka nenájdená");
+
+    const userText = [
+      `ODOSIELATEĽ (naša firma):`,
+      `  Názov: ${data.our_firm_nazov}`,
+      `  IČO: ${data.our_firm_ico ?? "—"}`,
+      "",
+      `ADRESÁT (subdodávateľ): ${data.subcontractor_nazov}`,
+      "",
+      `ČO POTREBUJEME (plnenie): ${data.need_nazov}`,
+      `ŠPECIFIKÁCIA / ROZSAH: ${data.specifikacia}`,
+      `TERMÍN PRE ZASLANIE CENOVEJ PONUKY: ${data.termin_ponuky ?? "do 7 pracovných dní"}`,
+      `POŽADOVANÝ TERMÍN DODANIA: ${data.termin_dodania ?? "podľa dohody"}`,
+      "",
+      `KONTEXT ZÁKAZKY (len pre verziu 2):`,
+      `  Názov: ${tender.title}`,
+      `  Obstarávateľ: ${tender.contracting_authority}`,
+      `  Termín predkladania ponúk: ${tender.deadline ?? "—"}`,
+    ].join("\n");
+
+    const t0 = Date.now();
+    let raw = "";
+    try {
+      raw = await geminiGenerate(GEMINI_MODELS.FLASH, userText, {
+        system: PROMPT_OUTREACH,
+        temperature: 0.5,
+        maxOutputTokens: 2048,
+        responseJson: true,
+        disableThinking: true,
+        fallback: GEMINI_MODELS.LITE,
+      });
+    } catch (e) {
+      throw new Error(geminiUserMessage(e));
+    }
+    const parsed = safeJson<{ neutralne: { predmet: string; telo: string }; spolupraca: { predmet: string; telo: string } }>(raw);
+    return { model: GEMINI_MODELS.FLASH, elapsedMs: Date.now() - t0, raw, parsed };
+  });
+
