@@ -192,9 +192,9 @@ function TierCard({
         <div className={`h-5 w-5 rounded-full border-2 shrink-0 ${selected ? "border-primary bg-primary" : "border-muted-foreground"}`} />
       </div>
       <p className="mt-3 num text-3xl font-bold">
-        {formatEur(priceEur)} <span className="text-sm font-medium text-muted-foreground">/ mes bez DPH</span>
+        {formatEur(priceEur)} <span className="text-sm font-medium text-muted-foreground">/ mes</span>
       </p>
-      <p className="text-xs text-muted-foreground">{formatEur(priceGrossEur)} s DPH</p>
+      <p className="text-xs text-muted-foreground">Konečná cena (neplatca DPH)</p>
       <ul className="mt-4 space-y-1.5 text-sm">
         {features.map((f) => (
           <li key={f} className="flex gap-2">
