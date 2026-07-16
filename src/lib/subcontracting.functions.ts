@@ -43,7 +43,14 @@ Pre každú položku uveď:
 - nazov (krátky, konkrétny; napr. "Elektroinštalačné práce" alebo "Doprava a logistika")
 - dovod (ktorá podmienka to vyžaduje / prečo firma nezvládne sama)
 - nace_kod (odhadovaný 2- alebo 4-miestny SK-NACE kód, napr. "43.21", ak neviete napíšte null)
-- hladane_slovo — JEDEN krátky koreň slova (5–8 znakov, bez koncovky), ktorý zodpovedá tomu, AKO JE ČINNOSŤ ZAPÍSANÁ v slovenskom obchodnom / živnostenskom registri, NIE hovorovému názvu remesla. Registrové činnosti sú formulované formálne (napr. "elektroinštalačné práce", "záhradnícke služby", "veľkoobchod so strojmi"), nie ľudovo ("elektrikár", "záhradník").
+- hladane_slovo — JEDEN krátky KOREŇ slova, MAXIMÁLNE 10 znakov, BEZ KONCOVKY. Odsekni koncovku! RPO fulltext matchuje presný podreťazec, takže dlhé slová s koncovkou zlyhajú. Nikdy nevracaj slovo dlhšie ako 10 znakov ani slovo končiace na -ácie, -ácia, -ícke, -ické, -níctvo, -tvo, -ské, -ská, -é, -ý, -a, -y. Príklady ÁNO/NIE:
+    ÁNO "elektroinštal" — NIE "elektroinštalácie", NIE "elektroinštalačné"
+    ÁNO "záhradn" — NIE "záhradnícke", NIE "záhradníctvo"
+    ÁNO "stavebn" — NIE "stavebníctvo", NIE "stavebné"
+    ÁNO "vodoinštal" — NIE "vodoinštalácie"
+    ÁNO "murár" — NIE "murárske práce"
+    ÁNO "doprav" — NIE "doprava", NIE "dopravné"
+  Koreň zodpovedá tomu, AKO JE ČINNOSŤ ZAPÍSANÁ v slovenskom obchodnom / živnostenskom registri, NIE hovorovému názvu remesla ("elektrikár", "záhradník").
   Príklady správne (formálny koreň):
     elektro → "elektroinštal" / "elektromontáž" / "elektrotechn"
     záhrada → "záhradn" / "záhradníc"
@@ -221,6 +228,52 @@ async function rpoSearch(keyword: string, city?: string | null, limit = 15): Pro
   return out;
 }
 
+// Odsekne bežné slovenské koncovky a vygeneruje kandidátske korene (od najdlhšieho po najkratší).
+// RPO fulltext matchuje presný podreťazec, takže "elektroinštalacie" nenájde firmy zapísané ako
+// "elektroinštalačné práce"; skrátením na "elektroinštal" ich nájde.
+function stemVariants(word: string): string[] {
+  const w = (word ?? "").trim();
+  if (w.length < 3) return [];
+  const suffixes = [
+    "ovanie", "ovania", "ovanú", "ovaní",
+    "áreň", "árstvo", "íctvo", "níctvo", "stvo", "tvo",
+    "ácie", "ácia", "áciu", "ácii",
+    "ícke", "ické", "ických", "ickým",
+    "árske", "árska", "árskych", "árskej",
+    "ovské", "ovská",
+    "ské", "ská", "ský", "skych", "skej",
+    "né", "ná", "ný", "ných", "nej", "nom",
+    "cie", "cia",
+    "ov", "om", "och", "ami",
+    "y", "e", "a", "u", "i", "o", "í", "á", "é", "ý",
+  ];
+  const out = new Set<string>();
+  let cur = w;
+  // Try suffix stripping (multiple rounds)
+  for (let round = 0; round < 3; round++) {
+    let stripped = false;
+    for (const suf of suffixes) {
+      if (cur.length - suf.length >= 5 && cur.toLowerCase().endsWith(suf)) {
+        cur = cur.slice(0, cur.length - suf.length);
+        out.add(cur);
+        stripped = true;
+        break;
+      }
+    }
+    if (!stripped) break;
+  }
+  // Also progressively chop 2 chars off the end (safety net) down to ~6 chars.
+  let c = w;
+  while (c.length > 6) {
+    c = c.slice(0, -2);
+    out.add(c);
+    if (c.length <= 8) break;
+  }
+  // Cap all variants at 10 chars from the original (matching prompt rule).
+  if (w.length > 10) out.add(w.slice(0, 10));
+  return Array.from(out).filter((s) => s.length >= 4 && s !== w);
+}
+
 async function rpoSearchWithFallback(
   keyword: string,
   alternatives: string[] | undefined,
@@ -228,13 +281,25 @@ async function rpoSearchWithFallback(
   limit: number,
 ): Promise<{ results: Candidate[]; used_keyword: string; used_city: string | null; tried: string[]; dropped_city: boolean }> {
   const tried: string[] = [];
-  const variants = [keyword, ...(alternatives ?? [])]
-    .map((s) => (s ?? "").trim())
-    .filter((s, i, arr) => s.length >= 2 && arr.indexOf(s) === i);
+  const seen = new Set<string>();
+  const pushVariant = (list: string[], s: string) => {
+    const t = (s ?? "").trim();
+    if (t.length < 2) return;
+    const key = t.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    list.push(t);
+  };
+
+  const variants: string[] = [];
+  // Original inputs first, then their stemmed roots interleaved as fallback.
+  for (const raw of [keyword, ...(alternatives ?? [])]) {
+    pushVariant(variants, raw);
+    for (const stem of stemVariants(raw)) pushVariant(variants, stem);
+  }
 
   const cityStr = city && city.trim().length >= 3 ? city.trim() : null;
 
-  // 1) Every variant with city (if any)
   if (cityStr) {
     for (const v of variants) {
       tried.push(v);
@@ -242,7 +307,6 @@ async function rpoSearchWithFallback(
       if (results.length > 0) return { results, used_keyword: v, used_city: cityStr, tried, dropped_city: false };
     }
   }
-  // 2) Every variant without city
   for (const v of variants) {
     if (!cityStr) tried.push(v);
     const results = await rpoSearch(v, null, limit);
