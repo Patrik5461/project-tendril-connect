@@ -473,6 +473,7 @@ export const adminFindSubcontractorCandidates = createServerFn({ method: "POST" 
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => z.object({
     keyword: z.string().min(2).max(80),
+    alternatives: z.array(z.string().min(2).max(80)).max(6).optional(),
     city: z.string().nullable().optional(),
     limit: z.number().int().min(1).max(30).optional().default(15),
   }).parse(raw))
@@ -480,8 +481,16 @@ export const adminFindSubcontractorCandidates = createServerFn({ method: "POST" 
     await assertAdmin(context);
     const t0 = Date.now();
     try {
-      const results = await rpoSearch(data.keyword, data.city ?? null, data.limit);
-      return { results, elapsedMs: Date.now() - t0, source: "RPO Štatistický úrad SR" };
+      const r = await rpoSearchWithFallback(data.keyword, data.alternatives, data.city ?? null, data.limit);
+      return {
+        results: r.results,
+        elapsedMs: Date.now() - t0,
+        source: "RPO Štatistický úrad SR",
+        used_keyword: r.used_keyword,
+        used_city: r.used_city,
+        tried: r.tried,
+        dropped_city: r.dropped_city,
+      };
     } catch (e: any) {
       return { results: [], elapsedMs: Date.now() - t0, source: "RPO", error: e?.message ?? "RPO nedostupné" };
     }
