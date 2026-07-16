@@ -77,7 +77,7 @@
   },
   "billing": {
     "label": "Pricing and recurring payments:",
-    "body": "2 months free, then <b>€4.99 / mo</b> (Basic) or <b>€14.99 / mo</b> (Premium). Final price – Tobify s. r. o. is not a VAT payer. The subscription renews automatically every month via the GoPay payment gateway. Cancel anytime.",
+    "body": "30 days free to try (including 5 AI analyses), then <b>€4.99 / mo</b> (Basic) or <b>€14.99 / mo</b> (Premium). Final price – Tobify s. r. o. is not a VAT payer. The subscription renews automatically every month via the GoPay payment gateway. Cancel anytime.",
     "link": "Recurring payment terms →"
   },
   "footer": {
