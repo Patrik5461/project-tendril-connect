@@ -617,8 +617,11 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
           <div className="font-medium">{statusLabel}</div>
         </div>
         <div>
-          <div className="text-muted-foreground">Cena</div>
-          <div className="font-medium">{formatEur(MONTHLY_PRICE_EUR)} / mes bez DPH (6,14 € s DPH)</div>
+        <div>
+          <div className="text-muted-foreground">Plán / Cena</div>
+          <div className="font-medium">
+            Tendrik {sub.tier === "premium" ? "Prémium" : "Základ"} · {formatEur(sub.tier === "premium" ? 15 : MONTHLY_PRICE_EUR)} / mes bez DPH
+          </div>
         </div>
         {validUntil && (
           <div>
