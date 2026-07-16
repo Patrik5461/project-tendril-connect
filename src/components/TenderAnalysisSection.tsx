@@ -17,7 +17,7 @@ type AnalysisRow = {
   updated_at?: string;
 };
 
-type Props = { tenderId: string };
+type Props = { tenderId: string; defaultCity?: string | null };
 
 export function TenderAnalysisSection({ tenderId }: Props) {
   const [authed, setAuthed] = useState<boolean | null>(null);
