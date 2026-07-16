@@ -22,7 +22,7 @@ export const Route = createFileRoute("/predplatne")({
   head: () => ({
     meta: [
       { title: "Aktivovať predplatné – Tendrik" },
-      { name: "description", content: "Vyberte si Základ (4,99 €/mes) alebo Prémium s AI (15 €/mes)." },
+      { name: "description", content: "Vyberte si Základ (4,99 €/mes) alebo Prémium s AI (14,99 €/mes)." },
       { name: "robots", content: "noindex" },
     ],
   }),
