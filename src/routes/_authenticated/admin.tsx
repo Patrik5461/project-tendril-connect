@@ -37,6 +37,7 @@ type UserRow = {
   created_at: string;
   subscription_status: string | null;
   subscription_source: string | null;
+  subscription_tier: string | null;
   subscription_note: string | null;
   trial_started_at: string | null;
   subscription_valid_until: string | null;
@@ -565,6 +566,7 @@ function UsersTab() {
             <tr>
               <th className="py-2 pr-3">E-mail</th>
               <th className="py-2 pr-3">Predplatné</th>
+              <th className="py-2 pr-3">Tier</th>
               <th className="py-2 pr-3">Zdroj</th>
               <th className="py-2 pr-3">Platné do</th>
               <th className="py-2 pr-3">Poznámka</th>
@@ -586,6 +588,12 @@ function UsersTab() {
                 </td>
                 <td className="py-2 pr-3">
                   <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
+                    r.subscription_tier === "premium" ? "bg-primary/10 text-primary" :
+                    "bg-muted text-muted-foreground"
+                  }`}>{r.subscription_tier === "premium" ? "Prémium" : "Základ"}</span>
+                </td>
+                <td className="py-2 pr-3">
+                  <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
                     r.subscription_source === "manual" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400" :
                     r.subscription_source === "paid" ? "bg-primary/10 text-primary" :
                     "bg-muted text-muted-foreground"
@@ -603,7 +611,7 @@ function UsersTab() {
               </tr>
             ))}
             {filtered.length === 0 && !loading && (
-              <tr><td colSpan={8} className="py-6 text-center text-muted-foreground">Žiadne záznamy.</td></tr>
+              <tr><td colSpan={9} className="py-6 text-center text-muted-foreground">Žiadne záznamy.</td></tr>
             )}
           </tbody>
         </table>
@@ -622,13 +630,14 @@ function UsersTab() {
 function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose: () => void; onSaved: () => void }) {
   const [status, setStatus] = useState<string>(user.subscription_status ?? "trial");
   const [source, setSource] = useState<string>(user.subscription_source ?? "trial");
+  const [tier, setTier] = useState<string>(user.subscription_tier ?? "basic");
   const [validUntil, setValidUntil] = useState<string>(
     user.subscription_valid_until ? new Date(user.subscription_valid_until).toISOString().slice(0, 10) : ""
   );
   const [note, setNote] = useState<string>(user.subscription_note ?? "");
   const [saving, setSaving] = useState(false);
 
-  function setPreset(months: number | "forever") {
+  function setPreset(months: number | "forever", presetTier: "basic" | "premium") {
     if (months === "forever") {
       setValidUntil("");
     } else {
@@ -638,6 +647,7 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
     }
     setStatus("active");
     setSource("manual");
+    setTier(presetTier);
   }
 
   async function save() {
@@ -648,6 +658,7 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
       _valid_until: validUntil ? new Date(validUntil + "T23:59:59").toISOString() : null,
       _note: note || null,
       _source: source,
+      _tier: tier,
     });
     setSaving(false);
     if (error) { toast.error(error.message); return; }
@@ -659,7 +670,7 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
     if (!confirm("Vrátiť používateľa na trial?")) return;
     setSaving(true);
     const { error } = await (supabase.rpc as any)("admin_set_subscription", {
-      _user_id: user.user_id, _status: "trial", _valid_until: null, _note: note || null, _source: "trial",
+      _user_id: user.user_id, _status: "trial", _valid_until: null, _note: note || null, _source: "trial", _tier: tier,
     });
     setSaving(false);
     if (error) { toast.error(error.message); return; }
@@ -670,7 +681,8 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
     if (!confirm("Nastaviť ako expirovaný (odobrať prístup)?")) return;
     setSaving(true);
     const { error } = await (supabase.rpc as any)("admin_set_subscription", {
-      _user_id: user.user_id, _status: "expired", _valid_until: null, _note: note || null, _source: source === "manual" ? "manual" : "paid",
+      _user_id: user.user_id, _status: "expired", _valid_until: null, _note: note || null,
+      _source: source === "manual" ? "manual" : "paid", _tier: tier,
     });
     setSaving(false);
     if (error) { toast.error(error.message); return; }
@@ -687,14 +699,24 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
 
         <div className="space-y-4 py-2">
           <div>
-            <Label className="text-xs">Rýchle voľby (aktivovať zadarmo)</Label>
+            <Label className="text-xs">Rýchle voľby – Základ (bez AI)</Label>
             <div className="mt-1.5 flex flex-wrap gap-2">
-              <Button type="button" size="sm" variant="outline" onClick={() => setPreset(1)}>+1 mesiac</Button>
-              <Button type="button" size="sm" variant="outline" onClick={() => setPreset(6)}>+6 mesiacov</Button>
-              <Button type="button" size="sm" variant="outline" onClick={() => setPreset(12)}>+1 rok</Button>
-              <Button type="button" size="sm" variant="outline" onClick={() => setPreset("forever")}>Natrvalo</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => setPreset(1, "basic")}>+1 mesiac</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => setPreset(6, "basic")}>+6 mesiacov</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => setPreset(12, "basic")}>+1 rok</Button>
+              <Button type="button" size="sm" variant="outline" onClick={() => setPreset("forever", "basic")}>Natrvalo</Button>
             </div>
           </div>
+          <div>
+            <Label className="text-xs text-primary">Rýchle voľby – Prémium (s AI)</Label>
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant="default" onClick={() => setPreset(1, "premium")}>+1 mesiac Prémium</Button>
+              <Button type="button" size="sm" variant="default" onClick={() => setPreset(6, "premium")}>+6 mes. Prémium</Button>
+              <Button type="button" size="sm" variant="default" onClick={() => setPreset(12, "premium")}>+1 rok Prémium</Button>
+              <Button type="button" size="sm" variant="default" onClick={() => setPreset("forever", "premium")}>Natrvalo Prémium</Button>
+            </div>
+          </div>
+
 
           <div className="grid grid-cols-2 gap-3">
             <div>

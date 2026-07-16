@@ -19,12 +19,18 @@ type SuggestedItem = {
 async function requireActive(context: any) {
   const { data: prefs } = await context.supabase
     .from("user_preferences")
-    .select("subscription_status")
+    .select("subscription_status,subscription_tier")
     .eq("user_id", context.userId)
     .maybeSingle();
   const status = prefs?.subscription_status ?? "trial";
-  if (status !== "active") {
-    throw new Error("Funkcia je dostupná len s aktívnym predplatným.");
+  const tier = (prefs as any)?.subscription_tier ?? "basic";
+  const hasAi = status === "trial" || (status === "active" && tier === "premium");
+  if (!hasAi) {
+    throw new Error(
+      status === "expired"
+        ? "Funkcia je dostupná len s aktívnym predplatným."
+        : "AI funkcie sú v balíku Prémium (15 €/mes). Upgradnite predplatné.",
+    );
   }
 }
 

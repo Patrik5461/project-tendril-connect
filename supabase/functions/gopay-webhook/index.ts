@@ -45,6 +45,13 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
 
   const userId: string | undefined =
     payment.additional_params?.find((p: any) => p.name === "user_id")?.value;
+  const tierParam: string | undefined =
+    payment.additional_params?.find((p: any) => p.name === "tier")?.value;
+  // Ak parent-recurring nemá tier v parametroch, odvodíme z ceny.
+  const inferredTier: "basic" | "premium" =
+    tierParam === "premium" ? "premium"
+    : tierParam === "basic" ? "basic"
+    : (Number(payment.amount ?? 0) >= 1500 ? "premium" : "basic");
 
   // Audit log
   await admin.from("gopay_payment_events").insert({
@@ -61,24 +68,29 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
 
   const mapped = mapPaymentState(payment.state);
   if (mapped === "active") {
-    // Predĺž o mesiac od teraz alebo od doterajšieho subscription_valid_until.
+    // Predĺž o mesiac.
     const { data: pref } = await admin
       .from("user_preferences")
-      .select("subscription_valid_until")
+      .select("subscription_valid_until,subscription_tier")
       .eq("user_id", userId).maybeSingle();
     const base = pref?.subscription_valid_until && new Date(pref.subscription_valid_until) > new Date()
       ? new Date(pref.subscription_valid_until)
       : new Date();
     const next = new Date(base);
     next.setMonth(next.getMonth() + 1);
+    // Ak už má manuálne priradený tier, ponechaj ho; inak zapíš odvodený.
+    const finalTier = (pref as any)?.subscription_tier === "premium" || (pref as any)?.subscription_tier === "basic"
+      ? (pref as any).subscription_tier
+      : inferredTier;
     await admin.from("user_preferences").update({
       subscription_status: "active",
+      subscription_tier: tierParam ? inferredTier : finalTier,
       subscription_valid_until: next.toISOString(),
       last_payment_at: new Date().toISOString(),
       gopay_recurrence_id: String(payment.parent_id ?? payment.id),
     }).eq("user_id", userId);
 
-    // Faktero: vystaviť + poslať faktúru. Chyby NIKDY neblokujú aktiváciu.
+    // Faktero
     try {
       const amountGrossEur = Number(payment.amount ?? 0) / 100;
       if (amountGrossEur > 0) {
@@ -89,13 +101,13 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
           gopayPaymentId: String(payment.id),
           amountGrossEur,
           currency: payment.currency ?? "EUR",
+          tier: tierParam ? inferredTier : finalTier,
         });
       }
     } catch (e) {
       console.error("faktero orchestrator threw (should not happen)", e);
     }
   } else if (mapped === "expired") {
-    // Zrušené / timeout / refund → nastav expired ak už nie je aktívne obdobie.
     await admin.from("user_preferences").update({
       subscription_status: "expired",
     }).eq("user_id", userId);

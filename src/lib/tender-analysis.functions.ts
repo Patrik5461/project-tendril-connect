@@ -420,15 +420,21 @@ export const analyzeTender = createServerFn({ method: "POST" })
     force: z.boolean().optional().default(false),
   }).parse(raw))
   .handler(async ({ data, context }) => {
-    // Subscription check
+    // Subscription check — AI dostupné pre trial alebo active+premium tier.
     const { data: prefs } = await context.supabase
       .from("user_preferences")
-      .select("subscription_status,trial_started_at")
+      .select("subscription_status,subscription_tier,trial_started_at")
       .eq("user_id", context.userId)
       .maybeSingle();
     const status = prefs?.subscription_status ?? "trial";
-    if (status !== "active") {
-      throw new Error("Analýza je dostupná len s aktívnym predplatným.");
+    const tier = (prefs as any)?.subscription_tier ?? "basic";
+    const hasAi = status === "trial" || (status === "active" && tier === "premium");
+    if (!hasAi) {
+      throw new Error(
+        status === "expired"
+          ? "AI analýza je dostupná len s aktívnym predplatným."
+          : "AI analýza je súčasťou balíka Prémium (15 €/mes). Upgradnite predplatné a odomknite ju.",
+      );
     }
 
     // Company profile check
