@@ -291,6 +291,8 @@ function TenderDetail() {
         </div>
       )}
 
+      {authed && <TenderAnalysisSection tenderId={tender.id} />}
+
       <div className="mt-10 flex flex-wrap gap-3">
         {tender.source_url && (
           <a href={tender.source_url} target="_blank" rel="noopener noreferrer">
