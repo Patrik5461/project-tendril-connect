@@ -43,11 +43,14 @@ Pre každú položku uveď:
 - nazov (krátky, konkrétny; napr. "Elektroinštalačné práce" alebo "Doprava a logistika")
 - dovod (ktorá podmienka to vyžaduje / prečo firma nezvládne sama)
 - nace_kod (odhadovaný 2- alebo 4-miestny SK-NACE kód, napr. "43.21", ak neviete napíšte null)
-- hladane_slovo (1–3 slovné spojenie na fulltextové hľadanie v registri firiem podľa hlavnej činnosti, napr. "elektroinštalácie", "cestná nákladná doprava")
+- hladane_slovo — JEDNO krátke slovo alebo koreň slova (max 1–2 slová) na fulltextové hľadanie v registri firiem podľa registrovanej hlavnej činnosti. NIE celá fráza! Použi koreň slova bez koncoviek, ktorý chytí viac tvarov.
+  Príklady správne: "elektroinštal", "záhradn", "kosačk", "doprav", "nákladn", "stráženie", "účtovníc", "zvárač"
+  Príklady NESPRÁVNE (príliš špecifická fráza): "predaj záhradnej techniky", "elektroinštalačné práce a revízie", "cestná nákladná doprava tovaru"
+- hladane_slova — pole 2–3 alternatívnych krátkych hľadaných slov (rôzne korene / synonymá), pre prípad že hlavné slovo nenájde nič. Napr. pre "záhradná technika": ["záhradn", "kosačk", "komunálna technika"]. Pre "elektroinštal": ["elektroinštal", "elektrikár", "revízie"].
 
 Ak firma pravdepodobne zvládne všetko sama, vráť prázdny zoznam a firma_zvladne_sama=true s krátkou poznámkou.
 
-Vráť LEN JSON: {"firma_zvladne_sama": boolean, "poznamka": string, "polozky": [{"nazov": string, "dovod": string, "nace_kod": string|null, "hladane_slovo": string|null, "sam_zvladne": false}]}`;
+Vráť LEN JSON: {"firma_zvladne_sama": boolean, "poznamka": string, "polozky": [{"nazov": string, "dovod": string, "nace_kod": string|null, "hladane_slovo": string, "hladane_slova": string[], "sam_zvladne": false}]}`;
 
 export const suggestSubcontracting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
