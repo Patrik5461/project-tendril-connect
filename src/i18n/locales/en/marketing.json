@@ -4,13 +4,13 @@
     "signup": "Sign up"
   },
   "hero": {
-    "eyebrow": "2 months free · public procurement monitoring",
+    "eyebrow": "30 days free · public procurement monitoring",
     "titleEmphasis": "Tenders",
     "titleRest": "find you\non their own.",
     "subtitle": "Set your keywords, CPV categories and regions.\nTendrik brings you the tenders that actually matter to you — every day.",
     "ctaPrimary": "Start free",
     "ctaSecondary": "I already have an account",
-    "priceNote": "Try it free for 2 months. Then <price>€4.99/month</price>. No commitment, no card needed now."
+    "priceNote": "Try it free for 30 days. Then <price>from €4.99/month</price>. No commitment, no card needed now."
   },
   "stats": {
     "activeSuffix": "active tenders across the EU",
