@@ -27,10 +27,10 @@ export function ensureI18n(initialLang?: Lang) {
   if (initialized) return i18n;
   i18n.use(initReactI18next).init({
     resources: {
-      sk: { common: skCommon },
-      cs: { common: csCommon },
-      en: { common: enCommon },
-      de: { common: deCommon },
+      sk: { common: skCommon, marketing: skMarketing },
+      cs: { common: csCommon, marketing: csMarketing },
+      en: { common: enCommon, marketing: enMarketing },
+      de: { common: deCommon, marketing: deMarketing },
     },
     lng: initialLang ?? DEFAULT_LANG,
     fallbackLng: DEFAULT_LANG,
