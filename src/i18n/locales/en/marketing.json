@@ -1,0 +1,108 @@
+{
+  "header": {
+    "login": "Sign in",
+    "signup": "Sign up"
+  },
+  "hero": {
+    "eyebrow": "2 months free · public procurement monitoring",
+    "titleEmphasis": "Tenders",
+    "titleRest": "find you\non their own.",
+    "subtitle": "Set your keywords, CPV categories and regions.\nTendrik brings you the tenders that actually matter to you — every day.",
+    "ctaPrimary": "Start free",
+    "ctaSecondary": "I already have an account",
+    "priceNote": "Try it free for 2 months. Then <price>€4.99/month</price>. No commitment, no card needed now."
+  },
+  "stats": {
+    "activeSuffix": "active tenders across the EU",
+    "valuePrefix": "worth more than",
+    "sources": "SOURCES TED · ÚVO · EKS · JOSEPHINE · UPDATED DAILY",
+    "note": "We only list tenders you can actually apply for right now. No archive of closed calls."
+  },
+  "mock": {
+    "number": "No. 2026 / 184",
+    "title": "Renovation of the primary school on Hviezdoslavova Street",
+    "location": "City of Prievidza · Trenčín region",
+    "value": "Value",
+    "cpv": "CPV",
+    "published": "Published",
+    "deadline": "Deadline",
+    "days": "8 days",
+    "sample": "Record preview"
+  },
+  "features": {
+    "featureLabel": "Feature {{n}}",
+    "matching": { "title": "Precise matching", "text": "Keywords and CPV codes surface only relevant tenders." },
+    "regions": { "title": "Countries and regions", "text": "Pick the EU countries that matter to you, or specific Slovak regions." },
+    "notifications": { "title": "Email notifications", "text": "Turn on alerts and never miss a deadline." }
+  },
+  "why": {
+    "eyebrow": "Why Tendrik",
+    "title": "The official gazette, working for you.",
+    "items": [
+      "First 2 months free, then €4.99/month",
+      "Set up in under 2 minutes",
+      "Only live opportunities – expired tenders are removed automatically. You don't wade through thousands of old calls, you see only the ones you can actually bid on.",
+      "Direct link to the tender source",
+      "Color alert when the deadline is close",
+      "Data straight from official sources TED, ÚVO, EKS and JOSEPHINE"
+    ],
+    "cta": "Create a free account"
+  },
+  "faq": {
+    "eyebrow": "Frequently asked",
+    "title": "FAQ",
+    "subtitle": "What people ask most before signing up.",
+    "items": [
+      {
+        "q": "Why does Tendrik show fewer tenders than other services?",
+        "a": "Other services often quote every tender they've ever recorded – including ones that closed years ago. We only show active tenders you can apply for right now. Expired tenders are removed automatically so you don't have to dig through outdated calls."
+      },
+      {
+        "q": "Where does the data come from?",
+        "a": "From official public sources: TED (Tenders Electronic Daily – the EU-wide gazette), the ÚVO gazette (Slovak Public Procurement Office), EKS (Electronic Contracting System) and JOSEPHINE (a below-threshold platform used by cities, hospitals and regions)."
+      },
+      {
+        "q": "How often are tenders updated?",
+        "a": "Every day we pull new tenders from all four sources and drop the ones past their deadline. In practice you see the current state of what's biddable today."
+      },
+      {
+        "q": "Is the service paid?",
+        "a": "The first 2 months are free, then €4.99 / month excl. VAT (€6.14 incl. VAT). No card required at signup – we'll reach out before the trial ends. Cancel anytime."
+      },
+      {
+        "q": "Who is Tendrik for?",
+        "a": "Small and medium businesses, tradespeople, IT and construction firms, consultants and service providers – anyone who wants to bid on public tenders without trawling four different portals every day."
+      }
+    ]
+  },
+  "billing": {
+    "label": "Pricing and recurring payments:",
+    "body": "2 months free, then <b>€4.99 / mo excl. VAT</b> (<b>€6.14 incl. 23% VAT</b>). The subscription renews automatically every month via the GoPay payment gateway. Cancel anytime.",
+    "link": "Recurring payment terms →"
+  },
+  "footer": {
+    "company": "Tobify s. r. o.",
+    "address": "Športová 707/43, 919 26 Zavar, Slovakia",
+    "ico": "Reg. No.: 56607016 · VAT ID: SK2122358579",
+    "contact": "Contact",
+    "contactForm": "Contact form",
+    "pricing": "Pricing",
+    "legal": "Legal",
+    "terms": "Terms of service",
+    "recurring": "Recurring payments",
+    "gdpr": "GDPR",
+    "complaints": "Complaints policy",
+    "cookies": "Cookies",
+    "cookiesSettings": "Cookie settings",
+    "payments": "Payments",
+    "paymentsNote": "Payments processed by GoPay s. r. o.",
+    "rights": "© {{year}} Tobify s. r. o. All rights reserved.",
+    "priceInline": "2 months free, then €4.99/mo (€6.14 incl. VAT)"
+  },
+  "meta": {
+    "title": "Tendrik – Tenders find you on their own",
+    "description": "Tendrik delivers public tenders that match your keywords, CPV codes and regions – every day. Free.",
+    "ogTitle": "Tendrik – tenders find you on their own",
+    "ogDescription": "A free service that matches public tenders to your industry and region."
+  }
+}

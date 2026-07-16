@@ -1,0 +1,108 @@
+{
+  "header": {
+    "login": "Anmelden",
+    "signup": "Registrieren"
+  },
+  "hero": {
+    "eyebrow": "2 Monate gratis · Monitoring öffentlicher Ausschreibungen",
+    "titleEmphasis": "Ausschreibungen",
+    "titleRest": "finden dich\nvon selbst.",
+    "subtitle": "Gib Schlüsselwörter, CPV-Kategorien und Regionen an.\nTendrik liefert dir täglich die Ausschreibungen, die dich wirklich betreffen.",
+    "ctaPrimary": "Gratis starten",
+    "ctaSecondary": "Ich habe schon ein Konto",
+    "priceNote": "2 Monate gratis testen. Danach <price>4,99 €/Monat</price>. Ohne Bindung, keine Kartendaten nötig."
+  },
+  "stats": {
+    "activeSuffix": "aktive Ausschreibungen EU-weit",
+    "valuePrefix": "im Wert von mehr als",
+    "sources": "QUELLEN TED · ÚVO · EKS · JOSEPHINE · TÄGLICH AKTUALISIERT",
+    "note": "Wir zeigen nur Ausschreibungen, für die man sich gerade jetzt bewerben kann. Kein Archiv abgelaufener Verfahren."
+  },
+  "mock": {
+    "number": "Nr. 2026 / 184",
+    "title": "Sanierung der Grundschule in der Hviezdoslavova-Straße",
+    "location": "Stadt Prievidza · Region Trenčín",
+    "value": "Wert",
+    "cpv": "CPV",
+    "published": "Veröffentlicht",
+    "deadline": "Frist",
+    "days": "8 Tage",
+    "sample": "Beispieldatensatz"
+  },
+  "features": {
+    "featureLabel": "Funktion {{n}}",
+    "matching": { "title": "Präzises Matching", "text": "Schlüsselwörter und CPV-Codes zeigen nur relevante Ausschreibungen." },
+    "regions": { "title": "Länder und Regionen", "text": "Wähle die EU-Länder, die dich interessieren, oder bestimmte slowakische Regionen." },
+    "notifications": { "title": "E-Mail-Benachrichtigungen", "text": "Aktiviere Alerts und verpasse keine Frist mehr." }
+  },
+  "why": {
+    "eyebrow": "Warum Tendrik",
+    "title": "Das Amtsblatt, das für dich arbeitet.",
+    "items": [
+      "Erste 2 Monate gratis, danach 4,99 €/Monat",
+      "Einrichtung in unter 2 Minuten",
+      "Nur aktive Verfahren – abgelaufene Ausschreibungen entfernen wir automatisch. Du musst nicht Tausende alter Verfahren durchsuchen, du siehst nur die, um die man sich wirklich bewerben kann.",
+      "Direkter Link zur Quelle der Ausschreibung",
+      "Farbwarnung bei knapper Frist",
+      "Daten direkt aus den offiziellen Quellen TED, ÚVO, EKS und JOSEPHINE"
+    ],
+    "cta": "Kostenloses Konto erstellen"
+  },
+  "faq": {
+    "eyebrow": "Häufige Fragen",
+    "title": "FAQ",
+    "subtitle": "Was am häufigsten vor der Registrierung gefragt wird.",
+    "items": [
+      {
+        "q": "Warum zeigt Tendrik weniger Ausschreibungen als andere Dienste?",
+        "a": "Andere Dienste nennen oft die Gesamtzahl aller je erfassten Ausschreibungen – auch solche, deren Frist Jahre zurückliegt. Wir zeigen nur aktive Ausschreibungen, für die man sich gerade jetzt bewerben kann. Abgelaufene Ausschreibungen entfernen wir automatisch, damit du nicht in veralteten Verfahren wühlen musst."
+      },
+      {
+        "q": "Woher stammen die Daten?",
+        "a": "Aus offiziellen öffentlichen Quellen: TED (Tenders Electronic Daily – das EU-weite Amtsblatt), dem Amtsblatt ÚVO (Slowakisches Amt für öffentliches Auftragswesen), EKS (Elektronisches Vertragssystem) und JOSEPHINE (Plattform für Unterschwellen-Vergaben, genutzt von Städten, Krankenhäusern und Regionen)."
+      },
+      {
+        "q": "Wie oft werden Ausschreibungen aktualisiert?",
+        "a": "Jeden Tag ziehen wir neue Ausschreibungen aus allen vier Quellen und entfernen abgelaufene. In der Praxis siehst du also den aktuellen Stand dessen, worum man sich heute bewerben kann."
+      },
+      {
+        "q": "Ist der Dienst kostenpflichtig?",
+        "a": "Die ersten 2 Monate sind gratis, danach 4,99 € / Monat netto (6,14 € brutto). Bei der Registrierung ist keine Karte nötig – wir melden uns vor Ende der Testphase. Jederzeit kündbar."
+      },
+      {
+        "q": "Für wen ist Tendrik gedacht?",
+        "a": "Für kleine und mittlere Unternehmen, Handwerker, IT- und Baufirmen, Berater und Dienstleister – für alle, die sich um öffentliche Aufträge bewerben wollen, aber nicht täglich vier verschiedene Portale durchsuchen möchten."
+      }
+    ]
+  },
+  "billing": {
+    "label": "Preis und wiederkehrende Zahlungen:",
+    "body": "2 Monate gratis, danach <b>4,99 € / Monat netto</b> (<b>6,14 € brutto, 23 % USt.</b>). Das Abo verlängert sich automatisch monatlich über das Zahlungs-Gateway GoPay. Jederzeit kündbar.",
+    "link": "Bedingungen für wiederkehrende Zahlungen →"
+  },
+  "footer": {
+    "company": "Tobify s. r. o.",
+    "address": "Športová 707/43, 919 26 Zavar, Slowakei",
+    "ico": "Reg.-Nr.: 56607016 · USt-IdNr.: SK2122358579",
+    "contact": "Kontakt",
+    "contactForm": "Kontaktformular",
+    "pricing": "Preise",
+    "legal": "Rechtliches",
+    "terms": "AGB",
+    "recurring": "Wiederkehrende Zahlungen",
+    "gdpr": "DSGVO",
+    "complaints": "Reklamationsordnung",
+    "cookies": "Cookies",
+    "cookiesSettings": "Cookie-Einstellungen",
+    "payments": "Zahlungen",
+    "paymentsNote": "Zahlungen werden von GoPay s. r. o. abgewickelt.",
+    "rights": "© {{year}} Tobify s. r. o. Alle Rechte vorbehalten.",
+    "priceInline": "2 Monate gratis, danach 4,99 €/Mon. (6,14 € brutto)"
+  },
+  "meta": {
+    "title": "Tendrik – Ausschreibungen finden dich von selbst",
+    "description": "Tendrik liefert dir täglich öffentliche Ausschreibungen passend zu deinen Schlüsselwörtern, CPV-Codes und Regionen. Gratis.",
+    "ogTitle": "Tendrik – Ausschreibungen finden dich von selbst",
+    "ogDescription": "Kostenloser Dienst, der öffentliche Ausschreibungen mit deiner Branche und Region abgleicht."
+  }
+}
