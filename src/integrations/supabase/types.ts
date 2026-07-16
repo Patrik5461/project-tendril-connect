@@ -587,6 +587,7 @@ export type Database = {
           subscription_status: string
           subscription_tier: string
           subscription_valid_until: string | null
+          trial_ai_analyses_used: number
           trial_started_at: string
           updated_at: string
           user_id: string
@@ -613,6 +614,7 @@ export type Database = {
           subscription_status?: string
           subscription_tier?: string
           subscription_valid_until?: string | null
+          trial_ai_analyses_used?: number
           trial_started_at?: string
           updated_at?: string
           user_id: string
@@ -639,6 +641,7 @@ export type Database = {
           subscription_status?: string
           subscription_tier?: string
           subscription_valid_until?: string | null
+          trial_ai_analyses_used?: number
           trial_started_at?: string
           updated_at?: string
           user_id?: string
@@ -803,6 +806,7 @@ export type Database = {
         }
         Returns: Json
       }
+      consume_ai_credit: { Args: { _tender_id: string }; Returns: Json }
       count_seo_active_tenders: {
         Args: { _cpv_prefix: string; _region_name: string }
         Returns: number
@@ -816,6 +820,7 @@ export type Database = {
           total_value_eur: number
         }[]
       }
+      get_ai_credit_status: { Args: never; Returns: Json }
       get_seo_tenders: {
         Args: { _cpv_prefix: string; _limit?: number; _region_name: string }
         Returns: {

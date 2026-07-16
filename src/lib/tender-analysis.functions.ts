@@ -413,6 +413,21 @@ export const getTenderAnalysis = createServerFn({ method: "GET" })
     return row ?? null;
   });
 
+export const getAiCreditStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.rpc("get_ai_credit_status");
+    if (error) throw error;
+    return data as {
+      status: string;
+      tier: string;
+      unlimited: boolean;
+      used: number;
+      limit: number;
+      remaining: number;
+    };
+  });
+
 export const analyzeTender = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => z.object({
@@ -447,7 +462,7 @@ export const analyzeTender = createServerFn({ method: "POST" })
       throw new Error("Najprv vyplňte firemný profil (aspoň IČO).");
     }
 
-    // Cache
+    // Cache — cached analysis is always free to view.
     if (!data.force) {
       const { data: cached } = await context.supabase
         .from("tender_analysis")
@@ -456,6 +471,21 @@ export const analyzeTender = createServerFn({ method: "POST" })
         .eq("tender_id", data.tender_id)
         .maybeSingle();
       if (cached) return { ...cached, cached: true };
+    }
+
+    // Trial: atomically check + consume 1 credit for this tender (skips if premium
+    // or if this tender already has an analysis row — rerun uses the same package).
+    const { data: credit, error: cErr } = await context.supabase
+      .rpc("consume_ai_credit", { _tender_id: data.tender_id });
+    if (cErr) throw cErr;
+    const c = credit as { allowed: boolean; unlimited: boolean; remaining: number; reason?: string };
+    if (!c?.allowed) {
+      if (c?.reason === "trial_limit") {
+        throw new Error(
+          "Využili ste všetkých 5 AI analýz z trial verzie. Pre neobmedzené analýzy aktivujte Prémium (14,99 €/mes) na /predplatne?tier=premium.",
+        );
+      }
+      throw new Error("AI analýza nie je dostupná v tomto pláne.");
     }
 
     // Load tender
@@ -497,5 +527,6 @@ export const analyzeTender = createServerFn({ method: "POST" })
       .select()
       .maybeSingle();
     if (sErr) throw sErr;
-    return { ...saved, cached: false };
+    return { ...saved, cached: false, credit_remaining: c.remaining, credit_unlimited: c.unlimited };
   });
+
