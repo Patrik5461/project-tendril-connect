@@ -123,8 +123,8 @@ function ObjednavkaPage() {
         </div>
 
         <p className="mt-6 text-xs text-muted-foreground">
-          Predávajúci: <b>Tobify s. r. o.</b>, Športová 707/43, 919 26 Zavar, IČO 56607016,
-          IČ DPH SK2122358579. Platby spracúva GoPay s. r. o.
+          Predávajúci: <b>Tobify s. r. o.</b>, Športová 707/43, 919 26 Zavar, IČO 56607016
+          (neplatca DPH). Platby spracúva GoPay s. r. o.
         </p>
       </main>
 
