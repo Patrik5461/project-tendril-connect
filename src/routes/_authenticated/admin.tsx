@@ -1238,12 +1238,22 @@ function InvoicesTab() {
 function AiTestTab() {
   const listFn = useServerFn(adminListTendersForTest);
   const analyzeFn = useServerFn(adminAnalyzeTender);
+  const suggestFn = useServerFn(adminSuggestSubcontracting);
+  const findFn = useServerFn(adminFindSubcontractorCandidates);
+  const outreachFn = useServerFn(adminGenerateOutreach);
   const [tenders, setTenders] = useState<Array<{ id: string; title: string; contracting_authority: string; deadline: string | null; cpv_code: string | null }>>([]);
   const [tenderId, setTenderId] = useState("");
   const [ico, setIco] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [totalMs, setTotalMs] = useState<number | null>(null);
+  const [subLoading, setSubLoading] = useState(false);
+  const [subResult, setSubResult] = useState<any>(null);
+  const [candLoadingIdx, setCandLoadingIdx] = useState<number | null>(null);
+  const [candidates, setCandidates] = useState<Record<number, any>>({});
+  const [outreachLoading, setOutreachLoading] = useState<string | null>(null);
+  const [outreach, setOutreach] = useState<Record<string, any>>({});
+
 
   useEffect(() => {
     listFn().then((rows) => setTenders(rows as any)).catch((e) => toast.error("Nepodarilo sa načítať zákazky: " + (e?.message ?? e)));
