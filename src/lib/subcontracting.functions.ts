@@ -203,18 +203,61 @@ async function rpoSearch(keyword: string, city?: string | null, limit = 15): Pro
   return out;
 }
 
+async function rpoSearchWithFallback(
+  keyword: string,
+  alternatives: string[] | undefined,
+  city: string | null | undefined,
+  limit: number,
+): Promise<{ results: Candidate[]; used_keyword: string; used_city: string | null; tried: string[]; dropped_city: boolean }> {
+  const tried: string[] = [];
+  const variants = [keyword, ...(alternatives ?? [])]
+    .map((s) => (s ?? "").trim())
+    .filter((s, i, arr) => s.length >= 2 && arr.indexOf(s) === i);
+
+  const cityStr = city && city.trim().length >= 3 ? city.trim() : null;
+
+  // 1) Every variant with city (if any)
+  if (cityStr) {
+    for (const v of variants) {
+      tried.push(v);
+      const results = await rpoSearch(v, cityStr, limit);
+      if (results.length > 0) return { results, used_keyword: v, used_city: cityStr, tried, dropped_city: false };
+    }
+  }
+  // 2) Every variant without city
+  for (const v of variants) {
+    if (!cityStr) tried.push(v);
+    const results = await rpoSearch(v, null, limit);
+    if (results.length > 0) return { results, used_keyword: v, used_city: null, tried, dropped_city: !!cityStr };
+  }
+  return { results: [], used_keyword: keyword, used_city: cityStr, tried, dropped_city: !!cityStr };
+}
+
 export const findSubcontractorCandidates = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => z.object({
     keyword: z.string().min(2).max(80),
+    alternatives: z.array(z.string().min(2).max(80)).max(6).optional(),
     city: z.string().nullable().optional(),
     limit: z.number().int().min(1).max(30).optional().default(15),
   }).parse(raw))
   .handler(async ({ data, context }) => {
     await requireActive(context);
     try {
-      const results = await rpoSearch(data.keyword, data.city ?? null, data.limit);
-      return { results, source: "RPO Štatistický úrad SR", note: "Firmy podľa registrovanej hlavnej činnosti a obce sídla. Nie sú overení subdodávatelia — overte referencie, kapacitu a spoľahlivosť sami." };
+      const r = await rpoSearchWithFallback(data.keyword, data.alternatives, data.city ?? null, data.limit);
+      const notes: string[] = [];
+      if (r.used_keyword !== data.keyword) notes.push(`Použitý alternatívny pojem „${r.used_keyword}".`);
+      if (r.dropped_city) notes.push("Filter mesta bol uvoľnený — inak neboli žiadne výsledky.");
+      const base = "Firmy podľa registrovanej hlavnej činnosti a obce sídla. Nie sú overení subdodávatelia — overte referencie, kapacitu a spoľahlivosť sami.";
+      return {
+        results: r.results,
+        source: "RPO Štatistický úrad SR",
+        used_keyword: r.used_keyword,
+        used_city: r.used_city,
+        tried: r.tried,
+        dropped_city: r.dropped_city,
+        note: [notes.join(" "), base].filter(Boolean).join(" "),
+      };
     } catch (e: any) {
       return { results: [], source: "RPO", error: e?.message ?? "RPO nedostupné" };
     }
