@@ -29,7 +29,7 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
     payment = {
       id: paymentId,
       state: simulate.state ?? "PAID",
-      amount: 614,
+      amount: 499,
       currency: "EUR",
       target: { goid: Number(cfg.goid) || 0 },
       parent_id: paymentId,
