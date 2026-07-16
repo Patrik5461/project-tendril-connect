@@ -4,13 +4,13 @@
     "signup": "Registrovat se"
   },
   "hero": {
-    "eyebrow": "2 měsíce zdarma · monitoring veřejných zakázek",
+    "eyebrow": "30 dní zdarma · monitoring veřejných zakázek",
     "titleEmphasis": "Zakázky",
     "titleRest": "si tě\nnajdou samy.",
     "subtitle": "Zadej klíčová slova, CPV kategorie a kraje.\nTendrik ti každý den přinese zakázky, které se tě opravdu týkají.",
     "ctaPrimary": "Začít zdarma",
     "ctaSecondary": "Už mám účet",
-    "priceNote": "Vyzkoušejte 2 měsíce zdarma. Poté <price>4,99 €/měsíc</price>. Bez závazků, kartu teď nepotřebujete."
+    "priceNote": "30 dní zdarma na vyzkoušení. Poté <price>od 4,99 €/měsíc</price>. Bez závazků, kartu teď nepotřebujete."
   },
   "stats": {
     "activeSuffix": "aktivních zakázek napříč EU",
