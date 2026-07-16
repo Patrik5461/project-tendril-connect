@@ -50,7 +50,7 @@ function ObjednavkaPage() {
             <div className="flex items-start justify-between">
               <div>
                 <div className="eyebrow">Free trial</div>
-                <div className="mt-1 font-display text-2xl font-bold">2 mesiace zdarma</div>
+                <div className="mt-1 font-display text-2xl font-bold">30 dní zdarma</div>
               </div>
               <div className={`h-5 w-5 rounded-full border-2 ${plan === "trial" ? "border-primary bg-primary" : "border-muted-foreground"}`} />
             </div>
