@@ -37,16 +37,34 @@ function safeJson<T = any>(text: string): T | null {
 
 // ---------------- Layer A: navrhni subdodávky ----------------
 
-const PROMPT_SUGGEST = `Si expert na verejné obstarávanie. Na základe podmienok tejto zákazky a profilu firmy urči, aké plnenia firma pravdepodobne potrebuje zabezpečiť subdodávateľsky alebo cez partnera (činnosti mimo predmetu jej podnikania, chýbajúce certifikáty, chýbajúce kapacity alebo referencie).
+const PROMPT_SUGGEST = `Si expert na verejné obstarávanie a na slovenský obchodný / živnostenský register. Na základe podmienok tejto zákazky a profilu firmy urči, aké plnenia firma pravdepodobne potrebuje zabezpečiť subdodávateľsky alebo cez partnera (činnosti mimo predmetu jej podnikania, chýbajúce certifikáty, chýbajúce kapacity alebo referencie).
 
 Pre každú položku uveď:
 - nazov (krátky, konkrétny; napr. "Elektroinštalačné práce" alebo "Doprava a logistika")
 - dovod (ktorá podmienka to vyžaduje / prečo firma nezvládne sama)
 - nace_kod (odhadovaný 2- alebo 4-miestny SK-NACE kód, napr. "43.21", ak neviete napíšte null)
-- hladane_slovo — JEDNO krátke slovo alebo koreň slova (max 1–2 slová) na fulltextové hľadanie v registri firiem podľa registrovanej hlavnej činnosti. NIE celá fráza! Použi koreň slova bez koncoviek, ktorý chytí viac tvarov.
-  Príklady správne: "elektroinštal", "záhradn", "kosačk", "doprav", "nákladn", "stráženie", "účtovníc", "zvárač"
-  Príklady NESPRÁVNE (príliš špecifická fráza): "predaj záhradnej techniky", "elektroinštalačné práce a revízie", "cestná nákladná doprava tovaru"
-- hladane_slova — pole 2–3 alternatívnych krátkych hľadaných slov (rôzne korene / synonymá), pre prípad že hlavné slovo nenájde nič. Napr. pre "záhradná technika": ["záhradn", "kosačk", "komunálna technika"]. Pre "elektroinštal": ["elektroinštal", "elektrikár", "revízie"].
+- hladane_slovo — JEDEN krátky koreň slova (5–8 znakov, bez koncovky), ktorý zodpovedá tomu, AKO JE ČINNOSŤ ZAPÍSANÁ v slovenskom obchodnom / živnostenskom registri, NIE hovorovému názvu remesla. Registrové činnosti sú formulované formálne (napr. "elektroinštalačné práce", "záhradnícke služby", "veľkoobchod so strojmi"), nie ľudovo ("elektrikár", "záhradník").
+  Príklady správne (formálny koreň):
+    elektro → "elektroinštal" / "elektromontáž" / "elektrotechn"
+    záhrada → "záhradn" / "záhradníc"
+    stavba → "stavebn" / "murárske"
+    voda/kúrenie → "vodoinštal" / "kúrenárske"
+    stráženie → "stráženie" / "bezpečnost"
+    účtovníctvo → "účtovníc" / "audítor"
+    kovo → "zvárač" / "kovoobráb"
+    obchod → "veľkoobchod" / "maloobchod"
+    doprava → "doprav" / "nákladn" / "prepravn"
+  Príklady NESPRÁVNE (hovorové alebo celá fráza):
+    "elektrikár", "záhradník", "murár", "vodár", "kosač"
+    "predaj záhradnej techniky", "elektroinštalačné práce a revízie", "cestná nákladná doprava tovaru"
+- hladane_slova — pole 3–4 alternatívnych krátkych koreňov ROZDIELNYCH formálnych formulácií tej istej činnosti (rôzne slovné základy, nie iba iná koncovka). Slúžia ako fallback, ak hlavné slovo nič nenájde.
+  Príklady:
+    elektro → ["elektroinštal", "elektromontáž", "elektrotechn", "elektro"]
+    záhradná technika → ["záhradn", "veľkoobchod", "komunáln", "predaj stroj"]
+    doprava → ["doprav", "nákladn", "prepravn", "špedič"]
+    stavebné → ["stavebn", "murárske", "stavby", "rekonštruk"]
+
+Diakritiku ponechaj (register ju zvláda). Nepoužívaj úvodzovky ani interpunkciu vo vnútri hľadaných slov.
 
 Ak firma pravdepodobne zvládne všetko sama, vráť prázdny zoznam a firma_zvladne_sama=true s krátkou poznámkou.
 
