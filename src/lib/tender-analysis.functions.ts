@@ -143,7 +143,7 @@ export const adminAnalyzeTender = createServerFn({ method: "POST" })
       financne_roky: [],
       referencie: [],
       certifikaty: [],
-      doplnkove_info: `Testovací režim — bez firemného profilu. Roky dostupných účtovných závierok: ${registry.roky_zavierok.join(", ") || "—"}. Právna forma: ${registry.pravna_forma ?? "—"}. Adresa: ${[registry.adresa, registry.psc, registry.mesto].filter(Boolean).join(", ")}.`,
+      doplnkove_info: `Testovací režim — bez firemného profilu. Roky dostupných účtovných závierok: ${(registry.roky_zavierok ?? []).join(", ") || "—"}. Právna forma: ${registry.pravna_forma ?? "—"}. Adresa: ${[registry.adresa, registry.psc, registry.mesto].filter(Boolean).join(", ")}.`,
     };
 
     const tenderText = buildTenderContext(tender);
