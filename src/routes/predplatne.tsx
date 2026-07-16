@@ -132,7 +132,7 @@ function PredplatnePage() {
           <div className="text-right">
             <div className="num text-2xl font-bold">{formatEur(priceEur)}</div>
             <div className="text-xs text-muted-foreground">
-              {formatEur(priceGross)} s DPH / mes
+              konečná cena / mes
             </div>
           </div>
         </div>
