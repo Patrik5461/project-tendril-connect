@@ -1232,3 +1232,139 @@ function InvoicesTab() {
     </div>
   );
 }
+
+// ---------- AI test tab: run Gemini analysis on ad-hoc tender + IČO ----------
+function AiTestTab() {
+  const listFn = useServerFn(adminListTendersForTest);
+  const analyzeFn = useServerFn(adminAnalyzeTender);
+  const [tenders, setTenders] = useState<Array<{ id: string; title: string; contracting_authority: string; deadline: string | null; cpv_code: string | null }>>([]);
+  const [tenderId, setTenderId] = useState("");
+  const [ico, setIco] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [totalMs, setTotalMs] = useState<number | null>(null);
+
+  useEffect(() => {
+    listFn().then((rows) => setTenders(rows as any)).catch((e) => toast.error("Nepodarilo sa načítať zákazky: " + (e?.message ?? e)));
+  }, [listFn]);
+
+  async function run() {
+    if (!tenderId) return toast.error("Vyber alebo vlož tender_id");
+    if (!ico || ico.length < 6) return toast.error("Zadaj platné IČO (6–12 číslic)");
+    setLoading(true);
+    setResult(null);
+    setTotalMs(null);
+    const t0 = Date.now();
+    try {
+      const r = await analyzeFn({ data: { tender_id: tenderId, ico } });
+      setResult(r);
+      setTotalMs(Date.now() - t0);
+    } catch (e: any) {
+      toast.error("Analýza zlyhala: " + (e?.message ?? String(e)));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <section className="rounded-xl border p-4 space-y-3">
+        <h3 className="font-medium">AI test – analýza zákazky</h3>
+        <p className="text-sm text-muted-foreground">
+          Zvoľ zákazku z posledných 30 (alebo vlož tender_id) a IČO firmy. Analýza obíde firemný profil – identifikáciu vytiahne priamo z registrov.
+        </p>
+
+        <div className="grid gap-3 sm:grid-cols-[1fr_180px_auto] items-end">
+          <div>
+            <Label htmlFor="ai-tender">Zákazka</Label>
+            <select
+              id="ai-tender"
+              value={tenderId}
+              onChange={(e) => setTenderId(e.target.value)}
+              className="w-full h-9 rounded-md border bg-background px-2 text-sm"
+            >
+              <option value="">— vyber alebo vlož ID nižšie —</option>
+              {tenders.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.title.slice(0, 90)} · {t.contracting_authority.slice(0, 40)}
+                </option>
+              ))}
+            </select>
+            <Input
+              className="mt-2"
+              placeholder="alebo priamo tender_id (uuid)"
+              value={tenderId}
+              onChange={(e) => setTenderId(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="ai-ico">IČO firmy</Label>
+            <Input id="ai-ico" value={ico} onChange={(e) => setIco(e.target.value)} placeholder="napr. 36631124" />
+          </div>
+          <Button onClick={run} disabled={loading}>
+            {loading ? "Analyzujem…" : "Spustiť analýzu"}
+          </Button>
+        </div>
+      </section>
+
+      {result && (
+        <section className="rounded-xl border p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-medium">{result.tender.title}</div>
+              <div className="text-xs text-muted-foreground">{result.tender.contracting_authority}</div>
+            </div>
+            {totalMs !== null && <div className="text-xs text-muted-foreground">Celkom: {(totalMs / 1000).toFixed(1)} s</div>}
+          </div>
+
+          <details className="rounded border p-3 text-xs" open>
+            <summary className="cursor-pointer font-medium">Údaje z registrov (RPO + registeruz)</summary>
+            <pre className="whitespace-pre-wrap mt-2">{JSON.stringify(result.registry_data, null, 2)}</pre>
+          </details>
+
+          {result.errors?.length > 0 && (
+            <div className="rounded border border-destructive bg-destructive/10 p-3 text-sm">
+              <div className="font-medium mb-1">Chyby počas analýzy:</div>
+              <ul className="list-disc pl-5">
+                {result.errors.map((e: string, i: number) => <li key={i}>{e}</li>)}
+              </ul>
+            </div>
+          )}
+
+          <PartBlock title="1. Súhrn zákazky" part={result.parts?.summary} />
+          <PartBlock title="2. Podmienky účasti" part={result.parts?.requirements} />
+          <PartBlock title="3. Spôsobilosť firmy" part={result.parts?.eligibility} />
+        </section>
+      )}
+    </div>
+  );
+}
+
+function PartBlock({ title, part }: { title: string; part: any | null }) {
+  if (!part) return (
+    <div className="rounded border p-3 text-sm">
+      <div className="font-medium">{title}</div>
+      <div className="text-muted-foreground italic mt-1">— nespustené / zlyhalo —</div>
+    </div>
+  );
+  return (
+    <div className="rounded border p-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="font-medium">{title}</div>
+        <div className="text-xs text-muted-foreground">
+          {part.model} · {(part.elapsedMs / 1000).toFixed(1)} s
+        </div>
+      </div>
+      {part.parsed && (
+        <details className="text-xs" open>
+          <summary className="cursor-pointer">Parsed JSON</summary>
+          <pre className="whitespace-pre-wrap mt-2 bg-muted p-2 rounded">{JSON.stringify(part.parsed, null, 2)}</pre>
+        </details>
+      )}
+      <details className="text-xs">
+        <summary className="cursor-pointer">Raw text</summary>
+        <pre className="whitespace-pre-wrap mt-2 bg-muted p-2 rounded">{part.text}</pre>
+      </details>
+    </div>
+  );
+}
