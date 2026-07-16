@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCircle, RefreshCw, Scale, ShieldAlert, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { analyzeTender, getTenderAnalysis, getCompanyProfile } from "@/lib/tender-analysis.functions";
+import { analyzeTender, getTenderAnalysis, getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
 import { SubcontractingSection } from "@/components/SubcontractingSection";
 import {
   awardBreakdown,
@@ -40,28 +40,36 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
   const [checking, setChecking] = useState(true);
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [credit, setCredit] = useState<{ unlimited: boolean; remaining: number; limit: number } | null>(null);
 
   const getA = useServerFn(getTenderAnalysis);
   const getP = useServerFn(getCompanyProfile);
   const runA = useServerFn(analyzeTender);
+  const getCredit = useServerFn(getAiCreditStatus);
 
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) { setAuthed(false); setChecking(false); return; }
       setAuthed(true);
-      const [{ data: prefs }, profile, existing] = await Promise.all([
+      const [{ data: prefs }, profile, existing, creditRes] = await Promise.all([
         supabase.from("user_preferences").select("subscription_status,subscription_tier").eq("user_id", u.user.id).maybeSingle(),
         getP().catch(() => null),
         getA({ data: { tender_id: tenderId } }).catch(() => null),
+        getCredit().catch(() => null),
       ]);
       setStatus(prefs?.subscription_status ?? "trial");
       setTier(((prefs as any)?.subscription_tier as string) ?? "basic");
       setHasProfile(!!(profile && profile.ico));
       if (existing) setAnalysis(existing as AnalysisRow);
+      if (creditRes) setCredit({
+        unlimited: !!(creditRes as any).unlimited,
+        remaining: Number((creditRes as any).remaining ?? 0),
+        limit: Number((creditRes as any).limit ?? 5),
+      });
       setChecking(false);
     })();
-  }, [tenderId, getA, getP]);
+  }, [tenderId, getA, getP, getCredit]);
 
   useEffect(() => {
     if (!running) return;
@@ -81,7 +89,11 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
       const res = await runA({ data: { tender_id: tenderId, force } });
       setAnalysis(res as AnalysisRow);
       setProgress(100);
-      toast.success(res && (res as any).cached ? "Načítaná uložená analýza" : "Analýza dokončená");
+      const r = res as any;
+      if (!r?.cached && !r?.credit_unlimited && typeof r?.credit_remaining === "number") {
+        setCredit((prev) => prev ? { ...prev, remaining: r.credit_remaining } : { unlimited: false, remaining: r.credit_remaining, limit: 5 });
+      }
+      toast.success(r?.cached ? "Načítaná uložená analýza" : "Analýza dokončená");
     } catch (e: any) {
       toast.error(e?.message ?? "Analýza zlyhala");
     } finally {
@@ -96,6 +108,9 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
   const hasAiAccess = status === "trial" || (status === "active" && tier === "premium");
   const needsUpgrade = status === "active" && tier !== "premium";
   const isExpired = status === "expired";
+  const isTrial = status === "trial";
+  // Trial exhausted only blocks NEW analyses for tenders without cached results.
+  const trialExhausted = isTrial && credit != null && !credit.unlimited && credit.remaining <= 0;
 
   return (
     <div className="mt-12 border-t-2 border-foreground pt-6">
@@ -106,6 +121,11 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
         <div className="eyebrow text-primary">AI analýza spôsobilosti</div>
+        {isTrial && credit && !credit.unlimited && (
+          <span className="ml-auto text-xs text-muted-foreground">
+            Trial: <b className="text-foreground">{credit.remaining}</b> z {credit.limit} AI analýz
+          </span>
+        )}
       </div>
 
       {!hasAiAccess && !analysis && (
@@ -122,15 +142,22 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
         </div>
       )}
 
-      {hasAiAccess && hasProfile && !analysis && !running && (
+      {hasAiAccess && hasProfile && !analysis && !running && !trialExhausted && (
         <div className="mt-4">
           <Button onClick={() => run(false)} size="lg">
             <Sparkles className="h-4 w-4 mr-2" /> Analyzovať zákazku
           </Button>
           <p className="mt-2 text-xs text-muted-foreground">
             Analýza trvá ~30 sekúnd. Výsledok uložíme, pri ďalšom otvorení sa načíta okamžite.
+            {isTrial && credit && !credit.unlimited && (
+              <> Táto analýza spotrebuje 1 z {credit.limit} trial AI kreditov (zahŕňa aj subdodávky a oslovenia pre tú istú zákazku).</>
+            )}
           </p>
         </div>
+      )}
+
+      {hasAiAccess && hasProfile && !analysis && !running && trialExhausted && (
+        <TrialExhaustedNotice limit={credit!.limit} />
       )}
 
       {running && (
@@ -151,7 +178,20 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
       )}
 
       {analysis && (
-        <AnalysisView analysis={analysis} onRerun={() => run(true)} rerunning={running} locked={!hasAiAccess} />
+        <>
+          <AnalysisView
+            analysis={analysis}
+            onRerun={() => run(true)}
+            rerunning={running}
+            locked={!hasAiAccess || trialExhausted}
+          />
+          {trialExhausted && (
+            <div className="mt-3 rounded-lg border-2 border-primary bg-primary/5 p-3 text-xs">
+              Analýzu môžete naďalej prezerať, ale trial AI kredity sú vyčerpané.{" "}
+              <Link to="/predplatne" search={{ tier: "premium" } as never} className="underline font-semibold">Aktivujte Prémium</Link> pre neobmedzené analýzy.
+            </div>
+          )}
+        </>
       )}
 
       <SubcontractingSection
@@ -163,6 +203,27 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
     </div>
   );
 }
+
+function TrialExhaustedNotice({ limit }: { limit: number }) {
+  return (
+    <div className="mt-4 rounded-lg border-2 border-primary bg-primary/5 p-6">
+      <div className="flex items-center gap-2 text-sm font-semibold">
+        <Lock className="h-4 w-4 text-primary" />
+        Trial AI kredity vyčerpané
+      </div>
+      <p className="mt-2 text-sm text-foreground/80">
+        Využili ste všetkých {limit} AI analýz z trial verzie. Pre neobmedzené analýzy aktivujte Prémium (14,99 €/mes).
+      </p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Už vygenerované analýzy si môžete naďalej prezerať — trial vám neblokuje prístup k výsledkom.
+      </p>
+      <Link to="/predplatne" search={{ tier: "premium" } as never} className="mt-4 inline-block">
+        <Button>Aktivovať Prémium (14,99 €/mes)</Button>
+      </Link>
+    </div>
+  );
+}
+
 
 function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isExpired: boolean }) {
   const title = needsUpgrade
