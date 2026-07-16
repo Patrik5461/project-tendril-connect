@@ -86,8 +86,9 @@ function CennikPage() {
         </div>
 
         <div className="mt-10 rounded-lg border-2 border-primary bg-primary/5 p-4 text-sm">
-          <b className="text-primary">2 mesiace zdarma s plnou AI:</b> Trial obsahuje všetko z Prémia
-          vrátane AI analýzy — nech si funkcie stihnete vyskúšať. Po skončení trialu si vyberiete tier.
+          <b className="text-primary">30 dní zdarma:</b> Vyskúšajte monitoring, radary a e-maily
+          neobmedzene a AI analýzu zákaziek (5 analýz zdarma). Po skončení trialu si vyberiete
+          tier – Základ alebo Prémium.
         </div>
 
         <div className="mt-6 rounded-lg border-2 border-foreground/20 bg-background p-4 text-sm">
