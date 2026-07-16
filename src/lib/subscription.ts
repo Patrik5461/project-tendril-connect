@@ -4,13 +4,15 @@ export type SubscriptionStatus = "trial" | "active" | "expired";
 export type SubscriptionTier = "basic" | "premium";
 
 export const TRIAL_DAYS = 60;
+// Tobify s.r.o. nie je platca DPH – uvedená cena je konečná.
 export const MONTHLY_PRICE_EUR = 4.99;       // legacy alias (Základ)
 export const PRICE_BASIC_EUR = 4.99;
-export const PRICE_PREMIUM_EUR = 15.0;
-export const PRICE_BASIC_GROSS_EUR = 6.14;   // 4,99 + 23 % DPH
-export const PRICE_PREMIUM_GROSS_EUR = 18.45; // 15 + 23 % DPH
-export const PRICE_BASIC_CENTS = 614;
-export const PRICE_PREMIUM_CENTS = 1845;
+export const PRICE_PREMIUM_EUR = 14.99;
+// Ponechané pre spätnú kompatibilitu – rovnaké ako netto (bez DPH).
+export const PRICE_BASIC_GROSS_EUR = 4.99;
+export const PRICE_PREMIUM_GROSS_EUR = 14.99;
+export const PRICE_BASIC_CENTS = 499;
+export const PRICE_PREMIUM_CENTS = 1499;
 
 export function tierLabel(t: SubscriptionTier | string | null | undefined): string {
   return t === "premium" ? "Prémium" : "Základ";
@@ -19,7 +21,7 @@ export function tierPriceEur(t: SubscriptionTier): number {
   return t === "premium" ? PRICE_PREMIUM_EUR : PRICE_BASIC_EUR;
 }
 export function tierPriceGrossEur(t: SubscriptionTier): number {
-  return t === "premium" ? PRICE_PREMIUM_GROSS_EUR : PRICE_BASIC_GROSS_EUR;
+  return tierPriceEur(t);
 }
 export function tierPriceCents(t: SubscriptionTier): number {
   return t === "premium" ? PRICE_PREMIUM_CENTS : PRICE_BASIC_CENTS;
