@@ -70,7 +70,8 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
   }>({ loaded: false, suggested: [], firma_zvladne_sama: false, poznamka: null, selections: [] });
 
   const [running, setRunning] = useState(false);
-  const [candidates, setCandidates] = useState<Record<string, { loading: boolean; items: Candidate[]; city: string; note?: string }>>({});
+  const [candidates, setCandidates] = useState<Record<string, { loading: boolean; items: Candidate[]; city: string; keyword: string; note?: string; used_keyword?: string; dropped_city?: boolean; searched?: boolean }>>({});
+  const selectionsRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!isActive || !analysisReady) return;
@@ -101,6 +102,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
         poznamka: (row as any).poznamka ?? null,
         selections: (row as any).selections ?? [],
       });
+      setCandidates({});
       toast.success((row as any).cached ? "Načítané uložené návrhy" : "Návrhy pripravené");
     } catch (e: any) {
       toast.error(e?.message ?? "Nepodarilo sa navrhnúť subdodávky");
@@ -109,18 +111,44 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
     }
   }
 
-  async function searchFor(item: SuggestedItem, idx: number) {
+  function initialKeyword(item: SuggestedItem): string {
+    return (item.hladane_slovo || item.hladane_slova?.[0] || item.nazov || "").trim();
+  }
+
+  async function searchFor(item: SuggestedItem, idx: number, overrideKeyword?: string) {
     const key = String(idx);
-    const kw = item.hladane_slovo || item.nazov;
-    const city = candidates[key]?.city ?? defaultCity ?? "";
-    setCandidates((c) => ({ ...c, [key]: { loading: true, items: [], city } }));
+    const existing = candidates[key];
+    const kw = (overrideKeyword ?? existing?.keyword ?? initialKeyword(item)).trim();
+    const city = existing?.city ?? defaultCity ?? "";
+    if (kw.length < 2) {
+      toast.error("Zadajte aspoň 2 znaky pre hľadaný pojem.");
+      return;
+    }
+    setCandidates((c) => ({ ...c, [key]: { loading: true, items: [], city, keyword: kw } }));
+    const alternatives = (item.hladane_slova ?? []).filter((s) => s && s.trim() && s.trim() !== kw);
     try {
-      const res: any = await findCandidates({ data: { keyword: kw, city: city || null, limit: 15 } });
-      setCandidates((c) => ({ ...c, [key]: { loading: false, items: res.results ?? [], city, note: res.note } }));
+      const res: any = await findCandidates({ data: { keyword: kw, alternatives, city: city || null, limit: 15 } });
+      setCandidates((c) => ({
+        ...c,
+        [key]: {
+          loading: false,
+          items: res.results ?? [],
+          city,
+          keyword: kw,
+          note: res.note,
+          used_keyword: res.used_keyword,
+          dropped_city: !!res.dropped_city,
+          searched: true,
+        },
+      }));
     } catch (e: any) {
-      setCandidates((c) => ({ ...c, [key]: { loading: false, items: [], city, note: e?.message } }));
+      setCandidates((c) => ({ ...c, [key]: { loading: false, items: [], city, keyword: kw, note: e?.message, searched: true } }));
       toast.error(e?.message ?? "Vyhľadávanie zlyhalo");
     }
+  }
+
+  function scrollToSelections() {
+    setTimeout(() => selectionsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   }
 
   function addSelection(need: SuggestedItem, c?: Candidate) {
@@ -134,19 +162,23 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
       co_dopyt: need.dovod,
     };
     setState((s) => ({ ...s, selections: [...s.selections, sel] }));
+    toast.success(c?.nazov ? `Pridané: ${c.nazov}` : `Pridané prázdne — doplňte firmu pre „${need.nazov}"`);
+    scrollToSelections();
   }
 
   function addManual() {
     setState((s) => ({
       ...s,
       selections: [...s.selections, {
-        key: `${Date.now()}-m`,
+        key: `${Date.now()}-m-${Math.random().toString(36).slice(2, 6)}`,
         need_nazov: "",
         nazov_firmy: "",
         co_dopyt: "",
         email: "",
       }],
     }));
+    toast.success("Pridaný prázdny záznam – vyplňte údaje firmy nižšie.");
+    scrollToSelections();
   }
 
   function updateSel(key: string, patch: Partial<Selection>) {
