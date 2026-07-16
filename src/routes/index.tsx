@@ -337,7 +337,82 @@ function Landing() {
       </section>
 
 
-      <section className="mx-auto max-w-6xl px-4 pb-14">
+      <hr className="rule-thick mx-auto max-w-6xl" />
+
+      <section id="cennik" className="mx-auto max-w-6xl px-4 py-16 md:py-20">
+        <div className="eyebrow flex items-center text-foreground">
+          <span className="red-square" aria-hidden="true" />
+          Cenník
+        </div>
+        <div className="mt-5 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight">
+            Dva plány. <span className="hero-underline">Prvé 2 mesiace zdarma.</span>
+          </h2>
+          <p className="text-sm text-muted-foreground md:max-w-sm">
+            Konečné ceny – Tobify s. r. o. nie je platca DPH.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-2">
+          <div className="rounded-lg border-2 border-foreground bg-card p-6 flex flex-col">
+            <div className="eyebrow">Základ</div>
+            <h3 className="mt-2 font-display text-2xl font-bold">Monitoring zákaziek</h3>
+            <p className="mt-4 num text-4xl font-bold">
+              4,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span>
+            </p>
+            <ul className="mt-5 space-y-1.5 text-sm flex-1">
+              <li>· Neobmedzené radary a filtre</li>
+              <li>· Denné e-mailové digesty</li>
+              <li>· Pripomienky pred deadline</li>
+              <li>· TED, ÚVO, EKS a JOSEPHINE</li>
+              <li className="text-muted-foreground">— Bez AI analýzy</li>
+            </ul>
+            <div className="mt-6 flex gap-2">
+              <Link to="/auth" search={{ mode: "signup" }} className="flex-1">
+                <Button variant="outline" className="w-full">Vyskúšať zdarma</Button>
+              </Link>
+              <Link to="/cennik">
+                <Button variant="ghost">Detaily</Button>
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-lg border-2 border-primary bg-primary/5 p-6 relative flex flex-col">
+            <span className="absolute -top-3 left-4 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wider px-2 py-0.5">
+              Obsahuje AI
+            </span>
+            <div className="eyebrow text-primary">Prémium</div>
+            <h3 className="mt-2 font-display text-2xl font-bold">Všetko + AI analýza</h3>
+            <p className="mt-4 num text-4xl font-bold">
+              14,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span>
+            </p>
+            <ul className="mt-5 space-y-1.5 text-sm flex-1">
+              <li>· Všetko zo Základu</li>
+              <li>· AI analýza zákazky a spôsobilosti</li>
+              <li>· AI návrh subdodávok a oslovení</li>
+              <li>· TED podmienky štruktúrovane</li>
+              <li>· Prioritná podpora</li>
+            </ul>
+            <div className="mt-6 flex gap-2">
+              <Link to="/auth" search={{ mode: "signup" }} className="flex-1">
+                <Button className="w-full">Vyskúšať zdarma</Button>
+              </Link>
+              <Link to="/cennik">
+                <Button variant="ghost">Detaily</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-6 text-sm text-muted-foreground">
+          Kompletný cenník a porovnanie plánov na <Link to="/cennik" className="underline text-foreground">/cennik</Link>.
+        </p>
+      </section>
+
+      <hr className="rule-thick mx-auto max-w-6xl" />
+
+      <section className="mx-auto max-w-6xl px-4 pb-14 pt-14">
+
         <div className="rounded-lg border-2 border-primary bg-primary/5 p-5 text-sm">
           <div className="flex flex-col md:flex-row md:items-center gap-3 md:gap-6">
             <div className="flex-1">
