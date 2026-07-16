@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 type SourceBreakdown = { total: number; active: number; expired: number };
 type Overview = {
-  users: { total: number; trial: number; active: number; expired: number };
+  users: { total: number; trial: number; active: number; expired: number; paid?: number; manual?: number };
   tenders_by_source: Record<string, number>;
   tenders_source_breakdown?: Record<string, SourceBreakdown>;
   tenders_by_country: Record<string, number>;
