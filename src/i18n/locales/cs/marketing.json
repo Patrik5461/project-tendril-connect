@@ -77,7 +77,7 @@
   },
   "billing": {
     "label": "Cena a opakované platby:",
-    "body": "2 měsíce zdarma, poté <b>4,99 € / měs</b> (Základ) nebo <b>14,99 € / měs</b> (Prémium). Konečná cena – Tobify s. r. o. není plátce DPH. Předplatné se automaticky obnovuje každý měsíc přes platební bránu GoPay. Kdykoli zrušitelné.",
+    "body": "30 dní zdarma na vyzkoušení (včetně 5 AI analýz), poté <b>4,99 € / měs</b> (Základ) nebo <b>14,99 € / měs</b> (Prémium). Konečná cena – Tobify s. r. o. není plátce DPH. Předplatné se automaticky obnovuje každý měsíc přes platební bránu GoPay. Kdykoli zrušitelné.",
     "link": "Podmínky opakovaných plateb →"
   },
   "footer": {
