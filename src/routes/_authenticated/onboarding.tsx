@@ -61,11 +61,7 @@ function Onboarding() {
       toast.error("Vyberte aspoň jednu krajinu.");
       return;
     }
-    const skSelected = countries.includes("SK") || countries.includes("ALL");
-    if (skSelected && regions.length === 0) {
-      toast.error('Vyberte aspoň jeden kraj pre Slovensko (alebo "Celé Slovensko").');
-      return;
-    }
+    // Regióny sú voliteľné – prázdny výber = celé Slovensko.
     setSaving(true);
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) {
