@@ -218,6 +218,7 @@ function Onboarding() {
           <p className="text-sm text-muted-foreground">
             Nechajte prázdne pre celé Slovensko, alebo vyberte konkrétne kraje.
           </p>
+          <div className="mt-4 grid sm:grid-cols-2 gap-2">
             {REGIONS.map((r) => (
               <label
                 key={r}
