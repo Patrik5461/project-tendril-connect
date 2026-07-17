@@ -214,8 +214,10 @@ function Onboarding() {
 
       {(countries.includes("SK") || countries.includes("ALL")) && (
         <section className="mt-6 rounded-xl border bg-card p-6">
-          <h2 className="font-semibold text-lg">4. Kraje (Slovensko)</h2>
-          <div className="mt-4 grid sm:grid-cols-2 gap-2">
+          <h2 className="font-semibold text-lg">4. Kraje (Slovensko) – voliteľné</h2>
+          <p className="text-sm text-muted-foreground">
+            Nechajte prázdne pre celé Slovensko, alebo vyberte konkrétne kraje.
+          </p>
             {REGIONS.map((r) => (
               <label
                 key={r}
