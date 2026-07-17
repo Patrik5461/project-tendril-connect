@@ -61,11 +61,7 @@ function Onboarding() {
       toast.error("Vyberte aspoň jednu krajinu.");
       return;
     }
-    const skSelected = countries.includes("SK") || countries.includes("ALL");
-    if (skSelected && regions.length === 0) {
-      toast.error('Vyberte aspoň jeden kraj pre Slovensko (alebo "Celé Slovensko").');
-      return;
-    }
+    // Regióny sú voliteľné – prázdny výber = celé Slovensko.
     setSaving(true);
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) {
@@ -218,7 +214,10 @@ function Onboarding() {
 
       {(countries.includes("SK") || countries.includes("ALL")) && (
         <section className="mt-6 rounded-xl border bg-card p-6">
-          <h2 className="font-semibold text-lg">4. Kraje (Slovensko)</h2>
+          <h2 className="font-semibold text-lg">4. Kraje (Slovensko) – voliteľné</h2>
+          <p className="text-sm text-muted-foreground">
+            Nechajte prázdne pre celé Slovensko, alebo vyberte konkrétne kraje.
+          </p>
           <div className="mt-4 grid sm:grid-cols-2 gap-2">
             {REGIONS.map((r) => (
               <label

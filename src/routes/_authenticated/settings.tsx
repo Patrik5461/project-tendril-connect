@@ -540,7 +540,10 @@ function RadarCard({
 
           {((radar.countries ?? []).includes("SK") || (radar.countries ?? []).includes("ALL")) && (
             <div>
-              <h3 className="font-semibold text-sm">Kraje (Slovensko)</h3>
+              <h3 className="font-semibold text-sm">Kraje (Slovensko) – voliteľné</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                Nechajte prázdne pre celé Slovensko, alebo vyberte konkrétne kraje.
+              </p>
               <div className="mt-2 grid sm:grid-cols-2 gap-2">
                 {REGIONS.map((rg) => (
                   <label
