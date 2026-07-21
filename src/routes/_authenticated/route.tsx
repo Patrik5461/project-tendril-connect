@@ -43,8 +43,16 @@ function AuthedLayout() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b-2 border-foreground bg-background sticky top-0 z-10">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
-          <Link to="/dashboard" className="font-display font-bold text-xl text-foreground flex items-center gap-2.5">
-            <span className="h-7 w-7 bg-primary" aria-hidden="true" />
+          <Link to="/dashboard" className="flex items-center gap-2.5 font-display font-bold text-xl text-foreground">
+            <span
+              className="relative inline-flex h-8 w-8 items-center justify-center bg-primary"
+              aria-hidden="true"
+            >
+              <span className="font-display font-bold text-primary-foreground text-lg leading-none translate-y-[-1px]">
+                T
+              </span>
+              <span className="absolute inset-0 border border-primary-foreground/30" />
+            </span>
             <span className="hidden sm:inline">Tendrik</span>
           </Link>
           <nav className="flex items-center gap-1">
