@@ -806,7 +806,7 @@ function Dashboard() {
               navigate({
                 search: (p: any) => ({
                   ...p,
-                  sort: v as "deadline" | "newest" | "value",
+                  sort: v as "deadline" | "newest" | "value" | "value_asc",
                   page: 1,
                 }),
               })
@@ -819,6 +819,7 @@ function Dashboard() {
               <SelectItem value="deadline">Najbližší deadline</SelectItem>
               <SelectItem value="newest">Najnovšie</SelectItem>
               <SelectItem value="value">Najvyššia hodnota</SelectItem>
+              <SelectItem value="value_asc">Najnižšia hodnota</SelectItem>
             </SelectContent>
           </Select>
         </div>
