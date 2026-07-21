@@ -187,16 +187,21 @@ function Landing() {
       <header className="border-b-2 border-foreground bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <Logo />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Link to="/cennik" className="hidden sm:inline-flex items-center px-3 py-2 text-sm font-semibold text-foreground hover:text-primary">
               Cenník
             </Link>
             <LanguageSwitcher compact />
             <Link to="/auth" search={{ mode: "login" }}>
-              <Button variant="ghost">{t("header.login")}</Button>
+              <Button variant="ghost" className="h-8 px-2 text-xs sm:h-10 sm:px-4 sm:text-sm">
+                {t("header.login")}
+              </Button>
             </Link>
             <Link to="/auth" search={{ mode: "signup" }}>
-              <Button>{t("header.signup")}</Button>
+              <Button className="h-8 px-2 text-xs sm:h-10 sm:px-4 sm:text-sm">
+                <span className="hidden sm:inline">{t("header.signup")}</span>
+                <span className="sm:hidden">{t("header.signupMobile")}</span>
+              </Button>
             </Link>
           </div>
         </div>

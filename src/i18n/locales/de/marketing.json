@@ -1,7 +1,8 @@
 {
   "header": {
     "login": "Anmelden",
-    "signup": "Kostenlos registrieren"
+    "signup": "Kostenlos registrieren",
+    "signupMobile": "Gratis starten"
   },
   "hero": {
     "eyebrow": "30 Tage gratis · Monitoring öffentlicher Ausschreibungen",
