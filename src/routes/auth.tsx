@@ -75,13 +75,10 @@ function AuthPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        <Link to="/" className="mb-8 flex items-center justify-center gap-2.5 font-display font-bold text-2xl text-primary">
-          <span className="h-9 w-9 rounded-md bg-primary text-primary-foreground flex items-center justify-center">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.75">
-              <circle cx="12" cy="12" r="9" />
-              <circle cx="12" cy="12" r="5" />
-              <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
-            </svg>
+        <Link to="/" className="mb-8 flex items-center justify-center gap-2.5 font-display font-bold text-2xl text-foreground">
+          <span className="relative inline-flex h-9 w-9 items-center justify-center bg-primary" aria-hidden="true">
+            <span className="font-display font-bold text-primary-foreground text-xl leading-none translate-y-[-1px]">T</span>
+            <span className="absolute inset-0 border border-primary-foreground/30" />
           </span>
           Tendrik.sk
         </Link>
