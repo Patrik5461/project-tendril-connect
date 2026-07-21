@@ -1,7 +1,8 @@
 {
   "header": {
     "login": "Prihlásiť sa",
-    "signup": "Registrovať sa zdarma"
+    "signup": "Registrovať sa zdarma",
+    "signupMobile": "Začať zadarmo"
   },
   "hero": {
     "eyebrow": "30 dní zdarma · monitoring verejného obstarávania",

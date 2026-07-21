@@ -1,7 +1,8 @@
 {
   "header": {
     "login": "Sign in",
-    "signup": "Sign up free"
+    "signup": "Sign up free",
+    "signupMobile": "Start free"
   },
   "hero": {
     "eyebrow": "30 days free · public procurement monitoring",
