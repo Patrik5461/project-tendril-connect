@@ -95,7 +95,7 @@ const PAGE_SIZE_STORAGE_KEY = "tendrik.dashboard.pageSize";
 
 const searchSchema = z.object({
   tab: fallback(z.enum(["foryou", "saved", "hidden"]), "foryou").default("foryou"),
-  sort: fallback(z.enum(["deadline", "newest", "value"]), "deadline").default("deadline"),
+  sort: fallback(z.enum(["deadline", "newest", "value", "value_asc"]), "deadline").default("deadline"),
   q: fallback(z.string(), "").default(""),
   view: fallback(z.enum(["list", "grid"]), "list").default("list"),
   radar: fallback(z.string(), "all").default("all"),
@@ -806,7 +806,7 @@ function Dashboard() {
               navigate({
                 search: (p: any) => ({
                   ...p,
-                  sort: v as "deadline" | "newest" | "value",
+                  sort: v as "deadline" | "newest" | "value" | "value_asc",
                   page: 1,
                 }),
               })
@@ -819,6 +819,7 @@ function Dashboard() {
               <SelectItem value="deadline">Najbližší deadline</SelectItem>
               <SelectItem value="newest">Najnovšie</SelectItem>
               <SelectItem value="value">Najvyššia hodnota</SelectItem>
+              <SelectItem value="value_asc">Najnižšia hodnota</SelectItem>
             </SelectContent>
           </Select>
         </div>
