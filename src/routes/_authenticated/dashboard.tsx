@@ -95,7 +95,7 @@ const PAGE_SIZE_STORAGE_KEY = "tendrik.dashboard.pageSize";
 
 const searchSchema = z.object({
   tab: fallback(z.enum(["foryou", "saved", "hidden"]), "foryou").default("foryou"),
-  sort: fallback(z.enum(["deadline", "newest", "value"]), "deadline").default("deadline"),
+  sort: fallback(z.enum(["deadline", "newest", "value", "value_asc"]), "deadline").default("deadline"),
   q: fallback(z.string(), "").default(""),
   view: fallback(z.enum(["list", "grid"]), "list").default("list"),
   radar: fallback(z.string(), "all").default("all"),
