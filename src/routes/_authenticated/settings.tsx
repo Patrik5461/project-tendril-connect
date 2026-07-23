@@ -41,11 +41,15 @@ function SettingsPage() {
   const [emailNotif, setEmailNotif] = useState(true);
   const [deadlineReminders, setDeadlineReminders] = useState(true);
   const [digestFrequency, setDigestFrequency] = useState<"daily" | "weekly">("daily");
+  const [grantNewMatch, setGrantNewMatch] = useState(true);
+  const [grantWeekly, setGrantWeekly] = useState(false);
+  const [grantDeadline, setGrantDeadline] = useState(true);
   const [email, setEmail] = useState("");
   const [notificationEmail, setNotificationEmail] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [list, setList] = useState<Radar[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
 
   async function reloadRadars(uid: string) {
     const { data } = await radars()
