@@ -61,6 +61,44 @@ const REGIONS = [
   "Žilinský kraj", "Banskobystrický kraj", "Prešovský kraj", "Košický kraj",
 ];
 
+// NUTS3 → SK názov (defenzívne, ak by ITMS niekde vrátil len kód)
+const NUTS_TO_REGION: Record<string, string> = {
+  SK010: "Bratislavský kraj", SK021: "Trnavský kraj", SK022: "Trenčiansky kraj",
+  SK023: "Nitriansky kraj",   SK031: "Žilinský kraj", SK032: "Banskobystrický kraj",
+  SK041: "Prešovský kraj",    SK042: "Košický kraj",
+};
+
+function extractRegionNames(mr: any): string[] {
+  if (!Array.isArray(mr)) return [];
+  const out = new Set<string>();
+  for (const item of mr) {
+    const nazov = item?.nazov?.trim?.();
+    const kod: string = item?.kod ?? "";
+    // Whole-country markers
+    if (/^SK0?$/i.test(kod) || /^1006SK0?$/i.test(kod) ||
+        /slovensk[aá]\s*republika|cel[eé]\s*slovensko/i.test(nazov ?? "")) {
+      REGIONS.forEach((r) => out.add(r));
+      continue;
+    }
+    if (nazov && REGIONS.includes(nazov)) { out.add(nazov); continue; }
+    // NUTS fallback (e.g. "1006SK021" or "SK021")
+    const m = kod.match(/SK0(?:10|21|22|23|31|32|41|42)/i);
+    if (m) {
+      const nuts = m[0].toUpperCase();
+      const mapped = NUTS_TO_REGION[nuts];
+      if (mapped) out.add(mapped);
+    }
+  }
+  return Array.from(out);
+}
+
+function regionLabel(regions: string[]): string {
+  if (regions.length === 0) return "—";
+  if (regions.length >= 8) return "Celé Slovensko";
+  if (regions.length >= 5) return `${regions.length} krajov`;
+  return regions.join(", ");
+}
+
 const CATEGORY_ICON: Record<ApplicantCategory, typeof Briefcase> = {
   podnikatelia: Briefcase,
   verejny: Landmark,
