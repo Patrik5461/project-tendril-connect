@@ -39,7 +39,12 @@ async function callOnce(model: GeminiModel, prompt: string, opts: GenerateOpts, 
   };
   if (opts.system) body.systemInstruction = { parts: [{ text: opts.system }] };
   if (opts.responseJson) body.generationConfig.responseMimeType = "application/json";
-  if (opts.disableThinking) body.generationConfig.thinkingConfig = { thinkingBudget: 0 };
+  // thinkingConfig is only accepted by 2.5 Pro / 2.5 Flash Thinking; sending it to
+  // gemini-flash-latest returns 400 INVALID_ARGUMENT. Only forward when the model
+  // name explicitly opts in.
+  if (opts.disableThinking && /2\.5|thinking/i.test(model)) {
+    body.generationConfig.thinkingConfig = { thinkingBudget: 0 };
+  }
 
   const promptChars = prompt.length + (opts.system?.length ?? 0);
   const approxTokens = Math.round(promptChars / 4);
