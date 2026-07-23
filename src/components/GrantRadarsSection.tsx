@@ -44,7 +44,7 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
     (async () => {
       const [{ data }, prog, comp] = await Promise.all([
         table().select("*").eq("user_id", userId).order("created_at", { ascending: true }),
-        supabase.rpc("list_grant_programs" as never),
+        supabase.rpc("list_grant_programs"),
         supabase
           .from("company_profile")
           .select("pravna_forma")
