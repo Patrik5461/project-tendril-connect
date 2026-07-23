@@ -97,11 +97,9 @@ export const Route = createFileRoute("/api/public/grant-doc/$uuid")({
           const { base, ext: nameExt } = splitNameExt(nazov);
           filename = nameExt ? sanitizeFilename(nazov) : `${sanitizeFilename(base)}.${ext}`;
         } else {
-          const stem = kod
-            ? `${kod}-dokument-${ordinal || 1}`
-            : `dokument-${uuid.slice(0, 8)}`;
-          filename = `${sanitizeFilename(stem)}.${ext}`;
+          filename = `dokument-${uuid.slice(0, 8)}.${ext}`;
         }
+
 
         const mime = EXT_MIME[ext] ?? upstreamMime ?? "application/octet-stream";
 
