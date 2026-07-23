@@ -36,6 +36,7 @@ import { Route as ZakazkyKrajKrajRouteImport } from './routes/zakazky.kraj.$kraj
 import { Route as ZakazkyKategoriaKategoriaRouteImport } from './routes/zakazky.kategoria.$kategoria'
 import { Route as ApiPublicStatsRouteImport } from './routes/api/public/stats'
 import { Route as ZakazkyKategoriaKategoriaKrajRouteImport } from './routes/zakazky.kategoria.$kategoria.$kraj'
+import { Route as ApiPublicGrantDocUuidRouteImport } from './routes/api/public/grant-doc.$uuid'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -174,6 +175,11 @@ const ZakazkyKategoriaKategoriaKrajRoute =
     path: '/$kraj',
     getParentRoute: () => ZakazkyKategoriaKategoriaRoute,
   } as any)
+const ApiPublicGrantDocUuidRoute = ApiPublicGrantDocUuidRouteImport.update({
+  id: '/api/public/grant-doc/$uuid',
+  path: '/api/public/grant-doc/$uuid',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -201,6 +207,7 @@ export interface FileRoutesByFullPath {
   '/api/public/stats': typeof ApiPublicStatsRoute
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
+  '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRoutesByTo {
@@ -229,6 +236,7 @@ export interface FileRoutesByTo {
   '/api/public/stats': typeof ApiPublicStatsRoute
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
+  '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRoutesById {
@@ -259,6 +267,7 @@ export interface FileRoutesById {
   '/api/public/stats': typeof ApiPublicStatsRoute
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
+  '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRouteTypes {
@@ -289,6 +298,7 @@ export interface FileRouteTypes {
     | '/api/public/stats'
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
+    | '/api/public/grant-doc/$uuid'
     | '/zakazky/kategoria/$kategoria/$kraj'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -317,6 +327,7 @@ export interface FileRouteTypes {
     | '/api/public/stats'
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
+    | '/api/public/grant-doc/$uuid'
     | '/zakazky/kategoria/$kategoria/$kraj'
   id:
     | '__root__'
@@ -346,6 +357,7 @@ export interface FileRouteTypes {
     | '/api/public/stats'
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
+    | '/api/public/grant-doc/$uuid'
     | '/zakazky/kategoria/$kategoria/$kraj'
   fileRoutesById: FileRoutesById
 }
@@ -370,6 +382,7 @@ export interface RootRouteChildren {
   ApiPublicStatsRoute: typeof ApiPublicStatsRoute
   ZakazkyKategoriaKategoriaRoute: typeof ZakazkyKategoriaKategoriaRouteWithChildren
   ZakazkyKrajKrajRoute: typeof ZakazkyKrajKrajRoute
+  ApiPublicGrantDocUuidRoute: typeof ApiPublicGrantDocUuidRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -563,6 +576,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ZakazkyKategoriaKategoriaKrajRouteImport
       parentRoute: typeof ZakazkyKategoriaKategoriaRoute
     }
+    '/api/public/grant-doc/$uuid': {
+      id: '/api/public/grant-doc/$uuid'
+      path: '/api/public/grant-doc/$uuid'
+      fullPath: '/api/public/grant-doc/$uuid'
+      preLoaderRoute: typeof ApiPublicGrantDocUuidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -622,6 +642,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicStatsRoute: ApiPublicStatsRoute,
   ZakazkyKategoriaKategoriaRoute: ZakazkyKategoriaKategoriaRouteWithChildren,
   ZakazkyKrajKrajRoute: ZakazkyKrajKrajRoute,
+  ApiPublicGrantDocUuidRoute: ApiPublicGrantDocUuidRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
