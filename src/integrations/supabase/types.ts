@@ -966,6 +966,13 @@ export type Database = {
         }[]
       }
       get_ai_credit_status: { Args: never; Returns: Json }
+      get_open_grants_stats: {
+        Args: never
+        Returns: {
+          open_count: number
+          total_alloc_eur: number
+        }[]
+      }
       get_seo_tenders: {
         Args: { _cpv_prefix: string; _limit?: number; _region_name: string }
         Returns: {
