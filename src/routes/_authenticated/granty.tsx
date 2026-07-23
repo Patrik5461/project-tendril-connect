@@ -328,8 +328,19 @@ function GrantyList() {
         <Select value={region || "__all__"} onValueChange={(v) => updateSearch({ region: v === "__all__" ? "" : v })}>
           <SelectTrigger><SelectValue placeholder="Miesto realizácie" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">Celé Slovensko</SelectItem>
-            {REGIONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+            <SelectItem value="__all__">
+              Všetky kraje ({allItems.length})
+            </SelectItem>
+            {REGIONS.map((r) => {
+              const total = (regionCounts[r] ?? 0);
+              const whole = regionCounts.__whole__ ?? 0;
+              const regional = Math.max(0, total - whole);
+              return (
+                <SelectItem key={r} value={r}>
+                  {r} — {total} <span className="text-muted-foreground">({whole} celoslov. + {regional} reg.)</span>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
 
