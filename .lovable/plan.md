@@ -1,107 +1,90 @@
-# Plán: Multijazyčnosť webu (SK, CS, EN, DE)
 
-## Rozsah (podľa odpovedí)
-- 4 jazyky: **SK** (default, bez prefixu), **CS** (`/cs/*`), **EN** (`/en/*`), **DE** (`/de/*`)
-- Preložiť **všetko**: marketing + aplikácia (dashboard, nastavenia, onboarding, admin) + AI výstupy (analýza zákaziek, oslovenia, help chat)
-- Preklady stringov: AI (Lovable AI Gateway, `google/gemini-3-flash-preview`) s ručnou kontrolou
-- Dáta zo zákaziek (názvy, opisy z TED/ÚVO/EKS/JOSEPHINE) ostávajú v pôvodnom jazyku – prekladajú sa len keď to používateľ vyžiada v analýze
+## Cieľ
 
-## Architektúra
+Analogický monitoring pre grantové výzvy — vlastná tabuľka radarov, matching v DB, notifikácie s inou kadenciou než pri zákazkách. Dostupné v Základe aj Prémium (žiadny paywall).
 
-### 1) i18n runtime
-- `react-i18next` + `i18next` + `i18next-browser-languagedetector`
-- Namespace-y: `common`, `marketing`, `legal`, `app`, `auth`, `dashboard`, `settings`, `admin`, `emails`
-- Prekladové súbory: `src/i18n/locales/{sk,cs,en,de}/{namespace}.json`
-- SSR-safe init (i18next inicializovaný v `src/router.tsx` na request, jazyk určený z URL prefixu)
+## 1. Databáza
 
-### 2) URL routing
-- Zavedieme **layout route** `src/routes/_lang.tsx` s dynamickým segmentom? Nie – TanStack file-based routing radšej cez **redirect + detect** v `__root.tsx`.
-- Riešenie: `beforeLoad` v `__root.tsx` číta prefix z `location.pathname`:
-  - `/cs/...` → `lang = cs`, interne routuje na zvyšok cesty
-  - `/en/...`, `/de/...` analogicky
-  - inak `lang = sk`
-- Implementácia cez **splat prefix routes**: `src/routes/cs.$.tsx`, `en.$.tsx`, `de.$.tsx` ktoré prerendujú tú istú stránku s nastaveným jazykom v kontexte. **Alternatíva (čistejšia):** middleware v `__root.tsx` cez `useRouterState` + `I18nextProvider` prepínanie jazyka; URL prefix ostáva ako "visual" a všetky `<Link>` cez helper `localizedTo(path, lang)`.
-- **Zvolený prístup:** kontext-based prepínanie jazyka + helper `useLocalizedLink()` a `useLang()`, prefix v URL zaručí SSR správny `<html lang>` a `hreflang` tagy. Reálne file-routing zostáva pôvodný; prefix sa parsuje v `__root.tsx` `beforeLoad` a jazyk ide do routerContextu.
-  - **Poznámka:** Aby prefixované URL (`/en/cennik`) skutočne matchovali existujúce routes (`/cennik`), pridáme **rewrite** v `src/server.ts` – prichádzajúca cesta `/en/cennik` sa internally rewrite-uje na `/cennik` s hlavičkou `x-lang: en`. SSR aj klient potom vidia rovnakú route, len s iným jazykom v kontexte.
+**Nová tabuľka `public.user_grant_radars`:**
+- `name` (text)
+- `keywords` (text[]) — hľadá v `nazov` + `popis` cez `unaccent`
+- `applicant_categories` (text[]) — `podnikatelia | verejny | neziskovky | skoly` (reuse mapy z `src/lib/grant-applicant-categories.ts`)
+- `programs` (text[]) — voliteľný filter na `program`
+- `regions` (text[]) — s celoslovenskou logikou (výzva pokrývajúca celé SK matchne každý kraj)
+- `suma_eu_min`, `suma_eu_max` (numeric, nullable)
+- `format` (text[]) — `rolling | oneshot`
+- `active` (boolean)
+- RLS: user vlastní svoje záznamy; grants pre `authenticated` + `service_role`; `updated_at` trigger.
 
-### 3) Prepínač jazyka
-- Nový komponent `LanguageSwitcher` v hlavičkách (marketing + authenticated layout)
-- Ukladá voľbu do cookie `NEXT_LOCALE` + presmeruje na prefixovanú URL
-- Vlajky + kódy (SK/CS/EN/DE)
+**Nové polia v `user_preferences`:**
+- `grant_new_match_notifications` boolean default true
+- `grant_weekly_digest` boolean default false
+- `grant_deadline_reminders` boolean default true
 
-### 4) SEO
-- `<html lang="{lang}">` v `__root.tsx`
-- `hreflang` alternate linky per route v `head()` (SK, CS, EN, DE, x-default → SK)
-- Canonical na aktuálnu jazykovú verziu
-- Sitemap rozšírený o všetky 4 jazyky
-- `robots.txt` bez zmeny
+**Nová tabuľka `public.sent_grant_notifications`:**
+- `(user_id, grant_id, kind)` unique — `kind ∈ new_match | deadline_3 | deadline_1 | weekly`
+- Použije sa na deduplikáciu (rovnaký vzor ako `sent_reminders`).
 
-### 5) Preklad stringov
-- **Extrakcia:** ručne prejdem existujúce komponenty a nahradím SK stringy za `t('namespace:key')`. Začnem od najviditeľnejších (index, cennik, kontakt, pravne, auth, dashboard, settings).
-- **Generovanie prekladov:** skript `scripts/translate-i18n.ts` – vezme `sk/*.json` ako zdroj, cez Lovable AI Gateway vygeneruje `cs/*.json`, `en/*.json`, `de/*.json`. Spúšťané ručne po každom update SK.
-- Prompt pre AI: zachovaj kľúče, tone-of-voice (formálny obchodný), placeholders `{{name}}`, HTML tagy.
+**Nová DB funkcia `public.match_grants_for_radar(_radar_id uuid) RETURNS SETOF grant_calls`:**
+- Vracia otvorené grantové výzvy, ktoré sedia na kritériá radaru; reuse mapovaného zoznamu právnych foriem → kategórie.
+- Celoslovenské výzvy sa priraďujú ku každému kraju.
 
-### 6) AI výstupy (analýza, oslovenia, help chat)
-- `tender-analysis.functions.ts`, `subcontracting.functions.ts`, `help-chat/index.ts`:
-  - Do promptu Layer B/C pridáme `TARGET_LANGUAGE: {lang}` (odvodené z `Accept-Language` alebo z parametra requestu podľa aktuálneho jazyka UI)
-  - Systémový prompt: „Odpovedaj v jazyku {lang_name}. Zachovaj odborné registrové termíny v origináli, ak preklad nie je jednoznačný."
-  - Cache výstupov v DB rozšírime o `analysis_lang` stĺpec (migrácia), aby sa analýza nemusela regenerovať pri prepnutí jazyka späť
+## 2. Server functions (`src/lib/grant-radars.functions.ts`)
 
-### 7) E-maily
-- `welcome-email.ts`, `settings-email.ts`, `send-daily-digest`, `send-weekly-digest`, `send-deadline-reminders`, `send-settings-confirmation`, `gopay-webhook` (potvrdenia)
-- Templaty pre 4 jazyky; jazyk používateľa uložený v `profiles.lang` (nová migrácia, default `sk`)
-- Onboarding: pridáme krok „Jazyk komunikácie" (alebo auto z UI pri registrácii)
+- `listGrantRadars` — pre nastavenia.
+- `createGrantRadar` — predvyplní `applicant_categories` podľa právnej formy z `company_profile` (rovnaká mapa ako listing).
+- `updateGrantRadar`, `deleteGrantRadar`, `toggleGrantRadar`.
+- Všetky s `requireSupabaseAuth`, žiadny tier gate.
 
-### 8) Právne texty
-- Právne stránky (obchodné podmienky, GDPR, reklamačný poriadok, cookies, opakované platby) sú dlhé právnicky citlivé texty. **AI preloží draft, ale používateľ musí schváliť/upraviť pred publikáciou.** Označíme ich v prekladových súboroch ako `_draft: true`.
+## 3. UI — `/nastavenia`
 
-## Postup (fázy)
+Nový tab **„Radary na granty"** vedľa existujúceho **„Radary"**. Karta radaru s poľami:
+- kľúčové slová (chip input, ako u zákaziek)
+- typ žiadateľa (multi checkbox: Podnikatelia · Samospráva · Neziskovky · Školy)
+- program (multi-select z distinct programov v DB, načíta sa lazy)
+- kraje (multi-select — reuse komponenty s krajmi SK + info „Celoslovenské výzvy zahrnuté automaticky")
+- alokácia EÚ od–do (voliteľné)
+- formát výzvy (rolling / oneshot — checkboxy)
 
-**Fáza 1 – Infraštruktúra** (žiadne user-visible zmeny)
-- Nainštalovať `i18next`, `react-i18next`, `i18next-browser-languagedetector`
-- Vytvoriť `src/i18n/config.ts`, `src/i18n/locales/sk/*.json` (prázdne namespaces)
-- Zapojiť `I18nextProvider` v `__root.tsx`
-- Rewrite v `src/server.ts` pre `/cs`, `/en`, `/de` prefixy
-- `useLang()`, `useLocalizedLink()` hooks
+Prepínače notifikácií (v tabe „Notifikácie" pod sekciou pre zákazky):
+- „Upozornenie na novú zhodu (granty)"
+- „Týždenný súhrn grantov (piatok)"
+- „Pripomienka pred deadlinom (one-shot výzvy)"
 
-**Fáza 2 – Prepínač + SEO kostra**
-- `LanguageSwitcher` komponent v marketing + authenticated header
-- `hreflang` + canonical logika v `head()` helper `buildI18nHead(path)`
-- Sitemap update
+## 4. Cron a notifikačné hooky
 
-**Fáza 3 – Extrakcia SK stringov + AI preklad**
-- Prejsť routes v poradí: `index`, `cennik`, `kontakt`, `auth`, `objednavka`, `predplatne`, `pravne.*`, `ochrana-osobnych-udajov`, `_authenticated/*`, komponenty (`LegalFooter`, `SubcontractingSection`, `TenderAnalysisSection`, `HelpChatWidget`, `CookieBanner`, `SeoLandingPage`)
-- Pre každú route: nahradiť stringy `t(...)`, pridať kľúče do `sk/*.json`
-- Spustiť `translate-i18n.ts` → vygenerované `cs/en/de` súbory
-- Ručná kontrola (spot-check najviditeľnejších obrazoviek)
+Existujúci ITMS sync beží o 01:30 UTC. Doplníme:
 
-**Fáza 4 – AI výstupy**
-- Rozšíriť `analyzeTender`, `generateSubcontractingEmail`, `help-chat` o `lang` parameter
-- Migrácia: `tender_analyses.lang`, `profiles.lang`
-- Prompt update s pravidlom jazyka
+- `/api/public/hooks/grant-new-matches` — spúšťa sa o **02:00 UTC** (po syncu). Pre každý aktívny radar nájde nové výzvy (posledných 24 h, ktoré nie sú v `sent_grant_notifications` pre daný `(user, grant, 'new_match')`) a ak má user `grant_new_match_notifications`, pošle e-mail (max 1 e-mail so zoznamom zhôd, nie 1 na zhodu). Zapíše dedup záznam.
+- `/api/public/hooks/grant-deadline-reminders` — piatok/utorok ráno o **07:00 UTC**. Pre one-shot výzvy (`deadline IS NOT NULL`) v okne 3 a 1 deň pošle pripomienku iba raz, dedup cez `kind='deadline_3'/'deadline_1'`.
+- `/api/public/hooks/grant-weekly-digest` — piatok o **07:15 UTC**, ak má user zapnutý `grant_weekly_digest`. Deduplikácia cez `kind='weekly'` (unique per ISO týždeň v poznámke).
 
-**Fáza 5 – E-maily**
-- 4 jazykové varianty templatov pre všetky odchádzajúce e-maily
-- Onboarding krok „Jazyk komunikácie"
+Všetky tri routy autentifikujú `apikey` header (Supabase anon key, rovnaký vzor ako existujúce hooky). E-maily posiela Resend cez `send-notification-email` (existujúci flow) — pridá sa nový template s vestníkovým štýlom, obálka rovnaká ako u zákaziek, ale s červenou lištou „NOVÁ GRANTOVÁ ZHODA / TÝŽDENNÝ SÚHRN / PRIPOMIENKA DEADLINE".
 
-**Fáza 6 – QA**
-- Prejsť každú stránku vo všetkých 4 jazykoch
-- Skontrolovať hreflang, canonical, `<html lang>`
-- E-mail preview vo všetkých jazykoch
+Rate limit: hooky sa vzájomne oneskoria (02:00 / 07:00 / 07:15), takže žiadne dva e-maily v tej istej minúte; navyše každý hook robí batching per user (jeden e-mail so zoznamom).
 
-## Odhad rozsahu
-- ~40 komponentov/routes na extrakciu stringov
-- ~8 namespace súborov × 4 jazyky = 32 JSON súborov
-- ~1500-2000 prekladových kľúčov
-- 2 migrácie (profiles.lang, tender_analyses.lang)
-- Fáza 1+2 = základ, môžem spraviť teraz naraz. Fáza 3 (extrakcia) je najviac práce – urobím ju **incrementálne** (najprv marketing routes, potom app, potom právne).
+## 5. Cron zápisy (`supabase--insert` po nasadení route súborov)
 
-## Otázka pred štartom
-Fázy 1+2 (infraštruktúra + prepínač + SEO) urobím teraz naraz – bude viditeľná zmena: prepínač v hlavičkách, prefixy `/cs`, `/en`, `/de` fungujú, ale texty ostanú v SK (kým fáza 3 nedoplní preklady).
+```sql
+select cron.schedule('grant-new-matches', '0 2 * * *', ...);
+select cron.schedule('grant-deadline-reminders', '0 7 * * 2,5', ...);
+select cron.schedule('grant-weekly-digest', '15 7 * * 5', ...);
+```
 
-Potom fázy 3-5 pojdu postupne. Ak chceš, môžem začať extrahovať stringy hneď v tejto iterácii pre **index + cennik + kontakt** (najviditeľnejšie SEO stránky), aby si videl real preklady end-to-end.
+## 6. Verification
 
-**Potvrď:**
-1. Prístup s rewrite-om URL prefixov v `src/server.ts` je OK? (alternatíva by bola duplikovať všetky route súbory s prefixmi – neodporúčam)
-2. Začať fázou 1+2 (infra) + fázou 3 pre `index/cennik/kontakt` v tejto iterácii?
-3. Právne texty: AI vygeneruje draft, ty schváliš pred „published" flagom – OK?
+Po implementácii:
+- v UI nastavení pridám 1 radar (napr. „IT rozvoj — Podnikatelia — celé SK"),
+- manuálne triggernem hook `curl -H "apikey: ..." .../grant-new-matches`,
+- ukážem screenshot / HTML preview e-mailu s novou zhodou.
+
+## Technical details
+
+- Nový súbor: `src/lib/grant-radars.functions.ts`
+- Nová route sekcia v `src/routes/_authenticated/settings.tsx` (tab + `GrantRadarCard`)
+- Nové server routes: `src/routes/api/public/hooks/grant-new-matches.ts`, `grant-deadline-reminders.ts`, `grant-weekly-digest.ts`
+- Shared helpery: `src/lib/grant-email-templates.ts` (HTML rendering)
+- Migrácia: tabuľky, index, RLS, trigger, `match_grants_for_radar`, doplnenie stĺpcov v `user_preferences`
+- Insert po nasadení: 3× `cron.schedule`
+
+Odhadovaný rozsah: 1 migrácia, ~8 nových/upravených súborov, 3 cron jobs.
