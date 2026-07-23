@@ -5,10 +5,10 @@
     "signupMobile": "Začít zdarma"
   },
   "hero": {
-    "eyebrow": "30 dní zdarma · monitoring veřejných zakázek",
-    "titleEmphasis": "Zakázky",
-    "titleRest": "si tě\nnajdou samy.",
-    "subtitle": "Zadej klíčová slova, CPV kategorie a kraje.\nTendrik ti každý den přinese zakázky, které se tě opravdu týkají.",
+    "eyebrow": "30 dní zdarma · veřejné zakázky a granty",
+    "titleEmphasis": "Zakázky a granty",
+    "titleRest": "si vás\nnajdou samy.",
+    "subtitle": "Zadejte klíčová slova, CPV kategorie, kraje a typ žadatele.\nTendrik vám každý den přinese zakázky a grantové výzvy, které se vás opravdu týkají.",
     "ctaPrimary": "Začít zdarma",
     "ctaSecondary": "Už mám účet",
     "priceNote": "30 dní zdarma na vyzkoušení. Poté <price>od 4,99 €/měsíc</price>. Bez závazků, kartu teď nepotřebujete."
@@ -109,9 +109,9 @@
     "priceInline": "30 dní zdarma, poté od 4,99 €/měs (konečná cena)"
   },
   "meta": {
-    "title": "Tendrik – Zakázky si tě najdou samy",
-    "description": "Tendrik vám každý den přinese veřejné zakázky přesně podle vašich klíčových slov, CPV kódů a krajů. Zdarma.",
-    "ogTitle": "Tendrik – zakázky si tě najdou samy",
-    "ogDescription": "Bezplatná služba, která spáruje veřejné zakázky s vaším odvětvím a regionem."
+    "title": "Tendrik – Zakázky a granty si vás najdou samy",
+    "description": "Tendrik vám každý den přinese veřejné zakázky a grantové výzvy přesně podle vašich klíčových slov, CPV kódů, krajů a typu žadatele. Zdarma.",
+    "ogTitle": "Tendrik – zakázky a granty si vás najdou samy",
+    "ogDescription": "Bezplatná služba, která spáruje veřejné zakázky a grantové výzvy s vaším odvětvím, regionem a typem žadatele."
   }
 }
