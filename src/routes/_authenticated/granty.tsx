@@ -8,8 +8,12 @@ import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Building2, MapPin, FileText, Search, RotateCcw, Infinity as InfinityIcon, ExternalLink } from "lucide-react";
+import { Calendar, Building2, MapPin, FileText, Search, RotateCcw, Infinity as InfinityIcon, Briefcase, Landmark, HeartHandshake, Users } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
+import {
+  ApplicantCategory, CATEGORY_LABEL, CATEGORY_SHORT,
+  categoriesForGrant, defaultCategoryFromLegalForm,
+} from "@/lib/grant-applicant-categories";
 
 type Grant = {
   id: string;
@@ -35,7 +39,7 @@ const searchSchema = z.object({
   typ: fallback(z.enum(["all", "OTVORENA", "UZAVRETA"]), "all").default("all"),
   program: fallback(z.string(), "").default(""),
   region: fallback(z.string(), "").default(""),
-  ziadatel: fallback(z.string(), "").default(""),
+  kategoria: fallback(z.enum(["all", "podnikatelia", "verejny", "neziskovky", "auto"]), "auto").default("auto"),
   q: fallback(z.string(), "").default(""),
   sort: fallback(z.enum(["deadline", "newest", "suma_desc"]), "deadline").default("deadline"),
   page: fallback(z.number().int(), 1).default(1),
@@ -45,7 +49,7 @@ export const Route = createFileRoute("/_authenticated/granty")({
   head: () => ({
     meta: [
       { title: "Granty a dotácie – Tendrik" },
-      { name: "description", content: "Aktuálne grantové výzvy z Programu Slovensko a fondov EÚ (ITMS21+). Filtre podľa oblasti, žiadateľa, regiónu a deadlinu." },
+      { name: "description", content: "Aktuálne grantové výzvy z Programu Slovensko a fondov EÚ (ITMS21+). Filtrujte podľa typu žiadateľa, oblasti, regiónu a deadlinu." },
     ],
   }),
   validateSearch: zodValidator(searchSchema),
@@ -57,48 +61,60 @@ const REGIONS = [
   "Žilinský kraj", "Banskobystrický kraj", "Prešovský kraj", "Košický kraj",
 ];
 
+const CATEGORY_ICON: Record<ApplicantCategory, typeof Briefcase> = {
+  podnikatelia: Briefcase,
+  verejny: Landmark,
+  neziskovky: HeartHandshake,
+};
+
 function GrantyList() {
-  const { stav, typ, program, region, ziadatel, q, sort, page } = Route.useSearch();
+  const { stav, typ, program, region, kategoria, q, sort, page } = Route.useSearch();
   const navigate = useNavigate({ from: "/granty" });
 
-  const [items, setItems] = useState<Grant[]>([]);
-  const [total, setTotal] = useState(0);
+  const [allItems, setAllItems] = useState<Grant[]>([]);
   const [programs, setPrograms] = useState<string[]>([]);
-  const [ziadatele, setZiadatele] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [qInput, setQInput] = useState(q);
+  const [profileCategory, setProfileCategory] = useState<ApplicantCategory | null>(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   useEffect(() => setQInput(q), [q]);
 
-  // Load facets once
+  // Load current user's default applicant category (from company_profile.pravna_forma)
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setProfileLoaded(true); return; }
+      const { data } = await supabase
+        .from("company_profile")
+        .select("pravna_forma")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setProfileCategory(defaultCategoryFromLegalForm(data?.pravna_forma));
+      setProfileLoaded(true);
+    })();
+  }, []);
+
+  // Load facets
   useEffect(() => {
     (async () => {
       const { data: progs } = await supabase.from("grant_calls").select("program").not("program", "is", null);
       const uniqueProgs = Array.from(new Set((progs ?? []).map((r: any) => r.program).filter(Boolean))).sort();
       setPrograms(uniqueProgs as string[]);
-
-      // Aggregate applicant types
-      const { data: rows } = await supabase.from("grant_calls").select("opravneny_ziadatel");
-      const set = new Set<string>();
-      for (const r of rows ?? []) {
-        const arr = (r as any).opravneny_ziadatel;
-        if (Array.isArray(arr)) for (const z of arr) { if (z?.nazov) set.add(z.nazov); }
-      }
-      setZiadatele(Array.from(set).sort());
     })();
   }, []);
 
+  // Fetch all matching grants (excluding kategoria — we filter that client-side)
   useEffect(() => {
     (async () => {
       setLoading(true);
       let query = supabase
         .from("grant_calls")
-        .select("id,kod,title,program,poskytovatel,suma_eu,suma_sr,deadline,datum_vyhlasenia,stav,typ,opravneny_ziadatel,miesto_realizacie,documents", { count: "exact" });
+        .select("id,kod,title,program,poskytovatel,suma_eu,suma_sr,deadline,datum_vyhlasenia,stav,typ,opravneny_ziadatel,miesto_realizacie,documents");
 
       if (stav !== "all") query = query.eq("stav", stav);
       if (typ !== "all") query = query.eq("typ", typ);
       if (program) query = query.eq("program", program);
-      if (ziadatel) query = query.contains("opravneny_ziadatel", [{ nazov: ziadatel }]);
       if (region) query = query.contains("miesto_realizacie", [{ nazov: region }]);
       if (q) query = query.or(`title.ilike.%${q}%,kod.ilike.%${q}%,poskytovatel.ilike.%${q}%`);
 
@@ -110,25 +126,49 @@ function GrantyList() {
         query = query.order("suma_eu", { ascending: false, nullsFirst: false });
       }
 
-      const from = (page - 1) * PAGE_SIZE;
-      query = query.range(from, from + PAGE_SIZE - 1);
+      query = query.limit(2000);
 
-      const { data, count } = await query;
-      setItems((data ?? []) as Grant[]);
-      setTotal(count ?? 0);
+      const { data } = await query;
+      setAllItems((data ?? []) as Grant[]);
       setLoading(false);
     })();
-  }, [stav, typ, program, region, ziadatel, q, sort, page]);
+  }, [stav, typ, program, region, q, sort]);
+
+  // Compute per-category counts + filter to selected category
+  const { counts, effectiveCategory, filtered } = useMemo(() => {
+    const counts = { podnikatelia: 0, verejny: 0, neziskovky: 0, ine: 0 };
+    const withCats = allItems.map((g) => {
+      const cats = categoriesForGrant(g.opravneny_ziadatel);
+      if (cats.has("podnikatelia")) counts.podnikatelia++;
+      if (cats.has("verejny")) counts.verejny++;
+      if (cats.has("neziskovky")) counts.neziskovky++;
+      if (cats.size === 0) counts.ine++;
+      return { g, cats };
+    });
+
+    const effective: ApplicantCategory | "all" =
+      kategoria === "auto" ? (profileCategory ?? "all") : kategoria;
+
+    const filtered = effective === "all"
+      ? withCats.map((x) => x.g)
+      : withCats.filter((x) => x.cats.has(effective)).map((x) => x.g);
+
+    return { counts, effectiveCategory: effective, filtered };
+  }, [allItems, kategoria, profileCategory]);
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   function updateSearch(patch: Partial<z.infer<typeof searchSchema>>) {
     navigate({ search: (prev: z.infer<typeof searchSchema>) => ({ ...prev, ...patch, page: 1 }) });
   }
 
   function resetFilters() {
-    navigate({ search: { stav: "OTVORENA", typ: "all", program: "", region: "", ziadatel: "", q: "", sort: "deadline", page: 1 } });
+    navigate({ search: { stav: "OTVORENA", typ: "all", program: "", region: "", kategoria: "auto", q: "", sort: "deadline", page: 1 } });
   }
 
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const showAutoHint = kategoria === "auto" && profileCategory !== null;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
@@ -140,12 +180,65 @@ function GrantyList() {
           </p>
         </div>
         <div className="text-sm text-muted-foreground">
-          <span className="num font-semibold text-foreground">{total.toLocaleString("sk")}</span> {stav === "OTVORENA" ? "otvorených" : "nájdených"} výziev
+          <span className="num font-semibold text-foreground">{total.toLocaleString("sk")}</span>{" "}
+          {stav === "OTVORENA" ? "otvorených" : "nájdených"} výziev
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 border-t border-b border-border py-4">
+      {/* Prominent applicant-type filter */}
+      <div className="mt-6 border border-border bg-card p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <div className="eyebrow text-muted-foreground">Typ žiadateľa</div>
+          {showAutoHint && (
+            <span className="text-xs text-muted-foreground">
+              · predvolené podľa vášho firemného profilu ({CATEGORY_SHORT[profileCategory!]})
+            </span>
+          )}
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <CategoryButton
+            active={effectiveCategory === "podnikatelia"}
+            onClick={() => updateSearch({ kategoria: "podnikatelia" })}
+            icon={Briefcase}
+            label="Podnikatelia"
+            count={counts.podnikatelia}
+            hint="s.r.o., a.s., živnostník"
+          />
+          <CategoryButton
+            active={effectiveCategory === "verejny"}
+            onClick={() => updateSearch({ kategoria: "verejny" })}
+            icon={Landmark}
+            label="Verejný sektor"
+            count={counts.verejny}
+            hint="obce, VÚC, ministerstvá"
+          />
+          <CategoryButton
+            active={effectiveCategory === "neziskovky"}
+            onClick={() => updateSearch({ kategoria: "neziskovky" })}
+            icon={HeartHandshake}
+            label="Neziskovky a školy"
+            count={counts.neziskovky}
+            hint="n.o., nadácie, združenia"
+          />
+          <CategoryButton
+            active={effectiveCategory === "all"}
+            onClick={() => updateSearch({ kategoria: "all" })}
+            icon={Users}
+            label="Všetky"
+            count={allItems.length}
+            hint="bez ohľadu na žiadateľa"
+          />
+        </div>
+        {!profileLoaded ? null : profileCategory === null && kategoria === "auto" && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Tip: vyplňte si <Link to="/firma" className="underline hover:text-foreground">firemný profil</Link> a Tendrik vám automaticky predvyberie relevantné výzvy.
+          </p>
+        )}
+      </div>
+
+      {/* Ostatné filtre */}
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 border-t border-b border-border py-4">
         <div className="lg:col-span-2 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -193,14 +286,6 @@ function GrantyList() {
           </SelectContent>
         </Select>
 
-        <Select value={ziadatel || "__all__"} onValueChange={(v) => updateSearch({ ziadatel: v === "__all__" ? "" : v })}>
-          <SelectTrigger><SelectValue placeholder="Oprávnený žiadateľ" /></SelectTrigger>
-          <SelectContent className="max-h-80">
-            <SelectItem value="__all__">Všetci žiadatelia</SelectItem>
-            {ziadatele.map((z) => <SelectItem key={z} value={z}>{z}</SelectItem>)}
-          </SelectContent>
-        </Select>
-
         <Select value={sort} onValueChange={(v) => updateSearch({ sort: v as any })}>
           <SelectTrigger><SelectValue placeholder="Zoradiť" /></SelectTrigger>
           <SelectContent>
@@ -218,12 +303,10 @@ function GrantyList() {
       {/* List */}
       <div className="mt-6 space-y-3">
         {loading && <div className="text-muted-foreground text-sm py-8">Načítavam…</div>}
-        {!loading && items.length === 0 && (
-          <div className="text-center py-16 text-muted-foreground">
-            Žiadne výzvy nezodpovedajú filtrom.
-          </div>
+        {!loading && filtered.length === 0 && (
+          <EmptyState category={effectiveCategory} onReset={() => updateSearch({ kategoria: "all" })} />
         )}
-        {items.map((g) => <GrantCard key={g.id} g={g} />)}
+        {pageItems.map((g) => <GrantCard key={g.id} g={g} />)}
       </div>
 
       {/* Pagination */}
@@ -244,6 +327,60 @@ function GrantyList() {
   );
 }
 
+function CategoryButton({
+  active, onClick, icon: Icon, label, count, hint,
+}: {
+  active: boolean; onClick: () => void; icon: typeof Briefcase;
+  label: string; count: number; hint: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`text-left border p-3 transition-colors ${
+        active
+          ? "border-primary bg-primary/5 ring-1 ring-primary"
+          : "border-border hover:border-foreground bg-background"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Icon className={`h-4 w-4 ${active ? "text-primary" : "text-muted-foreground"}`} />
+          <span className="font-medium text-sm">{label}</span>
+        </div>
+        <span className={`num text-sm font-semibold ${active ? "text-primary" : "text-foreground"}`}>{count}</span>
+      </div>
+      <div className="mt-1 text-xs text-muted-foreground">{hint}</div>
+    </button>
+  );
+}
+
+function EmptyState({ category, onReset }: { category: ApplicantCategory | "all"; onReset: () => void }) {
+  if (category === "all") {
+    return (
+      <div className="text-center py-16 text-muted-foreground">
+        Žiadne výzvy nezodpovedajú filtrom.
+      </div>
+    );
+  }
+  const label = CATEGORY_LABEL[category];
+  return (
+    <div className="border border-border bg-muted/30 p-8 text-center">
+      <div className="font-medium text-foreground">
+        Pre kategóriu „{label}" nie sú momentálne otvorené výzvy zodpovedajúce filtrom.
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto">
+        Eurofondové výzvy z Programu Slovensko sú z veľkej časti určené verejnému sektoru
+        (ministerstvám, VÚC, obciam a štátnym organizáciám). Skúste rozšíriť výber alebo
+        upraviť ostatné filtre.
+      </p>
+      <Button variant="outline" size="sm" className="mt-4" onClick={onReset}>
+        Zobraziť všetky výzvy
+      </Button>
+    </div>
+  );
+}
+
 function GrantCard({ g }: { g: Grant }) {
   const deadlineDate = g.deadline ? parseISO(g.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
@@ -251,6 +388,7 @@ function GrantCard({ g }: { g: Grant }) {
   const docsCount = Array.isArray(g.documents) ? g.documents.length : 0;
   const regions = Array.isArray(g.miesto_realizacie) ? g.miesto_realizacie.map((x: any) => x?.nazov).filter(Boolean) : [];
   const totalSum = (g.suma_eu ?? 0) + (g.suma_sr ?? 0);
+  const cats = categoriesForGrant(g.opravneny_ziadatel);
 
   return (
     <Link to="/grant/$id" params={{ id: g.id }} className="block group">
@@ -271,6 +409,14 @@ function GrantCard({ g }: { g: Grant }) {
                 One-shot
               </span>
             )}
+            {Array.from(cats).map((c) => {
+              const Icon = CATEGORY_ICON[c];
+              return (
+                <span key={c} className="eyebrow inline-flex items-center border border-border text-muted-foreground px-2 py-0.5">
+                  <Icon className="h-3 w-3 mr-1" /> {CATEGORY_SHORT[c]}
+                </span>
+              );
+            })}
             {deadlineDate && daysLeft !== null && daysLeft >= 0 && daysLeft < 30 && (
               <span className={`eyebrow inline-flex items-center px-2 py-0.5 ${daysLeft < 7 ? "border border-primary bg-primary text-primary-foreground" : "border border-foreground text-foreground"}`}>
                 {daysLeft === 0 ? "Posledný deň" : `${daysLeft} dní`}
