@@ -30,7 +30,7 @@ type GrantRadar = {
 
 const CATEGORIES: ApplicantCategory[] = ["podnikatelia", "verejny", "neziskovky"];
 
-const table = () => supabase.from("user_grant_radars" as never) as any;
+const table = () => supabase.from("user_grant_radars");
 
 export default function GrantRadarsSection({ userId }: { userId: string | null }) {
   const [list, setList] = useState<GrantRadar[]>([]);
