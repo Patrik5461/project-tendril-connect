@@ -92,16 +92,14 @@ function ActiveTendersBlock() {
           {count === null ? (
             <span className="inline-block h-16 w-40 bg-muted" />
           ) : (
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="num text-5xl md:text-6xl font-bold text-primary leading-none">
-                {formatSk(display)}
-              </span>
-              <span className="text-lg md:text-xl font-semibold text-foreground leading-tight">
-                {t("stats.activeSuffix")}
-              </span>
-            </div>
+            <span className="num text-5xl md:text-6xl font-bold text-primary leading-none">
+              {formatSk(display)}
+            </span>
           )}
-          <p className="mt-3 text-base md:text-lg text-foreground min-h-[1.75rem]">
+          <span className="mt-3 text-lg md:text-xl font-semibold text-foreground leading-tight">
+            {t("stats.activeSuffix")}
+          </span>
+          <p className="mt-2 text-base md:text-lg text-foreground min-h-[1.75rem]">
             {total != null && total > 0 ? (
               <>
                 {t("stats.valuePrefix")}{" "}
@@ -117,15 +115,13 @@ function ActiveTendersBlock() {
         {/* Grants block */}
         {hasGrants && (
           <div className="flex flex-col md:pl-16">
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="num text-5xl md:text-6xl font-bold text-primary leading-none">
-                {formatSk(displayGrants)}
-              </span>
-              <span className="text-lg md:text-xl font-semibold text-foreground leading-tight">
-                {t("stats.grantsSuffix")}
-              </span>
-            </div>
-            <p className="mt-3 text-base md:text-lg text-foreground min-h-[1.75rem]">
+            <span className="num text-5xl md:text-6xl font-bold text-primary leading-none">
+              {formatSk(displayGrants)}
+            </span>
+            <span className="mt-3 text-lg md:text-xl font-semibold text-foreground leading-tight">
+              {t("stats.grantsSuffix")}
+            </span>
+            <p className="mt-2 text-base md:text-lg text-foreground min-h-[1.75rem]">
               {grantsAlloc != null && grantsAlloc > 0 ? (
                 <>
                   {t("stats.grantsAllocPrefix")}{" "}
