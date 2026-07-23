@@ -25,8 +25,10 @@ import { Route as PravneObchodnePodmienkyRouteImport } from './routes/pravne.obc
 import { Route as PravneGdprRouteImport } from './routes/pravne.gdpr'
 import { Route as PravneCookiesRouteImport } from './routes/pravne.cookies'
 import { Route as PlatbaVysledokRouteImport } from './routes/platba.vysledok'
+import { Route as GrantIdRouteImport } from './routes/grant.$id'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedGrantyRouteImport } from './routes/_authenticated/granty'
 import { Route as AuthenticatedFirmaRouteImport } from './routes/_authenticated/firma'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -115,6 +117,11 @@ const PlatbaVysledokRoute = PlatbaVysledokRouteImport.update({
   path: '/platba/vysledok',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GrantIdRoute = GrantIdRouteImport.update({
+  id: '/grant/$id',
+  path: '/grant/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -123,6 +130,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGrantyRoute = AuthenticatedGrantyRouteImport.update({
+  id: '/granty',
+  path: '/granty',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFirmaRoute = AuthenticatedFirmaRouteImport.update({
@@ -175,8 +187,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/firma': typeof AuthenticatedFirmaRoute
+  '/granty': typeof AuthenticatedGrantyRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/grant/$id': typeof GrantIdRoute
   '/platba/vysledok': typeof PlatbaVysledokRoute
   '/pravne/cookies': typeof PravneCookiesRoute
   '/pravne/gdpr': typeof PravneGdprRoute
@@ -201,8 +215,10 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/firma': typeof AuthenticatedFirmaRoute
+  '/granty': typeof AuthenticatedGrantyRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/grant/$id': typeof GrantIdRoute
   '/platba/vysledok': typeof PlatbaVysledokRoute
   '/pravne/cookies': typeof PravneCookiesRoute
   '/pravne/gdpr': typeof PravneGdprRoute
@@ -229,8 +245,10 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/firma': typeof AuthenticatedFirmaRoute
+  '/_authenticated/granty': typeof AuthenticatedGrantyRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/grant/$id': typeof GrantIdRoute
   '/platba/vysledok': typeof PlatbaVysledokRoute
   '/pravne/cookies': typeof PravneCookiesRoute
   '/pravne/gdpr': typeof PravneGdprRoute
@@ -257,8 +275,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/firma'
+    | '/granty'
     | '/onboarding'
     | '/settings'
+    | '/grant/$id'
     | '/platba/vysledok'
     | '/pravne/cookies'
     | '/pravne/gdpr'
@@ -283,8 +303,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/firma'
+    | '/granty'
     | '/onboarding'
     | '/settings'
+    | '/grant/$id'
     | '/platba/vysledok'
     | '/pravne/cookies'
     | '/pravne/gdpr'
@@ -310,8 +332,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/firma'
+    | '/_authenticated/granty'
     | '/_authenticated/onboarding'
     | '/_authenticated/settings'
+    | '/grant/$id'
     | '/platba/vysledok'
     | '/pravne/cookies'
     | '/pravne/gdpr'
@@ -335,6 +359,7 @@ export interface RootRouteChildren {
   OchranaOsobnychUdajovRoute: typeof OchranaOsobnychUdajovRoute
   PredplatneRoute: typeof PredplatneRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  GrantIdRoute: typeof GrantIdRoute
   PlatbaVysledokRoute: typeof PlatbaVysledokRoute
   PravneCookiesRoute: typeof PravneCookiesRoute
   PravneGdprRoute: typeof PravneGdprRoute
@@ -461,6 +486,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlatbaVysledokRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/grant/$id': {
+      id: '/grant/$id'
+      path: '/grant/$id'
+      fullPath: '/grant/$id'
+      preLoaderRoute: typeof GrantIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/settings': {
       id: '/_authenticated/settings'
       path: '/settings'
@@ -473,6 +505,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/granty': {
+      id: '/_authenticated/granty'
+      path: '/granty'
+      fullPath: '/granty'
+      preLoaderRoute: typeof AuthenticatedGrantyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/firma': {
@@ -531,6 +570,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFirmaRoute: typeof AuthenticatedFirmaRoute
+  AuthenticatedGrantyRoute: typeof AuthenticatedGrantyRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
@@ -539,6 +579,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFirmaRoute: AuthenticatedFirmaRoute,
+  AuthenticatedGrantyRoute: AuthenticatedGrantyRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
@@ -570,6 +611,7 @@ const rootRouteChildren: RootRouteChildren = {
   OchranaOsobnychUdajovRoute: OchranaOsobnychUdajovRoute,
   PredplatneRoute: PredplatneRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  GrantIdRoute: GrantIdRoute,
   PlatbaVysledokRoute: PlatbaVysledokRoute,
   PravneCookiesRoute: PravneCookiesRoute,
   PravneGdprRoute: PravneGdprRoute,
