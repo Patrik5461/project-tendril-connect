@@ -67,7 +67,7 @@ function SettingsPage() {
       setEmail(u.user.email ?? "");
       const { data } = await supabase
         .from("user_preferences")
-        .select("email_notifications,deadline_reminders,digest_frequency,notification_email")
+        .select("email_notifications,deadline_reminders,digest_frequency,notification_email,grant_new_match_notifications,grant_weekly_digest,grant_deadline_reminders")
         .eq("user_id", u.user.id)
         .maybeSingle();
       if (data) {
@@ -76,11 +76,15 @@ function SettingsPage() {
         const df = (data as any).digest_frequency;
         setDigestFrequency(df === "weekly" ? "weekly" : "daily");
         setNotificationEmail((data as any).notification_email ?? "");
+        setGrantNewMatch((data as any).grant_new_match_notifications ?? true);
+        setGrantWeekly((data as any).grant_weekly_digest ?? false);
+        setGrantDeadline((data as any).grant_deadline_reminders ?? true);
       }
       await reloadRadars(u.user.id);
       setLoading(false);
     })();
   }, []);
+
 
   async function saveNotifications() {
     if (!userId) return;
