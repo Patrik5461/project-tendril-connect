@@ -1583,3 +1583,163 @@ function PartBlock({ title, part }: { title: string; part: any | null }) {
     </div>
   );
 }
+
+function GrantsTestTab() {
+  const [busy, setBusy] = useState<string | null>(null);
+  const [output, setOutput] = useState<any>(null);
+  const [kod, setKod] = useState("PSK-MIRRI-977-2026-TP-KF");
+  const [offset, setOffset] = useState(0);
+  const [limit, setLimit] = useState(5);
+  const [stats, setStats] = useState<{ total: number; otvorene: number } | null>(null);
+
+  async function refreshStats() {
+    const { data } = await supabase.from("grant_calls").select("id, stav", { count: "exact" });
+    if (data) {
+      setStats({
+        total: data.length,
+        otvorene: data.filter((r: any) => r.stav === "OTVORENA").length,
+      });
+    }
+  }
+
+  useEffect(() => { void refreshStats(); }, []);
+
+  async function testList() {
+    setBusy("list");
+    setOutput(null);
+    try {
+      const res = await fetch(`https://api.itms21.sk/public/v1/vyzva?limit=3&ajUkoncene=false&expression=DATUMVYHLASENIA&ascending=false`);
+      setOutput(await res.json());
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally { setBusy(null); }
+  }
+
+  async function testDetail() {
+    if (!kod.trim()) return;
+    setBusy("detail");
+    setOutput(null);
+    try {
+      const res = await fetch(`https://api.itms21.sk/public/v1/vyzva/${encodeURIComponent(kod.trim())}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setOutput(await res.json());
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally { setBusy(null); }
+  }
+
+  async function backfillPage(rawOnly: boolean) {
+    setBusy(rawOnly ? "raw" : "backfill");
+    setOutput(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("backfill-itms-grants", {
+        body: { next_offset: offset, limit, ajUkoncene: true, raw_only: rawOnly, with_detail: !rawOnly },
+      });
+      if (error) throw error;
+      setOutput(data);
+      if (!rawOnly) await refreshStats();
+      toast.success(`OK: ${data?.processed ?? data?.returned ?? 0} výziev`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally { setBusy(null); }
+  }
+
+  async function runIncrementalSync(full: boolean) {
+    setBusy("sync");
+    setOutput(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-itms-grants", {
+        body: full ? { full: true } : {},
+      });
+      if (error) throw error;
+      setOutput(data);
+      await refreshStats();
+      toast.success("Sync dokončený");
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally { setBusy(null); }
+  }
+
+  async function runCleanup() {
+    setBusy("cleanup");
+    try {
+      const { data, error } = await (supabase.rpc as any)("cleanup_grant_calls");
+      if (error) throw error;
+      toast.success(`Vymazaných uzavretých: ${data ?? 0}`);
+      await refreshStats();
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally { setBusy(null); }
+  }
+
+  return (
+    <div className="space-y-4">
+      <Card title="ITMS21+ – stav v DB">
+        <div className="text-sm text-muted-foreground">
+          Uložených výziev: <strong>{stats?.total ?? "…"}</strong> (otvorených: {stats?.otvorene ?? "…"}).
+          <br />
+          API: <code>https://api.itms21.sk/public/v1</code> · Cron: <code>fetch-itms-grants</code> denne 01:30 UTC.
+        </div>
+      </Card>
+
+      <Card title="1) Test list (živé ITMS API)">
+        <Button onClick={testList} disabled={busy !== null} variant="secondary">
+          <RefreshCw className={`h-4 w-4 mr-2 ${busy === "list" ? "animate-spin" : ""}`} />
+          GET /vyzva?limit=3
+        </Button>
+      </Card>
+
+      <Card title="2) Test detail podľa kódu">
+        <div className="flex gap-2">
+          <Input value={kod} onChange={(e) => setKod(e.target.value)} placeholder="napr. PSK-MIRRI-977-2026-TP-KF" />
+          <Button onClick={testDetail} disabled={busy !== null} variant="secondary">
+            <Play className={`h-4 w-4 mr-2 ${busy === "detail" ? "animate-spin" : ""}`} />
+            GET /vyzva/{"{kod}"}
+          </Button>
+        </div>
+      </Card>
+
+      <Card title="3) Backfill jednej stránky">
+        <div className="flex gap-2 items-end flex-wrap">
+          <div>
+            <label className="text-xs text-muted-foreground">offset</label>
+            <Input type="number" value={offset} onChange={(e) => setOffset(Number(e.target.value) || 0)} className="w-24" />
+          </div>
+          <div>
+            <label className="text-xs text-muted-foreground">limit</label>
+            <Input type="number" value={limit} onChange={(e) => setLimit(Number(e.target.value) || 5)} className="w-24" />
+          </div>
+          <Button onClick={() => backfillPage(true)} disabled={busy !== null} variant="outline">
+            Náhľad (bez upsert)
+          </Button>
+          <Button onClick={() => backfillPage(false)} disabled={busy !== null}>
+            <Play className={`h-4 w-4 mr-2 ${busy === "backfill" ? "animate-spin" : ""}`} />
+            Backfill + upsert
+          </Button>
+        </div>
+      </Card>
+
+      <Card title="4) Ostatné akcie">
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={() => runIncrementalSync(false)} disabled={busy !== null} variant="secondary">
+            Incremental sync (watermark)
+          </Button>
+          <Button onClick={() => runIncrementalSync(true)} disabled={busy !== null} variant="outline">
+            Full sync (ignoruje watermark)
+          </Button>
+          <Button onClick={runCleanup} disabled={busy !== null} variant="outline">
+            Cleanup uzavretých (&gt; 90 dní)
+          </Button>
+        </div>
+      </Card>
+
+      {output && (
+        <Card title="Výstup">
+          <pre className="whitespace-pre-wrap text-xs bg-muted p-3 rounded max-h-[70vh] overflow-auto">
+{JSON.stringify(output, null, 2)}
+          </pre>
+        </Card>
+      )}
+    </div>
+  );
+}
