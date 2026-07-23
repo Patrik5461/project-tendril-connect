@@ -81,67 +81,72 @@ function ActiveTendersBlock() {
   const hasGrants = grantsCount != null && grantsCount > 0;
 
   return (
-    <div className="mt-8 pt-6 border-t border-border">
+    <div className="mt-16 md:mt-20 pt-10 border-t border-border">
       <div
-        className={`grid grid-cols-1 gap-8 ${
-          hasGrants ? "md:grid-cols-2 md:gap-10 md:divide-x md:divide-border" : ""
+        className={`grid grid-cols-1 gap-10 ${
+          hasGrants ? "md:grid-cols-2 md:gap-16 md:divide-x md:divide-border" : ""
         }`}
       >
         {/* Tenders block */}
-        <div className="flex flex-col items-start gap-1 md:pr-10">
+        <div className="flex flex-col md:pr-16">
           {count === null ? (
-            <span className="inline-block h-16 w-32 bg-muted" />
+            <span className="inline-block h-16 w-40 bg-muted" />
           ) : (
-            <div className="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="num text-5xl md:text-6xl font-bold text-primary leading-none">
                 {formatSk(display)}
               </span>
-              <span className="text-sm sm:text-base font-semibold text-foreground pb-1">
+              <span className="text-lg md:text-xl font-semibold text-foreground leading-tight">
                 {t("stats.activeSuffix")}
               </span>
             </div>
           )}
-          <span className="text-base md:text-lg text-foreground min-h-[1.75rem]">
+          <p className="mt-3 text-base md:text-lg text-foreground min-h-[1.75rem]">
             {total != null && total > 0 ? (
               <>
                 {t("stats.valuePrefix")}{" "}
                 <span className="num font-semibold text-foreground">{formatBigEur(total)}</span>
               </>
             ) : null}
+          </p>
+          <span className="eyebrow text-muted-foreground mt-4 block">
+            {t("stats.sources")}
           </span>
-          <span className="eyebrow text-muted-foreground mt-1">{t("stats.sources")}</span>
         </div>
 
         {/* Grants block */}
         {hasGrants && (
-          <div className="flex flex-col items-start gap-1 pt-8 border-t border-border md:pt-0 md:pl-10 md:border-t-0">
-            <div className="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
+          <div className="flex flex-col md:pl-16">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="num text-5xl md:text-6xl font-bold text-primary leading-none">
                 {formatSk(displayGrants)}
               </span>
-              <span className="text-sm sm:text-base font-semibold text-foreground pb-1">
+              <span className="text-lg md:text-xl font-semibold text-foreground leading-tight">
                 {t("stats.grantsSuffix")}
               </span>
             </div>
-            <span className="text-base md:text-lg text-foreground min-h-[1.75rem]">
+            <p className="mt-3 text-base md:text-lg text-foreground min-h-[1.75rem]">
               {grantsAlloc != null && grantsAlloc > 0 ? (
                 <>
                   {t("stats.grantsAllocPrefix")}{" "}
                   <span className="num font-semibold text-foreground">{formatBigEur(grantsAlloc)}</span>
                 </>
               ) : null}
+            </p>
+            <span className="eyebrow text-muted-foreground mt-4 block">
+              {t("stats.grantsSources")}
             </span>
-            <span className="eyebrow text-muted-foreground mt-1">{t("stats.grantsSources")}</span>
           </div>
         )}
       </div>
 
-      <p className="mt-4 text-xs md:text-sm text-muted-foreground max-w-md leading-relaxed">
+      <p className="mt-8 pt-6 border-t border-border text-sm md:text-base text-muted-foreground leading-relaxed">
         {t("stats.note")}
       </p>
     </div>
   );
 }
+
 
 
 function TenderMock() {
@@ -298,14 +303,15 @@ function Landing() {
                 components={{ price: <span className="num text-foreground" /> }}
               />
             </p>
-
-            <ActiveTendersBlock />
           </div>
           <div className="md:pt-4">
             <TenderMock />
           </div>
         </div>
+
+        <ActiveTendersBlock />
       </section>
+
 
       <hr className="rule-thick mx-auto max-w-6xl" />
 
