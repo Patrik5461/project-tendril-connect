@@ -152,7 +152,7 @@ export function HelpChatWidget() {
                 }
               }}
               rows={2}
-              placeholder="Napíš otázku…"
+              placeholder="Napíšte otázku…"
               disabled={busy}
               className="flex-1 resize-none text-sm px-2 py-1.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground disabled:opacity-60"
             />
