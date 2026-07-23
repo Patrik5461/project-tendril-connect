@@ -261,7 +261,11 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    let body: { preview_user_id?: string } = {};
+    let body: {
+      preview_user_id?: string;
+      test_send_to?: string;
+      test_user_id?: string;
+    } = {};
     try {
       body = await req.json();
     } catch (_) {
@@ -303,14 +307,16 @@ Deno.serve(async (req) => {
       return { flat, groups, activeCount: active.length };
     }
 
-    // PREVIEW MODE
-    if (body.preview_user_id) {
+    // Shared per-user builder — returns { html, subject, hasContent }
+    async function buildEmailForUser(
+      userId: string,
+      opts: { grantDryRun?: boolean } = {},
+    ): Promise<{ html: string; subject: string; tenderCount: number; grantCount: number }> {
+      // Tenders
       const { data: rData } = await supabase
-        .from("user_radars")
-        .select("*")
-        .eq("user_id", body.preview_user_id);
+        .from("user_radars").select("*").eq("user_id", userId);
       const radars = (rData ?? []) as Radar[];
-      const { flat, groups, activeCount } = buildForUser(body.preview_user_id, radars);
+      const { flat, groups, activeCount } = buildForUser(userId, radars);
       const limited = flat.slice(0, MAX_ITEMS);
       const limitedGroups =
         activeCount > 1
@@ -319,9 +325,63 @@ Deno.serve(async (req) => {
               items: g.items.filter((t) => limited.some((x) => x.id === t.id)),
             }))
           : undefined;
-      const html = renderHtml(limited, flat.length, limitedGroups);
+
+      // Grants — only if user opted in
+      const { data: prefRow } = await supabase
+        .from("user_preferences")
+        .select("grant_new_match_notifications")
+        .eq("user_id", userId)
+        .maybeSingle();
+      let grantSection: { html: string; totalNew: number } | undefined;
+      if (prefRow?.grant_new_match_notifications) {
+        const { groups: gGroups } = await computeAndMarkGrantMatches(
+          supabase, userId, { dryRun: !!opts.grantDryRun },
+        );
+        grantSection = renderGrantSection(gGroups, APP_URL);
+      }
+
+      const tenderCount = flat.length;
+      const grantCount = grantSection?.totalNew ?? 0;
+      const html = renderHtml(limited, tenderCount, limitedGroups, grantSection);
+      const parts: string[] = [];
+      if (tenderCount > 0) parts.push(`${tenderCount} ${tenderCount === 1 ? "nová zákazka" : tenderCount < 5 ? "nové zákazky" : "nových zákaziek"}`);
+      if (grantCount > 0) parts.push(`${grantCount} ${grantCount === 1 ? "nová výzva" : grantCount < 5 ? "nové výzvy" : "nových výziev"}`);
+      const subject = parts.length > 0
+        ? `Tendrik: ${parts.join(" + ")}`
+        : `Tendrik: denný digest`;
+      return { html, subject, tenderCount, grantCount };
+    }
+
+    // PREVIEW MODE — no email, no DB writes for grants
+    if (body.preview_user_id) {
+      const out = await buildEmailForUser(body.preview_user_id, { grantDryRun: true });
       return new Response(
-        JSON.stringify({ tender_count: flat.length, html }),
+        JSON.stringify({
+          tender_count: out.tenderCount,
+          grant_count: out.grantCount,
+          subject: out.subject,
+          html: out.html,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    // TEST-SEND MODE — send real email for one user to an explicit address
+    if (body.test_send_to && body.test_user_id) {
+      const resendKey = Deno.env.get("RESEND_API_KEY");
+      if (!resendKey) throw new Error("RESEND_API_KEY not configured");
+      const recipients = parseRecipients(body.test_send_to, null);
+      if (recipients.length === 0) throw new Error("test_send_to has no valid email");
+      const out = await buildEmailForUser(body.test_user_id, { grantDryRun: true });
+      const subject = `[TEST] ${out.subject}`;
+      await sendEmail(recipients, subject, out.html, resendKey);
+      return new Response(
+        JSON.stringify({
+          sent_to: recipients,
+          tender_count: out.tenderCount,
+          grant_count: out.grantCount,
+          subject,
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -330,16 +390,23 @@ Deno.serve(async (req) => {
     const resendKey = Deno.env.get("RESEND_API_KEY");
     if (!resendKey) throw new Error("RESEND_API_KEY not configured");
 
+    // Eligible = tender digest ON, OR grant new-match notifications ON.
+    // Skip only expired subscriptions.
     const { data: notifData, error: pErr } = await supabase
       .from("user_preferences")
-      .select("user_id,email_notifications,digest_frequency,notification_email,subscription_status")
-      .eq("email_notifications", true)
+      .select("user_id,email_notifications,digest_frequency,notification_email,subscription_status,grant_new_match_notifications")
       .neq("subscription_status", "expired")
-      .or("digest_frequency.eq.daily,digest_frequency.is.null");
+      .or("and(email_notifications.eq.true,or(digest_frequency.eq.daily,digest_frequency.is.null)),grant_new_match_notifications.eq.true");
 
     if (pErr) throw pErr;
     const notifEmailMap = new Map<string, string | null>(
       (notifData ?? []).map((p: any) => [p.user_id as string, (p.notification_email as string | null) ?? null]),
+    );
+    const tenderEnabledMap = new Map<string, boolean>(
+      (notifData ?? []).map((p: any) => [
+        p.user_id as string,
+        !!p.email_notifications && (p.digest_frequency === "daily" || p.digest_frequency == null),
+      ]),
     );
     const eligibleIds = (notifData ?? []).map((p: any) => p.user_id as string);
     if (eligibleIds.length === 0) {
@@ -349,17 +416,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { data: allRadars, error: rErr } = await supabase
-      .from("user_radars")
-      .select("*")
-      .in("user_id", eligibleIds);
-    if (rErr) throw rErr;
-    const radarsByUser = new Map<string, Radar[]>();
-    for (const r of (allRadars ?? []) as Radar[]) {
-      if (!radarsByUser.has(r.user_id)) radarsByUser.set(r.user_id, []);
-      radarsByUser.get(r.user_id)!.push(r);
-    }
-
     let users_checked = 0;
     let emails_sent = 0;
     let errors = 0;
@@ -367,10 +423,10 @@ Deno.serve(async (req) => {
     for (const userId of eligibleIds) {
       users_checked++;
       try {
-        const radars = radarsByUser.get(userId) ?? [];
-        if (radars.filter((r) => r.active).length === 0) continue;
-        const { flat, groups, activeCount } = buildForUser(userId, radars);
-        if (flat.length === 0) continue;
+        const out = await buildEmailForUser(userId, { grantDryRun: false });
+        // Only send if there's actually something to report
+        const hasTender = tenderEnabledMap.get(userId) && out.tenderCount > 0;
+        if (!hasTender && out.grantCount === 0) continue;
 
         const overrideEmail = notifEmailMap.get(userId);
         let recipients = parseRecipients(overrideEmail, null);
@@ -383,17 +439,7 @@ Deno.serve(async (req) => {
           }
           recipients = [uRes.user.email];
         }
-        const limited = flat.slice(0, MAX_ITEMS);
-        const limitedGroups =
-          activeCount > 1
-            ? groups.map((g) => ({
-                name: g.name,
-                items: g.items.filter((t) => limited.some((x) => x.id === t.id)),
-              }))
-            : undefined;
-        const html = renderHtml(limited, flat.length, limitedGroups);
-        const subject = `Tendrik: ${flat.length} ${flat.length === 1 ? "nová zákazka" : flat.length < 5 ? "nové zákazky" : "nových zákaziek"} pre vás`;
-        await sendEmail(recipients, subject, html, resendKey);
+        await sendEmail(recipients, out.subject, out.html, resendKey);
         emails_sent++;
         await new Promise((r) => setTimeout(r, 100));
       } catch (err) {
@@ -401,6 +447,8 @@ Deno.serve(async (req) => {
         errors++;
       }
     }
+
+
 
 
     return new Response(
