@@ -41,7 +41,7 @@ const searchSchema = z.object({
   region: fallback(z.string(), "").default(""),
   kategoria: fallback(z.enum(["all", "podnikatelia", "verejny", "neziskovky", "auto"]), "auto").default("auto"),
   q: fallback(z.string(), "").default(""),
-  sort: fallback(z.enum(["deadline", "newest", "suma_desc"]), "deadline").default("deadline"),
+  sort: fallback(z.enum(["deadline", "newest", "suma_desc", "suma_asc"]), "deadline").default("deadline"),
   page: fallback(z.number().int(), 1).default(1),
 });
 
@@ -162,6 +162,8 @@ function GrantyList() {
         query = query.order("datum_vyhlasenia", { ascending: false, nullsFirst: false });
       } else if (sort === "suma_desc") {
         query = query.order("suma_eu", { ascending: false, nullsFirst: false });
+      } else if (sort === "suma_asc") {
+        query = query.order("suma_eu", { ascending: true, nullsFirst: false });
       }
 
       query = query.limit(2000);
@@ -350,6 +352,7 @@ function GrantyList() {
             <SelectItem value="deadline">Podľa deadlinu</SelectItem>
             <SelectItem value="newest">Najnovšie vyhlásené</SelectItem>
             <SelectItem value="suma_desc">Najvyššia suma EÚ</SelectItem>
+            <SelectItem value="suma_asc">Najnižšia suma EÚ</SelectItem>
           </SelectContent>
         </Select>
 
