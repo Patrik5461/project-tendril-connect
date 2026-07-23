@@ -17,7 +17,10 @@
     "activeSuffix": "aktive Ausschreibungen EU-weit",
     "valuePrefix": "im Wert von mehr als",
     "sources": "QUELLEN TED · ÚVO · EKS · JOSEPHINE · TÄGLICH AKTUALISIERT",
-    "note": "Wir zeigen nur Ausschreibungen, für die man sich gerade jetzt bewerben kann. Kein Archiv abgelaufener Verfahren."
+    "grantsSuffix": "offene Förderaufrufe",
+    "grantsAllocPrefix": "mit Gesamtmittelausstattung von",
+    "grantsSources": "QUELLE ITMS21+ (PROGRAMM SLOWAKEI) · TÄGLICH AKTUALISIERT",
+    "note": "Wir zeigen nur Ausschreibungen und Aufrufe, für die man sich gerade jetzt bewerben kann. Kein Archiv abgelaufener Verfahren."
   },
   "mock": {
     "number": "Nr. 2026 / 184",
