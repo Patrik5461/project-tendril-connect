@@ -144,6 +144,7 @@ function renderHtml(
   tenders: (Tender & { estimated_value?: number | null })[],
   totalCount: number,
   groupsByRadar?: { name: string; items: (Tender & { estimated_value?: number | null })[] }[],
+  grantSection?: { html: string; totalNew: number },
 ): string {
   let itemsHtml: string;
   if (groupsByRadar && groupsByRadar.length > 1) {
@@ -160,7 +161,7 @@ function renderHtml(
   }
   const items = itemsHtml;
 
-  const cta =
+  const tenderCta =
     totalCount > 0
       ? `<p style="text-align:left;margin:28px 0 8px 0;">
            <a href="${APP_URL}/dashboard" style="display:inline-block;background:#C8102E;color:#FFFFFF;text-decoration:none;font-weight:700;padding:14px 28px;font-family:Inter,-apple-system,sans-serif;letter-spacing:0.02em;">
@@ -168,6 +169,27 @@ function renderHtml(
            </a>
          </p>`
       : "";
+
+  // Header title depends on what's inside
+  const hasTenders = totalCount > 0;
+  const hasGrants = !!(grantSection && grantSection.totalNew > 0);
+  const kicker = hasTenders && hasGrants
+    ? "Denný digest · zákazky + grantové výzvy"
+    : hasTenders
+    ? "Denný digest verejného obstarávania"
+    : "Nové grantové výzvy pre vás";
+  const h1 = hasTenders
+    ? `${totalCount} ${totalCount === 1 ? "nová zákazka" : totalCount < 5 ? "nové zákazky" : "nových zákaziek"} pre vás`
+    : `${grantSection!.totalNew} ${grantSection!.totalNew === 1 ? "nová grantová výzva" : grantSection!.totalNew < 5 ? "nové grantové výzvy" : "nových grantových výziev"} pre vás`;
+  const subheadline = hasTenders
+    ? "Za posledných 24 hodín sme našli zákazky, ktoré zodpovedajú vašim filtrom."
+    : "Vyhovujú vašim grantovým radarom.";
+
+  const tenderBlock = hasTenders
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}</table>
+       ${tenderCta}`
+    : "";
+  const grantBlock = hasGrants ? grantSection!.html : "";
 
   return `<!DOCTYPE html>
 <html lang="sk"><head><meta charset="utf-8"><title>Tendrik</title></head>
@@ -184,12 +206,12 @@ function renderHtml(
         <tr><td style="padding:28px 24px 8px 24px;">
           <div style="font-family:Inter,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#555555;margin-bottom:8px;">
             <span style="display:inline-block;width:8px;height:8px;background:#C8102E;vertical-align:1px;margin-right:8px;"></span>
-            Denný digest verejného obstarávania
+            ${kicker}
           </div>
-          <h1 style="margin:0 0 6px 0;font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:28px;line-height:1.15;letter-spacing:-0.01em;color:#111111;">${totalCount} ${totalCount === 1 ? "nová zákazka" : totalCount < 5 ? "nové zákazky" : "nových zákaziek"} pre vás</h1>
-          <p style="margin:0 0 20px 0;color:#555555;font-size:14px;">Za posledných 24 hodín sme našli zákazky, ktoré zodpovedajú vašim filtrom.</p>
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}</table>
-          ${cta}
+          <h1 style="margin:0 0 6px 0;font-family:'Source Serif 4',Georgia,serif;font-weight:700;font-size:28px;line-height:1.15;letter-spacing:-0.01em;color:#111111;">${h1}</h1>
+          <p style="margin:0 0 20px 0;color:#555555;font-size:14px;">${subheadline}</p>
+          ${tenderBlock}
+          ${grantBlock}
           <hr style="border:none;border-top:2px solid #111111;margin:32px 0 12px 0;"/>
           <p style="font-size:12px;color:#777777;text-align:left;margin:0;">
             Dostávate tento e-mail, lebo máte zapnuté notifikácie v Tendriku.<br/>
