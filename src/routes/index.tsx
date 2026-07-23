@@ -78,54 +78,71 @@ function ActiveTendersBlock() {
 
   if (failed) return null;
 
+  const hasGrants = grantsCount != null && grantsCount > 0;
+
   return (
-    <div className="mt-8 pt-6 border-t border-border flex flex-col items-start gap-1">
-      {count === null ? (
-        <span className="inline-block h-16 w-32 bg-muted" />
-      ) : (
-        <div className="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
-          <span className="num text-6xl md:text-7xl font-bold text-primary leading-none">
-            {formatSk(display)}
-          </span>
-          <span className="text-sm sm:text-base font-semibold text-foreground pb-1 sm:pb-2">
-            {t("stats.activeSuffix")}
-          </span>
-        </div>
-      )}
-      {total != null && total > 0 && (
-        <span className="text-base md:text-lg text-foreground">
-          {t("stats.valuePrefix")}{" "}
-          <span className="num font-semibold text-foreground">{formatBigEur(total)}</span>
-        </span>
-      )}
-      <span className="eyebrow text-muted-foreground mt-1">{t("stats.sources")}</span>
-
-      {grantsCount != null && grantsCount > 0 && (
-        <div className="mt-6 pt-5 border-t border-border w-full flex flex-col items-start gap-1">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
-            <span className="num text-5xl md:text-6xl font-bold text-primary leading-none">
-              {formatSk(displayGrants)}
-            </span>
-            <span className="text-sm sm:text-base font-semibold text-foreground pb-1">
-              {t("stats.grantsSuffix")}
-            </span>
-          </div>
-          {grantsAlloc != null && grantsAlloc > 0 && (
-            <span className="text-base md:text-lg text-foreground">
-              {t("stats.grantsAllocPrefix")}{" "}
-              <span className="num font-semibold text-foreground">{formatBigEur(grantsAlloc)}</span>
-            </span>
+    <div className="mt-8 pt-6 border-t border-border">
+      <div
+        className={`grid grid-cols-1 gap-8 ${
+          hasGrants ? "md:grid-cols-2 md:gap-10 md:divide-x md:divide-border" : ""
+        }`}
+      >
+        {/* Tenders block */}
+        <div className="flex flex-col items-start gap-1 md:pr-10">
+          {count === null ? (
+            <span className="inline-block h-16 w-32 bg-muted" />
+          ) : (
+            <div className="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
+              <span className="num text-5xl md:text-6xl font-bold text-primary leading-none">
+                {formatSk(display)}
+              </span>
+              <span className="text-sm sm:text-base font-semibold text-foreground pb-1">
+                {t("stats.activeSuffix")}
+              </span>
+            </div>
           )}
-          <span className="eyebrow text-muted-foreground mt-1">{t("stats.grantsSources")}</span>
+          <span className="text-base md:text-lg text-foreground min-h-[1.75rem]">
+            {total != null && total > 0 ? (
+              <>
+                {t("stats.valuePrefix")}{" "}
+                <span className="num font-semibold text-foreground">{formatBigEur(total)}</span>
+              </>
+            ) : null}
+          </span>
+          <span className="eyebrow text-muted-foreground mt-1">{t("stats.sources")}</span>
         </div>
-      )}
 
-      <p className="mt-3 text-xs md:text-sm text-muted-foreground max-w-md leading-relaxed">
+        {/* Grants block */}
+        {hasGrants && (
+          <div className="flex flex-col items-start gap-1 pt-8 border-t border-border md:pt-0 md:pl-10 md:border-t-0">
+            <div className="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
+              <span className="num text-5xl md:text-6xl font-bold text-primary leading-none">
+                {formatSk(displayGrants)}
+              </span>
+              <span className="text-sm sm:text-base font-semibold text-foreground pb-1">
+                {t("stats.grantsSuffix")}
+              </span>
+            </div>
+            <span className="text-base md:text-lg text-foreground min-h-[1.75rem]">
+              {grantsAlloc != null && grantsAlloc > 0 ? (
+                <>
+                  {t("stats.grantsAllocPrefix")}{" "}
+                  <span className="num font-semibold text-foreground">{formatBigEur(grantsAlloc)}</span>
+                </>
+              ) : null}
+            </span>
+            <span className="eyebrow text-muted-foreground mt-1">{t("stats.grantsSources")}</span>
+          </div>
+        )}
+      </div>
+
+      <p className="mt-4 text-xs md:text-sm text-muted-foreground max-w-md leading-relaxed">
         {t("stats.note")}
       </p>
     </div>
   );
 }
+
 
 function TenderMock() {
   const { t } = useTranslation("marketing");
