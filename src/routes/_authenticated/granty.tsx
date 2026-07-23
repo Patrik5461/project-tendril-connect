@@ -121,7 +121,7 @@ function GrantyList() {
   }, [stav, typ, program, region, ziadatel, q, sort, page]);
 
   function updateSearch(patch: Partial<z.infer<typeof searchSchema>>) {
-    navigate({ search: (prev) => ({ ...prev, ...patch, page: 1 }) });
+    navigate({ search: (prev: z.infer<typeof searchSchema>) => ({ ...prev, ...patch, page: 1 }) });
   }
 
   function resetFilters() {
