@@ -4,18 +4,31 @@ import { z } from "zod";
 import { GEMINI_MODELS, geminiGenerate, geminiUserMessage, type GeminiModel } from "./gemini.server";
 
 // Strip HTML tags/entities from ITMS-provided WYSIWYG fields for cleaner AI context.
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&nbsp;/g, " ")
+    .replace(/&scaron;/g, "š").replace(/&Scaron;/g, "Š")
+    .replace(/&aacute;/g, "á").replace(/&Aacute;/g, "Á")
+    .replace(/&eacute;/g, "é").replace(/&Eacute;/g, "É")
+    .replace(/&iacute;/g, "í").replace(/&Iacute;/g, "Í")
+    .replace(/&oacute;/g, "ó").replace(/&Oacute;/g, "Ó")
+    .replace(/&uacute;/g, "ú").replace(/&Uacute;/g, "Ú")
+    .replace(/&yacute;/g, "ý").replace(/&Yacute;/g, "Ý")
+    .replace(/&auml;/g, "ä").replace(/&ocirc;/g, "ô")
+    .replace(/&ccaron;/g, "č").replace(/&Ccaron;/g, "Č")
+    .replace(/&dcaron;/g, "ď").replace(/&Dcaron;/g, "Ď")
+    .replace(/&lcaron;/g, "ľ").replace(/&Lcaron;/g, "Ľ")
+    .replace(/&ncaron;/g, "ň").replace(/&Ncaron;/g, "Ň")
+    .replace(/&tcaron;/g, "ť").replace(/&Tcaron;/g, "Ť")
+    .replace(/&zcaron;/g, "ž").replace(/&Zcaron;/g, "Ž")
+    .replace(/&#(\d+);/g, (_m, n) => String.fromCharCode(parseInt(n, 10)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_m, n) => String.fromCharCode(parseInt(n, 16)))
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&#39;/g, "'");
+}
+
 function stripHtml(s: string | null | undefined): string {
   if (!s) return "";
-  return String(s)
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\s+/g, " ")
-    .trim();
+  return decodeEntities(String(s).replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
 }
 
 // ---------- Prompts (Slovak) ----------
