@@ -223,9 +223,10 @@ function SettingsPage() {
       </Link>
 
       <Tabs defaultValue="notifications" className="mt-8">
-        <TabsList className="w-full grid grid-cols-3">
+        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4">
           <TabsTrigger value="notifications">Notifikácie</TabsTrigger>
           <TabsTrigger value="radars">Radary</TabsTrigger>
+          <TabsTrigger value="grant-radars">Radary na granty</TabsTrigger>
           <TabsTrigger value="billing">Predplatné & fakturácia</TabsTrigger>
         </TabsList>
 
