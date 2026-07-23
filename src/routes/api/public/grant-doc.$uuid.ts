@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
+
 
 const EXT_MIME: Record<string, string> = {
   pdf: "application/pdf",
