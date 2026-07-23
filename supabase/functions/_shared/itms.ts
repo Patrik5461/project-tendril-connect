@@ -212,7 +212,7 @@ export function normalizeVyzva(
     kontakt,
     documents,
     structured_conditions: structured,
-    detail_url: v.kod ? `https://itms2014.sk/vyzva?id=${v.id}` : null,
+    detail_url: v.id ? `https://portal.itms21.sk/vyhlasena-vyzva/?id=${v.id}` : null,
     itms_updated_at: parseIsoish(v.updatedAt),
     typ: typeof v.typ === "string" ? v.typ : null,
     raw: v,
