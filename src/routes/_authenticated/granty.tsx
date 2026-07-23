@@ -229,13 +229,13 @@ function GrantyList() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-8 flex items-center justify-center gap-2">
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => navigate({ search: (p) => ({ ...p, page: page - 1 }) })}>
+          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => navigate({ search: (p: z.infer<typeof searchSchema>) => ({ ...p, page: page - 1 }) })}>
             Predchádzajúca
           </Button>
           <span className="text-sm text-muted-foreground">
             Strana <span className="num font-medium text-foreground">{page}</span> z <span className="num">{totalPages}</span>
           </span>
-          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => navigate({ search: (p) => ({ ...p, page: page + 1 }) })}>
+          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => navigate({ search: (p: z.infer<typeof searchSchema>) => ({ ...p, page: page + 1 }) })}>
             Ďalšia
           </Button>
         </div>
