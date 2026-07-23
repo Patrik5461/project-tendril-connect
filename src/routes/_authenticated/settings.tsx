@@ -15,6 +15,7 @@ import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 import { sendSettingsConfirmationEmail } from "@/lib/settings-email";
+import GrantRadarsSection from "@/components/GrantRadarsSection";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Nastavenia – Tendrik" }] }),
@@ -40,11 +41,15 @@ function SettingsPage() {
   const [emailNotif, setEmailNotif] = useState(true);
   const [deadlineReminders, setDeadlineReminders] = useState(true);
   const [digestFrequency, setDigestFrequency] = useState<"daily" | "weekly">("daily");
+  const [grantNewMatch, setGrantNewMatch] = useState(true);
+  const [grantWeekly, setGrantWeekly] = useState(false);
+  const [grantDeadline, setGrantDeadline] = useState(true);
   const [email, setEmail] = useState("");
   const [notificationEmail, setNotificationEmail] = useState("");
   const [userId, setUserId] = useState<string | null>(null);
   const [list, setList] = useState<Radar[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+
 
   async function reloadRadars(uid: string) {
     const { data } = await radars()
@@ -62,7 +67,7 @@ function SettingsPage() {
       setEmail(u.user.email ?? "");
       const { data } = await supabase
         .from("user_preferences")
-        .select("email_notifications,deadline_reminders,digest_frequency,notification_email")
+        .select("email_notifications,deadline_reminders,digest_frequency,notification_email,grant_new_match_notifications,grant_weekly_digest,grant_deadline_reminders")
         .eq("user_id", u.user.id)
         .maybeSingle();
       if (data) {
@@ -71,11 +76,15 @@ function SettingsPage() {
         const df = (data as any).digest_frequency;
         setDigestFrequency(df === "weekly" ? "weekly" : "daily");
         setNotificationEmail((data as any).notification_email ?? "");
+        setGrantNewMatch((data as any).grant_new_match_notifications ?? true);
+        setGrantWeekly((data as any).grant_weekly_digest ?? false);
+        setGrantDeadline((data as any).grant_deadline_reminders ?? true);
       }
       await reloadRadars(u.user.id);
       setLoading(false);
     })();
   }, []);
+
 
   async function saveNotifications() {
     if (!userId) return;
@@ -116,10 +125,14 @@ function SettingsPage() {
         deadline_reminders: deadlineReminders,
         digest_frequency: digestFrequency,
         notification_email: normalized,
+        grant_new_match_notifications: grantNewMatch,
+        grant_weekly_digest: grantWeekly,
+        grant_deadline_reminders: grantDeadline,
         onboarding_completed: true,
       } as any,
       { onConflict: "user_id" },
     );
+
     setSaving(false);
     if (error) toast.error(error.message);
     else {
@@ -210,9 +223,10 @@ function SettingsPage() {
       </Link>
 
       <Tabs defaultValue="notifications" className="mt-8">
-        <TabsList className="w-full grid grid-cols-3">
+        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4">
           <TabsTrigger value="notifications">Notifikácie</TabsTrigger>
           <TabsTrigger value="radars">Radary</TabsTrigger>
+          <TabsTrigger value="grant-radars">Radary na granty</TabsTrigger>
           <TabsTrigger value="billing">Predplatné & fakturácia</TabsTrigger>
         </TabsList>
 
@@ -286,6 +300,39 @@ function SettingsPage() {
                 onCheckedChange={setDeadlineReminders}
               />
             </div>
+            <div className="mt-6 border-t border-primary/10 pt-4">
+              <h3 className="font-display font-semibold text-base tracking-tight">Grantové výzvy</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Iná kadencia než pri zákazkách – zoznam sa mení pomalšie.
+              </p>
+              <div className="mt-4 flex items-center justify-between gap-4">
+                <div>
+                  <Label htmlFor="gNewMatch">Nová zhoda s grantovým radarom</Label>
+                  <p className="text-sm text-muted-foreground">
+                    E-mail vždy, keď pribudne výzva, ktorá sedí na niektorý z vašich grantových radarov.
+                  </p>
+                </div>
+                <Switch id="gNewMatch" checked={grantNewMatch} onCheckedChange={setGrantNewMatch} />
+              </div>
+              <div className="mt-4 flex items-center justify-between gap-4">
+                <div>
+                  <Label htmlFor="gWeekly">Týždenný súhrn grantov</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Piatkový súhrn nových a otvorených výziev podľa vašich radarov.
+                  </p>
+                </div>
+                <Switch id="gWeekly" checked={grantWeekly} onCheckedChange={setGrantWeekly} />
+              </div>
+              <div className="mt-4 flex items-center justify-between gap-4">
+                <div>
+                  <Label htmlFor="gDeadline">Pripomienky deadlinov grantov</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Len pri one-shot výzvach (s pevným deadlinom), 7 a 2 dni pred koncom.
+                  </p>
+                </div>
+                <Switch id="gDeadline" checked={grantDeadline} onCheckedChange={setGrantDeadline} />
+              </div>
+            </div>
             <div className="mt-6 flex justify-end">
               <Button size="sm" onClick={saveNotifications} disabled={saving}>
                 {saving ? "Ukladám..." : "Uložiť notifikácie"}
@@ -293,6 +340,7 @@ function SettingsPage() {
             </div>
           </section>
         </TabsContent>
+
 
         <TabsContent value="radars" className="mt-6">
           <section>
@@ -328,6 +376,10 @@ function SettingsPage() {
               )}
             </div>
           </section>
+        </TabsContent>
+
+        <TabsContent value="grant-radars" className="mt-6">
+          <GrantRadarsSection userId={userId} />
         </TabsContent>
 
         <TabsContent value="billing" className="mt-6 space-y-6">
