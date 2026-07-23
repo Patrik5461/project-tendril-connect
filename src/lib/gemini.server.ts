@@ -18,6 +18,8 @@ type GenerateOpts = {
   disableThinking?: boolean;
   /** Fallback model to try if primary fails with 429/503 */
   fallback?: GeminiModel;
+  /** short label used in server logs to distinguish concurrent calls */
+  logLabel?: string;
 };
 
 export class GeminiError extends Error {
@@ -39,21 +41,36 @@ async function callOnce(model: GeminiModel, prompt: string, opts: GenerateOpts, 
   if (opts.responseJson) body.generationConfig.responseMimeType = "application/json";
   if (opts.disableThinking) body.generationConfig.thinkingConfig = { thinkingBudget: 0 };
 
+  const promptChars = prompt.length + (opts.system?.length ?? 0);
+  const approxTokens = Math.round(promptChars / 4);
+  const label = opts.logLabel ?? "gemini";
+  const t0 = Date.now();
+
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
   const raw = await res.text();
+  const elapsedMs = Date.now() - t0;
   let json: any;
-  try { json = JSON.parse(raw); } catch { throw new GeminiError(res.status, "invalid_response", raw.slice(0, 200)); }
+  try { json = JSON.parse(raw); } catch {
+    console.error(`[${label}] ${model} status=${res.status} elapsed=${elapsedMs}ms invalid_response chars=${promptChars} ~tok=${approxTokens}`, raw.slice(0, 300));
+    throw new GeminiError(res.status, "invalid_response", raw.slice(0, 200));
+  }
 
   if (!res.ok || json.error) {
     const err = json.error ?? { code: res.status, status: "ERROR", message: raw.slice(0, 200) };
+    console.error(`[${label}] ${model} status=${res.status} elapsed=${elapsedMs}ms error=${err.status}/${err.code} chars=${promptChars} ~tok=${approxTokens}`, err.message);
     throw new GeminiError(err.code ?? res.status, err.status ?? "ERROR", err.message ?? "Gemini error");
   }
   const text = json.candidates?.[0]?.content?.parts?.map((p: any) => p.text).filter(Boolean).join("") ?? "";
-  if (!text) throw new GeminiError(500, "empty_output", "Model vrátil prázdnu odpoveď.");
+  const usage = json.usageMetadata ?? {};
+  console.log(`[${label}] ${model} ok elapsed=${elapsedMs}ms chars=${promptChars} prompt_tok=${usage.promptTokenCount ?? "?"} out_tok=${usage.candidatesTokenCount ?? "?"} total=${usage.totalTokenCount ?? "?"} out_chars=${text.length}`);
+  if (!text) {
+    const finish = json.candidates?.[0]?.finishReason;
+    throw new GeminiError(500, "empty_output", `Model vrátil prázdnu odpoveď (finishReason=${finish ?? "?"}).`);
+  }
   return text;
 }
 

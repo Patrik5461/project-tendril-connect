@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { listSeoPages, generateSeoPages, regenerateSeoPage, updateSeoPage } from "@/lib/seo.functions";
 import { adminAnalyzeTender, adminListTendersForTest } from "@/lib/tender-analysis.functions";
 import { adminSuggestSubcontracting, adminFindSubcontractorCandidates, adminGenerateOutreach } from "@/lib/subcontracting.functions";
+import { adminAnalyzeGrant } from "@/lib/grant-analysis.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin – Tendrik" }] }),
@@ -103,6 +104,7 @@ function AdminPage() {
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="ai-test">AI test</TabsTrigger>
           <TabsTrigger value="grants-test">Granty (ITMS)</TabsTrigger>
+          <TabsTrigger value="grants-ai">Granty (AI test)</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-4"><OverviewTab /></TabsContent>
         <TabsContent value="actions" className="mt-4"><ActionsTab /></TabsContent>
@@ -112,6 +114,7 @@ function AdminPage() {
         <TabsContent value="seo" className="mt-4"><SeoTab /></TabsContent>
         <TabsContent value="ai-test" className="mt-4"><AiTestTab /></TabsContent>
         <TabsContent value="grants-test" className="mt-4"><GrantsTestTab /></TabsContent>
+        <TabsContent value="grants-ai" className="mt-4"><GrantsAiTestTab /></TabsContent>
 
       </Tabs>
     </div>
@@ -1739,6 +1742,139 @@ function GrantsTestTab() {
 {JSON.stringify(output, null, 2)}
           </pre>
         </Card>
+      )}
+    </div>
+  );
+}
+
+function GrantsAiTestTab() {
+  const analyzeFn = useServerFn(adminAnalyzeGrant);
+  const [grants, setGrants] = useState<Array<{ id: string; kod: string | null; title: string; poskytovatel: string | null }>>([]);
+  const [grantId, setGrantId] = useState("");
+  const [pravnaForma, setPravnaForma] = useState("Spoločnosť s ručením obmedzeným");
+  const [velkost, setVelkost] = useState("mikro");
+  const [kraj, setKraj] = useState("Bratislavský kraj");
+  const [obrat, setObrat] = useState("250000");
+  const [rok, setRok] = useState(String(new Date().getFullYear() - 1));
+  const [intent, setIntent] = useState("Chceme kúpiť fotovoltiku 40 kWp na strechu výrobnej haly a batériové úložisko.");
+  const [busy, setBusy] = useState(false);
+  const [out, setOut] = useState<any>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("grant_calls")
+        .select("id,kod,title,poskytovatel")
+        .eq("stav", "OTVORENA")
+        .order("datum_vyhlasenia", { ascending: false })
+        .limit(200);
+      setGrants(data ?? []);
+      if (data && data.length && !grantId) setGrantId(data[0].id);
+    })();
+  }, []);
+
+  async function run() {
+    if (!grantId) return;
+    setBusy(true);
+    setOut(null);
+    try {
+      const res = await analyzeFn({
+        data: {
+          grant_id: grantId,
+          intent: intent.trim() || null,
+          company_override: {
+            pravna_forma: pravnaForma,
+            velkost,
+            kraj,
+            obrat_posledny: Number(obrat) || undefined,
+            rok_obratu: Number(rok) || undefined,
+          },
+        },
+      });
+      setOut(res);
+      toast.success("AI analýza spustená");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Chyba");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <Card title="Grantová AI analýza – testovací režim (bez firemného profilu)">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="md:col-span-2">
+            <Label>Grantová výzva</Label>
+            <select className="mt-1 w-full border rounded-md px-3 py-2 bg-background" value={grantId} onChange={(e) => setGrantId(e.target.value)}>
+              {grants.map((g) => (
+                <option key={g.id} value={g.id}>{g.kod} — {g.title.slice(0, 90)}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label>Právna forma firmy</Label>
+            <Input value={pravnaForma} onChange={(e) => setPravnaForma(e.target.value)} />
+          </div>
+          <div>
+            <Label>Veľkosť</Label>
+            <Input value={velkost} onChange={(e) => setVelkost(e.target.value)} />
+          </div>
+          <div>
+            <Label>Kraj (sídlo)</Label>
+            <Input value={kraj} onChange={(e) => setKraj(e.target.value)} />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label>Obrat (EUR)</Label>
+              <Input value={obrat} onChange={(e) => setObrat(e.target.value)} />
+            </div>
+            <div>
+              <Label>Rok</Label>
+              <Input value={rok} onChange={(e) => setRok(e.target.value)} />
+            </div>
+          </div>
+          <div className="md:col-span-2">
+            <Label>Zámer (voliteľné)</Label>
+            <Textarea rows={2} value={intent} onChange={(e) => setIntent(e.target.value)} />
+          </div>
+        </div>
+        <Button onClick={run} disabled={busy || !grantId} className="mt-3">
+          <Sparkles className={`h-4 w-4 mr-2 ${busy ? "animate-spin" : ""}`} />
+          Spustiť AI analýzu
+        </Button>
+      </Card>
+
+      {out && (
+        <>
+          <Card title={`Výstup: ${out.grant?.kod} — ${out.grant?.title?.slice(0, 120) ?? ""}`}>
+            <div className="text-sm space-y-2">
+              <div><b>Odporúčanie:</b> {out.recommendation ?? "—"}</div>
+              <div><b>Gate:</b> applicant_match={out.gate?.applicant_match} · region_match={out.gate?.region_match} · blocked={String(out.gate?.blocked)}</div>
+              {out.gate?.blocking_reason && <div className="text-red-700"><b>Blokujúca chyba:</b> {out.gate.blocking_reason}</div>}
+              <div><b>Financie:</b> {out.financial?.hodnotenie} · miera {out.financial?.miera_spolufinancovania_pct ?? "?"} % · alokácia {out.financial?.alokacia_eur ?? "?"} €</div>
+              <div className="text-muted-foreground text-xs">{out.financial?.poznamka}</div>
+              {out.errors?.length > 0 && (
+                <div className="text-red-700"><b>Errors:</b> {out.errors.join(" · ")}</div>
+              )}
+            </div>
+          </Card>
+          <Card title="1) Formálna oprávnenosť (Gemini Pro)">
+            <div className="text-xs text-muted-foreground">Model: {out.formal?.model} · {out.formal?.elapsedMs} ms</div>
+            <pre className="whitespace-pre-wrap mt-2 bg-muted p-2 rounded text-xs max-h-96 overflow-auto">{out.formal?.text ?? "(no output)"}</pre>
+          </Card>
+          <Card title="2) Čo výzva financuje (Gemini Flash)">
+            <div className="text-xs text-muted-foreground">Model: {out.financed?.model} · {out.financed?.elapsedMs} ms</div>
+            <pre className="whitespace-pre-wrap mt-2 bg-muted p-2 rounded text-xs max-h-96 overflow-auto">{out.financed?.text ?? "(no output)"}</pre>
+          </Card>
+          {out.intent && (
+            <Card title="3) Súlad zámeru (Gemini Flash)">
+              <div className="text-xs text-muted-foreground">Model: {out.intent?.model} · {out.intent?.elapsedMs ?? 0} ms · skipped: {out.intent?.skipped ?? "no"}</div>
+              <div className="mt-2 text-sm italic">Zámer: „{out.intent?.provided}"</div>
+              <pre className="whitespace-pre-wrap mt-2 bg-muted p-2 rounded text-xs max-h-96 overflow-auto">{out.intent?.text ?? "(no output)"}</pre>
+            </Card>
+          )}
+        </>
       )}
     </div>
   );
