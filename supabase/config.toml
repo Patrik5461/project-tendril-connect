@@ -66,4 +66,12 @@ verify_jwt = true
 [functions.faktero-ops]
 verify_jwt = true
 
+[functions.fetch-itms-grants]
+verify_jwt = false
+
+[functions.backfill-itms-grants]
+verify_jwt = false
+
+
+
 
