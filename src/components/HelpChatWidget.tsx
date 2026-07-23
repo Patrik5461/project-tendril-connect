@@ -7,7 +7,7 @@ type Msg = { role: "assistant" | "user"; content: string };
 const WELCOME: Msg = {
   role: "assistant",
   content:
-    "Ahoj! Pomôžem ti zorientovať sa v Tendriku. Spýtaj sa napríklad, čo je radar alebo ako nastaviť notifikácie.",
+    "Dobrý deň! Pomôžem vám zorientovať sa v Tendriku. Spýtajte sa napríklad na verejné zákazky, grantové výzvy, radar alebo nastavenia notifikácií.",
 };
 
 export function HelpChatWidget() {
@@ -152,7 +152,7 @@ export function HelpChatWidget() {
                 }
               }}
               rows={2}
-              placeholder="Napíš otázku…"
+              placeholder="Napíšte otázku…"
               disabled={busy}
               className="flex-1 resize-none text-sm px-2 py-1.5 rounded-md bg-background border border-border focus:outline-none focus:border-foreground disabled:opacity-60"
             />
