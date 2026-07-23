@@ -484,7 +484,10 @@ function GrantDetail() {
           <ul className="space-y-2">
             {derived.documents.map((d: any, i: number) => {
               const nazov = d?.nazov ?? d?.title ?? d?.nazovSk ?? `Dokument ${i + 1}`;
-              const url = d?.url ?? d?.href ?? d?.link ?? grant.detail_url;
+              const uuid = d?.uuid ?? null;
+              const url = uuid
+                ? `https://api.itms21.sk/public/v1/dokument/${uuid}`
+                : (d?.url ?? d?.href ?? d?.link ?? null);
               const typ = (d?.typ ?? d?.type ?? "").toString().toUpperCase();
               return (
                 <li key={i} className="flex items-start gap-2 text-sm">
