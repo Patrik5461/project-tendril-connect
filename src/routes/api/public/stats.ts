@@ -24,18 +24,32 @@ export const Route = createFileRoute("/api/public/stats")({
             },
           });
 
-          const { data, error } = await supabase.rpc(
-            "get_active_tenders_stats",
-          );
-          if (error) throw error;
-          const row = Array.isArray(data) ? data[0] : data;
-          const active = Number(row?.active_count ?? 0);
-          const total = Number(row?.total_value_eur ?? 0);
+          const [tendersRes, grantsRes] = await Promise.all([
+            supabase.rpc("get_active_tenders_stats"),
+            supabase.rpc("get_open_grants_stats"),
+          ]);
+          if (tendersRes.error) throw tendersRes.error;
+
+          const tRow = Array.isArray(tendersRes.data) ? tendersRes.data[0] : tendersRes.data;
+          const active = Number(tRow?.active_count ?? 0);
+          const total = Number(tRow?.total_value_eur ?? 0);
+
+          let openGrants = 0;
+          let openGrantsAlloc = 0;
+          if (!grantsRes.error) {
+            const gRow = Array.isArray(grantsRes.data) ? grantsRes.data[0] : grantsRes.data;
+            openGrants = Number(gRow?.open_count ?? 0);
+            openGrantsAlloc = Number(gRow?.total_alloc_eur ?? 0);
+          } else {
+            console.error("open grants stats failed", grantsRes.error);
+          }
 
           return new Response(
             JSON.stringify({
               active_tenders: active,
               total_value_eur: total,
+              open_grants: openGrants,
+              open_grants_alloc_eur: openGrantsAlloc,
               sources: 2,
             }),
             { status: 200, headers },
