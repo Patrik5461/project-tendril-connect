@@ -41,7 +41,7 @@ const searchSchema = z.object({
   region: fallback(z.string(), "").default(""),
   kategoria: fallback(z.enum(["all", "podnikatelia", "verejny", "neziskovky", "auto"]), "auto").default("auto"),
   q: fallback(z.string(), "").default(""),
-  sort: fallback(z.enum(["deadline", "newest", "suma_desc"]), "deadline").default("deadline"),
+  sort: fallback(z.enum(["deadline", "newest", "suma_desc", "suma_asc"]), "deadline").default("deadline"),
   page: fallback(z.number().int(), 1).default(1),
 });
 
