@@ -7,7 +7,7 @@ type Msg = { role: "assistant" | "user"; content: string };
 const WELCOME: Msg = {
   role: "assistant",
   content:
-    "Ahoj! Pomôžem ti zorientovať sa v Tendriku. Spýtaj sa napríklad, čo je radar alebo ako nastaviť notifikácie.",
+    "Dobrý deň! Pomôžem ti zorientovať sa v Tendriku. Spýtaj sa napríklad na verejné zákazky, grantové výzvy, radar alebo nastavenia notifikácií.",
 };
 
 export function HelpChatWidget() {
