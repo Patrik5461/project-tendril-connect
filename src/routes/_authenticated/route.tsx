@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Settings, LogOut, ShieldCheck, Tag } from "lucide-react";
+import { LayoutDashboard, Settings, LogOut, ShieldCheck, Tag, Coins } from "lucide-react";
 import { HelpChatWidget } from "@/components/HelpChatWidget";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
@@ -60,6 +60,12 @@ function AuthedLayout() {
               <Button variant="ghost" size="sm">
                 <LayoutDashboard className="h-4 w-4 sm:mr-2" />
                 <span className="hidden sm:inline">Zákazky</span>
+              </Button>
+            </Link>
+            <Link to="/granty">
+              <Button variant="ghost" size="sm">
+                <Coins className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Granty</span>
               </Button>
             </Link>
             <Link to="/settings">
