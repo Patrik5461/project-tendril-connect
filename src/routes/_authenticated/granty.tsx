@@ -162,6 +162,8 @@ function GrantyList() {
         query = query.order("datum_vyhlasenia", { ascending: false, nullsFirst: false });
       } else if (sort === "suma_desc") {
         query = query.order("suma_eu", { ascending: false, nullsFirst: false });
+      } else if (sort === "suma_asc") {
+        query = query.order("suma_eu", { ascending: true, nullsFirst: false });
       }
 
       query = query.limit(2000);
