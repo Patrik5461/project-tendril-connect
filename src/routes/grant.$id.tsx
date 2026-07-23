@@ -205,7 +205,7 @@ function parseKontakt(raw: unknown): Kontakt | null {
   const osobaArr = Array.isArray(o.osoba) ? o.osoba : [];
   const osoba = osobaArr
     .map((p: any) => ({
-      meno: p?.meno ?? [p?.titulPred, p?.krstneMeno, p?.priezvisko, p?.titulZa].filter(Boolean).join(" ") || null,
+      meno: p?.meno ?? ([p?.titulPred, p?.krstneMeno, p?.priezvisko, p?.titulZa].filter(Boolean).join(" ") || null),
       email: p?.email ?? null,
       telefon: p?.telefon ?? null,
     }))
