@@ -45,10 +45,11 @@
     "items": [
       "30 dní zdarma na vyskúšanie, potom od 4,99 €/mesiac",
       "Nastavenie za menej ako 2 minúty",
-      "Len živé príležitosti – zákazky po termíne automaticky mažeme. Nehľadáte v tisíckach starých súťaží, vidíte len tie, o ktoré sa dá reálne uchádzať.",
-      "Odkaz priamo na zdroj zákazky",
-      "Farebné upozornenie pri krátkom deadline",
-      "Dáta priamo z oficiálnych zdrojov TED, ÚVO, EKS a JOSEPHINE"
+      "Len živé príležitosti – zákazky a výzvy po termíne automaticky mažeme. Nehľadáte v tisíckach starých súťaží, vidíte len tie, o ktoré sa dá reálne uchádzať.",
+      "Odkaz priamo na zdroj zákazky alebo výzvy",
+      "Farebné upozornenie pri krátkom deadline u zákaziek a one-shot výziev",
+      "Dáta priamo z oficiálnych zdrojov TED, ÚVO, EKS, JOSEPHINE a ITMS21+",
+      "Verejné zákazky aj grantové výzvy na jednom mieste – nemusíte sledovať dva systémy"
     ],
     "cta": "Vytvoriť účet zadarmo"
   },
@@ -63,11 +64,11 @@
       },
       {
         "q": "Odkiaľ berete dáta?",
-        "a": "Z oficiálnych verejných zdrojov: TED (Tenders Electronic Daily – celoeurópsky vestník), vestník ÚVO (Úrad pre verejné obstarávanie SR), EKS (Elektronický kontraktačný systém) a JOSEPHINE (platforma pre podlimitné zákazky používaná mestami, nemocnicami a krajmi)."
+        "a": "Z oficiálnych verejných zdrojov: TED (Tenders Electronic Daily – celoeurópsky vestník), vestník ÚVO (Úrad pre verejné obstarávanie SR), EKS (Elektronický kontraktačný systém), JOSEPHINE (platforma pre podlimitné zákazky používaná mestami, nemocnicami a krajmi) a ITMS21+ (Program Slovensko – oficiálne OpenData API pre eurofondové grantové výzvy)."
       },
       {
-        "q": "Ako často sa zákazky aktualizujú?",
-        "a": "Každý deň sťahujeme nové zákazky zo všetkých štyroch zdrojov a odstraňujeme tie, ktorým už uplynula lehota. V praxi teda vidíte aktuálny stav toho, o čo sa dá dnes uchádzať."
+        "q": "Ako často sa zákazky a výzvy aktualizujú?",
+        "a": "Každý deň sťahujeme nové zákazky zo všetkých štyroch zdrojov a odstraňujeme tie, ktorým už uplynula lehota. Grantové výzvy synchronizujeme v noci. V praxi teda vidíte aktuálny stav toho, o čo sa dá dnes uchádzať."
       },
       {
         "q": "Je služba spoplatnená?",
@@ -75,7 +76,11 @@
       },
       {
         "q": "Pre koho je Tendrik určený?",
-        "a": "Pre malé a stredné firmy, remeselníkov, IT a stavebné spoločnosti, konzultantov, dodávateľov služieb – pre všetkých, ktorí sa chcú uchádzať o verejné zákazky, ale nechcú denne prehrabávať štyri rôzne portály."
+        "a": "Pre malé a stredné firmy, remeselníkov, IT a stavebné spoločnosti, konzultantov, dodávateľov služieb, samosprávy, neziskové organizácie a školy – pre všetkých, ktorí sa chcú uchádzať o verejné zákazky alebo grantové výzvy, ale nechcú denne prehrabávať niekoľko rôznych portálov."
+      },
+      {
+        "q": "Aké granty a dotácie sledujete?",
+        "a": "Aktuálne pokrývame eurofondové výzvy z Programu Slovensko cez oficiálne ITMS21+ OpenData API. Nejedná sa o úplný zoznam všetkých dotačných schéem na Slovensku, ale zdroje postupne rozširujeme. Podrobnosti nájdete v sekcii Granty."
       }
     ]
   },

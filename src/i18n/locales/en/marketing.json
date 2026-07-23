@@ -45,10 +45,11 @@
     "items": [
       "30 days free to try, then from €4.99/month",
       "Set up in under 2 minutes",
-      "Only live opportunities – expired tenders are removed automatically. You don't wade through thousands of old calls, you see only the ones you can actually bid on.",
-      "Direct link to the tender source",
-      "Color alert when the deadline is close",
-      "Data straight from official sources TED, ÚVO, EKS and JOSEPHINE"
+      "Only live opportunities – expired tenders and calls are removed automatically. You don't wade through thousands of old calls, you see only the ones you can actually bid on.",
+      "Direct link to the tender or call source",
+      "Color alert when the deadline is close for tenders and one-shot calls",
+      "Data straight from official sources TED, ÚVO, EKS, JOSEPHINE and ITMS21+",
+      "Public tenders and grant calls in one place – no need to monitor two systems"
     ],
     "cta": "Create a free account"
   },
@@ -63,11 +64,11 @@
       },
       {
         "q": "Where does the data come from?",
-        "a": "From official public sources: TED (Tenders Electronic Daily – the EU-wide gazette), the ÚVO gazette (Slovak Public Procurement Office), EKS (Electronic Contracting System) and JOSEPHINE (a below-threshold platform used by cities, hospitals and regions)."
+        "a": "From official public sources: TED (Tenders Electronic Daily – the EU-wide gazette), the ÚVO gazette (Slovak Public Procurement Office), EKS (Electronic Contracting System), JOSEPHINE (a below-threshold platform used by cities, hospitals and regions) and ITMS21+ (Slovakia Programme – official OpenData API for EU-funded grant calls)."
       },
       {
-        "q": "How often are tenders updated?",
-        "a": "Every day we pull new tenders from all four sources and drop the ones past their deadline. In practice you see the current state of what's biddable today."
+        "q": "How often are tenders and calls updated?",
+        "a": "Every day we pull new tenders from all four sources and drop the ones past their deadline. Grant calls are synced overnight. In practice you see the current state of what's biddable today."
       },
       {
         "q": "Is the service paid?",
@@ -75,7 +76,11 @@
       },
       {
         "q": "Who is Tendrik for?",
-        "a": "Small and medium businesses, tradespeople, IT and construction firms, consultants and service providers – anyone who wants to bid on public tenders without trawling four different portals every day."
+        "a": "Small and medium businesses, tradespeople, IT and construction firms, consultants, service providers, local governments, non-profits and schools – anyone who wants to bid on public tenders or grant calls without trawling several different portals every day."
+      },
+      {
+        "q": "What grants and subsidies do you track?",
+        "a": "We currently cover EU-funded grant calls from the Slovakia Programme via the official ITMS21+ OpenData API. This is not a complete list of every subsidy scheme in Slovakia, and we are expanding sources gradually. Details are available in the Grants section."
       }
     ]
   },
