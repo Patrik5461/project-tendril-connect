@@ -212,6 +212,56 @@ export type Database = {
         }
         Relationships: []
       }
+      grant_analysis: {
+        Row: {
+          created_at: string
+          eligibility: Json | null
+          grant_id: string
+          id: string
+          model_versions: Json | null
+          overall: string | null
+          recommendation: string | null
+          requirements: Json | null
+          summary: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          eligibility?: Json | null
+          grant_id: string
+          id?: string
+          model_versions?: Json | null
+          overall?: string | null
+          recommendation?: string | null
+          requirements?: Json | null
+          summary?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          eligibility?: Json | null
+          grant_id?: string
+          id?: string
+          model_versions?: Json | null
+          overall?: string | null
+          recommendation?: string | null
+          requirements?: Json | null
+          summary?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grant_analysis_grant_id_fkey"
+            columns: ["grant_id"]
+            isOneToOne: false
+            referencedRelation: "grant_calls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       grant_calls: {
         Row: {
           created_at: string
@@ -901,6 +951,7 @@ export type Database = {
       }
       cleanup_grant_calls: { Args: never; Returns: number }
       consume_ai_credit: { Args: { _tender_id: string }; Returns: Json }
+      consume_ai_credit_grant: { Args: { _grant_id: string }; Returns: Json }
       count_seo_active_tenders: {
         Args: { _cpv_prefix: string; _region_name: string }
         Returns: number
