@@ -69,35 +69,8 @@ export const Route = createFileRoute("/api/public/grant-doc/$uuid")({
         const url = new URL(request.url);
         const rawName = url.searchParams.get("name") ?? "";
 
-        // Look up doc metadata by uuid to derive filename + verify it exists
-        const supa = createClient(
-          process.env.SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY!,
-          { auth: { persistSession: false } },
-        );
-
         let nazov = rawName;
-        let kod = "";
-        let ordinal = 0;
-        try {
-          const { data: rows } = await supa
-            .from("grant_calls")
-            .select("kod, documents")
-            .contains("documents", [{ uuid }])
-            .limit(1);
-          const row = rows?.[0];
-          if (row) {
-            kod = String(row.kod ?? "");
-            const docs = (row.documents ?? []) as Array<{ uuid: string; nazov?: string }>;
-            const idx = docs.findIndex((d) => d.uuid === uuid);
-            if (idx >= 0) {
-              ordinal = idx + 1;
-              if (!nazov) nazov = docs[idx]?.nazov ?? "";
-            }
-          }
-        } catch (e) {
-          console.error("grant-doc lookup failed", e);
-        }
+
 
         // Fetch the source
         const upstream = await fetch(`https://api.itms21.sk/public/v1/dokument/${uuid}`);
