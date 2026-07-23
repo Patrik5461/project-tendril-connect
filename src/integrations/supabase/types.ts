@@ -212,6 +212,96 @@ export type Database = {
         }
         Relationships: []
       }
+      grant_calls: {
+        Row: {
+          created_at: string
+          currency: string
+          datum_vyhlasenia: string | null
+          deadline: string | null
+          detail_url: string | null
+          documents: Json
+          druh: string | null
+          id: string
+          itms_updated_at: string | null
+          kod: string | null
+          kontakt: Json | null
+          miesto_realizacie: Json
+          oblasti: Json
+          opravneny_ziadatel: Json
+          poskytovatel: string | null
+          program: string | null
+          raw: Json | null
+          source: string
+          source_id: string
+          stav: string
+          structured_conditions: Json | null
+          suma_eu: number | null
+          suma_sr: number | null
+          title: string
+          updated_at: string
+          vyhlasovatel: string | null
+          zameranie: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          datum_vyhlasenia?: string | null
+          deadline?: string | null
+          detail_url?: string | null
+          documents?: Json
+          druh?: string | null
+          id?: string
+          itms_updated_at?: string | null
+          kod?: string | null
+          kontakt?: Json | null
+          miesto_realizacie?: Json
+          oblasti?: Json
+          opravneny_ziadatel?: Json
+          poskytovatel?: string | null
+          program?: string | null
+          raw?: Json | null
+          source?: string
+          source_id: string
+          stav?: string
+          structured_conditions?: Json | null
+          suma_eu?: number | null
+          suma_sr?: number | null
+          title: string
+          updated_at?: string
+          vyhlasovatel?: string | null
+          zameranie?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          datum_vyhlasenia?: string | null
+          deadline?: string | null
+          detail_url?: string | null
+          documents?: Json
+          druh?: string | null
+          id?: string
+          itms_updated_at?: string | null
+          kod?: string | null
+          kontakt?: Json | null
+          miesto_realizacie?: Json
+          oblasti?: Json
+          opravneny_ziadatel?: Json
+          poskytovatel?: string | null
+          program?: string | null
+          raw?: Json | null
+          source?: string
+          source_id?: string
+          stav?: string
+          structured_conditions?: Json | null
+          suma_eu?: number | null
+          suma_sr?: number | null
+          title?: string
+          updated_at?: string
+          vyhlasovatel?: string | null
+          zameranie?: string | null
+        }
+        Relationships: []
+      }
       help_chat_usage: {
         Row: {
           created_at: string
@@ -806,6 +896,7 @@ export type Database = {
         }
         Returns: Json
       }
+      cleanup_grant_calls: { Args: never; Returns: number }
       consume_ai_credit: { Args: { _tender_id: string }; Returns: Json }
       count_seo_active_tenders: {
         Args: { _cpv_prefix: string; _region_name: string }
