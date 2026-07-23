@@ -378,6 +378,10 @@ function SettingsPage() {
           </section>
         </TabsContent>
 
+        <TabsContent value="grant-radars" className="mt-6">
+          <GrantRadarsSection userId={userId} />
+        </TabsContent>
+
         <TabsContent value="billing" className="mt-6 space-y-6">
           <SubscriptionSection userId={userId} />
           <BillingDetailsSection userId={userId} />
