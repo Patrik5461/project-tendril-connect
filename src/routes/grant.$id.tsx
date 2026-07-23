@@ -485,22 +485,31 @@ function GrantDetail() {
             {derived.documents.map((d: any, i: number) => {
               const nazov = d?.nazov ?? d?.title ?? d?.nazovSk ?? `Dokument ${i + 1}`;
               const uuid = d?.uuid ?? null;
+              const size = d?.velkost ?? d?.size ?? null;
+              const extMatch = /\.([A-Za-z0-9]{1,6})$/.exec(String(nazov));
+              const ext = (d?.typ ?? d?.type ?? extMatch?.[1] ?? "").toString().toUpperCase();
               const url = uuid
-                ? `https://api.itms21.sk/public/v1/dokument/${uuid}`
+                ? `/api/public/grant-doc/${uuid}?name=${encodeURIComponent(nazov)}`
                 : (d?.url ?? d?.href ?? d?.link ?? null);
-              const typ = (d?.typ ?? d?.type ?? "").toString().toUpperCase();
+              const sizeLabel = typeof size === "number" && size > 0
+                ? size >= 1024 * 1024
+                  ? `${(size / 1024 / 1024).toFixed(1)} MB`
+                  : `${Math.max(1, Math.round(size / 1024))} kB`
+                : null;
               return (
                 <li key={i} className="flex items-start gap-2 text-sm">
                   <FileText className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
                   <div className="min-w-0 flex-1">
                     {url ? (
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="hover:text-primary underline underline-offset-2 break-words">
-                        {nazov} <ExternalLink className="inline h-3 w-3 ml-0.5" />
+                      <a href={url} download={nazov} rel="noopener noreferrer" className="hover:text-primary underline underline-offset-2 break-words">
+                        {nazov}
                       </a>
                     ) : (
                       <span className="break-words">{nazov}</span>
                     )}
-                    {typ && <span className="ml-2 text-xs text-muted-foreground uppercase">{typ}</span>}
+                    <span className="ml-2 text-xs text-muted-foreground uppercase">
+                      {[ext, sizeLabel].filter(Boolean).join(" · ")}
+                    </span>
                   </div>
                 </li>
               );
