@@ -444,7 +444,7 @@ function GrantCard({ g }: { g: Grant }) {
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
   const rolling = g.typ === "OTVORENA";
   const docsCount = Array.isArray(g.documents) ? g.documents.length : 0;
-  const regions = Array.isArray(g.miesto_realizacie) ? g.miesto_realizacie.map((x: any) => x?.nazov).filter(Boolean) : [];
+  const regions = extractRegionNames(g.miesto_realizacie);
   const totalSum = (g.suma_eu ?? 0) + (g.suma_sr ?? 0);
   const cats = categoriesForGrant(g.opravneny_ziadatel);
 
