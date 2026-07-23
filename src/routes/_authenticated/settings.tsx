@@ -300,6 +300,39 @@ function SettingsPage() {
                 onCheckedChange={setDeadlineReminders}
               />
             </div>
+            <div className="mt-6 border-t border-primary/10 pt-4">
+              <h3 className="font-display font-semibold text-base tracking-tight">Grantové výzvy</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Iná kadencia než pri zákazkách – zoznam sa mení pomalšie.
+              </p>
+              <div className="mt-4 flex items-center justify-between gap-4">
+                <div>
+                  <Label htmlFor="gNewMatch">Nová zhoda s grantovým radarom</Label>
+                  <p className="text-sm text-muted-foreground">
+                    E-mail vždy, keď pribudne výzva, ktorá sedí na niektorý z vašich grantových radarov.
+                  </p>
+                </div>
+                <Switch id="gNewMatch" checked={grantNewMatch} onCheckedChange={setGrantNewMatch} />
+              </div>
+              <div className="mt-4 flex items-center justify-between gap-4">
+                <div>
+                  <Label htmlFor="gWeekly">Týždenný súhrn grantov</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Piatkový súhrn nových a otvorených výziev podľa vašich radarov.
+                  </p>
+                </div>
+                <Switch id="gWeekly" checked={grantWeekly} onCheckedChange={setGrantWeekly} />
+              </div>
+              <div className="mt-4 flex items-center justify-between gap-4">
+                <div>
+                  <Label htmlFor="gDeadline">Pripomienky deadlinov grantov</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Len pri one-shot výzvach (s pevným deadlinom), 7 a 2 dni pred koncom.
+                  </p>
+                </div>
+                <Switch id="gDeadline" checked={grantDeadline} onCheckedChange={setGrantDeadline} />
+              </div>
+            </div>
             <div className="mt-6 flex justify-end">
               <Button size="sm" onClick={saveNotifications} disabled={saving}>
                 {saving ? "Ukladám..." : "Uložiť notifikácie"}
@@ -307,6 +340,7 @@ function SettingsPage() {
             </div>
           </section>
         </TabsContent>
+
 
         <TabsContent value="radars" className="mt-6">
           <section>
