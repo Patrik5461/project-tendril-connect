@@ -115,16 +115,22 @@ function pickName(obj: unknown): string | null {
   return typeof v === "string" && v.trim() ? v.trim() : null;
 }
 
+/**
+ * Lifecycle state (whether the call currently accepts submissions).
+ * NOTE: ITMS field `typ` is NOT lifecycle — it is the *call format*:
+ *   - "OTVORENA" = rolling/continuous submissions (usually deadline = null)
+ *   - "UZAVRETA" = one-shot with a fixed submission deadline
+ * The lifecycle must be derived from `vyhlasena/uzavreta/zrusena` + deadline.
+ */
 function deriveStav(v: ItmsVyzvaListItem): string {
   if (v.zrusena) return "ZRUSENA";
-  if (v.typ && typeof v.typ === "string") {
-    const t = v.typ.toUpperCase();
-    if (t === "OTVORENA" || t === "UZAVRETA" || t === "PLANOVANA") return t;
-  }
-  if (v.uzavreta) return "UZAVRETA";
+  const deadlineMs = typeof v.datumUkoncenia === "number" ? v.datumUkoncenia : null;
+  const deadlinePassed = deadlineMs !== null && deadlineMs < Date.now();
+  if (v.uzavreta || deadlinePassed) return "UZAVRETA";
   if (v.vyhlasena) return "OTVORENA";
   return "PLANOVANA";
 }
+
 
 /**
  * Normalize a raw ITMS vyzva (list item OR detail) into a row for `public.grant_calls`.
@@ -208,6 +214,8 @@ export function normalizeVyzva(
     structured_conditions: structured,
     detail_url: v.kod ? `https://itms2014.sk/vyzva?id=${v.id}` : null,
     itms_updated_at: parseIsoish(v.updatedAt),
+    typ: typeof v.typ === "string" ? v.typ : null,
     raw: v,
   };
 }
+

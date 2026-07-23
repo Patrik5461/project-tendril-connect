@@ -238,6 +238,7 @@ export type Database = {
           suma_eu: number | null
           suma_sr: number | null
           title: string
+          typ: string | null
           updated_at: string
           vyhlasovatel: string | null
           zameranie: string | null
@@ -267,6 +268,7 @@ export type Database = {
           suma_eu?: number | null
           suma_sr?: number | null
           title: string
+          typ?: string | null
           updated_at?: string
           vyhlasovatel?: string | null
           zameranie?: string | null
@@ -296,6 +298,7 @@ export type Database = {
           suma_eu?: number | null
           suma_sr?: number | null
           title?: string
+          typ?: string | null
           updated_at?: string
           vyhlasovatel?: string | null
           zameranie?: string | null
