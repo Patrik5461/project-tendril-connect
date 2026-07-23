@@ -517,7 +517,7 @@ function GrantCard({ g }: { g: Grant }) {
           <div>
             <dt className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" /> Región</dt>
             <dd className="mt-0.5 text-xs">
-              {regions.length === 0 ? "—" : regions.length >= 8 ? "Celé Slovensko" : regions.slice(0, 2).join(", ") + (regions.length > 2 ? ` +${regions.length - 2}` : "")}
+              {regionLabel(regions)}
             </dd>
           </div>
           <div>
