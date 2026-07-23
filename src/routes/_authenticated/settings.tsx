@@ -125,10 +125,14 @@ function SettingsPage() {
         deadline_reminders: deadlineReminders,
         digest_frequency: digestFrequency,
         notification_email: normalized,
+        grant_new_match_notifications: grantNewMatch,
+        grant_weekly_digest: grantWeekly,
+        grant_deadline_reminders: grantDeadline,
         onboarding_completed: true,
       } as any,
       { onConflict: "user_id" },
     );
+
     setSaving(false);
     if (error) toast.error(error.message);
     else {
