@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { listSeoPages, generateSeoPages, regenerateSeoPage, updateSeoPage } from "@/lib/seo.functions";
 import { adminAnalyzeTender, adminListTendersForTest } from "@/lib/tender-analysis.functions";
 import { adminSuggestSubcontracting, adminFindSubcontractorCandidates, adminGenerateOutreach } from "@/lib/subcontracting.functions";
+import { adminAnalyzeGrant } from "@/lib/grant-analysis.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin – Tendrik" }] }),
