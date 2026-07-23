@@ -45,10 +45,11 @@
     "items": [
       "30 Tage gratis testen, danach ab 4,99 €/Monat",
       "Einrichtung in unter 2 Minuten",
-      "Nur aktive Verfahren – abgelaufene Ausschreibungen entfernen wir automatisch. Du musst nicht Tausende alter Verfahren durchsuchen, du siehst nur die, um die man sich wirklich bewerben kann.",
-      "Direkter Link zur Quelle der Ausschreibung",
-      "Farbwarnung bei knapper Frist",
-      "Daten direkt aus den offiziellen Quellen TED, ÚVO, EKS und JOSEPHINE"
+      "Nur aktive Verfahren – abgelaufene Ausschreibungen und Aufrufe entfernen wir automatisch. Du musst nicht Tausende alter Verfahren durchsuchen, du siehst nur die, um die man sich wirklich bewerben kann.",
+      "Direkter Link zur Quelle der Ausschreibung oder des Aufrufs",
+      "Farbwarnung bei knapper Frist bei Ausschreibungen und einmaligen Aufrufen",
+      "Daten direkt aus den offiziellen Quellen TED, ÚVO, EKS, JOSEPHINE und ITMS21+",
+      "Öffentliche Ausschreibungen und Förderaufrufe an einem Ort – du musst nicht zwei Systeme beobachten"
     ],
     "cta": "Kostenloses Konto erstellen"
   },
@@ -63,11 +64,11 @@
       },
       {
         "q": "Woher stammen die Daten?",
-        "a": "Aus offiziellen öffentlichen Quellen: TED (Tenders Electronic Daily – das EU-weite Amtsblatt), dem Amtsblatt ÚVO (Slowakisches Amt für öffentliches Auftragswesen), EKS (Elektronisches Vertragssystem) und JOSEPHINE (Plattform für Unterschwellen-Vergaben, genutzt von Städten, Krankenhäusern und Regionen)."
+        "a": "Aus offiziellen öffentlichen Quellen: TED (Tenders Electronic Daily – das EU-weite Amtsblatt), dem Amtsblatt ÚVO (Slowakisches Amt für öffentliches Auftragswesen), EKS (Elektronisches Vertragssystem), JOSEPHINE (Plattform für Unterschwellen-Vergaben, genutzt von Städten, Krankenhäusern und Regionen) und ITMS21+ (Programm Slowakei – offizielle OpenData-API für EU-Förderaufrufe)."
       },
       {
-        "q": "Wie oft werden Ausschreibungen aktualisiert?",
-        "a": "Jeden Tag ziehen wir neue Ausschreibungen aus allen vier Quellen und entfernen abgelaufene. In der Praxis siehst du also den aktuellen Stand dessen, worum man sich heute bewerben kann."
+        "q": "Wie oft werden Ausschreibungen und Aufrufe aktualisiert?",
+        "a": "Jeden Tag ziehen wir neue Ausschreibungen aus allen vier Quellen und entfernen abgelaufene. Förderaufrufe synchronisieren wir nachts. In der Praxis siehst du also den aktuellen Stand dessen, worum man sich heute bewerben kann."
       },
       {
         "q": "Ist der Dienst kostenpflichtig?",
@@ -75,7 +76,11 @@
       },
       {
         "q": "Für wen ist Tendrik gedacht?",
-        "a": "Für kleine und mittlere Unternehmen, Handwerker, IT- und Baufirmen, Berater und Dienstleister – für alle, die sich um öffentliche Aufträge bewerben wollen, aber nicht täglich vier verschiedene Portale durchsuchen möchten."
+        "a": "Für kleine und mittlere Unternehmen, Handwerker, IT- und Baufirmen, Berater, Dienstleister, Kommunen, gemeinnützige Organisationen und Schulen – für alle, die sich um öffentliche Aufträge oder Förderaufrufe bewerben wollen, aber nicht täglich mehrere verschiedene Portale durchsuchen möchten."
+      },
+      {
+        "q": "Welche Förderungen und Zuschüsse werden verfolgt?",
+        "a": "Aktuell decken wir EU-Förderaufrufe aus dem Programm Slowakei über die offizielle ITMS21+ OpenData-API ab. Es handelt sich nicht um eine vollständige Liste aller Förderprogramme in der Slowakei, aber wir erweitern die Quellen schrittweise. Details findest du im Bereich Grants."
       }
     ]
   },
