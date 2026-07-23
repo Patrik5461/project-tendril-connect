@@ -102,6 +102,7 @@ function AdminPage() {
           <TabsTrigger value="users">Používatelia</TabsTrigger>
           <TabsTrigger value="seo">SEO</TabsTrigger>
           <TabsTrigger value="ai-test">AI test</TabsTrigger>
+          <TabsTrigger value="grants-test">Granty (ITMS)</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-4"><OverviewTab /></TabsContent>
         <TabsContent value="actions" className="mt-4"><ActionsTab /></TabsContent>
@@ -110,6 +111,8 @@ function AdminPage() {
         <TabsContent value="users" className="mt-4"><UsersTab /></TabsContent>
         <TabsContent value="seo" className="mt-4"><SeoTab /></TabsContent>
         <TabsContent value="ai-test" className="mt-4"><AiTestTab /></TabsContent>
+        <TabsContent value="grants-test" className="mt-4"><GrantsTestTab /></TabsContent>
+
       </Tabs>
     </div>
   );
