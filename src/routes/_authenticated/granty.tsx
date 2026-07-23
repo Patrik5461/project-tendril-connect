@@ -352,6 +352,7 @@ function GrantyList() {
             <SelectItem value="deadline">Podľa deadlinu</SelectItem>
             <SelectItem value="newest">Najnovšie vyhlásené</SelectItem>
             <SelectItem value="suma_desc">Najvyššia suma EÚ</SelectItem>
+            <SelectItem value="suma_asc">Najnižšia suma EÚ</SelectItem>
           </SelectContent>
         </Select>
 
