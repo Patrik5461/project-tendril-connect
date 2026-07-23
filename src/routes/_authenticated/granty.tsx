@@ -172,27 +172,36 @@ function GrantyList() {
     })();
   }, [stav, typ, program, region, q, sort]);
 
-  // Compute per-category counts + filter to selected category
-  const { counts, effectiveCategory, filtered } = useMemo(() => {
+  // Compute per-category + per-region counts + filter to selected category & region
+  const { counts, regionCounts, effectiveCategory, filtered } = useMemo(() => {
     const counts = { podnikatelia: 0, verejny: 0, neziskovky: 0, ine: 0 };
-    const withCats = allItems.map((g) => {
+    const regionCounts: Record<string, number> = { __whole__: 0 };
+    REGIONS.forEach((r) => (regionCounts[r] = 0));
+
+    const withMeta = allItems.map((g) => {
       const cats = categoriesForGrant(g.opravneny_ziadatel);
       if (cats.has("podnikatelia")) counts.podnikatelia++;
       if (cats.has("verejny")) counts.verejny++;
       if (cats.has("neziskovky")) counts.neziskovky++;
       if (cats.size === 0) counts.ine++;
-      return { g, cats };
+
+      const regs = extractRegionNames(g.miesto_realizacie);
+      const isWhole = regs.length >= 8;
+      if (isWhole) regionCounts.__whole__++;
+      regs.forEach((r) => { if (r in regionCounts) regionCounts[r]++; });
+      return { g, cats, regs, isWhole };
     });
 
     const effective: ApplicantCategory | "all" =
       kategoria === "auto" ? (profileCategory ?? "all") : kategoria;
 
-    const filtered = effective === "all"
-      ? withCats.map((x) => x.g)
-      : withCats.filter((x) => x.cats.has(effective)).map((x) => x.g);
+    const filtered = withMeta
+      .filter((x) => effective === "all" ? true : x.cats.has(effective))
+      .filter((x) => !region ? true : (x.isWhole || x.regs.includes(region)))
+      .map((x) => x.g);
 
-    return { counts, effectiveCategory: effective, filtered };
-  }, [allItems, kategoria, profileCategory]);
+    return { counts, regionCounts, effectiveCategory: effective, filtered };
+  }, [allItems, kategoria, profileCategory, region]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
