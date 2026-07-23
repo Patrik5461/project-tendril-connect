@@ -15,6 +15,7 @@ import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 import { sendSettingsConfirmationEmail } from "@/lib/settings-email";
+import GrantRadarsSection from "@/components/GrantRadarsSection";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Nastavenia – Tendrik" }] }),
