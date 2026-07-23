@@ -298,14 +298,15 @@ function Landing() {
                 components={{ price: <span className="num text-foreground" /> }}
               />
             </p>
-
-            <ActiveTendersBlock />
           </div>
           <div className="md:pt-4">
             <TenderMock />
           </div>
         </div>
+
+        <ActiveTendersBlock />
       </section>
+
 
       <hr className="rule-thick mx-auto max-w-6xl" />
 
