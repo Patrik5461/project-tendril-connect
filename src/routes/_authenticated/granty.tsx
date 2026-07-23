@@ -61,6 +61,44 @@ const REGIONS = [
   "Žilinský kraj", "Banskobystrický kraj", "Prešovský kraj", "Košický kraj",
 ];
 
+// NUTS3 → SK názov (defenzívne, ak by ITMS niekde vrátil len kód)
+const NUTS_TO_REGION: Record<string, string> = {
+  SK010: "Bratislavský kraj", SK021: "Trnavský kraj", SK022: "Trenčiansky kraj",
+  SK023: "Nitriansky kraj",   SK031: "Žilinský kraj", SK032: "Banskobystrický kraj",
+  SK041: "Prešovský kraj",    SK042: "Košický kraj",
+};
+
+function extractRegionNames(mr: any): string[] {
+  if (!Array.isArray(mr)) return [];
+  const out = new Set<string>();
+  for (const item of mr) {
+    const nazov = item?.nazov?.trim?.();
+    const kod: string = item?.kod ?? "";
+    // Whole-country markers
+    if (/^SK0?$/i.test(kod) || /^1006SK0?$/i.test(kod) ||
+        /slovensk[aá]\s*republika|cel[eé]\s*slovensko/i.test(nazov ?? "")) {
+      REGIONS.forEach((r) => out.add(r));
+      continue;
+    }
+    if (nazov && REGIONS.includes(nazov)) { out.add(nazov); continue; }
+    // NUTS fallback (e.g. "1006SK021" or "SK021")
+    const m = kod.match(/SK0(?:10|21|22|23|31|32|41|42)/i);
+    if (m) {
+      const nuts = m[0].toUpperCase();
+      const mapped = NUTS_TO_REGION[nuts];
+      if (mapped) out.add(mapped);
+    }
+  }
+  return Array.from(out);
+}
+
+function regionLabel(regions: string[]): string {
+  if (regions.length === 0) return "—";
+  if (regions.length >= 8) return "Celé Slovensko";
+  if (regions.length >= 5) return `${regions.length} krajov`;
+  return regions.join(", ");
+}
+
 const CATEGORY_ICON: Record<ApplicantCategory, typeof Briefcase> = {
   podnikatelia: Briefcase,
   verejny: Landmark,
@@ -115,7 +153,7 @@ function GrantyList() {
       if (stav !== "all") query = query.eq("stav", stav);
       if (typ !== "all") query = query.eq("typ", typ);
       if (program) query = query.eq("program", program);
-      if (region) query = query.contains("miesto_realizacie", [{ nazov: region }]);
+      // region filter runs client-side (celoslovenské výzvy musia matchovať každý kraj)
       if (q) query = query.or(`title.ilike.%${q}%,kod.ilike.%${q}%,poskytovatel.ilike.%${q}%`);
 
       if (sort === "deadline") {
@@ -134,27 +172,36 @@ function GrantyList() {
     })();
   }, [stav, typ, program, region, q, sort]);
 
-  // Compute per-category counts + filter to selected category
-  const { counts, effectiveCategory, filtered } = useMemo(() => {
+  // Compute per-category + per-region counts + filter to selected category & region
+  const { counts, regionCounts, effectiveCategory, filtered } = useMemo(() => {
     const counts = { podnikatelia: 0, verejny: 0, neziskovky: 0, ine: 0 };
-    const withCats = allItems.map((g) => {
+    const regionCounts: Record<string, number> = { __whole__: 0 };
+    REGIONS.forEach((r) => (regionCounts[r] = 0));
+
+    const withMeta = allItems.map((g) => {
       const cats = categoriesForGrant(g.opravneny_ziadatel);
       if (cats.has("podnikatelia")) counts.podnikatelia++;
       if (cats.has("verejny")) counts.verejny++;
       if (cats.has("neziskovky")) counts.neziskovky++;
       if (cats.size === 0) counts.ine++;
-      return { g, cats };
+
+      const regs = extractRegionNames(g.miesto_realizacie);
+      const isWhole = regs.length >= 8;
+      if (isWhole) regionCounts.__whole__++;
+      regs.forEach((r) => { if (r in regionCounts) regionCounts[r]++; });
+      return { g, cats, regs, isWhole };
     });
 
     const effective: ApplicantCategory | "all" =
       kategoria === "auto" ? (profileCategory ?? "all") : kategoria;
 
-    const filtered = effective === "all"
-      ? withCats.map((x) => x.g)
-      : withCats.filter((x) => x.cats.has(effective)).map((x) => x.g);
+    const filtered = withMeta
+      .filter((x) => effective === "all" ? true : x.cats.has(effective))
+      .filter((x) => !region ? true : (x.isWhole || x.regs.includes(region)))
+      .map((x) => x.g);
 
-    return { counts, effectiveCategory: effective, filtered };
-  }, [allItems, kategoria, profileCategory]);
+    return { counts, regionCounts, effectiveCategory: effective, filtered };
+  }, [allItems, kategoria, profileCategory, region]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -281,8 +328,19 @@ function GrantyList() {
         <Select value={region || "__all__"} onValueChange={(v) => updateSearch({ region: v === "__all__" ? "" : v })}>
           <SelectTrigger><SelectValue placeholder="Miesto realizácie" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">Celé Slovensko</SelectItem>
-            {REGIONS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+            <SelectItem value="__all__">
+              Všetky kraje ({allItems.length})
+            </SelectItem>
+            {REGIONS.map((r) => {
+              const total = (regionCounts[r] ?? 0);
+              const whole = regionCounts.__whole__ ?? 0;
+              const regional = Math.max(0, total - whole);
+              return (
+                <SelectItem key={r} value={r}>
+                  {r} — {total} <span className="text-muted-foreground">({whole} celoslov. + {regional} reg.)</span>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
 
@@ -386,7 +444,7 @@ function GrantCard({ g }: { g: Grant }) {
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
   const rolling = g.typ === "OTVORENA";
   const docsCount = Array.isArray(g.documents) ? g.documents.length : 0;
-  const regions = Array.isArray(g.miesto_realizacie) ? g.miesto_realizacie.map((x: any) => x?.nazov).filter(Boolean) : [];
+  const regions = extractRegionNames(g.miesto_realizacie);
   const totalSum = (g.suma_eu ?? 0) + (g.suma_sr ?? 0);
   const cats = categoriesForGrant(g.opravneny_ziadatel);
 
@@ -459,7 +517,7 @@ function GrantCard({ g }: { g: Grant }) {
           <div>
             <dt className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" /> Región</dt>
             <dd className="mt-0.5 text-xs">
-              {regions.length === 0 ? "—" : regions.length >= 8 ? "Celé Slovensko" : regions.slice(0, 2).join(", ") + (regions.length > 2 ? ` +${regions.length - 2}` : "")}
+              {regionLabel(regions)}
             </dd>
           </div>
           <div>
