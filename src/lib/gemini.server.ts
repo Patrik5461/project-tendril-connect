@@ -67,7 +67,6 @@ async function callOnce(model: GeminiModel, prompt: string, opts: GenerateOpts, 
   if (!res.ok || json.error) {
     const err = json.error ?? { code: res.status, status: "ERROR", message: raw.slice(0, 200) };
     console.error(`[${label}] ${model} status=${res.status} elapsed=${elapsedMs}ms error=${err.status}/${err.code} chars=${promptChars} ~tok=${approxTokens}`, err.message);
-    console.error(`[${label}] SYS(head)="${(opts.system ?? "").slice(0, 200)}" USR(head)="${prompt.slice(0, 400)}" details=${JSON.stringify(err.details ?? err).slice(0, 500)}`);
     throw new GeminiError(err.code ?? res.status, err.status ?? "ERROR", err.message ?? "Gemini error");
   }
   const text = json.candidates?.[0]?.content?.parts?.map((p: any) => p.text).filter(Boolean).join("") ?? "";
