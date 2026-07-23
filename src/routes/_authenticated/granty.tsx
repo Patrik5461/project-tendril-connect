@@ -153,7 +153,7 @@ function GrantyList() {
       if (stav !== "all") query = query.eq("stav", stav);
       if (typ !== "all") query = query.eq("typ", typ);
       if (program) query = query.eq("program", program);
-      if (region) query = query.contains("miesto_realizacie", [{ nazov: region }]);
+      // region filter runs client-side (celoslovenské výzvy musia matchovať každý kraj)
       if (q) query = query.or(`title.ilike.%${q}%,kod.ilike.%${q}%,poskytovatel.ilike.%${q}%`);
 
       if (sort === "deadline") {
