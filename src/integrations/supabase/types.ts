@@ -424,6 +424,33 @@ export type Database = {
         }
         Relationships: []
       }
+      sent_grant_notifications: {
+        Row: {
+          extra: string | null
+          grant_id: string
+          id: string
+          kind: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          extra?: string | null
+          grant_id: string
+          id?: string
+          kind: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          extra?: string | null
+          grant_id?: string
+          id?: string
+          kind?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sent_reminders: {
         Row: {
           days_before: number
@@ -708,6 +735,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_grant_radars: {
+        Row: {
+          active: boolean
+          applicant_categories: string[]
+          created_at: string
+          formats: string[]
+          id: string
+          keywords: string[]
+          name: string
+          programs: string[]
+          regions: string[]
+          suma_eu_max: number | null
+          suma_eu_min: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          applicant_categories?: string[]
+          created_at?: string
+          formats?: string[]
+          id?: string
+          keywords?: string[]
+          name?: string
+          programs?: string[]
+          regions?: string[]
+          suma_eu_max?: number | null
+          suma_eu_min?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          applicant_categories?: string[]
+          created_at?: string
+          formats?: string[]
+          id?: string
+          keywords?: string[]
+          name?: string
+          programs?: string[]
+          regions?: string[]
+          suma_eu_max?: number | null
+          suma_eu_min?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           cpv_codes: string[]
@@ -717,6 +792,9 @@ export type Database = {
           email_notifications: boolean
           gopay_recurrence_id: string | null
           gopay_subscription_id: string | null
+          grant_deadline_reminders: boolean
+          grant_new_match_notifications: boolean
+          grant_weekly_digest: boolean
           id: string
           keywords: string[]
           last_payment_at: string | null
@@ -744,6 +822,9 @@ export type Database = {
           email_notifications?: boolean
           gopay_recurrence_id?: string | null
           gopay_subscription_id?: string | null
+          grant_deadline_reminders?: boolean
+          grant_new_match_notifications?: boolean
+          grant_weekly_digest?: boolean
           id?: string
           keywords?: string[]
           last_payment_at?: string | null
@@ -771,6 +852,9 @@ export type Database = {
           email_notifications?: boolean
           gopay_recurrence_id?: string | null
           gopay_subscription_id?: string | null
+          grant_deadline_reminders?: boolean
+          grant_new_match_notifications?: boolean
+          grant_weekly_digest?: boolean
           id?: string
           keywords?: string[]
           last_payment_at?: string | null
@@ -1004,12 +1088,65 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      grant_applicant_categories: {
+        Args: { _opravneny: Json }
+        Returns: string[]
+      }
+      grant_classify_applicant: { Args: { _name: string }; Returns: string }
+      grant_is_nationwide: { Args: { _miesto: Json }; Returns: boolean }
+      grant_region_names: { Args: { _miesto: Json }; Returns: string[] }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      list_grant_programs: {
+        Args: never
+        Returns: {
+          cnt: number
+          program: string
+        }[]
+      }
+      match_grants_for_radar: {
+        Args: { _radar_id: string }
+        Returns: {
+          created_at: string
+          currency: string
+          datum_vyhlasenia: string | null
+          deadline: string | null
+          detail_url: string | null
+          documents: Json
+          druh: string | null
+          id: string
+          itms_updated_at: string | null
+          kod: string | null
+          kontakt: Json | null
+          miesto_realizacie: Json
+          oblasti: Json
+          opravneny_ziadatel: Json
+          poskytovatel: string | null
+          program: string | null
+          raw: Json | null
+          source: string
+          source_id: string
+          stav: string
+          structured_conditions: Json | null
+          suma_eu: number | null
+          suma_sr: number | null
+          title: string
+          typ: string | null
+          updated_at: string
+          vyhlasovatel: string | null
+          zameranie: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "grant_calls"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       search_user_tenders: {
         Args: {
