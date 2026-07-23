@@ -16,8 +16,11 @@
   "stats": {
     "activeSuffix": "aktívnych zákaziek naprieč EÚ",
     "valuePrefix": "v hodnote viac než",
-    "sources": "ZDROJE TED · ÚVO · EKS · JOSEPHINE · AKTUALIZOVANÉ DENNE",
-    "note": "Zobrazujeme len zákazky, do ktorých sa dá práve teraz prihlásiť. Žiadny archív ukončených súťaží."
+    "sources": "ZDROJE TED · ÚVO · EKS · JOSEPHINE · ITMS21+ · AKTUALIZOVANÉ DENNE",
+    "grantsSuffix": "otvorených grantových výziev",
+    "grantsAllocPrefix": "s celkovou alokáciou",
+    "grantsSources": "ZDROJ ITMS21+ (PROGRAM SLOVENSKO) · AKTUALIZOVANÉ DENNE",
+    "note": "Zobrazujeme len zákazky a výzvy, do ktorých sa dá práve teraz prihlásiť. Žiadny archív ukončených súťaží."
   },
   "mock": {
     "number": "Č. 2026 / 184",

@@ -22,7 +22,10 @@ function ActiveTendersBlock() {
   const { t } = useTranslation("marketing");
   const [count, setCount] = useState<number | null>(null);
   const [total, setTotal] = useState<number | null>(null);
+  const [grantsCount, setGrantsCount] = useState<number | null>(null);
+  const [grantsAlloc, setGrantsAlloc] = useState<number | null>(null);
   const [display, setDisplay] = useState(0);
+  const [displayGrants, setDisplayGrants] = useState(0);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -34,6 +37,8 @@ function ActiveTendersBlock() {
         if (typeof d?.active_tenders === "number") setCount(d.active_tenders);
         else setFailed(true);
         if (typeof d?.total_value_eur === "number") setTotal(d.total_value_eur);
+        if (typeof d?.open_grants === "number") setGrantsCount(d.open_grants);
+        if (typeof d?.open_grants_alloc_eur === "number") setGrantsAlloc(d.open_grants_alloc_eur);
       })
       .catch(() => !cancelled && setFailed(true));
     return () => {
@@ -55,6 +60,21 @@ function ActiveTendersBlock() {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [count]);
+
+  useEffect(() => {
+    if (grantsCount === null) return;
+    const start = performance.now();
+    const dur = 900;
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplayGrants(Math.round(grantsCount * eased));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [grantsCount]);
 
   if (failed) return null;
 
@@ -79,6 +99,27 @@ function ActiveTendersBlock() {
         </span>
       )}
       <span className="eyebrow text-muted-foreground mt-1">{t("stats.sources")}</span>
+
+      {grantsCount != null && grantsCount > 0 && (
+        <div className="mt-6 pt-5 border-t border-border w-full flex flex-col items-start gap-1">
+          <div className="flex flex-col sm:flex-row sm:items-end gap-1 sm:gap-2">
+            <span className="num text-5xl md:text-6xl font-bold text-primary leading-none">
+              {formatSk(displayGrants)}
+            </span>
+            <span className="text-sm sm:text-base font-semibold text-foreground pb-1">
+              {t("stats.grantsSuffix")}
+            </span>
+          </div>
+          {grantsAlloc != null && grantsAlloc > 0 && (
+            <span className="text-base md:text-lg text-foreground">
+              {t("stats.grantsAllocPrefix")}{" "}
+              <span className="num font-semibold text-foreground">{formatBigEur(grantsAlloc)}</span>
+            </span>
+          )}
+          <span className="eyebrow text-muted-foreground mt-1">{t("stats.grantsSources")}</span>
+        </div>
+      )}
+
       <p className="mt-3 text-xs md:text-sm text-muted-foreground max-w-md leading-relaxed">
         {t("stats.note")}
       </p>
