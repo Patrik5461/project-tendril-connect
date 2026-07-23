@@ -68,22 +68,49 @@ Deno.serve(async (req) => {
 
     let upserted = 0;
     let failed = 0;
+    let skipped = 0;
+    const items: Array<{
+      id: number;
+      kod: string | null;
+      status: "upserted" | "failed_detail" | "failed_upsert" | "skipped";
+      reason?: string;
+      itms_typ?: unknown;
+      mapped_stav?: string;
+      deadline?: string | null;
+    }> = [];
+
     for (const item of list.results as ItmsVyzvaListItem[]) {
+      const meta = { id: item.id, kod: (item.kod as string) ?? null, itms_typ: item.typ };
+      let detail;
       try {
-        const detail = withDetail ? await itmsGetVyzva(item.id) : (item as never);
-        const row = normalizeVyzva(detail);
-        const { error } = await supabase
-          .from("grant_calls")
-          .upsert(row, { onConflict: "source,source_id" });
-        if (error) {
-          console.error("upsert failed", item.id, error.message);
-          failed++;
-        } else {
-          upserted++;
-        }
+        detail = withDetail ? await itmsGetVyzva(item.id) : (item as never);
       } catch (e) {
-        console.error("detail failed", item.id, e);
+        items.push({ ...meta, status: "failed_detail", reason: (e as Error).message });
         failed++;
+        if (withDetail) await new Promise((r) => setTimeout(r, DETAIL_DELAY_MS));
+        continue;
+      }
+      const row = normalizeVyzva(detail);
+      if (!row.source_id || row.source_id === "undefined") {
+        items.push({ ...meta, status: "skipped", reason: "missing_source_id" });
+        skipped++;
+        if (withDetail) await new Promise((r) => setTimeout(r, DETAIL_DELAY_MS));
+        continue;
+      }
+      const { error } = await supabase
+        .from("grant_calls")
+        .upsert(row, { onConflict: "source,source_id" });
+      if (error) {
+        items.push({ ...meta, status: "failed_upsert", reason: error.message, mapped_stav: row.stav as string });
+        failed++;
+      } else {
+        items.push({
+          ...meta,
+          status: "upserted",
+          mapped_stav: row.stav as string,
+          deadline: row.deadline as string | null,
+        });
+        upserted++;
       }
       if (withDetail) await new Promise((r) => setTimeout(r, DETAIL_DELAY_MS));
     }
@@ -96,14 +123,17 @@ Deno.serve(async (req) => {
         offset: list.offset,
         limit: list.limit,
         total: list.size,
-        processed: list.results.length,
+        fetched: list.results.length,
         upserted,
         failed,
+        skipped,
         next_offset: nextOff,
         has_more: hasMore,
+        items,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
+
   } catch (err) {
     console.error("backfill-itms-grants failed", err);
     return new Response(JSON.stringify({ error: (err as Error).message ?? String(err) }), {
