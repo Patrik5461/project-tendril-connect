@@ -5,10 +5,10 @@
     "signupMobile": "Start free"
   },
   "hero": {
-    "eyebrow": "30 days free · public procurement monitoring",
-    "titleEmphasis": "Tenders",
+    "eyebrow": "30 days free · public procurement and grants",
+    "titleEmphasis": "Tenders and grants",
     "titleRest": "find you\non their own.",
-    "subtitle": "Set your keywords, CPV categories and regions.\nTendrik brings you the tenders that actually matter to you — every day.",
+    "subtitle": "Set your keywords, CPV categories, regions and applicant type.\nTendrik brings you the tenders and grant calls that actually matter — every day.",
     "ctaPrimary": "Start free",
     "ctaSecondary": "I already have an account",
     "priceNote": "Try it free for 30 days. Then <price>from €4.99/month</price>. No commitment, no card needed now."
@@ -109,9 +109,9 @@
     "priceInline": "30 days free, then from €4.99/mo (final price)"
   },
   "meta": {
-    "title": "Tendrik – Tenders find you on their own",
-    "description": "Tendrik delivers public tenders that match your keywords, CPV codes and regions – every day. Free.",
-    "ogTitle": "Tendrik – tenders find you on their own",
-    "ogDescription": "A free service that matches public tenders to your industry and region."
+    "title": "Tendrik – Tenders and grants find you on their own",
+    "description": "Tendrik delivers public tenders and grant calls that match your keywords, CPV codes, regions and applicant type — every day. Free.",
+    "ogTitle": "Tendrik – tenders and grants find you on their own",
+    "ogDescription": "A free service that matches public tenders and grant calls to your industry, region and applicant type."
   }
 }

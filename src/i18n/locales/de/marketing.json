@@ -5,12 +5,12 @@
     "signupMobile": "Gratis starten"
   },
   "hero": {
-    "eyebrow": "30 Tage gratis · Monitoring öffentlicher Ausschreibungen",
-    "titleEmphasis": "Ausschreibungen",
-    "titleRest": "finden dich\nvon selbst.",
-    "subtitle": "Gib Schlüsselwörter, CPV-Kategorien und Regionen an.\nTendrik liefert dir täglich die Ausschreibungen, die dich wirklich betreffen.",
+    "eyebrow": "30 Tage gratis · öffentliche Ausschreibungen und Förderungen",
+    "titleEmphasis": "Ausschreibungen und Förderungen",
+    "titleRest": "finden Sie\nvon selbst.",
+    "subtitle": "Geben Sie Schlüsselwörter, CPV-Kategorien, Regionen und den Antragsstellertyp ein.\nTendrik liefert Ihnen täglich die Ausschreibungen und Förderaufrufe, die Sie wirklich betreffen.",
     "ctaPrimary": "Gratis starten",
-    "ctaSecondary": "Ich habe schon ein Konto",
+    "ctaSecondary": "Ich habe bereits ein Konto",
     "priceNote": "30 Tage gratis testen. Danach <price>ab 4,99 €/Monat</price>. Ohne Bindung, keine Kartendaten nötig."
   },
   "stats": {
@@ -36,20 +36,20 @@
   "features": {
     "featureLabel": "Funktion {{n}}",
     "matching": { "title": "Präzises Matching", "text": "Schlüsselwörter und CPV-Codes zeigen nur relevante Ausschreibungen." },
-    "regions": { "title": "Länder und Regionen", "text": "Wähle die EU-Länder, die dich interessieren, oder bestimmte slowakische Regionen." },
-    "notifications": { "title": "E-Mail-Benachrichtigungen", "text": "Aktiviere Alerts und verpasse keine Frist mehr." }
+    "regions": { "title": "Länder und Regionen", "text": "Wählen Sie die EU-Länder, die Sie interessieren, oder bestimmte slowakische Regionen." },
+    "notifications": { "title": "E-Mail-Benachrichtigungen", "text": "Aktivieren Sie Alerts und verpassen Sie keine Frist mehr." }
   },
   "why": {
     "eyebrow": "Warum Tendrik",
-    "title": "Das Amtsblatt, das für dich arbeitet.",
+    "title": "Das Amtsblatt, das für Sie arbeitet.",
     "items": [
       "30 Tage gratis testen, danach ab 4,99 €/Monat",
       "Einrichtung in unter 2 Minuten",
-      "Nur aktive Verfahren – abgelaufene Ausschreibungen und Aufrufe entfernen wir automatisch. Du musst nicht Tausende alter Verfahren durchsuchen, du siehst nur die, um die man sich wirklich bewerben kann.",
+      "Nur aktive Verfahren – abgelaufene Ausschreibungen und Aufrufe entfernen wir automatisch. Sie müssen nicht Tausende alter Verfahren durchsuchen, Sie sehen nur die, um die man sich wirklich bewerben kann.",
       "Direkter Link zur Quelle der Ausschreibung oder des Aufrufs",
       "Farbwarnung bei knapper Frist bei Ausschreibungen und einmaligen Aufrufen",
       "Daten direkt aus den offiziellen Quellen TED, ÚVO, EKS, JOSEPHINE und ITMS21+",
-      "Öffentliche Ausschreibungen und Förderaufrufe an einem Ort – du musst nicht zwei Systeme beobachten"
+      "Öffentliche Ausschreibungen und Förderaufrufe an einem Ort – Sie müssen nicht zwei Systeme beobachten"
     ],
     "cta": "Kostenloses Konto erstellen"
   },
@@ -60,7 +60,7 @@
     "items": [
       {
         "q": "Warum zeigt Tendrik weniger Ausschreibungen als andere Dienste?",
-        "a": "Andere Dienste nennen oft die Gesamtzahl aller je erfassten Ausschreibungen – auch solche, deren Frist Jahre zurückliegt. Wir zeigen nur aktive Ausschreibungen, für die man sich gerade jetzt bewerben kann. Abgelaufene Ausschreibungen entfernen wir automatisch, damit du nicht in veralteten Verfahren wühlen musst."
+        "a": "Andere Dienste nennen oft die Gesamtzahl aller je erfassten Ausschreibungen – auch solche, deren Frist Jahre zurückliegt. Wir zeigen nur aktive Ausschreibungen, für die man sich gerade jetzt bewerben kann. Abgelaufene Ausschreibungen entfernen wir automatisch, damit Sie nicht in veralteten Verfahren wühlen müssen."
       },
       {
         "q": "Woher stammen die Daten?",
@@ -68,7 +68,7 @@
       },
       {
         "q": "Wie oft werden Ausschreibungen und Aufrufe aktualisiert?",
-        "a": "Jeden Tag ziehen wir neue Ausschreibungen aus allen vier Quellen und entfernen abgelaufene. Förderaufrufe synchronisieren wir nachts. In der Praxis siehst du also den aktuellen Stand dessen, worum man sich heute bewerben kann."
+        "a": "Jeden Tag ziehen wir neue Ausschreibungen aus allen vier Quellen und entfernen abgelaufene. Förderaufrufe synchronisieren wir nachts. In der Praxis sehen Sie also den aktuellen Stand dessen, worum man sich heute bewerben kann."
       },
       {
         "q": "Ist der Dienst kostenpflichtig?",
@@ -80,7 +80,7 @@
       },
       {
         "q": "Welche Förderungen und Zuschüsse werden verfolgt?",
-        "a": "Aktuell decken wir EU-Förderaufrufe aus dem Programm Slowakei über die offizielle ITMS21+ OpenData-API ab. Es handelt sich nicht um eine vollständige Liste aller Förderprogramme in der Slowakei, aber wir erweitern die Quellen schrittweise. Details findest du im Bereich Grants."
+        "a": "Aktuell decken wir EU-Förderaufrufe aus dem Programm Slowakei über die offizielle ITMS21+ OpenData-API ab. Es handelt sich nicht um eine vollständige Liste aller Förderprogramme in der Slowakei, aber wir erweitern die Quellen schrittweise. Details finden Sie im Bereich Grants."
       }
     ]
   },
@@ -109,9 +109,9 @@
     "priceInline": "30 Tage gratis, danach ab 4,99 €/Mon. (Endpreis)"
   },
   "meta": {
-    "title": "Tendrik – Ausschreibungen finden dich von selbst",
-    "description": "Tendrik liefert dir täglich öffentliche Ausschreibungen passend zu deinen Schlüsselwörtern, CPV-Codes und Regionen. Gratis.",
-    "ogTitle": "Tendrik – Ausschreibungen finden dich von selbst",
-    "ogDescription": "Kostenloser Dienst, der öffentliche Ausschreibungen mit deiner Branche und Region abgleicht."
+    "title": "Tendrik – Ausschreibungen und Förderungen finden Sie von selbst",
+    "description": "Tendrik liefert Ihnen täglich öffentliche Ausschreibungen und Förderaufrufe passend zu Ihren Schlüsselwörtern, CPV-Codes, Regionen und dem Antragsstellertyp. Gratis.",
+    "ogTitle": "Tendrik – Ausschreibungen und Förderungen finden Sie von selbst",
+    "ogDescription": "Kostenloser Dienst, der öffentliche Ausschreibungen und Förderaufrufe mit Ihrer Branche, Region und dem Antragsstellertyp abgleicht."
   }
 }
