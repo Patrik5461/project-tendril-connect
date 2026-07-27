@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieBanner } from "@/components/CookieBanner";
+import { AnalyticsScripts } from "@/components/AnalyticsScripts";
 import { I18nProvider } from "@/i18n/I18nProvider";
 
 function NotFoundComponent() {
@@ -148,6 +149,7 @@ function RootComponent() {
         <Outlet />
         <Toaster richColors position="top-right" />
         <CookieBanner />
+        <AnalyticsScripts />
       </I18nProvider>
     </QueryClientProvider>
   );

@@ -35,6 +35,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as ZakazkyKrajKrajRouteImport } from './routes/zakazky.kraj.$kraj'
 import { Route as ZakazkyKategoriaKategoriaRouteImport } from './routes/zakazky.kategoria.$kategoria'
 import { Route as ApiPublicStatsRouteImport } from './routes/api/public/stats'
+import { Route as ApiPublicAnalyticsConfigRouteImport } from './routes/api/public/analytics-config'
 import { Route as ZakazkyKategoriaKategoriaKrajRouteImport } from './routes/zakazky.kategoria.$kategoria.$kraj'
 import { Route as ApiPublicGrantDocUuidRouteImport } from './routes/api/public/grant-doc.$uuid'
 
@@ -169,6 +170,12 @@ const ApiPublicStatsRoute = ApiPublicStatsRouteImport.update({
   path: '/api/public/stats',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAnalyticsConfigRoute =
+  ApiPublicAnalyticsConfigRouteImport.update({
+    id: '/api/public/analytics-config',
+    path: '/api/public/analytics-config',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ZakazkyKategoriaKategoriaKrajRoute =
   ZakazkyKategoriaKategoriaKrajRouteImport.update({
     id: '/$kraj',
@@ -204,6 +211,7 @@ export interface FileRoutesByFullPath {
   '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
   '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
+  '/api/public/analytics-config': typeof ApiPublicAnalyticsConfigRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
@@ -233,6 +241,7 @@ export interface FileRoutesByTo {
   '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
   '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
+  '/api/public/analytics-config': typeof ApiPublicAnalyticsConfigRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
@@ -264,6 +273,7 @@ export interface FileRoutesById {
   '/pravne/opakovane-platby': typeof PravneOpakovanePlatbyRoute
   '/pravne/reklamacny-poriadok': typeof PravneReklamacnyPoriadokRoute
   '/zakazka/$id': typeof ZakazkaIdRoute
+  '/api/public/analytics-config': typeof ApiPublicAnalyticsConfigRoute
   '/api/public/stats': typeof ApiPublicStatsRoute
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
@@ -295,6 +305,7 @@ export interface FileRouteTypes {
     | '/pravne/opakovane-platby'
     | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
+    | '/api/public/analytics-config'
     | '/api/public/stats'
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
@@ -324,6 +335,7 @@ export interface FileRouteTypes {
     | '/pravne/opakovane-platby'
     | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
+    | '/api/public/analytics-config'
     | '/api/public/stats'
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
@@ -354,6 +366,7 @@ export interface FileRouteTypes {
     | '/pravne/opakovane-platby'
     | '/pravne/reklamacny-poriadok'
     | '/zakazka/$id'
+    | '/api/public/analytics-config'
     | '/api/public/stats'
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
@@ -379,6 +392,7 @@ export interface RootRouteChildren {
   PravneOpakovanePlatbyRoute: typeof PravneOpakovanePlatbyRoute
   PravneReklamacnyPoriadokRoute: typeof PravneReklamacnyPoriadokRoute
   ZakazkaIdRoute: typeof ZakazkaIdRoute
+  ApiPublicAnalyticsConfigRoute: typeof ApiPublicAnalyticsConfigRoute
   ApiPublicStatsRoute: typeof ApiPublicStatsRoute
   ZakazkyKategoriaKategoriaRoute: typeof ZakazkyKategoriaKategoriaRouteWithChildren
   ZakazkyKrajKrajRoute: typeof ZakazkyKrajKrajRoute
@@ -569,6 +583,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicStatsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/analytics-config': {
+      id: '/api/public/analytics-config'
+      path: '/api/public/analytics-config'
+      fullPath: '/api/public/analytics-config'
+      preLoaderRoute: typeof ApiPublicAnalyticsConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/zakazky/kategoria/$kategoria/$kraj': {
       id: '/zakazky/kategoria/$kategoria/$kraj'
       path: '/$kraj'
@@ -639,6 +660,7 @@ const rootRouteChildren: RootRouteChildren = {
   PravneOpakovanePlatbyRoute: PravneOpakovanePlatbyRoute,
   PravneReklamacnyPoriadokRoute: PravneReklamacnyPoriadokRoute,
   ZakazkaIdRoute: ZakazkaIdRoute,
+  ApiPublicAnalyticsConfigRoute: ApiPublicAnalyticsConfigRoute,
   ApiPublicStatsRoute: ApiPublicStatsRoute,
   ZakazkyKategoriaKategoriaRoute: ZakazkyKategoriaKategoriaRouteWithChildren,
   ZakazkyKrajKrajRoute: ZakazkyKrajKrajRoute,
@@ -647,13 +669,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { trackConversion } from "@/lib/analytics";
 
 type Search = { id?: string; payment_id?: string };
 
@@ -38,6 +39,12 @@ function PlatbaVysledok() {
       const s = (data?.subscription_status ?? "trial") as string;
       if (cancelled) return;
       if (s === "active" || attempt >= 6) {
+        if (s === "active") {
+          trackConversion("subscription_purchase", {
+            transaction_id: paymentId,
+            currency: "EUR",
+          });
+        }
         setStatus(s as "active" | "trial" | "expired");
       } else {
         setTimeout(() => poll(attempt + 1), 1500);

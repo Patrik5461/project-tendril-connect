@@ -10,6 +10,7 @@ import { REGIONS, CPV_DIVISIONS } from "@/lib/slovakia";
 import { EU_COUNTRY_LIST, flagEmoji } from "@/lib/eu-countries";
 import { X } from "lucide-react";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
+import { trackConversion } from "@/lib/analytics";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({ meta: [{ title: "Nastavenie filtrov – Tendrik" }] }),
@@ -108,6 +109,7 @@ function Onboarding() {
       return;
     }
     toast.success("Radar uložený");
+    trackConversion("onboarding_completed", { keywords: keywords.length, regions: regions.length });
     void sendWelcomeEmailIfNeeded();
     navigate({ to: "/dashboard" });
   }

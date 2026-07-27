@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 import { sendSettingsConfirmationEmail } from "@/lib/settings-email";
 import GrantRadarsSection from "@/components/GrantRadarsSection";
+import { trackConversion } from "@/lib/analytics";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Nastavenia – Tendrik" }] }),
@@ -162,6 +163,7 @@ function SettingsPage() {
       toast.error(error.message);
       return;
     }
+    trackConversion("radar_created", { radar_type: "tender" });
     setList((prev) => [...prev, data as Radar]);
     setExpanded((prev) => new Set(prev).add((data as Radar).id));
     void sendWelcomeEmailIfNeeded();

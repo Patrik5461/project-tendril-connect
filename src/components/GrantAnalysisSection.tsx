@@ -8,6 +8,7 @@ import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCirc
 import { toast } from "sonner";
 import { analyzeGrant, getGrantAnalysis } from "@/lib/grant-analysis.functions";
 import { getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
+import { trackConversion } from "@/lib/analytics";
 
 type AnalysisRow = {
   summary: string | null;
@@ -84,6 +85,7 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
       if (!r?.cached && !r?.credit_unlimited && typeof r?.credit_remaining === "number") {
         setCredit((prev) => prev ? { ...prev, remaining: r.credit_remaining } : { unlimited: false, remaining: r.credit_remaining, limit: 5 });
       }
+      if (!r?.cached) trackConversion("ai_analysis", { analysis_type: "grant" });
       toast.success(r?.cached ? "Načítaná uložená analýza" : "Analýza dokončená");
     } catch (e: any) {
       toast.error(e?.message ?? "Analýza zlyhala");

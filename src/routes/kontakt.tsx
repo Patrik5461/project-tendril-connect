@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { LegalFooter } from "@/components/LegalFooter";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { trackConversion } from "@/lib/analytics";
 
 export const Route = createFileRoute("/kontakt")({
   head: () => ({
@@ -44,6 +45,7 @@ function KontaktPage() {
         `Od: ${parsed.data.name} <${parsed.data.email}>\n\n${parsed.data.message}`
       );
       window.location.href = `mailto:info@tendrik.sk?subject=${subject}&body=${body}`;
+      trackConversion("contact_submit");
       toast.success("Otváram e-mailového klienta…");
     } finally {
       setSending(false);
