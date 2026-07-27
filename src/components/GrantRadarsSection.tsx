@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
 import { REGIONS } from "@/lib/slovakia";
 import {
+import { trackConversion } from "@/lib/analytics";
   CATEGORY_LABEL,
   defaultCategoryFromLegalForm,
   type ApplicantCategory,
@@ -82,6 +83,7 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
       toast.error(error.message);
       return;
     }
+    trackConversion("radar_created", { radar_type: "grant" });
     setList((prev) => [...prev, data as GrantRadar]);
     setExpanded((prev) => new Set(prev).add((data as GrantRadar).id));
   }
