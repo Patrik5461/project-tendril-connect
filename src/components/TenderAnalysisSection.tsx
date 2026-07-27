@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { analyzeTender, getTenderAnalysis, getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
 import { SubcontractingSection } from "@/components/SubcontractingSection";
 import {
+import { trackConversion } from "@/lib/analytics";
   awardBreakdown,
   exclusionGroundLabel,
   hasNoticeSelectionCriteria,
@@ -93,6 +94,7 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
       if (!r?.cached && !r?.credit_unlimited && typeof r?.credit_remaining === "number") {
         setCredit((prev) => prev ? { ...prev, remaining: r.credit_remaining } : { unlimited: false, remaining: r.credit_remaining, limit: 5 });
       }
+      if (!r?.cached) trackConversion("ai_analysis", { analysis_type: "tender" });
       toast.success(r?.cached ? "Načítaná uložená analýza" : "Analýza dokončená");
     } catch (e: any) {
       toast.error(e?.message ?? "Analýza zlyhala");
