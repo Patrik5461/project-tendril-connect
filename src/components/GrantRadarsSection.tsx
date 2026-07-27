@@ -8,8 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
 import { REGIONS } from "@/lib/slovakia";
-import {
 import { trackConversion } from "@/lib/analytics";
+import {
   CATEGORY_LABEL,
   defaultCategoryFromLegalForm,
   type ApplicantCategory,

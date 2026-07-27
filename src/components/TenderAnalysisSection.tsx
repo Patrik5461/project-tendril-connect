@@ -7,8 +7,8 @@ import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCirc
 import { toast } from "sonner";
 import { analyzeTender, getTenderAnalysis, getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
 import { SubcontractingSection } from "@/components/SubcontractingSection";
-import {
 import { trackConversion } from "@/lib/analytics";
+import {
   awardBreakdown,
   exclusionGroundLabel,
   hasNoticeSelectionCriteria,
