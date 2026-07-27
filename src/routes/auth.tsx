@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link, redirect } from "@tanstack/react-ro
 import { useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { trackConversion } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,6 +52,7 @@ function AuthPage() {
           options: { emailRedirectTo: window.location.origin + "/onboarding" },
         });
         if (error) throw error;
+        trackConversion("sign_up", { method: "email" });
         // If email confirmation is disabled, session is available immediately
         const { data } = await supabase.auth.getSession();
         if (data.session) {
