@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { analyzeTender, getTenderAnalysis, getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
 import { SubcontractingSection } from "@/components/SubcontractingSection";
 import { trackConversion } from "@/lib/analytics";
+import { AI_MONTHLY_LIMIT, formatEur, priceEur } from "@/lib/subscription";
+
 import {
   awardBreakdown,
   exclusionGroundLabel,

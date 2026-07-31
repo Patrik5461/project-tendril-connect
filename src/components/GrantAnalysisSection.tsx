@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { analyzeGrant, getGrantAnalysis } from "@/lib/grant-analysis.functions";
 import { getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
 import { trackConversion } from "@/lib/analytics";
+import { AI_MONTHLY_LIMIT, formatEur, priceEur } from "@/lib/subscription";
+
 
 type AnalysisRow = {
   summary: string | null;
