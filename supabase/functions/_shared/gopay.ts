@@ -40,8 +40,12 @@ export function gopayEnv(): GoPayEnv {
 }
 
 export function gopayBaseUrl(): string {
+  const override = (Deno.env.get("GOPAY_BASE_URL") ?? "").trim().replace(/\/+$/, "");
+
+  if (override) return override;
+
   return gopayEnv() === "production"
-    ? "https://gate.gopay.com"
+    ? "https://gate.gopay.cz"
     : "https://gw.sandbox.gopay.com";
 }
 
