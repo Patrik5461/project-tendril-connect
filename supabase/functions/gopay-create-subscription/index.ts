@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
     dateTo.setFullYear(dateTo.getFullYear() + 10);
     const dateToStr = dateTo.toISOString().slice(0, 10);
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       payer: {
         default_payment_instrument: "PAYMENT_CARD",
         allowed_payment_instruments: ["PAYMENT_CARD"],
@@ -81,11 +81,6 @@ Deno.serve(async (req) => {
       items: [
         { name: `Tendrik ${tierLabel} (1 mesiac)`, amount: priceCents, count: 1 },
       ],
-      recurrence: {
-        recurrence_cycle: "MONTH",
-        recurrence_period: 1,
-        recurrence_date_to: dateToStr,
-      },
       callback: {
         return_url: `${appBase}/platba/vysledok`,
         notification_url: `${supabaseFunctions}/gopay-webhook`,
@@ -98,17 +93,43 @@ Deno.serve(async (req) => {
       target: { type: "ACCOUNT", goid: Number(cfg.goid) },
     };
 
-    const res = await fetch(`${cfg.baseUrl}/api/payments/payment`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const j = await res.json();
-    if (!res.ok) {
+    if (wantAutorenew) {
+      payload.recurrence = {
+        recurrence_cycle: "MONTH",
+        recurrence_period: 1,
+        recurrence_date_to: dateToStr,
+      };
+    }
+
+    async function createPayment(p: Record<string, unknown>) {
+      const r = await fetch(`${cfg.baseUrl}/api/payments/payment`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(p),
+      });
+      return { ok: r.ok, json: await r.json() };
+    }
+
+    let autorenewApplied = wantAutorenew;
+    let { ok, json: j } = await createPayment(payload);
+
+    // GoPay error_code 344 = opakované platby nie sú povolené na účte → fallback bez recurrence
+    if (!ok && wantAutorenew) {
+      const errs = Array.isArray(j?.errors) ? j.errors : [];
+      const has344 = errs.some((e: any) => Number(e?.error_code) === 344) ||
+        Number(j?.error_code) === 344;
+      if (has344) {
+        const { recurrence: _drop, ...withoutRecurrence } = payload as any;
+        autorenewApplied = false;
+        ({ ok, json: j } = await createPayment(withoutRecurrence));
+      }
+    }
+
+    if (!ok) {
       return new Response(JSON.stringify({ error: "gopay_error", detail: j }), {
         status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -120,7 +141,7 @@ Deno.serve(async (req) => {
     );
     await admin.from("user_preferences").update({
       gopay_subscription_id: String(j.id),
-      gopay_recurrence_id: String(j.id),
+      gopay_recurrence_id: autorenewApplied ? String(j.id) : null,
       subscription_tier: tier,
     }).eq("user_id", user.id);
 
@@ -130,6 +151,7 @@ Deno.serve(async (req) => {
       state: j.state,
       tier,
       env: cfg.env,
+      autorenew_applied: autorenewApplied,
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     return new Response(JSON.stringify({ error: String((e as Error).message ?? e) }), {
