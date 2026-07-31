@@ -455,6 +455,23 @@ function GopayTab() {
         </p>
       </Card>
 
+      <Card title="Opakované platby (recurring)">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground">
+            Ak je vypnuté, platby sa vytvárajú ako <b>jednorazové na 1 mesiac</b>. Zapnite až keď má
+            GoPay účet povolené opakované platby (inak GoPay vráti chybu 344).
+          </p>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-sm font-medium">
+              {recurring === null ? "…" : recurring ? "Zapnuté" : "Vypnuté"}
+            </span>
+            <Switch checked={recurring === true} disabled={recurring === null} onCheckedChange={toggleRecurring} />
+          </div>
+        </div>
+      </Card>
+
+
+
       <Card title="Kľúče GoPay (secrets)">
         <p className="text-sm text-muted-foreground">
           Kľúče sa ukladajú bezpečne ako secrets (nie do kódu). Po uložení kliknite <b>Test pripojenia</b> – overí sa OAuth token voči GoPay ({status?.env ?? "…"}).
