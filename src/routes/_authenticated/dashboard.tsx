@@ -865,7 +865,7 @@ function Dashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="mt-6 border-t-2 border-foreground">
+                <div className="mt-6 space-y-3">
                   {pageItems.map((t) => (
                     <TenderCard
                       key={t.id}
