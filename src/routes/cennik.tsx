@@ -204,11 +204,13 @@ function CennikPage() {
                     Vybrať {tierLabel(plan.tier)}
                   </Button>
                 </Link>
-                {plan.tier === "komplet" && <PaymentBadges className="mt-4" />}
               </div>
             );
           })}
         </div>
+
+        <PaymentBadges className="mt-6 justify-center" />
+
 
         {/* Porovnanie */}
         <h2 className="mt-14 font-display text-2xl font-bold">Porovnanie plánov</h2>
