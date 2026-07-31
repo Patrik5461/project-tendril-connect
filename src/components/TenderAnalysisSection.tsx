@@ -162,7 +162,7 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
       )}
 
       {hasAiAccess && hasProfile && !analysis && !running && trialExhausted && (
-        <TrialExhaustedNotice limit={credit!.limit} />
+        <TrialExhaustedNotice limit={credit!.limit} isTrial={isTrial} />
       )}
 
       {running && (
