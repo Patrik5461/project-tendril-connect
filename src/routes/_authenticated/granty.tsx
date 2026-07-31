@@ -8,12 +8,14 @@ import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Building2, MapPin, FileText, Search, RotateCcw, Infinity as InfinityIcon, Briefcase, Landmark, HeartHandshake, Users } from "lucide-react";
+import { Calendar, Building2, MapPin, FileText, Search, RotateCcw, Infinity as InfinityIcon, Briefcase, Landmark, HeartHandshake, Users, Lock as LockIcon } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
 import {
   ApplicantCategory, CATEGORY_LABEL, CATEGORY_SHORT,
   categoriesForGrant, defaultCategoryFromLegalForm,
 } from "@/lib/grant-applicant-categories";
+import { AI_MONTHLY_LIMIT, computeSubscription, formatEur, priceEur } from "@/lib/subscription";
+
 
 type Grant = {
   id: string;
