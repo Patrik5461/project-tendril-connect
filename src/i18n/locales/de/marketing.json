@@ -72,7 +72,7 @@
       },
       {
         "q": "Ist der Dienst kostenpflichtig?",
-        "a": "Sie erhalten 30 Tage gratis zum Testen (inkl. 5 KI-Analysen), danach 4,99 € / Monat (Basis, Monitoring) oder 14,99 € / Monat (Premium mit unbegrenzter KI). Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Bei der Registrierung ist keine Karte nötig – wir melden uns vor Ende der Testphase. Jederzeit kündbar."
+        "a": "Sie erhalten 30 Tage gratis zum Testen (inkl. 5 KI-Analysen), danach 4,99 € / Monat (Basis – Ausschreibungs-Monitoring), 14,99 € / Monat (Premium – Ausschreibungen + 30 KI-Analysen) oder 24,99 € / Monat (Komplet – Ausschreibungen, Förderungen und 150 KI-Analysen); jährlich 49 / 149 / 249 €. Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Bei der Registrierung ist keine Karte nötig – wir melden uns vor Ende der Testphase. Jederzeit kündbar."
       },
       {
         "q": "Für wen ist Tendrik gedacht?",
@@ -86,7 +86,7 @@
   },
   "billing": {
     "label": "Preis und wiederkehrende Zahlungen:",
-    "body": "30 Tage gratis testen (inkl. 5 KI-Analysen), danach <b>4,99 € / Monat</b> (Basis) oder <b>14,99 € / Monat</b> (Premium). Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Das Abo verlängert sich automatisch monatlich über das Zahlungs-Gateway GoPay. Jederzeit kündbar.",
+    "body": "30 Tage gratis testen (inkl. 5 KI-Analysen), danach <b>4,99 € / Monat</b> (Basis), <b>14,99 € / Monat</b> (Premium) oder <b>24,99 € / Monat</b> (Komplet – inkl. Förderungen); jährlich 49 / 149 / 249 €. Endpreis – Tobify s. r. o. ist kein Umsatzsteuerzahler. Das Abo verlängert sich automatisch monatlich über das Zahlungs-Gateway GoPay. Jederzeit kündbar.",
     "link": "Bedingungen für wiederkehrende Zahlungen →"
   },
   "footer": {
