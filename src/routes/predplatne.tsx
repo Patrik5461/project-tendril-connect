@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CreditCard, Loader2, Check, Sparkles } from "lucide-react";
@@ -13,6 +13,7 @@ import {
   type SubscriptionTier,
 } from "@/lib/subscription";
 import { PaymentBadges } from "@/components/LegalFooter";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/predplatne")({
@@ -34,13 +35,22 @@ function PredplatnePage() {
   const [tier, setTier] = useState<SubscriptionTier>(search.tier ?? "premium");
   const [loading, setLoading] = useState(false);
   const [env, setEnv] = useState<string | null>(null);
+  const [recurringEnabled, setRecurringEnabled] = useState<boolean | null>(null);
+  const [autorenew, setAutorenew] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await (supabase.rpc as any)("get_gopay_recurring_enabled");
+      setRecurringEnabled(data === true);
+    })();
+  }, []);
   const navigate = useNavigate();
 
   async function activate() {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("gopay-create-subscription", {
-        body: { tier },
+        body: { tier, autorenew: recurringEnabled === true && autorenew },
       });
       if (error || !data) {
         toast.error("Nepodarilo sa spustiť platbu. " + (error?.message ?? ""));
@@ -75,7 +85,9 @@ function PredplatnePage() {
         Vyberte si plán
       </h1>
       <p className="mt-3 text-center text-muted-foreground">
-        Automatické obnovenie cez GoPay, zrušenie kedykoľvek.
+        {recurringEnabled
+          ? "Automatické obnovenie cez GoPay, zrušenie kedykoľvek."
+          : "Jednorazová platba na 1 mesiac. Pred koncom obdobia ti pošleme pripomienku."}
       </p>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -136,6 +148,13 @@ function PredplatnePage() {
           </div>
         </div>
 
+        {recurringEnabled && (
+          <label className="mt-4 flex items-center gap-2 text-sm">
+            <Checkbox checked={autorenew} onCheckedChange={(v) => setAutorenew(v === true)} />
+            Automaticky obnovovať každý mesiac
+          </label>
+        )}
+
         <PaymentBadges className="mt-4" />
         <Button className="mt-6 w-full" size="lg" onClick={activate} disabled={loading}>
           {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
@@ -148,8 +167,14 @@ function PredplatnePage() {
         )}
         <p className="mt-3 text-xs text-muted-foreground text-center">
           Kliknutím súhlasíte s{" "}
-          <Link to="/pravne/obchodne-podmienky" className="underline">obchodnými podmienkami</Link> a{" "}
-          <Link to="/pravne/opakovane-platby" className="underline">opakovanými platbami</Link>.
+          <Link to="/pravne/obchodne-podmienky" className="underline">obchodnými podmienkami</Link>
+          {recurringEnabled && autorenew ? (
+            <>
+              {" "}a{" "}
+              <Link to="/pravne/opakovane-platby" className="underline">opakovanými platbami</Link>
+            </>
+          ) : null}
+          .
         </p>
       </div>
 
