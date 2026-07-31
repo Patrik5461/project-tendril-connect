@@ -1,12 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { RefreshCw, Play, Mail, Send, Sparkles, CreditCard, Users as UsersIcon, ShieldCheck, Settings2 } from "lucide-react";
+import { RefreshCw, Play, Mail, Send, Sparkles, CreditCard, Users as UsersIcon, ShieldCheck, Settings2, AlertTriangle } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -96,6 +96,9 @@ function AdminPage() {
       <p className="mt-1 text-muted-foreground">
         Interné rozhranie – všetky manuálne akcie a prehľady.
       </p>
+
+      <StuckPaymentsBanner />
+
 
       <Tabs defaultValue="overview" className="mt-6">
         <TabsList>
@@ -366,7 +369,139 @@ function ActionsTab() {
   );
 }
 
+type StuckPayment = {
+  id: string;
+  received_at: string;
+  user_id: string | null;
+  email: string | null;
+  gopay_payment_id: string | null;
+  amount_cents: number | null;
+  currency: string | null;
+  state: string | null;
+  processing_error: string | null;
+  subscription_status: string | null;
+  subscription_tier: string | null;
+  subscription_valid_until: string | null;
+};
+
+function useStuckPayments() {
+  const [rows, setRows] = useState<StuckPayment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await (supabase.rpc as any)("admin_stuck_paid_payments", { _limit: 100 });
+    setLoading(false);
+    if (error) { toast.error(error.message); return; }
+    setRows((data ?? []) as StuckPayment[]);
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+  return { rows, loading, reload: load };
+}
+
+function StuckPaymentsCard() {
+  const { rows, loading, reload } = useStuckPayments();
+  const [busy, setBusy] = useState<string | null>(null);
+
+  async function reprocess(p: StuckPayment) {
+    if (!p.gopay_payment_id) return;
+    setBusy(p.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("gopay-webhook", {
+        body: { reprocess: true, payment_id: p.gopay_payment_id },
+      });
+      if (error) throw error;
+      toast.success(`Dorovnané (${(data as any)?.mapped ?? (data as any)?.state ?? "OK"})`);
+      await reload();
+    } catch (e: any) {
+      toast.error(e.message ?? "Dorovnanie zlyhalo");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  return (
+    <Card title="Zaplatené platby bez aktivovaného predplatného">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          Platby v stave <b>PAID</b>, kde používateľ nemá aktívne (alebo má expirované) predplatné.
+        </p>
+        <Button variant="outline" onClick={reload} disabled={loading}>
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+          Obnoviť
+        </Button>
+      </div>
+
+      {loading ? (
+        <p className="mt-4 text-sm text-muted-foreground">Načítavam…</p>
+      ) : rows.length === 0 ? (
+        <p className="mt-4 text-sm text-muted-foreground">Žiadne nevybavené platby. ✓</p>
+      ) : (
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs text-muted-foreground">
+              <tr>
+                <th className="py-2 pr-3">Dátum</th>
+                <th className="py-2 pr-3">Používateľ</th>
+                <th className="py-2 pr-3">Suma</th>
+                <th className="py-2 pr-3">Tier</th>
+                <th className="py-2 pr-3">Chyba</th>
+                <th className="py-2 pr-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id} className="border-t border-primary/10 align-top">
+                  <td className="py-2 pr-3 whitespace-nowrap">
+                    {new Date(r.received_at).toLocaleString("sk-SK")}
+                  </td>
+                  <td className="py-2 pr-3">
+                    <div>{r.email ?? "—"}</div>
+                    <div className="font-mono text-[11px] text-muted-foreground">{r.user_id ?? "bez user_id"}</div>
+                  </td>
+                  <td className="py-2 pr-3 whitespace-nowrap num">
+                    {r.amount_cents != null ? (r.amount_cents / 100).toFixed(2) : "—"} {r.currency ?? "EUR"}
+                  </td>
+                  <td className="py-2 pr-3">{r.subscription_tier ?? "—"}</td>
+                  <td className="py-2 pr-3 max-w-[28rem]">
+                    <span className="text-xs text-destructive break-words">{r.processing_error ?? "—"}</span>
+                  </td>
+                  <td className="py-2 pr-3">
+                    <Button size="sm" onClick={() => reprocess(r)} disabled={busy === r.id || !r.gopay_payment_id}>
+                      {busy === r.id ? "Dorovnávam…" : "Dorovnať"}
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function StuckPaymentsBanner() {
+  const { rows, loading } = useStuckPayments();
+  if (loading || rows.length === 0) return null;
+  return (
+    <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-4">
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+        <div className="text-sm">
+          <b>Pozor: {rows.length} zaplatených platieb bez aktivovaného predplatného.</b>
+          <div className="text-muted-foreground">
+            Otvorte záložku <b>GoPay</b> → „Zaplatené platby bez aktivovaného predplatného" a dorovnajte ich.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function GopayTab() {
+
   const [mode, setMode] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [recurring, setRecurring] = useState<boolean | null>(null);
@@ -440,6 +575,8 @@ function GopayTab() {
 
   return (
     <div className="space-y-4">
+      <StuckPaymentsCard />
+
       <Card title="Režim GoPay">
         <div className="flex items-center gap-3">
           <CreditCard className="h-5 w-5 text-primary" />
