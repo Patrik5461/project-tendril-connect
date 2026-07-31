@@ -202,7 +202,7 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
           {trialExhausted && (
             <div className="mt-3 rounded-lg border-2 border-primary bg-primary/5 p-3 text-xs">
               Analýzu môžete naďalej prezerať, ale trial AI kredity sú vyčerpané.{" "}
-              <Link to="/predplatne" search={{ tier: "premium" } as never} className="underline font-semibold">Aktivujte Prémium</Link> pre neobmedzené analýzy.
+              <Link to="/cennik" className="underline font-semibold">Pozrite si plány</Link> pre vyššiu mesačnú kvótu analýz.
             </div>
           )}
         </>
@@ -251,7 +251,7 @@ function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isEx
         </div>
         <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
           <p className="text-sm text-muted-foreground max-w-md">{body}</p>
-          <Link to="/predplatne" search={needsUpgrade ? { tier: "premium" } as never : undefined as never}>
+          <Link to="/predplatne" search={needsUpgrade ? { tier: "komplet" } as never : undefined as never}>
             <Button>{cta}</Button>
           </Link>
         </div>
