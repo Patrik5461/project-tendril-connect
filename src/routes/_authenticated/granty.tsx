@@ -117,6 +117,7 @@ function GrantyList() {
   const [qInput, setQInput] = useState(q);
   const [profileCategory, setProfileCategory] = useState<ApplicantCategory | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [grantAccess, setGrantAccess] = useState<boolean | null>(null);
 
   useEffect(() => setQInput(q), [q]);
 
@@ -132,6 +133,12 @@ function GrantyList() {
         .maybeSingle();
       setProfileCategory(defaultCategoryFromLegalForm(data?.pravna_forma));
       setProfileLoaded(true);
+      const { data: pref } = await supabase
+        .from("user_preferences")
+        .select("trial_started_at,subscription_status,subscription_tier,billing_period")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setGrantAccess(computeSubscription(pref as any).hasGrantAccess);
     })();
   }, []);
 
@@ -227,7 +234,7 @@ function GrantyList() {
         <h1 className="font-display text-3xl font-bold tracking-tight">Granty a dotácie</h1>
         <div className="mt-6 rounded-lg border-2 border-primary bg-primary/5 p-6">
           <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-            <Lock className="h-4 w-4" /> Granty sú súčasťou balíka Komplet
+            <LockIcon className="h-4 w-4" /> Granty sú súčasťou balíka Komplet
           </div>
           <p className="mt-2 text-sm text-foreground/80">
             Monitoring grantových výziev (Program Slovensko, fondy EÚ), radary, notifikácie
