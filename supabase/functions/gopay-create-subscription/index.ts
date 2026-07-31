@@ -28,6 +28,25 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({}));
     const tier: "basic" | "premium" = body?.tier === "premium" ? "premium" : "basic";
+
+    // Globálny prepínač opakovaných platieb (app_settings.gopay_recurring_enabled)
+    let recurringEnabled = false;
+    try {
+      const r = await fetch(
+        `${Deno.env.get("SUPABASE_URL")}/rest/v1/app_settings?key=eq.gopay_recurring_enabled&select=value`,
+        {
+          headers: {
+            apikey: Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+            Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+          },
+        },
+      );
+      if (r.ok) {
+        const rows = await r.json();
+        recurringEnabled = rows?.[0]?.value === true;
+      }
+    } catch { /* default false */ }
+    const wantAutorenew = recurringEnabled && body?.autorenew === true;
     const priceCents = tier === "premium" ? PRICE_CENTS_PREMIUM : PRICE_CENTS_BASIC;
     const tierLabel = tier === "premium" ? "Prémium" : "Základ";
 
