@@ -662,26 +662,28 @@ function Dashboard() {
       )}
       {subscription.status === "expired" && <ExpiredBanner />}
 
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="flex items-baseline justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Vaše zákazky</h1>
-          <p className="text-muted-foreground mt-1">
-            {totalCount === 0
-              ? "Žiadne zákazky pre aktuálne filtre."
-              : (
-                <>
-                  Zobrazené{" "}
-                  <b className="num text-foreground">
-                    {pageStart + 1}–{pageEnd}
-                  </b>{" "}
-                  z <b className="num text-foreground">{totalCount}</b>{" "}
-                  {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
-                </>
-              )}
+          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Vaše zákazky</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Aktuálne verejné zákazky z TED, ÚVO, EKS a JOSEPHINE podľa vašich radarov.
           </p>
-
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {totalCount === 0 ? (
+            "Žiadne zákazky pre aktuálne filtre."
+          ) : (
+            <>
+              <span className="num font-semibold text-foreground">
+                {pageStart + 1}–{pageEnd}
+              </span>{" "}
+              z <span className="num font-semibold text-foreground">{totalCount}</span>{" "}
+              {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
+            </>
+          )}
         </div>
       </div>
+
 
 
       <div className="mt-6 space-y-3">
