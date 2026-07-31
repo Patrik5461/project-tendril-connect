@@ -734,7 +734,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 border-t border-b border-border py-4">
           {tab === "foryou" && userRadars.length > 1 && (
             <Select
               value={radarParam}
