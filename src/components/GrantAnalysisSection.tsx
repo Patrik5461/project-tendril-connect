@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { analyzeGrant, getGrantAnalysis } from "@/lib/grant-analysis.functions";
 import { getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
 import { trackConversion } from "@/lib/analytics";
+import { AI_MONTHLY_LIMIT, formatEur, priceEur } from "@/lib/subscription";
+
 
 type AnalysisRow = {
   summary: string | null;
@@ -98,11 +100,13 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
   if (checking || authed === null) return null;
   if (!authed) return null;
 
-  const hasAiAccess = status === "trial" || (status === "active" && tier === "premium");
-  const needsUpgrade = status === "active" && tier !== "premium";
+  // Granty sú súčasťou balíka Komplet (trial má prístup ku všetkému).
+  const hasAiAccess = status === "trial" || (status === "active" && tier === "komplet");
+  const needsUpgrade = status === "active" && tier !== "komplet";
   const isExpired = status === "expired";
   const isTrial = status === "trial";
-  const trialExhausted = isTrial && credit != null && !credit.unlimited && credit.remaining <= 0;
+  const trialExhausted = credit != null && !credit.unlimited && credit.remaining <= 0;
+
 
   return (
     <div className="mt-12 border-t-2 border-foreground pt-6">
@@ -164,7 +168,7 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
       )}
 
       {hasAiAccess && hasProfile && !analysis && !running && trialExhausted && (
-        <TrialExhaustedNotice limit={credit!.limit} />
+        <TrialExhaustedNotice limit={credit!.limit} isTrial={isTrial} />
       )}
 
       {running && (
@@ -198,7 +202,7 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
           {trialExhausted && (
             <div className="mt-3 rounded-lg border-2 border-primary bg-primary/5 p-3 text-xs">
               Analýzu môžete naďalej prezerať, ale trial AI kredity sú vyčerpané.{" "}
-              <Link to="/predplatne" search={{ tier: "premium" } as never} className="underline font-semibold">Aktivujte Prémium</Link> pre neobmedzené analýzy.
+              <Link to="/cennik" className="underline font-semibold">Pozrite si plány</Link> pre vyššiu mesačnú kvótu analýz.
             </div>
           )}
         </>
@@ -207,28 +211,32 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
   );
 }
 
-function TrialExhaustedNotice({ limit }: { limit: number }) {
+function TrialExhaustedNotice({ limit, isTrial }: { limit: number; isTrial: boolean }) {
   return (
     <div className="mt-4 rounded-lg border-2 border-primary bg-primary/5 p-6">
       <div className="flex items-center gap-2 text-sm font-semibold">
-        <Lock className="h-4 w-4 text-primary" /> Trial AI kredity vyčerpané
+        <Lock className="h-4 w-4 text-primary" />
+        {isTrial ? "Trial AI kredity vyčerpané" : "Mesačná kvóta AI analýz vyčerpaná"}
       </div>
       <p className="mt-2 text-sm text-foreground/80">
-        Využili ste všetkých {limit} AI analýz z trial verzie. Pre neobmedzené analýzy aktivujte Prémium (14,99 €/mes).
+        {isTrial
+          ? `Využili ste všetkých ${limit} AI analýz z trial verzie. Granty a ich AI analýza sú súčasťou balíka Komplet (${formatEur(priceEur("komplet"))}/mes, ${AI_MONTHLY_LIMIT.komplet} analýz mesačne).`
+          : `Vyčerpali ste ${limit} AI analýz v tomto mesiaci. Kvóta sa obnoví na začiatku ďalšieho fakturačného mesiaca.`}
       </p>
-      <Link to="/predplatne" search={{ tier: "premium" } as never} className="mt-4 inline-block">
-        <Button>Aktivovať Prémium (14,99 €/mes)</Button>
+      <Link to="/cennik" className="mt-4 inline-block">
+        <Button>Pozrieť plány</Button>
       </Link>
     </div>
   );
 }
 
 function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isExpired: boolean }) {
-  const title = needsUpgrade ? "AI analýza je v balíku Prémium" : isExpired ? "Ukážka – vyžaduje aktívne predplatné" : "Ukážka – vyžaduje aktívne predplatné";
-  const cta = needsUpgrade ? "Upgradni na Prémium (14,99 €/mes)" : "Odomknúť analýzu";
+  const title = needsUpgrade ? "Granty sú v balíku Komplet" : isExpired ? "Ukážka – vyžaduje aktívne predplatné" : "Ukážka – vyžaduje aktívne predplatné";
+  const cta = needsUpgrade ? `Prejsť na Komplet (${formatEur(priceEur("komplet"))}/mes)` : "Odomknúť analýzu";
   const body = needsUpgrade
-    ? "V balíku Základ máte monitoring a filtre. AI posúdenie oprávnenosti pre granty (právna forma, región, financovanie) je súčasťou Prémia."
+    ? "Grantové výzvy, radary pre granty a AI posúdenie oprávnenosti (právna forma, región, financovanie) sú súčasťou balíka Komplet."
     : "AI posúdi formálnu oprávnenosť, finančnú realizovateľnosť aj súlad zámeru s cieľmi výzvy.";
+
   return (
     <div className="mt-4 relative overflow-hidden rounded-lg border border-border bg-card p-6">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/60 to-card pointer-events-none" />
@@ -243,7 +251,7 @@ function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isEx
         </div>
         <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
           <p className="text-sm text-muted-foreground max-w-md">{body}</p>
-          <Link to="/predplatne" search={needsUpgrade ? { tier: "premium" } as never : undefined as never}>
+          <Link to="/predplatne" search={needsUpgrade ? { tier: "komplet" } as never : undefined as never}>
             <Button>{cta}</Button>
           </Link>
         </div>

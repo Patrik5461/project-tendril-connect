@@ -8,12 +8,14 @@ import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Building2, MapPin, FileText, Search, RotateCcw, Infinity as InfinityIcon, Briefcase, Landmark, HeartHandshake, Users } from "lucide-react";
+import { Calendar, Building2, MapPin, FileText, Search, RotateCcw, Infinity as InfinityIcon, Briefcase, Landmark, HeartHandshake, Users, Lock as LockIcon } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
 import {
   ApplicantCategory, CATEGORY_LABEL, CATEGORY_SHORT,
   categoriesForGrant, defaultCategoryFromLegalForm,
 } from "@/lib/grant-applicant-categories";
+import { AI_MONTHLY_LIMIT, computeSubscription, formatEur, priceEur } from "@/lib/subscription";
+
 
 type Grant = {
   id: string;
@@ -115,6 +117,7 @@ function GrantyList() {
   const [qInput, setQInput] = useState(q);
   const [profileCategory, setProfileCategory] = useState<ApplicantCategory | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [grantAccess, setGrantAccess] = useState<boolean | null>(null);
 
   useEffect(() => setQInput(q), [q]);
 
@@ -130,6 +133,12 @@ function GrantyList() {
         .maybeSingle();
       setProfileCategory(defaultCategoryFromLegalForm(data?.pravna_forma));
       setProfileLoaded(true);
+      const { data: pref } = await supabase
+        .from("user_preferences")
+        .select("trial_started_at,subscription_status,subscription_tier,billing_period")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setGrantAccess(computeSubscription(pref as any).hasGrantAccess);
     })();
   }, []);
 
@@ -219,7 +228,32 @@ function GrantyList() {
 
   const showAutoHint = kategoria === "auto" && profileCategory !== null;
 
+  if (grantAccess === false) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-16">
+        <h1 className="font-display text-3xl font-bold tracking-tight">Granty a dotácie</h1>
+        <div className="mt-6 rounded-lg border-2 border-primary bg-primary/5 p-6">
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+            <LockIcon className="h-4 w-4" /> Granty sú súčasťou balíka Komplet
+          </div>
+          <p className="mt-2 text-sm text-foreground/80">
+            Monitoring grantových výziev (Program Slovensko, fondy EÚ), radary, notifikácie
+            a AI analýza oprávnenosti sú v balíku Komplet za {formatEur(priceEur("komplet"))} / mes
+            ({AI_MONTHLY_LIMIT.komplet} AI analýz mesačne).
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link to="/predplatne" search={{ tier: "komplet", period: "monthly" } as never}>
+              <Button>Aktivovať Komplet</Button>
+            </Link>
+            <Link to="/cennik"><Button variant="outline">Porovnať plány</Button></Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
+
     <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
       <div className="flex items-baseline justify-between flex-wrap gap-3">
         <div>

@@ -72,7 +72,7 @@
       },
       {
         "q": "Je služba zpoplatněná?",
-        "a": "30 dní máte zdarma na vyzkoušení (včetně 5 AI analýz zakázek), poté 4,99 € / měsíc (Základ, monitoring) nebo 14,99 € / měsíc (Prémium s neomezenou AI). Konečná cena – Tobify s. r. o. není plátce DPH. Kartu při registraci nepotřebujete – ozveme se vám před koncem zkušební doby. Předplatné je kdykoli zrušitelné."
+        "a": "30 dní máte zdarma na vyzkoušení (včetně 5 AI analýz zakázek), poté 4,99 € / měsíc (Základ – monitoring zakázek), 14,99 € / měsíc (Prémium – zakázky + 30 AI analýz) nebo 24,99 € / měsíc (Komplet – zakázky, granty a 150 AI analýz); při roční platbě 49 / 149 / 249 €. Konečná cena – Tobify s. r. o. není plátce DPH. Kartu při registraci nepotřebujete – ozveme se vám před koncem zkušební doby. Předplatné je kdykoli zrušitelné."
       },
       {
         "q": "Pro koho je Tendrik určen?",
@@ -86,7 +86,7 @@
   },
   "billing": {
     "label": "Cena a opakované platby:",
-    "body": "30 dní zdarma na vyzkoušení (včetně 5 AI analýz), poté <b>4,99 € / měs</b> (Základ) nebo <b>14,99 € / měs</b> (Prémium). Konečná cena – Tobify s. r. o. není plátce DPH. Předplatné se automaticky obnovuje každý měsíc přes platební bránu GoPay. Kdykoli zrušitelné.",
+    "body": "30 dní zdarma na vyzkoušení (včetně 5 AI analýz), poté <b>4,99 € / měs</b> (Základ), <b>14,99 € / měs</b> (Prémium) nebo <b>24,99 € / měs</b> (Komplet – i granty); ročně 49 / 149 / 249 €. Konečná cena – Tobify s. r. o. není plátce DPH. Předplatné se automaticky obnovuje každý měsíc přes platební bránu GoPay. Kdykoli zrušitelné.",
     "link": "Podmínky opakovaných plateb →"
   },
   "footer": {

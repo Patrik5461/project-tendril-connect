@@ -72,7 +72,7 @@
       },
       {
         "q": "Is the service paid?",
-        "a": "You get 30 days free to try (including 5 AI tender analyses), then €4.99 / month (Basic, monitoring) or €14.99 / month (Premium with unlimited AI). Final price – Tobify s. r. o. is not a VAT payer. No card required at signup – we'll reach out before the trial ends. Cancel anytime."
+        "a": "You get 30 days free to try (including 5 AI tender analyses), then €4.99 / month (Basic – tender monitoring), €14.99 / month (Premium – tenders + 30 AI analyses) or €24.99 / month (Komplet – tenders, grants and 150 AI analyses); yearly 49 / 149 / 249 €. Final price – Tobify s. r. o. is not a VAT payer. No card required at signup – we'll reach out before the trial ends. Cancel anytime."
       },
       {
         "q": "Who is Tendrik for?",
@@ -86,7 +86,7 @@
   },
   "billing": {
     "label": "Pricing and recurring payments:",
-    "body": "30 days free to try (including 5 AI analyses), then <b>€4.99 / mo</b> (Basic) or <b>€14.99 / mo</b> (Premium). Final price – Tobify s. r. o. is not a VAT payer. The subscription renews automatically every month via the GoPay payment gateway. Cancel anytime.",
+    "body": "30 days free to try (including 5 AI analyses), then <b>€4.99 / mo</b> (Basic), <b>€14.99 / mo</b> (Premium) or <b>€24.99 / mo</b> (Komplet – incl. grants); yearly 49 / 149 / 249 €. Final price – Tobify s. r. o. is not a VAT payer. The subscription renews automatically every month via the GoPay payment gateway. Cancel anytime.",
     "link": "Recurring payment terms →"
   },
   "footer": {

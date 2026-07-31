@@ -785,6 +785,8 @@ export type Database = {
       }
       user_preferences: {
         Row: {
+          ai_quota_period_start: string | null
+          billing_period: string
           cpv_codes: string[]
           created_at: string
           deadline_reminders: boolean
@@ -815,6 +817,8 @@ export type Database = {
           welcome_email_sent: boolean
         }
         Insert: {
+          ai_quota_period_start?: string | null
+          billing_period?: string
           cpv_codes?: string[]
           created_at?: string
           deadline_reminders?: boolean
@@ -845,6 +849,8 @@ export type Database = {
           welcome_email_sent?: boolean
         }
         Update: {
+          ai_quota_period_start?: string | null
+          billing_period?: string
           cpv_codes?: string[]
           created_at?: string
           deadline_reminders?: boolean
@@ -1009,6 +1015,7 @@ export type Database = {
       admin_list_users: {
         Args: { _limit?: number }
         Returns: {
+          billing_period: string
           created_at: string
           email: string
           radars_count: number
@@ -1028,17 +1035,31 @@ export type Database = {
         Args: { _enabled: boolean }
         Returns: boolean
       }
-      admin_set_subscription: {
-        Args: {
-          _note: string
-          _source: string
-          _status: string
-          _tier?: string
-          _user_id: string
-          _valid_until: string
-        }
-        Returns: Json
-      }
+      admin_set_subscription:
+        | {
+            Args: {
+              _note: string
+              _source: string
+              _status: string
+              _tier?: string
+              _user_id: string
+              _valid_until: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _note: string
+              _period?: string
+              _source: string
+              _status: string
+              _tier?: string
+              _user_id: string
+              _valid_until: string
+            }
+            Returns: Json
+          }
+      ai_monthly_limit: { Args: { _tier: string }; Returns: number }
       cleanup_grant_calls: { Args: never; Returns: number }
       consume_ai_credit: { Args: { _tender_id: string }; Returns: Json }
       consume_ai_credit_grant: { Args: { _grant_id: string }; Returns: Json }

@@ -209,14 +209,20 @@ export async function issueFakteroInvoice(params: {
   amountGross: number;
   currency: string;
   recipientEmail: string;
-  tier?: "basic" | "premium";
+  tier?: "basic" | "premium" | "komplet";
+  period?: "monthly" | "yearly";
 }): Promise<IssueResult> {
   // Neplatca DPH – konečná suma = unit_price, DPH 0 %.
   const unit = Math.round(params.amountGross * 100) / 100;
-  const tierLabel = params.tier === "premium" ? "Prémium" : params.tier === "basic" ? "Základ" : "";
+  const tierLabel = params.tier === "premium" ? "Prémium"
+    : params.tier === "komplet" ? "Komplet"
+    : params.tier === "basic" ? "Základ" : "";
+  const yearly = params.period === "yearly";
+  const periodLabel = yearly ? "ročné predplatné (12 mesiacov)" : "mesačné predplatné";
   const itemName = tierLabel
-    ? `Tendrik ${tierLabel} – mesačné predplatné`
-    : "Tendrik – mesačné predplatné";
+    ? `Tendrik ${tierLabel} – ${periodLabel}`
+    : `Tendrik – ${periodLabel}`;
+
   const invoicePayload = {
     customer_id: params.customerId,
     issue_date: today(),
@@ -271,8 +277,10 @@ export async function issueInvoiceForPayment(params: {
   gopayPaymentId: string;
   amountGrossEur: number;
   currency?: string;
-  tier?: "basic" | "premium";
+  tier?: "basic" | "premium" | "komplet";
+  period?: "monthly" | "yearly";
 }): Promise<{ ok: boolean; error?: string; invoice_id?: string; invoice_number?: string | null }> {
+
   const { admin, userId, gopayPaymentId, amountGrossEur } = params;
 
   // Idempotencia: ak existuje záznam so status='sent'|'paid_marked'|'issued' pre tento gopay_payment_id, skončiť.
@@ -314,6 +322,8 @@ export async function issueInvoiceForPayment(params: {
       currency: params.currency || "EUR",
       recipientEmail: (billing as any).email,
       tier: params.tier,
+      period: params.period,
+
     });
 
     await admin.from("invoices").update({

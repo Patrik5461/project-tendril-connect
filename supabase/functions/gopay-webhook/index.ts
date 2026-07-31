@@ -6,6 +6,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import {
   corsHeaders, getGoPayToken, gopayConfig, mapPaymentState, resolveGopayEnv } from "../_shared/gopay.ts";
 import { issueInvoiceForPayment, resolveFakteroMode } from "../_shared/faktero.ts";
+import { normalizePeriod, normalizeTier, tierFromAmount, type Period, type Tier } from "../_shared/pricing.ts";
+
 
 async function fetchPayment(id: string) {
   const cfg = gopayConfig();
@@ -47,12 +49,21 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
     payment.additional_params?.find((p: any) => p.name === "user_id")?.value;
   const tierParam: string | undefined =
     payment.additional_params?.find((p: any) => p.name === "tier")?.value;
-  // Ak parent-recurring nemá tier v parametroch, odvodíme z ceny.
-  // basic = 499 c (4,99 €), premium = 1499 c (14,99 €).
-  const inferredTier: "basic" | "premium" =
-    tierParam === "premium" ? "premium"
-    : tierParam === "basic" ? "basic"
-    : (Number(payment.amount ?? 0) >= 1000 ? "premium" : "basic");
+  const periodParam: string | undefined =
+    payment.additional_params?.find((p: any) => p.name === "period")?.value;
+
+  // Prednosť majú additional_params; mapa suma->tier/obdobie je fallback
+  // pre opakované platby, ktoré parametre neprenášajú.
+  const fromAmount = tierFromAmount(Number(payment.amount ?? 0));
+  const hasTierParam = tierParam === "basic" || tierParam === "premium" || tierParam === "komplet";
+  const hasPeriodParam = periodParam === "monthly" || periodParam === "yearly";
+  const resolvedTier: Tier = hasTierParam
+    ? normalizeTier(tierParam)
+    : (fromAmount?.tier ?? "basic");
+  const resolvedPeriod: Period = hasPeriodParam
+    ? normalizePeriod(periodParam)
+    : (fromAmount?.period ?? "monthly");
+  const hasExplicit = hasTierParam || !!fromAmount;
 
   // Audit log
   await admin.from("gopay_payment_events").insert({
@@ -69,25 +80,40 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
 
   const mapped = mapPaymentState(payment.state);
   if (mapped === "active") {
-    // Predĺž o mesiac.
     const { data: pref } = await admin
       .from("user_preferences")
-      .select("subscription_valid_until,subscription_tier")
+      .select("subscription_valid_until,subscription_tier,ai_quota_period_start")
       .eq("user_id", userId).maybeSingle();
     const base = pref?.subscription_valid_until && new Date(pref.subscription_valid_until) > new Date()
       ? new Date(pref.subscription_valid_until)
       : new Date();
     const next = new Date(base);
-    next.setMonth(next.getMonth() + 1);
-    // Ak už má manuálne priradený tier, ponechaj ho; inak zapíš odvodený.
-    const finalTier = (pref as any)?.subscription_tier === "premium" || (pref as any)?.subscription_tier === "basic"
-      ? (pref as any).subscription_tier
-      : inferredTier;
+    // monthly = +1 mesiac, yearly = +12 mesiacov
+    next.setMonth(next.getMonth() + (resolvedPeriod === "yearly" ? 12 : 1));
+
+    // Ak nemáme spoľahlivý zdroj tieru, ponechaj existujúci (napr. manuálne pridelený).
+    const existingTier = (pref as any)?.subscription_tier;
+    const finalTier: Tier = hasExplicit
+      ? resolvedTier
+      : (existingTier === "premium" || existingTier === "komplet" || existingTier === "basic"
+        ? existingTier : resolvedTier);
+
+    // ai_quota_period_start: nastav na teraz, ak je null alebo starší než mesiac
+    const prevStart = (pref as any)?.ai_quota_period_start
+      ? new Date((pref as any).ai_quota_period_start) : null;
+    const monthAgo = new Date();
+    monthAgo.setMonth(monthAgo.getMonth() - 1);
+    const quotaStart = !prevStart || prevStart <= monthAgo
+      ? new Date().toISOString()
+      : prevStart.toISOString();
+
     await admin.from("user_preferences").update({
       subscription_status: "active",
-      subscription_tier: tierParam ? inferredTier : finalTier,
+      subscription_tier: finalTier,
+      billing_period: resolvedPeriod,
       subscription_valid_until: next.toISOString(),
       last_payment_at: new Date().toISOString(),
+      ai_quota_period_start: quotaStart,
       gopay_recurrence_id: String(payment.parent_id ?? payment.id),
     }).eq("user_id", userId);
 
@@ -102,12 +128,14 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
           gopayPaymentId: String(payment.id),
           amountGrossEur,
           currency: payment.currency ?? "EUR",
-          tier: tierParam ? inferredTier : finalTier,
+          tier: finalTier,
+          period: resolvedPeriod,
         });
       }
     } catch (e) {
       console.error("faktero orchestrator threw (should not happen)", e);
     }
+
   } else if (mapped === "expired") {
     await admin.from("user_preferences").update({
       subscription_status: "expired",

@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import { setResponseStatus } from "@tanstack/react-start/server";
+import { encodeQuotaError } from "./ai-quota";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
 import { z } from "zod";
 import { GEMINI_MODELS, geminiGenerate, geminiUserMessage, type GeminiModel } from "./gemini.server";
 import { categoriesForGrant, defaultCategoryFromLegalForm, type ApplicantCategory } from "./grant-applicant-categories";
@@ -501,15 +504,20 @@ export const analyzeGrant = createServerFn({ method: "POST" })
     const { data: credit, error: cErr } = await context.supabase
       .rpc("consume_ai_credit_grant", { _grant_id: data.grant_id });
     if (cErr) throw cErr;
-    const c = credit as { allowed: boolean; unlimited: boolean; remaining: number; reason?: string };
+    const c = credit as {
+      allowed: boolean; used: number; limit: number; tier: string; reason?: string;
+    };
     if (!c?.allowed) {
-      if (c?.reason === "trial_limit") {
-        throw new Error(
-          "Využili ste všetkých 5 AI analýz z trial verzie. Pre neobmedzené analýzy aktivujte Prémium (14,99 €/mes) na /predplatne?tier=premium.",
-        );
-      }
-      throw new Error("AI analýza nie je dostupná v tomto pláne.");
+      setResponseStatus(402);
+      throw new Error(encodeQuotaError({
+        error: "ai_quota_exceeded",
+        used: c?.used ?? 0,
+        limit: c?.limit ?? 0,
+        tier: c?.tier ?? "basic",
+        scope: c?.reason === "trial_limit" ? "trial" : c?.reason === "no_ai_access" ? "none" : "monthly",
+      }));
     }
+
 
     const { data: grant, error: gErr } = await context.supabase
       .from("grant_calls")
@@ -566,7 +574,12 @@ export const analyzeGrant = createServerFn({ method: "POST" })
       .select()
       .maybeSingle();
     if (sErr) throw sErr;
-    return { ...saved, cached: false, credit_remaining: c.remaining, credit_unlimited: c.unlimited };
+    return {
+      ...saved, cached: false,
+      credit_remaining: Math.max(0, (c.limit ?? 0) - (c.used ?? 0)),
+      credit_used: c.used, credit_limit: c.limit, credit_unlimited: false,
+    };
+
   });
 
 // ---------- Admin: test analysis without profile ----------

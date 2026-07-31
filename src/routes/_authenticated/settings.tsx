@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { computeSubscription, formatEur, MONTHLY_PRICE_EUR } from "@/lib/subscription";
+import { computeSubscription, formatEur, priceEur, tierLabel } from "@/lib/subscription";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -629,7 +629,7 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
     if (!userId) return;
     const { data } = await supabase
       .from("user_preferences")
-      .select("trial_started_at,subscription_status,subscription_tier,subscription_valid_until,gopay_recurrence_id,subscription_cancel_requested_at,last_payment_at")
+      .select("trial_started_at,subscription_status,subscription_tier,billing_period,subscription_valid_until,gopay_recurrence_id,subscription_cancel_requested_at,last_payment_at")
       .eq("user_id", userId)
       .maybeSingle();
     setRow(data);
@@ -676,9 +676,19 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
         <div>
           <div className="text-muted-foreground">Plán / Cena</div>
           <div className="font-medium">
-            Tendrik {sub.tier === "premium" ? "Prémium" : "Základ"} · {formatEur(sub.tier === "premium" ? 14.99 : MONTHLY_PRICE_EUR)} / mes
+            Tendrik {tierLabel(sub.tier)} · {formatEur(priceEur(sub.tier, sub.period))}{" "}
+            / {sub.period === "yearly" ? "rok" : "mes"}
           </div>
         </div>
+        <div>
+          <div className="text-muted-foreground">AI analýzy</div>
+          <div className="font-medium">
+            {sub.status === "trial"
+              ? `${sub.aiLimit} v rámci trialu`
+              : sub.aiLimit > 0 ? `${sub.aiLimit} mesačne` : "nie sú v pláne"}
+          </div>
+        </div>
+
         {validUntil && (
           <div>
             <div className="text-muted-foreground">Zaplatené do</div>
