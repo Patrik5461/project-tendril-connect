@@ -97,6 +97,9 @@ function AdminPage() {
         Interné rozhranie – všetky manuálne akcie a prehľady.
       </p>
 
+      <StuckPaymentsBanner />
+
+
       <Tabs defaultValue="overview" className="mt-6">
         <TabsList>
           <TabsTrigger value="overview">Prehľad</TabsTrigger>
