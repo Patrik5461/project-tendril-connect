@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { RefreshCw, Play, Mail, Send, Sparkles, CreditCard, Users as UsersIcon, ShieldCheck, Settings2 } from "lucide-react";
+import { RefreshCw, Play, Mail, Send, Sparkles, CreditCard, Users as UsersIcon, ShieldCheck, Settings2, AlertTriangle } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
