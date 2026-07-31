@@ -91,60 +91,69 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
     : (fromAmount?.period ?? "monthly");
   const hasExplicit = hasTierParam || !!fromAmount;
 
-  // Audit log
-  await admin.from("gopay_payment_events").insert({
-    user_id: userId ?? null,
-    gopay_payment_id: String(payment.id),
-    parent_id: payment.parent_id ? String(payment.parent_id) : null,
-    state: payment.state,
-    amount_cents: payment.amount ?? null,
-    currency: payment.currency ?? null,
-    raw: payment,
-  });
+  // Audit log – musí sa zapísať VŽDY, aj keď ďalšie kroky zlyhajú.
+  let eventId: string | null = null;
+  try {
+    const { data: ev } = await admin.from("gopay_payment_events").insert({
+      user_id: userId ?? null,
+      gopay_payment_id: String(payment.id),
+      parent_id: payment.parent_id ? String(payment.parent_id) : null,
+      state: payment.state,
+      amount_cents: payment.amount ?? null,
+      currency: payment.currency ?? null,
+      raw: payment,
+    }).select("id").maybeSingle();
+    eventId = (ev as any)?.id ?? null;
+  } catch (e) {
+    console.error("audit insert failed", e);
+  }
 
   if (!userId) return { ok: true, note: "no user_id" };
 
   const mapped = mapPaymentState(payment.state);
-  if (mapped === "active") {
-    const { data: pref } = await admin
-      .from("user_preferences")
-      .select("subscription_valid_until,subscription_tier,ai_quota_period_start")
-      .eq("user_id", userId).maybeSingle();
-    const base = pref?.subscription_valid_until && new Date(pref.subscription_valid_until) > new Date()
-      ? new Date(pref.subscription_valid_until)
-      : new Date();
-    const next = new Date(base);
-    // monthly = +1 mesiac, yearly = +12 mesiacov
-    next.setMonth(next.getMonth() + (resolvedPeriod === "yearly" ? 12 : 1));
 
-    // Ak nemáme spoľahlivý zdroj tieru, ponechaj existujúci (napr. manuálne pridelený).
-    const existingTier = (pref as any)?.subscription_tier;
-    const finalTier: Tier = hasExplicit
-      ? resolvedTier
-      : (existingTier === "premium" || existingTier === "komplet" || existingTier === "basic"
-        ? existingTier : resolvedTier);
+  try {
+    if (mapped === "active") {
+      const { data: pref, error: prefErr } = await admin
+        .from("user_preferences")
+        .select("subscription_valid_until,subscription_tier,ai_quota_period_start")
+        .eq("user_id", userId).maybeSingle();
+      if (prefErr) throw new Error(`load user_preferences: ${prefErr.message}`);
+      const base = pref?.subscription_valid_until && new Date(pref.subscription_valid_until) > new Date()
+        ? new Date(pref.subscription_valid_until)
+        : new Date();
+      const next = new Date(base);
+      // monthly = +1 mesiac, yearly = +12 mesiacov
+      next.setMonth(next.getMonth() + (resolvedPeriod === "yearly" ? 12 : 1));
 
-    // ai_quota_period_start: nastav na teraz, ak je null alebo starší než mesiac
-    const prevStart = (pref as any)?.ai_quota_period_start
-      ? new Date((pref as any).ai_quota_period_start) : null;
-    const monthAgo = new Date();
-    monthAgo.setMonth(monthAgo.getMonth() - 1);
-    const quotaStart = !prevStart || prevStart <= monthAgo
-      ? new Date().toISOString()
-      : prevStart.toISOString();
+      // Ak nemáme spoľahlivý zdroj tieru, ponechaj existujúci (napr. manuálne pridelený).
+      const existingTier = (pref as any)?.subscription_tier;
+      const finalTier: Tier = hasExplicit
+        ? resolvedTier
+        : (existingTier === "premium" || existingTier === "komplet" || existingTier === "basic"
+          ? existingTier : resolvedTier);
 
-    await admin.from("user_preferences").update({
-      subscription_status: "active",
-      subscription_tier: finalTier,
-      billing_period: resolvedPeriod,
-      subscription_valid_until: next.toISOString(),
-      last_payment_at: new Date().toISOString(),
-      ai_quota_period_start: quotaStart,
-      gopay_recurrence_id: String(payment.parent_id ?? payment.id),
-    }).eq("user_id", userId);
+      // ai_quota_period_start: nastav na teraz, ak je null alebo starší než mesiac
+      const prevStart = (pref as any)?.ai_quota_period_start
+        ? new Date((pref as any).ai_quota_period_start) : null;
+      const monthAgo = new Date();
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
+      const quotaStart = !prevStart || prevStart <= monthAgo
+        ? new Date().toISOString()
+        : prevStart.toISOString();
 
-    // Faktero
-    try {
+      const { error: updErr } = await admin.from("user_preferences").update({
+        subscription_status: "active",
+        subscription_tier: finalTier,
+        billing_period: resolvedPeriod,
+        subscription_valid_until: next.toISOString(),
+        last_payment_at: new Date().toISOString(),
+        ai_quota_period_start: quotaStart,
+        gopay_recurrence_id: String(payment.parent_id ?? payment.id),
+      }).eq("user_id", userId);
+      if (updErr) throw new Error(`update user_preferences: ${updErr.message}`);
+
+      // Faktero
       const amountGrossEur = Number(payment.amount ?? 0) / 100;
       if (amountGrossEur > 0) {
         await resolveFakteroMode(admin);
@@ -158,18 +167,41 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
           period: resolvedPeriod,
         });
       }
-    } catch (e) {
-      console.error("faktero orchestrator threw (should not happen)", e);
+    } else if (mapped === "expired") {
+      const { error: expErr } = await admin.from("user_preferences").update({
+        subscription_status: "expired",
+      }).eq("user_id", userId);
+      if (expErr) throw new Error(`expire user_preferences: ${expErr.message}`);
     }
-
-  } else if (mapped === "expired") {
-    await admin.from("user_preferences").update({
-      subscription_status: "expired",
-    }).eq("user_id", userId);
+  } catch (e) {
+    const msg = String((e as Error)?.message ?? e);
+    console.error("payment processing failed", paymentId, msg);
+    try {
+      if (eventId) {
+        await admin.from("gopay_payment_events").update({ processing_error: msg }).eq("id", eventId);
+      } else {
+        await admin.from("gopay_payment_events").update({ processing_error: msg })
+          .eq("gopay_payment_id", String(payment.id));
+      }
+    } catch (e2) {
+      console.error("nepodarilo sa zapísať processing_error", e2);
+    }
+    await sendAdminAlert(
+      `Zlyhalo spracovanie platby ${String(payment.id)}`,
+      `<h2>Zlyhalo spracovanie platby</h2>
+       <p><b>GoPay ID:</b> ${esc(payment.id)}</p>
+       <p><b>User ID:</b> ${esc(userId)}</p>
+       <p><b>Suma:</b> ${esc(((Number(payment.amount ?? 0)) / 100).toFixed(2))} ${esc(payment.currency ?? "EUR")}</p>
+       <p><b>Stav platby:</b> ${esc(payment.state)}</p>
+       <p><b>Chyba:</b><br><pre style="white-space:pre-wrap">${esc(msg)}</pre></p>
+       <p>Zákazník zaplatil, ale predplatné/faktúra nemuseli prebehnúť. Dorovnajte to v admine → GoPay.</p>`,
+    );
+    throw new Error(msg);
   }
 
   return { ok: true, state: payment.state, mapped };
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
