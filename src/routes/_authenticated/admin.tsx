@@ -402,9 +402,12 @@ function GopayTab() {
     (async () => {
       const { data } = await (supabase.rpc as any)("admin_get_gopay_mode");
       setMode(typeof data === "string" ? data : "");
+      const { data: rec } = await (supabase.rpc as any)("get_gopay_recurring_enabled");
+      setRecurring(rec === true);
     })();
     void loadStatus();
   }, []);
+
 
 
   async function save(next: string) {
