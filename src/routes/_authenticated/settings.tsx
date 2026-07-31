@@ -676,9 +676,19 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
         <div>
           <div className="text-muted-foreground">Plán / Cena</div>
           <div className="font-medium">
-            Tendrik {sub.tier === "premium" ? "Prémium" : "Základ"} · {formatEur(sub.tier === "premium" ? 14.99 : MONTHLY_PRICE_EUR)} / mes
+            Tendrik {tierLabel(sub.tier)} · {formatEur(priceEur(sub.tier, sub.period))}{" "}
+            / {sub.period === "yearly" ? "rok" : "mes"}
           </div>
         </div>
+        <div>
+          <div className="text-muted-foreground">AI analýzy</div>
+          <div className="font-medium">
+            {sub.status === "trial"
+              ? `${sub.aiLimit} v rámci trialu`
+              : sub.aiLimit > 0 ? `${sub.aiLimit} mesačne` : "nie sú v pláne"}
+          </div>
+        </div>
+
         {validUntil && (
           <div>
             <div className="text-muted-foreground">Zaplatené do</div>

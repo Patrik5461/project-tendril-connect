@@ -1,11 +1,13 @@
-// Vytvorí opakovanú platbu (recurring) pre prihláseného používateľa.
+// Vytvorí platbu predplatného pre prihláseného používateľa.
 // Tobify s.r.o. nie je platca DPH – suma je konečná, bez pripočítania DPH.
-// basic = 4,99 €, premium = 14,99 €.
+// Tiery: basic / premium / komplet, obdobia: monthly / yearly.
+// Ročné predplatné je VŽDY jednorazová platba (bez recurrence).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { corsHeaders, getGoPayToken, gopayConfig, resolveGopayEnv } from "../_shared/gopay.ts";
+import {
+  normalizePeriod, normalizeTier, periodLabel, priceCents, tierLabel,
+} from "../_shared/pricing.ts";
 
-const PRICE_CENTS_BASIC = 499;    // 4,99 € (konečná cena, neplatca DPH)
-const PRICE_CENTS_PREMIUM = 1499; // 14,99 € (konečná cena, neplatca DPH)
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -27,7 +29,8 @@ Deno.serve(async (req) => {
     const user = userRes.user;
 
     const body = await req.json().catch(() => ({}));
-    const tier: "basic" | "premium" = body?.tier === "premium" ? "premium" : "basic";
+    const tier = normalizeTier(body?.tier);
+    const period = normalizePeriod(body?.period);
 
     // Globálny prepínač opakovaných platieb (app_settings.gopay_recurring_enabled)
     let recurringEnabled = false;
@@ -46,9 +49,13 @@ Deno.serve(async (req) => {
         recurringEnabled = rows?.[0]?.value === true;
       }
     } catch { /* default false */ }
-    const wantAutorenew = recurringEnabled && body?.autorenew === true;
-    const priceCents = tier === "premium" ? PRICE_CENTS_PREMIUM : PRICE_CENTS_BASIC;
-    const tierLabel = tier === "premium" ? "Prémium" : "Základ";
+    // Ročné predplatné je vždy jednorazová platba.
+    const wantAutorenew = period === "monthly" && recurringEnabled && body?.autorenew === true;
+    const amountCents = priceCents(tier, period);
+    const tLabel = tierLabel(tier);
+    const pLabel = periodLabel(period);
+    const itemPeriod = period === "yearly" ? "12 mesiacov" : "1 mesiac";
+
 
     const cfg = gopayConfig();
     if (!cfg.configured) {
@@ -74,12 +81,12 @@ Deno.serve(async (req) => {
         allowed_payment_instruments: ["PAYMENT_CARD"],
         contact: { email: user.email ?? "" },
       },
-      amount: priceCents,
+      amount: amountCents,
       currency: "EUR",
-      order_number: `sub_${tier}_${user.id.slice(0, 8)}_${Date.now()}`,
-      order_description: `Tendrik ${tierLabel} – mesačné predplatné`,
+      order_number: `sub_${tier}_${period}_${user.id.slice(0, 8)}_${Date.now()}`,
+      order_description: `Tendrik ${tLabel} – ${pLabel} predplatné`,
       items: [
-        { name: `Tendrik ${tierLabel} (1 mesiac)`, amount: priceCents, count: 1 },
+        { name: `Tendrik ${tLabel} (${itemPeriod})`, amount: amountCents, count: 1 },
       ],
       callback: {
         return_url: `${appBase}/platba/vysledok`,
@@ -88,7 +95,9 @@ Deno.serve(async (req) => {
       additional_params: [
         { name: "user_id", value: user.id },
         { name: "tier", value: tier },
+        { name: "period", value: period },
       ],
+
       lang: "SK",
       target: { type: "ACCOUNT", goid: Number(cfg.goid) },
     };
@@ -143,6 +152,7 @@ Deno.serve(async (req) => {
       gopay_subscription_id: String(j.id),
       gopay_recurrence_id: autorenewApplied ? String(j.id) : null,
       subscription_tier: tier,
+      billing_period: period,
     }).eq("user_id", user.id);
 
     return new Response(JSON.stringify({
@@ -150,9 +160,12 @@ Deno.serve(async (req) => {
       gw_url: j.gw_url,
       state: j.state,
       tier,
+      period,
+      amount_cents: amountCents,
       env: cfg.env,
       autorenew_applied: autorenewApplied,
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
   } catch (e) {
     return new Response(JSON.stringify({ error: String((e as Error).message ?? e) }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },

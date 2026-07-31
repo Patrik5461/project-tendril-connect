@@ -40,6 +40,8 @@ type UserRow = {
   subscription_status: string | null;
   subscription_source: string | null;
   subscription_tier: string | null;
+  billing_period?: string | null;
+
   subscription_note: string | null;
   trial_started_at: string | null;
   subscription_valid_until: string | null;
@@ -628,10 +630,15 @@ function UsersTab() {
                 </td>
                 <td className="py-2 pr-3">
                   <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
+                    r.subscription_tier === "komplet" ? "bg-foreground/10 text-foreground" :
                     r.subscription_tier === "premium" ? "bg-primary/10 text-primary" :
                     "bg-muted text-muted-foreground"
-                  }`}>{r.subscription_tier === "premium" ? "Prémium" : "Základ"}</span>
+                  }`}>
+                    {r.subscription_tier === "komplet" ? "Komplet" : r.subscription_tier === "premium" ? "Prémium" : "Základ"}
+                    {(r as any).billing_period === "yearly" ? " · ročne" : ""}
+                  </span>
                 </td>
+
                 <td className="py-2 pr-3">
                   <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
                     r.subscription_source === "manual" ? "bg-amber-500/10 text-amber-700 dark:text-amber-400" :
@@ -671,13 +678,14 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
   const [status, setStatus] = useState<string>(user.subscription_status ?? "trial");
   const [source, setSource] = useState<string>(user.subscription_source ?? "trial");
   const [tier, setTier] = useState<string>(user.subscription_tier ?? "basic");
+  const [period, setPeriod] = useState<string>((user as any).billing_period ?? "monthly");
   const [validUntil, setValidUntil] = useState<string>(
     user.subscription_valid_until ? new Date(user.subscription_valid_until).toISOString().slice(0, 10) : ""
   );
   const [note, setNote] = useState<string>(user.subscription_note ?? "");
   const [saving, setSaving] = useState(false);
 
-  function setPreset(months: number | "forever", presetTier: "basic" | "premium") {
+  function setPreset(months: number | "forever", presetTier: "basic" | "premium" | "komplet") {
     if (months === "forever") {
       setValidUntil("");
     } else {
@@ -688,6 +696,7 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
     setStatus("active");
     setSource("manual");
     setTier(presetTier);
+    setPeriod(months === 12 ? "yearly" : "monthly");
   }
 
   async function save() {
@@ -699,6 +708,7 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
       _note: note || null,
       _source: source,
       _tier: tier,
+      _period: period,
     });
     setSaving(false);
     if (error) { toast.error(error.message); return; }
@@ -710,7 +720,8 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
     if (!confirm("Vrátiť používateľa na trial?")) return;
     setSaving(true);
     const { error } = await (supabase.rpc as any)("admin_set_subscription", {
-      _user_id: user.user_id, _status: "trial", _valid_until: null, _note: note || null, _source: "trial", _tier: tier,
+      _user_id: user.user_id, _status: "trial", _valid_until: null, _note: note || null,
+      _source: "trial", _tier: tier, _period: period,
     });
     setSaving(false);
     if (error) { toast.error(error.message); return; }
@@ -722,7 +733,7 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
     setSaving(true);
     const { error } = await (supabase.rpc as any)("admin_set_subscription", {
       _user_id: user.user_id, _status: "expired", _valid_until: null, _note: note || null,
-      _source: source === "manual" ? "manual" : "paid", _tier: tier,
+      _source: source === "manual" ? "manual" : "paid", _tier: tier, _period: period,
     });
     setSaving(false);
     if (error) { toast.error(error.message); return; }
@@ -730,6 +741,7 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
   }
 
   return (
+
     <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
@@ -756,6 +768,15 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
               <Button type="button" size="sm" variant="default" onClick={() => setPreset("forever", "premium")}>Natrvalo Prémium</Button>
             </div>
           </div>
+          <div>
+            <Label className="text-xs">Rýchle voľby – Komplet (zákazky + granty + AI)</Label>
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant="secondary" onClick={() => setPreset(1, "komplet")}>+1 mesiac Komplet</Button>
+              <Button type="button" size="sm" variant="secondary" onClick={() => setPreset(6, "komplet")}>+6 mes. Komplet</Button>
+              <Button type="button" size="sm" variant="secondary" onClick={() => setPreset(12, "komplet")}>+1 rok Komplet</Button>
+              <Button type="button" size="sm" variant="secondary" onClick={() => setPreset("forever", "komplet")}>Natrvalo Komplet</Button>
+            </div>
+          </div>
 
 
           <div className="grid grid-cols-2 gap-3">
@@ -779,17 +800,29 @@ function SubscriptionDialog({ user, onClose, onSaved }: { user: UserRow; onClose
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="sub-tier" className="text-xs">Tier (AI prístup)</Label>
-            <select id="sub-tier" value={tier} onChange={(e) => setTier(e.target.value)}
-              className="mt-1 w-full rounded border px-2 py-1.5 text-sm bg-background">
-              <option value="basic">Základ – iba monitoring (bez AI)</option>
-              <option value="premium">Prémium – s AI analýzou</option>
-            </select>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Trial má AI automaticky. Pre platiacich/manuálnych rozhodni tu.
-            </p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label htmlFor="sub-tier" className="text-xs">Tier (AI a granty)</Label>
+              <select id="sub-tier" value={tier} onChange={(e) => setTier(e.target.value)}
+                className="mt-1 w-full rounded border px-2 py-1.5 text-sm bg-background">
+                <option value="basic">Základ – iba monitoring (bez AI)</option>
+                <option value="premium">Prémium – zákazky + AI (30/mes)</option>
+                <option value="komplet">Komplet – zákazky + granty + AI (150/mes)</option>
+              </select>
+            </div>
+            <div>
+              <Label htmlFor="sub-period" className="text-xs">Obdobie</Label>
+              <select id="sub-period" value={period} onChange={(e) => setPeriod(e.target.value)}
+                className="mt-1 w-full rounded border px-2 py-1.5 text-sm bg-background">
+                <option value="monthly">mesačné</option>
+                <option value="yearly">ročné</option>
+              </select>
+            </div>
           </div>
+          <p className="text-xs text-muted-foreground">
+            Trial má AI automaticky (5 analýz). Pre platiacich/manuálnych rozhoduje tier a obdobie.
+          </p>
+
 
           <div>
             <Label htmlFor="sub-valid" className="text-xs">Platné do (nechať prázdne = natrvalo)</Label>

@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import { setResponseStatus } from "@tanstack/react-start/server";
+import { encodeQuotaError } from "./ai-quota";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
 import { z } from "zod";
 import { GEMINI_MODELS, geminiGenerate, geminiUserMessage, type GeminiModel } from "./gemini.server";
 import { fetchCompanyFromRegisters, type RegistryCompany } from "./registers.server";
@@ -435,7 +438,7 @@ export const analyzeTender = createServerFn({ method: "POST" })
     force: z.boolean().optional().default(false),
   }).parse(raw))
   .handler(async ({ data, context }) => {
-    // Subscription check — AI dostupné pre trial alebo active+premium tier.
+    // Subscription check — AI dostupné pre trial alebo aktívny tier s limitom > 0.
     const { data: prefs } = await context.supabase
       .from("user_preferences")
       .select("subscription_status,subscription_tier,trial_started_at")
@@ -443,12 +446,12 @@ export const analyzeTender = createServerFn({ method: "POST" })
       .maybeSingle();
     const status = prefs?.subscription_status ?? "trial";
     const tier = (prefs as any)?.subscription_tier ?? "basic";
-    const hasAi = status === "trial" || (status === "active" && tier === "premium");
+    const hasAi = status === "trial" || (status === "active" && (tier === "premium" || tier === "komplet"));
     if (!hasAi) {
       throw new Error(
         status === "expired"
           ? "AI analýza je dostupná len s aktívnym predplatným."
-          : "AI analýza je súčasťou balíka Prémium (14,99 €/mes). Upgradnite predplatné a odomknite ju.",
+          : "AI analýza je súčasťou balíkov Prémium a Komplet. Upgradnite predplatné na /cennik a odomknite ju.",
       );
     }
 
@@ -473,20 +476,25 @@ export const analyzeTender = createServerFn({ method: "POST" })
       if (cached) return { ...cached, cached: true };
     }
 
-    // Trial: atomically check + consume 1 credit for this tender (skips if premium
-    // or if this tender already has an analysis row — rerun uses the same package).
+    // Kvóta: trial 5 spolu, platené podľa mesačného limitu tieru.
     const { data: credit, error: cErr } = await context.supabase
       .rpc("consume_ai_credit", { _tender_id: data.tender_id });
     if (cErr) throw cErr;
-    const c = credit as { allowed: boolean; unlimited: boolean; remaining: number; reason?: string };
+    const c = credit as {
+      allowed: boolean; used: number; limit: number; tier: string; reason?: string;
+    };
     if (!c?.allowed) {
-      if (c?.reason === "trial_limit") {
-        throw new Error(
-          "Využili ste všetkých 5 AI analýz z trial verzie. Pre neobmedzené analýzy aktivujte Prémium (14,99 €/mes) na /predplatne?tier=premium.",
-        );
-      }
-      throw new Error("AI analýza nie je dostupná v tomto pláne.");
+      setResponseStatus(402);
+      throw new Error(encodeQuotaError({
+        error: "ai_quota_exceeded",
+        used: c?.used ?? 0,
+        limit: c?.limit ?? 0,
+        tier: c?.tier ?? tier,
+        status,
+        scope: c?.reason === "trial_limit" ? "trial" : c?.reason === "no_ai_access" ? "none" : "monthly",
+      }));
     }
+
 
     // Load tender
     const { data: tender, error: tErr } = await context.supabase
@@ -527,6 +535,11 @@ export const analyzeTender = createServerFn({ method: "POST" })
       .select()
       .maybeSingle();
     if (sErr) throw sErr;
-    return { ...saved, cached: false, credit_remaining: c.remaining, credit_unlimited: c.unlimited };
+    return {
+      ...saved, cached: false,
+      credit_remaining: Math.max(0, (c.limit ?? 0) - (c.used ?? 0)),
+      credit_used: c.used, credit_limit: c.limit, credit_unlimited: false,
+    };
+
   });
 
