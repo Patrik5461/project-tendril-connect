@@ -411,14 +411,14 @@ function Landing() {
         </div>
         <div className="mt-5 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight">
-            Dva plány. <span className="hero-underline">30 dní zdarma na vyskúšanie.</span>
+            Tri plány. <span className="hero-underline">30 dní zdarma na vyskúšanie.</span>
           </h2>
           <p className="text-sm text-muted-foreground md:max-w-sm">
-            Konečné ceny – Tobify s. r. o. nie je platca DPH.
+            Konečné ceny – Tobify s. r. o. nie je platca DPH. Pri ročnej platbe 2 mesiace zdarma.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
           <div className="rounded-lg border-2 border-foreground bg-card p-6 flex flex-col">
             <div className="eyebrow">Základ</div>
             <h3 className="mt-2 font-display text-2xl font-bold">Monitoring zákaziek</h3>
@@ -430,7 +430,7 @@ function Landing() {
               <li>· Denné e-mailové digesty</li>
               <li>· Pripomienky pred deadline</li>
               <li>· TED, ÚVO, EKS a JOSEPHINE</li>
-              <li className="text-muted-foreground">— Bez AI analýzy</li>
+              <li className="text-muted-foreground">— Bez AI a bez grantov</li>
             </ul>
             <div className="mt-6 flex gap-2">
               <Link to="/auth" search={{ mode: "signup" }} className="flex-1">
@@ -447,16 +447,16 @@ function Landing() {
               Obsahuje AI
             </span>
             <div className="eyebrow text-primary">Prémium</div>
-            <h3 className="mt-2 font-display text-2xl font-bold">Všetko + AI analýza</h3>
+            <h3 className="mt-2 font-display text-2xl font-bold">Zákazky + AI analýza</h3>
             <p className="mt-4 num text-4xl font-bold">
               14,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span>
             </p>
             <ul className="mt-5 space-y-1.5 text-sm flex-1">
               <li>· Všetko zo Základu</li>
+              <li>· 30 AI analýz mesačne</li>
               <li>· AI analýza zákazky a spôsobilosti</li>
               <li>· AI návrh subdodávok a oslovení</li>
-              <li>· TED podmienky štruktúrovane</li>
-              <li>· Prioritná podpora</li>
+              <li className="text-muted-foreground">— Bez grantových výziev</li>
             </ul>
             <div className="mt-6 flex gap-2">
               <Link to="/auth" search={{ mode: "signup" }} className="flex-1">
@@ -467,7 +467,34 @@ function Landing() {
               </Link>
             </div>
           </div>
+
+          <div className="rounded-lg border-2 border-foreground bg-card p-6 relative flex flex-col">
+            <span className="absolute -top-3 left-4 bg-foreground text-background text-xs font-semibold uppercase tracking-wider px-2 py-0.5">
+              Zákazky aj granty
+            </span>
+            <div className="eyebrow">Komplet</div>
+            <h3 className="mt-2 font-display text-2xl font-bold">Zákazky + granty + AI</h3>
+            <p className="mt-4 num text-4xl font-bold">
+              24,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span>
+            </p>
+            <ul className="mt-5 space-y-1.5 text-sm flex-1">
+              <li>· Všetko z Prémia</li>
+              <li>· Grantové výzvy a dotácie</li>
+              <li>· Radary a notifikácie pre granty</li>
+              <li>· AI analýza grantových výziev</li>
+              <li>· 150 AI analýz mesačne</li>
+            </ul>
+            <div className="mt-6 flex gap-2">
+              <Link to="/auth" search={{ mode: "signup" }} className="flex-1">
+                <Button variant="outline" className="w-full">Vyskúšať zdarma</Button>
+              </Link>
+              <Link to="/cennik">
+                <Button variant="ghost">Detaily</Button>
+              </Link>
+            </div>
+          </div>
         </div>
+
 
         <p className="mt-6 text-sm text-muted-foreground">
           Kompletný cenník a porovnanie plánov na <Link to="/cennik" className="underline text-foreground">/cennik</Link>.
