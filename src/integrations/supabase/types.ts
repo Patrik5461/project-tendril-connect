@@ -1024,6 +1024,10 @@ export type Database = {
       admin_overview_stats: { Args: never; Returns: Json }
       admin_set_analytics_config: { Args: { _config: Json }; Returns: Json }
       admin_set_gopay_mode: { Args: { _mode: string }; Returns: string }
+      admin_set_gopay_recurring_enabled: {
+        Args: { _enabled: boolean }
+        Returns: boolean
+      }
       admin_set_subscription: {
         Args: {
           _note: string
@@ -1053,6 +1057,7 @@ export type Database = {
       }
       get_ai_credit_status: { Args: never; Returns: Json }
       get_analytics_config: { Args: never; Returns: Json }
+      get_gopay_recurring_enabled: { Args: never; Returns: boolean }
       get_open_grants_stats: {
         Args: never
         Returns: {
