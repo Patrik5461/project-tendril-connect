@@ -367,11 +367,22 @@ function ActionsTab() {
 function GopayTab() {
   const [mode, setMode] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  const [recurring, setRecurring] = useState<boolean | null>(null);
   const [simUser, setSimUser] = useState("");
   const [simState, setSimState] = useState("PAID");
   const [simBusy, setSimBusy] = useState(false);
   const [status, setStatus] = useState<any>(null);
   const [testing, setTesting] = useState(false);
+
+  async function toggleRecurring(next: boolean) {
+    const prev = recurring;
+    setRecurring(next);
+    const { data, error } = await (supabase.rpc as any)("admin_set_gopay_recurring_enabled", { _enabled: next });
+    if (error) { setRecurring(prev); toast.error(error.message); return; }
+    setRecurring(Boolean(data));
+    toast.success(next ? "Opakované platby zapnuté" : "Opakované platby vypnuté");
+  }
+
 
   async function loadStatus() {
     setTesting(true);
