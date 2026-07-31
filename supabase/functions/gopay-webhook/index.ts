@@ -19,7 +19,33 @@ async function fetchPayment(id: string) {
   return await res.json();
 }
 
+const ADMIN_ALERT_TO = "admin@tendrik.sk";
+const ALERT_FROM = "Tendrik <noreply@tendrik.sk>";
+
+async function sendAdminAlert(subject: string, html: string) {
+  const apiKey = Deno.env.get("RESEND_API_KEY");
+  if (!apiKey) {
+    console.error("RESEND_API_KEY missing – nemôžem poslať upozornenie adminovi");
+    return;
+  }
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({ from: ALERT_FROM, to: [ADMIN_ALERT_TO], subject, html }),
+    });
+    if (!res.ok) console.error("Resend alert failed", res.status, await res.text());
+  } catch (e) {
+    console.error("Resend alert threw", e);
+  }
+}
+
+function esc(v: unknown): string {
+  return String(v ?? "—").replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]!));
+}
+
 async function processPayment(paymentId: string, simulate?: { state?: string; user_id?: string }) {
+
   const cfg = gopayConfig();
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,
