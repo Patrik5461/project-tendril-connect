@@ -228,6 +228,9 @@ export async function issueFakteroInvoice(params: {
     issue_date: today(),
     due_date: today(),
     currency: params.currency || "EUR",
+    // Platba prebehla kartou cez GoPay – bez tohto poľa Faktero použije
+    // predvolený bank_transfer a na PDF vypíše platobné údaje s VS.
+    payment_method: "card",
     // Príznak neplatca DPH – Faktero podľa nastavenia dodávateľa DPH neuvádza.
     vat_payer: false,
     note: "Dodávateľ nie je platiteľom DPH.",
