@@ -572,6 +572,8 @@ function GopayTab() {
 
   return (
     <div className="space-y-4">
+      <StuckPaymentsCard />
+
       <Card title="Režim GoPay">
         <div className="flex items-center gap-3">
           <CreditCard className="h-5 w-5 text-primary" />
