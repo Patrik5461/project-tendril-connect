@@ -207,21 +207,23 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
   );
 }
 
-function TrialExhaustedNotice({ limit }: { limit: number }) {
+function TrialExhaustedNotice({ limit, isTrial }: { limit: number; isTrial: boolean }) {
   return (
     <div className="mt-4 rounded-lg border-2 border-primary bg-primary/5 p-6">
       <div className="flex items-center gap-2 text-sm font-semibold">
         <Lock className="h-4 w-4 text-primary" />
-        Trial AI kredity vyčerpané
+        {isTrial ? "Trial AI kredity vyčerpané" : "Mesačná kvóta AI analýz vyčerpaná"}
       </div>
       <p className="mt-2 text-sm text-foreground/80">
-        Využili ste všetkých {limit} AI analýz z trial verzie. Pre neobmedzené analýzy aktivujte Prémium (14,99 €/mes).
+        {isTrial
+          ? `Využili ste všetkých ${limit} AI analýz z trial verzie. Vyberte si plán s AI – Prémium (${formatEur(priceEur("premium"))}/mes, ${AI_MONTHLY_LIMIT.premium} analýz mesačne) alebo Komplet (${formatEur(priceEur("komplet"))}/mes, ${AI_MONTHLY_LIMIT.komplet} analýz + granty).`
+          : `Vyčerpali ste ${limit} AI analýz v tomto mesiaci. Kvóta sa obnoví na začiatku ďalšieho fakturačného mesiaca, alebo prejdite na vyšší plán.`}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Už vygenerované analýzy si môžete naďalej prezerať — trial vám neblokuje prístup k výsledkom.
+        Už vygenerované analýzy si môžete naďalej prezerať.
       </p>
-      <Link to="/predplatne" search={{ tier: "premium" } as never} className="mt-4 inline-block">
-        <Button>Aktivovať Prémium (14,99 €/mes)</Button>
+      <Link to="/cennik" className="mt-4 inline-block">
+        <Button>Pozrieť plány</Button>
       </Link>
     </div>
   );
@@ -230,16 +232,17 @@ function TrialExhaustedNotice({ limit }: { limit: number }) {
 
 function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isExpired: boolean }) {
   const title = needsUpgrade
-    ? "AI analýza je v balíku Prémium"
+    ? "AI analýza je v balíkoch Prémium a Komplet"
     : isExpired
     ? "Ukážka – vyžaduje aktívne predplatné"
     : "Ukážka – vyžaduje aktívne predplatné";
   const cta = needsUpgrade
-    ? "Upgradni na Prémium (14,99 €/mes) a odomkni AI analýzu"
+    ? `Upgradnúť na Prémium (${formatEur(priceEur("premium"))}/mes)`
     : "Odomknúť analýzu – aktivovať predplatné";
   const body = needsUpgrade
-    ? "V balíku Základ máte monitoring, radary a notifikácie. AI porovnanie podmienok s vašou firmou (spôsobilosť, subdodávky) je súčasťou Prémia."
+    ? "V balíku Základ máte monitoring, radary a notifikácie. AI porovnanie podmienok s vašou firmou (spôsobilosť, subdodávky) je súčasťou Prémia a Kompletu."
     : "AI porovná podmienky účasti s vašou firmou a povie, či sa oplatí uchádzať.";
+
   return (
     <div className="mt-4 relative overflow-hidden rounded-lg border border-border bg-card p-6">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/60 to-card pointer-events-none" />
