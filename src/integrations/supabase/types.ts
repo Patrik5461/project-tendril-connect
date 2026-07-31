@@ -183,6 +183,7 @@ export type Database = {
           gopay_payment_id: string | null
           id: string
           parent_id: string | null
+          processing_error: string | null
           raw: Json | null
           received_at: string
           state: string | null
@@ -194,6 +195,7 @@ export type Database = {
           gopay_payment_id?: string | null
           id?: string
           parent_id?: string | null
+          processing_error?: string | null
           raw?: Json | null
           received_at?: string
           state?: string | null
@@ -205,6 +207,7 @@ export type Database = {
           gopay_payment_id?: string | null
           id?: string
           parent_id?: string | null
+          processing_error?: string | null
           raw?: Json | null
           received_at?: string
           state?: string | null
@@ -1059,6 +1062,23 @@ export type Database = {
             }
             Returns: Json
           }
+      admin_stuck_paid_payments: {
+        Args: { _limit?: number }
+        Returns: {
+          amount_cents: number
+          currency: string
+          email: string
+          gopay_payment_id: string
+          id: string
+          processing_error: string
+          received_at: string
+          state: string
+          subscription_status: string
+          subscription_tier: string
+          subscription_valid_until: string
+          user_id: string
+        }[]
+      }
       ai_monthly_limit: { Args: { _tier: string }; Returns: number }
       cleanup_grant_calls: { Args: never; Returns: number }
       consume_ai_credit: { Args: { _tender_id: string }; Returns: Json }
