@@ -662,26 +662,28 @@ function Dashboard() {
       )}
       {subscription.status === "expired" && <ExpiredBanner />}
 
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div className="flex items-baseline justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight">Vaše zákazky</h1>
-          <p className="text-muted-foreground mt-1">
-            {totalCount === 0
-              ? "Žiadne zákazky pre aktuálne filtre."
-              : (
-                <>
-                  Zobrazené{" "}
-                  <b className="num text-foreground">
-                    {pageStart + 1}–{pageEnd}
-                  </b>{" "}
-                  z <b className="num text-foreground">{totalCount}</b>{" "}
-                  {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
-                </>
-              )}
+          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Vaše zákazky</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Aktuálne verejné zákazky z TED, ÚVO, EKS a JOSEPHINE podľa vašich radarov.
           </p>
-
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {totalCount === 0 ? (
+            "Žiadne zákazky pre aktuálne filtre."
+          ) : (
+            <>
+              <span className="num font-semibold text-foreground">
+                {pageStart + 1}–{pageEnd}
+              </span>{" "}
+              z <span className="num font-semibold text-foreground">{totalCount}</span>{" "}
+              {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
+            </>
+          )}
         </div>
       </div>
+
 
 
       <div className="mt-6 space-y-3">
@@ -732,7 +734,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 border-t border-b border-border py-4">
           {tab === "foryou" && userRadars.length > 1 && (
             <Select
               value={radarParam}
@@ -863,7 +865,7 @@ function Dashboard() {
                   ))}
                 </div>
               ) : (
-                <div className="mt-6 border-t-2 border-foreground">
+                <div className="mt-6 space-y-3">
                   {pageItems.map((t) => (
                     <TenderCard
                       key={t.id}
@@ -1056,75 +1058,50 @@ function TenderCard({
   const expired = daysLeft !== null && daysLeft < 0;
   const urgent = daysLeft !== null && daysLeft >= 0 && daysLeft < 7;
 
+  const summary = tender.ai_summary?.trim();
+  const firstSentence = summary
+    ? (summary.match(/[^.!?]+[.!?]/)?.[0] ?? summary).trim()
+    : null;
+  const snippet = firstSentence ?? tender.description;
+
   return (
     <article
-      className={`border-b border-border bg-card px-1 py-5 md:px-2 md:py-6 transition-colors hover:bg-secondary/60 ${
+      className={`border border-border bg-card p-5 transition-colors hover:border-foreground ${
         expired ? "opacity-70" : ""
       } ${hidden && tab !== "hidden" ? "opacity-60" : ""}`}
     >
-      <div className="flex items-start gap-4">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 flex-wrap">
-            <SourceBadge source={tender.source} />
-            <DeadlineBadge daysLeft={daysLeft} expired={expired} />
-            {tender.cpv_code && (
-              <span className="eyebrow text-muted-foreground">CPV {tender.cpv_code}</span>
-            )}
-            {radarLabels?.map((n) => (
-              <span
-                key={n}
-                className="inline-flex items-center gap-1 rounded-sm border border-primary/40 text-primary px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
-                title="Zachytené radarom"
-              >
-                <Radar className="h-3 w-3" /> {n}
-              </span>
-            ))}
-          </div>
-          <Link
-            to="/zakazka/$id"
-            params={{ id: tender.id }}
-            className="mt-2 block group"
-          >
-            <h3 className="font-display font-semibold text-xl md:text-2xl leading-snug tracking-tight text-foreground group-hover:text-primary transition-colors">
-              {tender.title}
-            </h3>
-          </Link>
-          <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-foreground/75">
-            <span className="inline-flex items-center gap-1.5">
-              <Building2 className="h-4 w-4" />
-              {tender.contracting_authority}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
+          <SourceBadge source={tender.source} />
+          <DeadlineBadge daysLeft={daysLeft} expired={expired} />
+          {tender.cpv_code && (
+            <span className="eyebrow inline-flex items-center border border-border text-muted-foreground px-2 py-0.5">
+              CPV {tender.cpv_code}
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin className="h-4 w-4" />
-              {tender.country && tender.country !== "SK"
-                ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}`
-                : (tender.region ?? "—")}
+          )}
+          {radarLabels?.map((n) => (
+            <span
+              key={n}
+              className="eyebrow inline-flex items-center gap-1 border border-primary/40 text-primary px-2 py-0.5"
+              title="Zachytené radarom"
+            >
+              <Radar className="h-3 w-3" /> {n}
             </span>
-            <span className="inline-flex items-center gap-1.5 num">
-              <Calendar className="h-4 w-4" />
-              {deadlineDate ? format(deadlineDate, "d.M.yyyy") : "Neurčené"}
-            </span>
-          </div>
-          {(() => {
-            const summary = tender.ai_summary?.trim();
-            const firstSentence = summary
-              ? (summary.match(/[^.!?]+[.!?]/)?.[0] ?? summary).trim()
-              : null;
-            const snippet = firstSentence ?? tender.description;
-            if (!snippet) return null;
-            return (
-              <Link
-                to="/zakazka/$id"
-                params={{ id: tender.id }}
-                className="mt-3 block text-sm text-foreground/70 line-clamp-2 hover:text-foreground"
-              >
-                {snippet}
-              </Link>
-            );
-          })()}
+          ))}
         </div>
 
-        <div className="flex flex-col items-end justify-between gap-3 shrink-0 min-h-[6rem]">
+        <div className="flex items-start gap-4">
+          {tender.estimated_value != null && (
+            <div className="text-right">
+              <div className="eyebrow text-muted-foreground">Hodnota</div>
+              <div className="num font-bold text-primary text-lg leading-tight">
+                {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
+                  .format(Number(tender.estimated_value))
+                  .replace(/\u00a0/g, " ")}{" "}
+                €
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-1">
             {tab === "hidden" ? (
               <button
@@ -1147,9 +1124,7 @@ function TenderCard({
                 >
                   <Star
                     className={`h-4 w-4 ${
-                      saved
-                        ? "fill-primary text-primary"
-                        : "text-muted-foreground"
+                      saved ? "fill-primary text-primary" : "text-muted-foreground"
                     }`}
                   />
                 </button>
@@ -1165,27 +1140,62 @@ function TenderCard({
               </>
             )}
           </div>
-          {tender.estimated_value != null && (
-            <div className="text-right">
-              <div className="eyebrow text-muted-foreground">Hodnota</div>
-              <div className="num text-lg font-semibold text-foreground">
-                {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
-                  .format(Number(tender.estimated_value))
-                  .replace(/\u00a0/g, " ")}{" "}
-                €
-              </div>
-            </div>
-          )}
+        </div>
+      </div>
+
+      <Link to="/zakazka/$id" params={{ id: tender.id }} className="block group">
+        <h3 className="mt-3 font-display font-semibold text-lg leading-snug group-hover:text-primary transition-colors">
+          {tender.title}
+        </h3>
+      </Link>
+
+      {snippet && (
+        <Link
+          to="/zakazka/$id"
+          params={{ id: tender.id }}
+          className="mt-1 block text-xs text-muted-foreground line-clamp-2 hover:text-foreground"
+        >
+          {snippet}
+        </Link>
+      )}
+
+      <dl className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm">
+        <div className="min-w-0">
+          <dt className="text-xs text-muted-foreground flex items-center gap-1">
+            <Building2 className="h-3 w-3" /> Obstarávateľ
+          </dt>
+          <dd className="mt-0.5 line-clamp-2">{tender.contracting_authority ?? "—"}</dd>
+        </div>
+        <div className="min-w-0">
+          <dt className="text-xs text-muted-foreground flex items-center gap-1">
+            <Calendar className="h-3 w-3" /> Deadline
+          </dt>
+          <dd className="mt-0.5 num">
+            {deadlineDate ? format(deadlineDate, "d.M.yyyy") : "Neurčené"}
+          </dd>
+        </div>
+        <div className="min-w-0">
+          <dt className="text-xs text-muted-foreground flex items-center gap-1">
+            <MapPin className="h-3 w-3" /> Región
+          </dt>
+          <dd className="mt-0.5 text-xs">
+            {tender.country && tender.country !== "SK"
+              ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}`
+              : (tender.region ?? "—")}
+          </dd>
+        </div>
+        <div className="min-w-0 flex items-end">
           <Link to="/zakazka/$id" params={{ id: tender.id }}>
             <Button size="sm" variant="outline">
               Detail
             </Button>
           </Link>
         </div>
-      </div>
+      </dl>
     </article>
   );
 }
+
 
 function DeadlineBadge({
   daysLeft,
