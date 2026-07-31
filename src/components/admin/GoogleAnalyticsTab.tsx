@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,14 +7,41 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Loader2, RefreshCw, Save, BarChart3 } from "lucide-react";
 import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  Legend,
+} from "recharts";
+import {
   CONVERSION_KEYS,
   EMPTY_ANALYTICS_CONFIG,
   type AnalyticsConfig,
   type ConversionKey,
 } from "@/lib/analytics";
-import { getGa4Overview } from "@/lib/analytics.functions";
 
-type Overview = Awaited<ReturnType<typeof getGa4Overview>>;
+type Ga4Stats =
+  | {
+      ok: true;
+      property_id: string;
+      range: { start: string; end: string; days: number };
+      totals: {
+        activeUsers: number;
+        newUsers: number;
+        sessions: number;
+        pageViews: number;
+        avgSessionDuration: number;
+        bounceRate: number;
+      };
+      timeseries: { date: string; activeUsers: number; sessions: number; pageViews: number }[];
+      topPages: { path: string; title: string; views: number }[];
+      topSources: { source: string; medium: string; sessions: number }[];
+      events: { name: string; count: number }[];
+    }
+  | { ok: false; error: string; missing?: string[] };
 
 export function GoogleAnalyticsTab() {
   const [cfg, setCfg] = useState<AnalyticsConfig>(EMPTY_ANALYTICS_CONFIG);
@@ -23,9 +49,8 @@ export function GoogleAnalyticsTab() {
   const [saving, setSaving] = useState(false);
 
   const [days, setDays] = useState(28);
-  const [report, setReport] = useState<Overview | null>(null);
+  const [report, setReport] = useState<Ga4Stats | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
-  const fetchOverview = useServerFn(getGa4Overview);
 
   useEffect(() => {
     (async () => {
@@ -49,7 +74,11 @@ export function GoogleAnalyticsTab() {
   async function loadReport() {
     setReportLoading(true);
     try {
-      const r = await fetchOverview({ data: { days } });
+      const { data, error } = await supabase.functions.invoke("ga4-stats", {
+        body: { days },
+      });
+      if (error) throw error;
+      const r = data as Ga4Stats;
       setReport(r);
       if (!r.ok) toast.error(r.error);
     } catch (e) {
@@ -58,6 +87,7 @@ export function GoogleAnalyticsTab() {
       setReportLoading(false);
     }
   }
+
 
   if (loading) return <div className="p-4 text-muted-foreground">Načítavam…</div>;
 
@@ -196,47 +226,100 @@ export function GoogleAnalyticsTab() {
         </div>
 
         {report && !report.ok && (
-          <p className="text-sm text-destructive whitespace-pre-wrap">{report.error}</p>
+          <div className="space-y-2">
+            <p className="text-sm text-destructive whitespace-pre-wrap">{report.error}</p>
+            {report.missing?.length ? (
+              <ul className="list-disc pl-5 text-sm text-muted-foreground">
+                {report.missing.map((m) => (
+                  <li key={m}><code>{m}</code></li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         )}
 
         {report?.ok && (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <p className="text-xs text-muted-foreground">
+              Property {report.property_id} · {report.range.start} – {report.range.end} (
+              {report.range.days} dní)
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {[
-                ["Používatelia", report.overview.totals.users],
-                ["Návštevy", report.overview.totals.sessions],
-                ["Zobrazenia stránok", report.overview.totals.pageViews],
-                ["Konverzie", report.overview.totals.conversions],
+                ["Aktívni používatelia", report.totals.activeUsers.toLocaleString("sk-SK")],
+                ["Noví používatelia", report.totals.newUsers.toLocaleString("sk-SK")],
+                ["Návštevy", report.totals.sessions.toLocaleString("sk-SK")],
+                ["Zobrazenia stránok", report.totals.pageViews.toLocaleString("sk-SK")],
+                [
+                  "Priem. trvanie návštevy",
+                  `${Math.round(report.totals.avgSessionDuration)} s`,
+                ],
+                ["Miera odchodov", `${(report.totals.bounceRate * 100).toFixed(1)} %`],
               ].map(([label, value]) => (
                 <div key={String(label)} className="rounded-md border p-3">
-                  <div className="text-2xl font-bold">{Number(value).toLocaleString("sk-SK")}</div>
+                  <div className="text-2xl font-bold">{value}</div>
                   <div className="text-xs text-muted-foreground">{label}</div>
                 </div>
               ))}
             </div>
 
-            <ReportTable
-              title="Kanály"
-              head={["Kanál", "Návštevy", "Konverzie"]}
-              rows={report.overview.channels.map((r) => [r.channel, r.sessions, r.conversions])}
-            />
-            <ReportTable
-              title="Kampane (vrátane Google Ads)"
-              head={["Kampaň", "Zdroj", "Návštevy", "Konverzie"]}
-              rows={report.overview.campaigns.map((r) => [r.campaign, r.source, r.sessions, r.conversions])}
-            />
+            {report.timeseries.length > 0 && (
+              <div>
+                <h4 className="mb-2 text-sm font-semibold">Vývoj v čase</h4>
+                <div className="h-72 w-full rounded-md border p-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={report.timeseries}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                      <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                      <Tooltip />
+                      <Legend />
+                      <Line
+                        type="monotone"
+                        dataKey="activeUsers"
+                        name="Používatelia"
+                        stroke="hsl(var(--primary))"
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="sessions"
+                        name="Návštevy"
+                        stroke="hsl(var(--chart-2, var(--muted-foreground)))"
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="pageViews"
+                        name="Zobrazenia"
+                        stroke="hsl(var(--chart-3, var(--accent-foreground)))"
+                        dot={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
             <ReportTable
               title="Najnavštevovanejšie stránky"
-              head={["Cesta", "Zobrazenia"]}
-              rows={report.overview.topPages.map((r) => [r.path, r.views])}
+              head={["Cesta", "Názov", "Zobrazenia"]}
+              rows={report.topPages.map((r) => [r.path, r.title, r.views])}
+            />
+            <ReportTable
+              title="Zdroje návštevnosti"
+              head={["Zdroj", "Médium", "Návštevy"]}
+              rows={report.topSources.map((r) => [r.source, r.medium, r.sessions])}
             />
             <ReportTable
               title="Udalosti"
               head={["Udalosť", "Počet"]}
-              rows={report.overview.events.map((r) => [r.name, r.count])}
+              rows={report.events.map((r) => [r.name, r.count])}
             />
           </div>
         )}
+
       </section>
     </div>
   );
