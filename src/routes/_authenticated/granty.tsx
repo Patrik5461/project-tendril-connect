@@ -219,7 +219,32 @@ function GrantyList() {
 
   const showAutoHint = kategoria === "auto" && profileCategory !== null;
 
+  if (grantAccess === false) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-16">
+        <h1 className="font-display text-3xl font-bold tracking-tight">Granty a dotácie</h1>
+        <div className="mt-6 rounded-lg border-2 border-primary bg-primary/5 p-6">
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+            <Lock className="h-4 w-4" /> Granty sú súčasťou balíka Komplet
+          </div>
+          <p className="mt-2 text-sm text-foreground/80">
+            Monitoring grantových výziev (Program Slovensko, fondy EÚ), radary, notifikácie
+            a AI analýza oprávnenosti sú v balíku Komplet za {formatEur(priceEur("komplet"))} / mes
+            ({AI_MONTHLY_LIMIT.komplet} AI analýz mesačne).
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link to="/predplatne" search={{ tier: "komplet", period: "monthly" } as never}>
+              <Button>Aktivovať Komplet</Button>
+            </Link>
+            <Link to="/cennik"><Button variant="outline">Porovnať plány</Button></Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
+
     <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
       <div className="flex items-baseline justify-between flex-wrap gap-3">
         <div>
