@@ -98,11 +98,13 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
   if (checking || authed === null) return null;
   if (!authed) return null;
 
-  const hasAiAccess = status === "trial" || (status === "active" && tier === "premium");
-  const needsUpgrade = status === "active" && tier !== "premium";
+  // Granty sú súčasťou balíka Komplet (trial má prístup ku všetkému).
+  const hasAiAccess = status === "trial" || (status === "active" && tier === "komplet");
+  const needsUpgrade = status === "active" && tier !== "komplet";
   const isExpired = status === "expired";
   const isTrial = status === "trial";
-  const trialExhausted = isTrial && credit != null && !credit.unlimited && credit.remaining <= 0;
+  const trialExhausted = credit != null && !credit.unlimited && credit.remaining <= 0;
+
 
   return (
     <div className="mt-12 border-t-2 border-foreground pt-6">

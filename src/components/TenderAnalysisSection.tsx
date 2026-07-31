@@ -107,12 +107,13 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
   if (checking || authed === null) return null;
   if (!authed) return null;
 
-  const hasAiAccess = status === "trial" || (status === "active" && tier === "premium");
-  const needsUpgrade = status === "active" && tier !== "premium";
+  const hasAiAccess = status === "trial" || (status === "active" && (tier === "premium" || tier === "komplet"));
+  const needsUpgrade = status === "active" && tier !== "premium" && tier !== "komplet";
   const isExpired = status === "expired";
   const isTrial = status === "trial";
-  // Trial exhausted only blocks NEW analyses for tenders without cached results.
-  const trialExhausted = isTrial && credit != null && !credit.unlimited && credit.remaining <= 0;
+  // Vyčerpaná kvóta blokuje len NOVÉ analýzy; uložené sa dajú prezerať.
+  const trialExhausted = credit != null && !credit.unlimited && credit.remaining <= 0;
+
 
   return (
     <div className="mt-12 border-t-2 border-foreground pt-6">
