@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,14 +7,41 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Loader2, RefreshCw, Save, BarChart3 } from "lucide-react";
 import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  Legend,
+} from "recharts";
+import {
   CONVERSION_KEYS,
   EMPTY_ANALYTICS_CONFIG,
   type AnalyticsConfig,
   type ConversionKey,
 } from "@/lib/analytics";
-import { getGa4Overview } from "@/lib/analytics.functions";
 
-type Overview = Awaited<ReturnType<typeof getGa4Overview>>;
+type Ga4Stats =
+  | {
+      ok: true;
+      property_id: string;
+      range: { start: string; end: string; days: number };
+      totals: {
+        activeUsers: number;
+        newUsers: number;
+        sessions: number;
+        pageViews: number;
+        avgSessionDuration: number;
+        bounceRate: number;
+      };
+      timeseries: { date: string; activeUsers: number; sessions: number; pageViews: number }[];
+      topPages: { path: string; title: string; views: number }[];
+      topSources: { source: string; medium: string; sessions: number }[];
+      events: { name: string; count: number }[];
+    }
+  | { ok: false; error: string; missing?: string[] };
 
 export function GoogleAnalyticsTab() {
   const [cfg, setCfg] = useState<AnalyticsConfig>(EMPTY_ANALYTICS_CONFIG);
@@ -23,9 +49,8 @@ export function GoogleAnalyticsTab() {
   const [saving, setSaving] = useState(false);
 
   const [days, setDays] = useState(28);
-  const [report, setReport] = useState<Overview | null>(null);
+  const [report, setReport] = useState<Ga4Stats | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
-  const fetchOverview = useServerFn(getGa4Overview);
 
   useEffect(() => {
     (async () => {
@@ -49,7 +74,11 @@ export function GoogleAnalyticsTab() {
   async function loadReport() {
     setReportLoading(true);
     try {
-      const r = await fetchOverview({ data: { days } });
+      const { data, error } = await supabase.functions.invoke("ga4-stats", {
+        body: { days },
+      });
+      if (error) throw error;
+      const r = data as Ga4Stats;
       setReport(r);
       if (!r.ok) toast.error(r.error);
     } catch (e) {
@@ -58,6 +87,7 @@ export function GoogleAnalyticsTab() {
       setReportLoading(false);
     }
   }
+
 
   if (loading) return <div className="p-4 text-muted-foreground">Načítavam…</div>;
 
