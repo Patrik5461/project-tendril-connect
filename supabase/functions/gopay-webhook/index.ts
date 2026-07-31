@@ -220,7 +220,15 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      // Admin "Dorovnať": POST body { reprocess: true, payment_id }
+      if (body?.reprocess && body?.payment_id) {
+        const result = await processPayment(String(body.payment_id));
+        return new Response(JSON.stringify(result), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
+
 
     const url = new URL(req.url);
     const id = url.searchParams.get("id") ?? url.searchParams.get("payment_id");
