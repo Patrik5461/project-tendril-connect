@@ -39,14 +39,30 @@ function AuthedLayout() {
     })();
   }, []);
 
+  const native = useIsNative();
+
+  useEffect(() => {
+    if (!native) return;
+    document.documentElement.classList.add("capacitor-native");
+    let cleanup: (() => void) | undefined;
+    attachPushNavigation((path) => navigate({ to: path as never })).then((fn) => {
+      cleanup = fn;
+    });
+    return () => {
+      document.documentElement.classList.remove("capacitor-native");
+      cleanup?.();
+    };
+  }, [native, navigate]);
+
   async function signOut() {
     await supabase.auth.signOut();
     navigate({ to: "/auth", search: { mode: "login" }, replace: true });
   }
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b-2 border-foreground bg-background sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-foreground safe-x">
+      <header className="border-b-2 border-foreground bg-background sticky top-0 z-10 safe-top">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
+
           <Link to="/dashboard" className="flex items-center gap-2.5 font-display font-bold text-xl text-foreground">
             <span
               className="relative inline-flex h-8 w-8 items-center justify-center bg-primary"
