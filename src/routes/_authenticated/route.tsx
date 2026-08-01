@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Settings, LogOut, ShieldCheck, Tag, Coins } from "lucide-react";
 import { HelpChatWidget } from "@/components/HelpChatWidget";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { useIsNative } from "@/lib/native";
+import { attachPushNavigation } from "@/lib/push";
+
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
