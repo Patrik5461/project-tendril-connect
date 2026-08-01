@@ -195,8 +195,11 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
           {trialExhausted && (
             <div className="mt-3 rounded-lg border-2 border-primary bg-primary/5 p-3 text-xs">
               Analýzu môžete naďalej prezerať, ale trial AI kredity sú vyčerpané.{" "}
-              <Link to="/cennik" className="underline font-semibold">Pozrite si plány</Link> pre vyššiu mesačnú kvótu analýz.
+              <WebOnlyPurchase note="Predplatné spravuješ na tendrik.sk">
+                <Link to="/cennik" className="underline font-semibold">Pozrite si plány</Link> pre vyššiu mesačnú kvótu analýz.
+              </WebOnlyPurchase>
             </div>
+
           )}
         </>
       )}
