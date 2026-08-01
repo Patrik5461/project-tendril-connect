@@ -268,9 +268,12 @@ function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isEx
         </div>
         <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
           <p className="text-sm text-muted-foreground max-w-md">{body}</p>
-          <Link to="/predplatne" search={needsUpgrade ? { tier: "premium" } as never : undefined as never}>
-            <Button>{cta}</Button>
-          </Link>
+          <WebOnlyPurchase>
+            <Link to="/predplatne" search={needsUpgrade ? { tier: "premium" } as never : undefined as never}>
+              <Button>{cta}</Button>
+            </Link>
+          </WebOnlyPurchase>
+
         </div>
       </div>
     </div>
