@@ -9,6 +9,8 @@
 //   POST { "preview_user_id": "<uuid>" } -> return { html, tender_count } for one user; no email sent
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { sendPush } from "../_shared/push.ts";
+
 import {
   computeAndMarkGrantMatches,
   renderGrantSection,
