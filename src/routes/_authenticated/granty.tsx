@@ -15,6 +15,8 @@ import {
   categoriesForGrant, defaultCategoryFromLegalForm,
 } from "@/lib/grant-applicant-categories";
 import { AI_MONTHLY_LIMIT, computeSubscription, formatEur, priceEur } from "@/lib/subscription";
+import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+
 
 
 type Grant = {
