@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCircle, RefreshCw, Wallet, Building2, Target } from "lucide-react";
+import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+
 import { toast } from "sonner";
 import { analyzeGrant, getGrantAnalysis } from "@/lib/grant-analysis.functions";
 import { getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
