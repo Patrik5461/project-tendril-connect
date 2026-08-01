@@ -76,30 +76,34 @@ function AuthedLayout() {
             <span className="hidden sm:inline">Tendrik</span>
           </Link>
           <nav className="flex items-center gap-1">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">
-                <LayoutDashboard className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Zákazky</span>
-              </Button>
-            </Link>
-            <Link to="/granty">
-              <Button variant="ghost" size="sm">
-                <Coins className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Granty</span>
-              </Button>
-            </Link>
-            <Link to="/settings">
-              <Button variant="ghost" size="sm">
-                <Settings className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Nastavenia</span>
-              </Button>
-            </Link>
-            <Link to="/cennik">
-              <Button variant="ghost" size="sm">
-                <Tag className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Cenník</span>
-              </Button>
-            </Link>
+            {!native && (
+              <>
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="sm">
+                    <LayoutDashboard className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Zákazky</span>
+                  </Button>
+                </Link>
+                <Link to="/granty">
+                  <Button variant="ghost" size="sm">
+                    <Coins className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Granty</span>
+                  </Button>
+                </Link>
+                <Link to="/settings">
+                  <Button variant="ghost" size="sm">
+                    <Settings className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Nastavenia</span>
+                  </Button>
+                </Link>
+                <Link to="/cennik">
+                  <Button variant="ghost" size="sm">
+                    <Tag className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Cenník</span>
+                  </Button>
+                </Link>
+              </>
+            )}
             {isAdmin && (
               <Link to="/admin">
                 <Button variant="ghost" size="sm">
@@ -118,6 +122,8 @@ function AuthedLayout() {
       </header>
       <Outlet />
       <HelpChatWidget />
+      <MobileBottomNav />
+
     </div>
   );
 }
