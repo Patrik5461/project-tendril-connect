@@ -48,6 +48,8 @@ import { Switch } from "@/components/ui/switch";
 import { flagEmoji, countryName } from "@/lib/eu-countries";
 import { computeSubscription, MONTHLY_PRICE_EUR, formatEur as formatEurPrice } from "@/lib/subscription";
 import { Lock, Sparkles } from "lucide-react";
+import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+
 
 
 
