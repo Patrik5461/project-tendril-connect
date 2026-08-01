@@ -344,7 +344,9 @@ function SettingsPage() {
               </Button>
             </div>
           </section>
+          <PushNotificationsCard />
         </TabsContent>
+
 
 
         <TabsContent value="radars" className="mt-6">
