@@ -710,9 +710,12 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {sub.status !== "active" && (
-          <Link to="/predplatne">
-            <Button size="sm">Aktivovať predplatné</Button>
-          </Link>
+          <WebOnlyPurchase>
+            <Link to="/predplatne">
+              <Button size="sm">Aktivovať predplatné</Button>
+            </Link>
+          </WebOnlyPurchase>
+
         )}
         {sub.status === "active" && !cancelRequested && (
           <Button size="sm" variant="outline" onClick={cancel} disabled={busy}>
