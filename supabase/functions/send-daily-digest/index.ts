@@ -440,8 +440,22 @@ Deno.serve(async (req) => {
           recipients = [uRes.user.email];
         }
         await sendEmail(recipients, out.subject, out.html, resendKey);
+        // Natívny push – rešpektuje rovnaké nastavenia digestu
+        try {
+          if (out.tenderCount > 0 || out.grantCount > 0) {
+            await sendPush({
+              user_id: userId,
+              title: "Nové príležitosti v Tendriku",
+              body: out.subject,
+              path: out.tenderCount > 0 ? "/dashboard" : "/granty",
+            });
+          }
+        } catch (pushErr) {
+          console.error("push failed:", pushErr);
+        }
         emails_sent++;
         await new Promise((r) => setTimeout(r, 100));
+
       } catch (err) {
         console.error(`Digest failed for user ${userId}:`, err);
         errors++;
