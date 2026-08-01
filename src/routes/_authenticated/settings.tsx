@@ -17,6 +17,9 @@ import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 import { sendSettingsConfirmationEmail } from "@/lib/settings-email";
 import GrantRadarsSection from "@/components/GrantRadarsSection";
 import { trackConversion } from "@/lib/analytics";
+import { PushNotificationsCard } from "@/components/PushNotificationsCard";
+import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Nastavenia – Tendrik" }] }),
