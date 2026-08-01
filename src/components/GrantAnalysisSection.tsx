@@ -228,9 +228,12 @@ function TrialExhaustedNotice({ limit, isTrial }: { limit: number; isTrial: bool
           ? `Využili ste všetkých ${limit} AI analýz z trial verzie. Granty a ich AI analýza sú súčasťou balíka Komplet (${formatEur(priceEur("komplet"))}/mes, ${AI_MONTHLY_LIMIT.komplet} analýz mesačne).`
           : `Vyčerpali ste ${limit} AI analýz v tomto mesiaci. Kvóta sa obnoví na začiatku ďalšieho fakturačného mesiaca.`}
       </p>
-      <Link to="/cennik" className="mt-4 inline-block">
-        <Button>Pozrieť plány</Button>
-      </Link>
+      <WebOnlyPurchase className="mt-4">
+        <Link to="/cennik" className="mt-4 inline-block">
+          <Button>Pozrieť plány</Button>
+        </Link>
+      </WebOnlyPurchase>
+
     </div>
   );
 }
