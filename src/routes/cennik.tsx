@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useIsNative } from "@/lib/native";
+
 import { Button } from "@/components/ui/button";
 import { LegalFooter, PaymentBadges } from "@/components/LegalFooter";
 import { Check, Sparkles, X } from "lucide-react";
