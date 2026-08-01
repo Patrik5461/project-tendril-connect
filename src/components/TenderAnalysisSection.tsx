@@ -229,9 +229,12 @@ function TrialExhaustedNotice({ limit, isTrial }: { limit: number; isTrial: bool
       <p className="mt-1 text-xs text-muted-foreground">
         Už vygenerované analýzy si môžete naďalej prezerať.
       </p>
-      <Link to="/cennik" className="mt-4 inline-block">
-        <Button>Pozrieť plány</Button>
-      </Link>
+      <WebOnlyPurchase className="mt-4">
+        <Link to="/cennik" className="mt-4 inline-block">
+          <Button>Pozrieť plány</Button>
+        </Link>
+      </WebOnlyPurchase>
+
     </div>
   );
 }
