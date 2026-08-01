@@ -972,9 +972,12 @@ function LockedOverlay() {
           </b>
           . Bez záväzkov, kedykoľvek zrušíte.
         </p>
-        <Link to="/predplatne" className="mt-6 inline-block">
-          <Button size="lg">Aktivovať predplatné</Button>
-        </Link>
+        <WebOnlyPurchase className="mt-6 block">
+          <Link to="/predplatne" className="mt-6 inline-block">
+            <Button size="lg">Aktivovať predplatné</Button>
+          </Link>
+        </WebOnlyPurchase>
+
       </div>
     </div>
   );
