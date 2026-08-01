@@ -94,6 +94,17 @@ function PredplatnePage() {
   // Ročné predplatné je vždy jednorazová platba na 12 mesiacov.
   const canAutorenew = recurringEnabled === true && !yearly;
 
+  if (native) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-24 text-center safe-top">
+        <h1 className="font-display text-2xl font-bold tracking-tight">Predplatné</h1>
+        <p className="mt-4 text-sm text-muted-foreground">Predplatné spravuješ na tendrik.sk</p>
+      </div>
+    );
+  }
+
+
+
   async function activate() {
     setLoading(true);
     try {
