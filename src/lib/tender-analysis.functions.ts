@@ -535,6 +535,22 @@ export const analyzeTender = createServerFn({ method: "POST" })
       .select()
       .maybeSingle();
     if (sErr) throw sErr;
+
+    // Natívny push: analýza je hotová
+    try {
+      await context.supabase.functions.invoke("send-push", {
+        body: {
+          user_id: context.userId,
+          title: "AI analýza je hotová",
+          body: tender.title,
+          path: `/zakazka/${data.tender_id}`,
+        },
+      });
+    } catch (pushErr) {
+      console.error("[push]", pushErr);
+    }
+
+
     return {
       ...saved, cached: false,
       credit_remaining: Math.max(0, (c.limit ?? 0) - (c.used ?? 0)),
