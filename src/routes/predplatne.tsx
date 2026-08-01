@@ -71,12 +71,14 @@ const TIER_INFO: Record<SubscriptionTier, { title: string; features: string[]; h
 
 function PredplatnePage() {
   const search = Route.useSearch();
+  const native = useIsNative();
   const [tier, setTier] = useState<SubscriptionTier>(search.tier ?? "premium");
   const [period, setPeriod] = useState<BillingPeriod>(search.period ?? "monthly");
   const [loading, setLoading] = useState(false);
   const [env, setEnv] = useState<string | null>(null);
   const [recurringEnabled, setRecurringEnabled] = useState<boolean | null>(null);
   const [autorenew, setAutorenew] = useState(true);
+
 
   useEffect(() => {
     (async () => {
