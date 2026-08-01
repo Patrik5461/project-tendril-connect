@@ -115,8 +115,19 @@ const COMPARISON: { label: string; values: Record<SubscriptionTier, string> }[] 
 function CennikPage() {
   const [period, setPeriod] = useState<BillingPeriod>("monthly");
   const yearly = period === "yearly";
+  const native = useIsNative();
+
+  if (native) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-24 text-center safe-top">
+        <h1 className="font-display text-2xl font-bold tracking-tight">Predplatné</h1>
+        <p className="mt-4 text-sm text-muted-foreground">Predplatné spravuješ na tendrik.sk</p>
+      </div>
+    );
+  }
 
   return (
+
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b-2 border-foreground bg-background">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
