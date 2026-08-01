@@ -3,6 +3,8 @@
 // Deduplikacia cez tabulku sent_reminders (user_id, tender_id, days_before).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { sendPush } from "../_shared/push.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -247,6 +249,20 @@ Deno.serve(async (req) => {
         const subject = `Pripomienka: zákazke ${t.title} končí lehota o ${daysWord(daysLeft)}`;
         const html = renderHtml(t, daysLeft);
         await sendEmail(recipients, subject, html, resendKey);
+
+        // Natívny push (ak má používateľ zaregistrované zariadenie)
+        try {
+          await sendPush({
+            user_id: a.user_id,
+            title: `Lehota o ${daysWord(daysLeft)}`,
+            body: t.title,
+            path: `/zakazka/${a.tender_id}`,
+          });
+        } catch (pushErr) {
+          console.error("push failed:", pushErr);
+        }
+
+
 
         const { error: insErr } = await supabase.from("sent_reminders").insert({
           user_id: a.user_id,

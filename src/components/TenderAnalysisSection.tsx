@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCircle, RefreshCw, Scale, ShieldAlert, FileText } from "lucide-react";
+import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+
 import { toast } from "sonner";
 import { analyzeTender, getTenderAnalysis, getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
 import { SubcontractingSection } from "@/components/SubcontractingSection";
@@ -193,8 +195,11 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
           {trialExhausted && (
             <div className="mt-3 rounded-lg border-2 border-primary bg-primary/5 p-3 text-xs">
               Analýzu môžete naďalej prezerať, ale trial AI kredity sú vyčerpané.{" "}
-              <Link to="/cennik" className="underline font-semibold">Pozrite si plány</Link> pre vyššiu mesačnú kvótu analýz.
+              <WebOnlyPurchase note="Predplatné spravuješ na tendrik.sk">
+                <Link to="/cennik" className="underline font-semibold">Pozrite si plány</Link> pre vyššiu mesačnú kvótu analýz.
+              </WebOnlyPurchase>
             </div>
+
           )}
         </>
       )}
@@ -224,9 +229,12 @@ function TrialExhaustedNotice({ limit, isTrial }: { limit: number; isTrial: bool
       <p className="mt-1 text-xs text-muted-foreground">
         Už vygenerované analýzy si môžete naďalej prezerať.
       </p>
-      <Link to="/cennik" className="mt-4 inline-block">
-        <Button>Pozrieť plány</Button>
-      </Link>
+      <WebOnlyPurchase className="mt-4">
+        <Link to="/cennik" className="mt-4 inline-block">
+          <Button>Pozrieť plány</Button>
+        </Link>
+      </WebOnlyPurchase>
+
     </div>
   );
 }
@@ -260,9 +268,12 @@ function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isEx
         </div>
         <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
           <p className="text-sm text-muted-foreground max-w-md">{body}</p>
-          <Link to="/predplatne" search={needsUpgrade ? { tier: "premium" } as never : undefined as never}>
-            <Button>{cta}</Button>
-          </Link>
+          <WebOnlyPurchase>
+            <Link to="/predplatne" search={needsUpgrade ? { tier: "premium" } as never : undefined as never}>
+              <Button>{cta}</Button>
+            </Link>
+          </WebOnlyPurchase>
+
         </div>
       </div>
     </div>

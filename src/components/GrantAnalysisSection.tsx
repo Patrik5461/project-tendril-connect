@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCircle, RefreshCw, Wallet, Building2, Target } from "lucide-react";
+import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+
 import { toast } from "sonner";
 import { analyzeGrant, getGrantAnalysis } from "@/lib/grant-analysis.functions";
 import { getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
@@ -202,8 +204,11 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
           {trialExhausted && (
             <div className="mt-3 rounded-lg border-2 border-primary bg-primary/5 p-3 text-xs">
               Analýzu môžete naďalej prezerať, ale trial AI kredity sú vyčerpané.{" "}
-              <Link to="/cennik" className="underline font-semibold">Pozrite si plány</Link> pre vyššiu mesačnú kvótu analýz.
+              <WebOnlyPurchase note="Predplatné spravuješ na tendrik.sk">
+                <Link to="/cennik" className="underline font-semibold">Pozrite si plány</Link> pre vyššiu mesačnú kvótu analýz.
+              </WebOnlyPurchase>
             </div>
+
           )}
         </>
       )}
@@ -223,9 +228,12 @@ function TrialExhaustedNotice({ limit, isTrial }: { limit: number; isTrial: bool
           ? `Využili ste všetkých ${limit} AI analýz z trial verzie. Granty a ich AI analýza sú súčasťou balíka Komplet (${formatEur(priceEur("komplet"))}/mes, ${AI_MONTHLY_LIMIT.komplet} analýz mesačne).`
           : `Vyčerpali ste ${limit} AI analýz v tomto mesiaci. Kvóta sa obnoví na začiatku ďalšieho fakturačného mesiaca.`}
       </p>
-      <Link to="/cennik" className="mt-4 inline-block">
-        <Button>Pozrieť plány</Button>
-      </Link>
+      <WebOnlyPurchase className="mt-4">
+        <Link to="/cennik" className="mt-4 inline-block">
+          <Button>Pozrieť plány</Button>
+        </Link>
+      </WebOnlyPurchase>
+
     </div>
   );
 }
@@ -251,9 +259,12 @@ function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isEx
         </div>
         <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
           <p className="text-sm text-muted-foreground max-w-md">{body}</p>
-          <Link to="/predplatne" search={needsUpgrade ? { tier: "komplet" } as never : undefined as never}>
-            <Button>{cta}</Button>
-          </Link>
+          <WebOnlyPurchase>
+            <Link to="/predplatne" search={needsUpgrade ? { tier: "komplet" } as never : undefined as never}>
+              <Button>{cta}</Button>
+            </Link>
+          </WebOnlyPurchase>
+
         </div>
       </div>
     </div>

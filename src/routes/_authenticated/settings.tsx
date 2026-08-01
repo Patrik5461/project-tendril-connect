@@ -17,6 +17,9 @@ import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 import { sendSettingsConfirmationEmail } from "@/lib/settings-email";
 import GrantRadarsSection from "@/components/GrantRadarsSection";
 import { trackConversion } from "@/lib/analytics";
+import { PushNotificationsCard } from "@/components/PushNotificationsCard";
+import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+
 
 export const Route = createFileRoute("/_authenticated/settings")({
   head: () => ({ meta: [{ title: "Nastavenia – Tendrik" }] }),
@@ -341,7 +344,9 @@ function SettingsPage() {
               </Button>
             </div>
           </section>
+          <PushNotificationsCard />
         </TabsContent>
+
 
 
         <TabsContent value="radars" className="mt-6">
@@ -705,9 +710,12 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
 
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {sub.status !== "active" && (
-          <Link to="/predplatne">
-            <Button size="sm">Aktivovať predplatné</Button>
-          </Link>
+          <WebOnlyPurchase>
+            <Link to="/predplatne">
+              <Button size="sm">Aktivovať predplatné</Button>
+            </Link>
+          </WebOnlyPurchase>
+
         )}
         {sub.status === "active" && !cancelRequested && (
           <Button size="sm" variant="outline" onClick={cancel} disabled={busy}>

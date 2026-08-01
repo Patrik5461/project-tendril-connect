@@ -15,6 +15,8 @@ import {
   categoriesForGrant, defaultCategoryFromLegalForm,
 } from "@/lib/grant-applicant-categories";
 import { AI_MONTHLY_LIMIT, computeSubscription, formatEur, priceEur } from "@/lib/subscription";
+import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+
 
 
 type Grant = {
@@ -241,12 +243,15 @@ function GrantyList() {
             a AI analýza oprávnenosti sú v balíku Komplet za {formatEur(priceEur("komplet"))} / mes
             ({AI_MONTHLY_LIMIT.komplet} AI analýz mesačne).
           </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link to="/predplatne" search={{ tier: "komplet", period: "monthly" } as never}>
-              <Button>Aktivovať Komplet</Button>
-            </Link>
-            <Link to="/cennik"><Button variant="outline">Porovnať plány</Button></Link>
-          </div>
+          <WebOnlyPurchase className="mt-5">
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link to="/predplatne" search={{ tier: "komplet", period: "monthly" } as never}>
+                <Button>Aktivovať Komplet</Button>
+              </Link>
+              <Link to="/cennik"><Button variant="outline">Porovnať plány</Button></Link>
+            </div>
+          </WebOnlyPurchase>
+
         </div>
       </div>
     );

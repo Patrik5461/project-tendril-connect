@@ -48,6 +48,8 @@ import { Switch } from "@/components/ui/switch";
 import { flagEmoji, countryName } from "@/lib/eu-countries";
 import { computeSubscription, MONTHLY_PRICE_EUR, formatEur as formatEurPrice } from "@/lib/subscription";
 import { Lock, Sparkles } from "lucide-react";
+import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+
 
 
 
@@ -922,11 +924,14 @@ function TrialBanner({ daysLeft, isEndingSoon }: { daysLeft: number; isEndingSoo
           {isEndingSoon && " – potom Tendrik prejde na predplatné."}
         </span>
       </div>
-      <Link to="/predplatne">
-        <Button size="sm" variant={isEndingSoon ? "default" : "outline"}>
-          Aktivovať predplatné za {formatEurPrice(MONTHLY_PRICE_EUR)}/mes
-        </Button>
-      </Link>
+      <WebOnlyPurchase>
+        <Link to="/predplatne">
+          <Button size="sm" variant={isEndingSoon ? "default" : "outline"}>
+            Aktivovať predplatné za {formatEurPrice(MONTHLY_PRICE_EUR)}/mes
+          </Button>
+        </Link>
+      </WebOnlyPurchase>
+
     </div>
   );
 }
@@ -941,9 +946,12 @@ function ExpiredBanner() {
           {formatEurPrice(MONTHLY_PRICE_EUR)}/mesiac.
         </span>
       </div>
-      <Link to="/predplatne">
-        <Button size="sm">Aktivovať predplatné</Button>
-      </Link>
+      <WebOnlyPurchase>
+        <Link to="/predplatne">
+          <Button size="sm">Aktivovať predplatné</Button>
+        </Link>
+      </WebOnlyPurchase>
+
     </div>
   );
 }
@@ -964,9 +972,12 @@ function LockedOverlay() {
           </b>
           . Bez záväzkov, kedykoľvek zrušíte.
         </p>
-        <Link to="/predplatne" className="mt-6 inline-block">
-          <Button size="lg">Aktivovať predplatné</Button>
-        </Link>
+        <WebOnlyPurchase className="mt-6 block">
+          <Link to="/predplatne" className="mt-6 inline-block">
+            <Button size="lg">Aktivovať predplatné</Button>
+          </Link>
+        </WebOnlyPurchase>
+
       </div>
     </div>
   );

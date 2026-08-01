@@ -16,6 +16,8 @@ import {
 import { PaymentBadges } from "@/components/LegalFooter";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { useIsNative } from "@/lib/native";
+
 
 export const Route = createFileRoute("/predplatne")({
   validateSearch: z.object({
@@ -71,12 +73,14 @@ const TIER_INFO: Record<SubscriptionTier, { title: string; features: string[]; h
 
 function PredplatnePage() {
   const search = Route.useSearch();
+  const native = useIsNative();
   const [tier, setTier] = useState<SubscriptionTier>(search.tier ?? "premium");
   const [period, setPeriod] = useState<BillingPeriod>(search.period ?? "monthly");
   const [loading, setLoading] = useState(false);
   const [env, setEnv] = useState<string | null>(null);
   const [recurringEnabled, setRecurringEnabled] = useState<boolean | null>(null);
   const [autorenew, setAutorenew] = useState(true);
+
 
   useEffect(() => {
     (async () => {
@@ -89,6 +93,17 @@ function PredplatnePage() {
   const yearly = period === "yearly";
   // Ročné predplatné je vždy jednorazová platba na 12 mesiacov.
   const canAutorenew = recurringEnabled === true && !yearly;
+
+  if (native) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-24 text-center safe-top">
+        <h1 className="font-display text-2xl font-bold tracking-tight">Predplatné</h1>
+        <p className="mt-4 text-sm text-muted-foreground">Predplatné spravuješ na tendrik.sk</p>
+      </div>
+    );
+  }
+
+
 
   async function activate() {
     setLoading(true);

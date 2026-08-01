@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Settings, LogOut, ShieldCheck, Tag, Coins } from "lucide-react";
 import { HelpChatWidget } from "@/components/HelpChatWidget";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { useIsNative } from "@/lib/native";
+import { attachPushNavigation } from "@/lib/push";
+
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -35,14 +39,30 @@ function AuthedLayout() {
     })();
   }, []);
 
+  const native = useIsNative();
+
+  useEffect(() => {
+    if (!native) return;
+    document.documentElement.classList.add("capacitor-native");
+    let cleanup: (() => void) | undefined;
+    attachPushNavigation((path) => navigate({ to: path as never })).then((fn) => {
+      cleanup = fn;
+    });
+    return () => {
+      document.documentElement.classList.remove("capacitor-native");
+      cleanup?.();
+    };
+  }, [native, navigate]);
+
   async function signOut() {
     await supabase.auth.signOut();
     navigate({ to: "/auth", search: { mode: "login" }, replace: true });
   }
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b-2 border-foreground bg-background sticky top-0 z-10">
+    <div className="min-h-screen bg-background text-foreground safe-x">
+      <header className="border-b-2 border-foreground bg-background sticky top-0 z-10 safe-top">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
+
           <Link to="/dashboard" className="flex items-center gap-2.5 font-display font-bold text-xl text-foreground">
             <span
               className="relative inline-flex h-8 w-8 items-center justify-center bg-primary"
@@ -56,30 +76,34 @@ function AuthedLayout() {
             <span className="hidden sm:inline">Tendrik</span>
           </Link>
           <nav className="flex items-center gap-1">
-            <Link to="/dashboard">
-              <Button variant="ghost" size="sm">
-                <LayoutDashboard className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Zákazky</span>
-              </Button>
-            </Link>
-            <Link to="/granty">
-              <Button variant="ghost" size="sm">
-                <Coins className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Granty</span>
-              </Button>
-            </Link>
-            <Link to="/settings">
-              <Button variant="ghost" size="sm">
-                <Settings className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Nastavenia</span>
-              </Button>
-            </Link>
-            <Link to="/cennik">
-              <Button variant="ghost" size="sm">
-                <Tag className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Cenník</span>
-              </Button>
-            </Link>
+            {!native && (
+              <>
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="sm">
+                    <LayoutDashboard className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Zákazky</span>
+                  </Button>
+                </Link>
+                <Link to="/granty">
+                  <Button variant="ghost" size="sm">
+                    <Coins className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Granty</span>
+                  </Button>
+                </Link>
+                <Link to="/settings">
+                  <Button variant="ghost" size="sm">
+                    <Settings className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Nastavenia</span>
+                  </Button>
+                </Link>
+                <Link to="/cennik">
+                  <Button variant="ghost" size="sm">
+                    <Tag className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Cenník</span>
+                  </Button>
+                </Link>
+              </>
+            )}
             {isAdmin && (
               <Link to="/admin">
                 <Button variant="ghost" size="sm">
@@ -98,6 +122,8 @@ function AuthedLayout() {
       </header>
       <Outlet />
       <HelpChatWidget />
+      <MobileBottomNav />
+
     </div>
   );
 }
