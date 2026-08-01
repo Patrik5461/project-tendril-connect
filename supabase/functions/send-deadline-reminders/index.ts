@@ -3,6 +3,8 @@
 // Deduplikacia cez tabulku sent_reminders (user_id, tender_id, days_before).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { sendPush } from "../_shared/push.ts";
+
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
