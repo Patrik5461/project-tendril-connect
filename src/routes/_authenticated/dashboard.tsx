@@ -924,11 +924,14 @@ function TrialBanner({ daysLeft, isEndingSoon }: { daysLeft: number; isEndingSoo
           {isEndingSoon && " – potom Tendrik prejde na predplatné."}
         </span>
       </div>
-      <Link to="/predplatne">
-        <Button size="sm" variant={isEndingSoon ? "default" : "outline"}>
-          Aktivovať predplatné za {formatEurPrice(MONTHLY_PRICE_EUR)}/mes
-        </Button>
-      </Link>
+      <WebOnlyPurchase>
+        <Link to="/predplatne">
+          <Button size="sm" variant={isEndingSoon ? "default" : "outline"}>
+            Aktivovať predplatné za {formatEurPrice(MONTHLY_PRICE_EUR)}/mes
+          </Button>
+        </Link>
+      </WebOnlyPurchase>
+
     </div>
   );
 }
