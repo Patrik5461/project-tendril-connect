@@ -16,6 +16,8 @@ import {
 import { PaymentBadges } from "@/components/LegalFooter";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { useIsNative } from "@/lib/native";
+
 
 export const Route = createFileRoute("/predplatne")({
   validateSearch: z.object({
