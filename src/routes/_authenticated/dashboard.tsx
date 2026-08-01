@@ -946,9 +946,12 @@ function ExpiredBanner() {
           {formatEurPrice(MONTHLY_PRICE_EUR)}/mesiac.
         </span>
       </div>
-      <Link to="/predplatne">
-        <Button size="sm">Aktivovať predplatné</Button>
-      </Link>
+      <WebOnlyPurchase>
+        <Link to="/predplatne">
+          <Button size="sm">Aktivovať predplatné</Button>
+        </Link>
+      </WebOnlyPurchase>
+
     </div>
   );
 }
