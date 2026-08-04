@@ -12,6 +12,7 @@ import { analyzeGrant, getGrantAnalysis } from "@/lib/grant-analysis.functions";
 import { getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
 import { trackConversion } from "@/lib/analytics";
 import { AI_MONTHLY_LIMIT, formatEur, priceEur } from "@/lib/subscription";
+import { useTranslation } from "react-i18next";
 
 
 type AnalysisRow = {
@@ -23,6 +24,7 @@ type AnalysisRow = {
 };
 
 export function GrantAnalysisSection({ grantId }: { grantId: string }) {
+  const { t } = useTranslation("analysis");
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [tier, setTier] = useState<string>("basic");
@@ -90,9 +92,9 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
         setCredit((prev) => prev ? { ...prev, remaining: r.credit_remaining } : { unlimited: false, remaining: r.credit_remaining, limit: 5 });
       }
       if (!r?.cached) trackConversion("ai_analysis", { analysis_type: "grant" });
-      toast.success(r?.cached ? "Načítaná uložená analýza" : "Analýza dokončená");
+      toast.success(r?.cached ? t("grant.toastCached") : t("grant.toastDone"));
     } catch (e: any) {
-      toast.error(e?.message ?? "Analýza zlyhala");
+      toast.error(e?.message ?? t("grant.toastFailed"));
     } finally {
       setRunning(false);
       setTimeout(() => setProgress(0), 800);
@@ -114,10 +116,10 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
     <div className="mt-12 border-t-2 border-foreground pt-6">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
-        <div className="eyebrow text-primary">AI analýza oprávnenosti pre grant</div>
+        <div className="eyebrow text-primary">{t("grant.eyebrow")}</div>
         {isTrial && credit && !credit.unlimited && (
           <span className="ml-auto text-xs text-muted-foreground">
-            Trial: <b className="text-foreground">{credit.remaining}</b> z {credit.limit} AI analýz
+            {t("grant.trialPrefix")} <b className="text-foreground">{credit.remaining}</b> {t("grant.trialSuffix", { limit: credit.limit })}
           </span>
         )}
       </div>
@@ -128,11 +130,11 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
 
       {hasAiAccess && !hasProfile && !analysis && (
         <div className="mt-4 rounded-lg border border-border bg-card p-6">
-          <h3 className="font-display font-semibold text-lg">Vyplňte firemný profil</h3>
+          <h3 className="font-display font-semibold text-lg">{t("grant.fillProfileTitle")}</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Pri grantoch je oprávnenosť žiadateľa (právna forma, veľkosť podniku, sídlo) kľúčová — bez profilu ju AI nevie posúdiť.
+            {t("grant.fillProfileBody")}
           </p>
-          <Link to="/firma"><Button className="mt-4">Otvoriť firemný profil</Button></Link>
+          <Link to="/firma"><Button className="mt-4">{t("grant.openProfile")}</Button></Link>
         </div>
       )}
 
@@ -141,28 +143,28 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
           <div className="rounded-lg border border-border bg-card p-4">
             <label className="text-sm font-medium flex items-center gap-2">
               <Target className="h-4 w-4 text-primary" />
-              Čo chcete financovať? <span className="text-xs text-muted-foreground font-normal">(voliteľné, 2–3 vety)</span>
+              {t("grant.intentLabel")} <span className="text-xs text-muted-foreground font-normal">{t("grant.intentOptional")}</span>
             </label>
             <Textarea
               className="mt-2"
               rows={3}
-              placeholder="Napr. Chceme kúpiť fotovoltiku na strechu výrobnej haly a batériové úložisko; predpokladaný rozpočet 120 000 €."
+              placeholder={t("grant.intentPlaceholder")}
               value={intent}
               onChange={(e) => setIntent(e.target.value)}
               maxLength={1500}
             />
             <p className="mt-2 text-xs text-muted-foreground">
-              Ak vyplníte, AI navyše posúdi, či zámer sedí na ciele výzvy. Bez zámeru posúdi len formálnu oprávnenosť a finančnú realizovateľnosť.
+              {t("grant.intentHelp")}
             </p>
           </div>
           <div>
             <Button onClick={() => run(false)} size="lg">
-              <Sparkles className="h-4 w-4 mr-2" /> Analyzovať oprávnenosť
+              <Sparkles className="h-4 w-4 mr-2" /> {t("grant.analyzeButton")}
             </Button>
             <p className="mt-2 text-xs text-muted-foreground">
-              Analýza trvá ~30 sekúnd. Rozdelená do 3 častí: formálna oprávnenosť, finančná realizovateľnosť, čo výzva financuje.
+              {t("grant.analyzeHelp")}
               {isTrial && credit && !credit.unlimited && (
-                <> Spotrebuje 1 z {credit.limit} trial AI kreditov.</>
+                <> {t("grant.trialCreditNote", { limit: credit.limit })}</>
               )}
             </p>
           </div>
@@ -177,16 +179,16 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
         <div className="mt-4 rounded-lg border border-border bg-card p-6">
           <div className="flex items-center gap-2 text-sm">
             <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            <span>Analyzujem grantovú výzvu… (~30 s)</span>
+            <span>{t("grant.analyzing")}</span>
           </div>
           <div className="mt-3 h-2 w-full overflow-hidden rounded bg-secondary">
             <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
           </div>
           <ol className="mt-4 space-y-1 text-xs text-muted-foreground">
-            <li>1. Formálna oprávnenosť (Gemini Pro) — právna forma, región, sektor</li>
-            <li>2. Finančná realizovateľnosť — miera spolufinancovania vs obrat firmy</li>
-            <li>3. Čo výzva financuje (Gemini Flash) — aktivity, výdavky, ukazovatele</li>
-            {intent.trim().length >= 10 && <li>4. Súlad zámeru s cieľmi výzvy</li>}
+            <li>{t("grant.step1")}</li>
+            <li>{t("grant.step2")}</li>
+            <li>{t("grant.step3")}</li>
+            {intent.trim().length >= 10 && <li>{t("grant.step4")}</li>}
           </ol>
         </div>
       )}
@@ -203,9 +205,9 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
           />
           {trialExhausted && (
             <div className="mt-3 rounded-lg border-2 border-primary bg-primary/5 p-3 text-xs">
-              Analýzu môžete naďalej prezerať, ale trial AI kredity sú vyčerpané.{" "}
-              <WebOnlyPurchase note="Predplatné spravuješ na tendrik.sk">
-                <Link to="/cennik" className="underline font-semibold">Pozrite si plány</Link> pre vyššiu mesačnú kvótu analýz.
+              {t("grant.trialExhaustedInline")}{" "}
+              <WebOnlyPurchase note={t("grant.webOnlyNote")}>
+                <Link to="/cennik" className="underline font-semibold">{t("grant.seePlansLink")}</Link> {t("grant.higherQuota")}
               </WebOnlyPurchase>
             </div>
 
@@ -217,20 +219,21 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
 }
 
 function TrialExhaustedNotice({ limit, isTrial }: { limit: number; isTrial: boolean }) {
+  const { t } = useTranslation("analysis");
   return (
     <div className="mt-4 rounded-lg border-2 border-primary bg-primary/5 p-6">
       <div className="flex items-center gap-2 text-sm font-semibold">
         <Lock className="h-4 w-4 text-primary" />
-        {isTrial ? "Trial AI kredity vyčerpané" : "Mesačná kvóta AI analýz vyčerpaná"}
+        {isTrial ? t("grant.trialExhaustedTitle") : t("grant.monthlyExhaustedTitle")}
       </div>
       <p className="mt-2 text-sm text-foreground/80">
         {isTrial
-          ? `Využili ste všetkých ${limit} AI analýz z trial verzie. Granty a ich AI analýza sú súčasťou balíka Komplet (${formatEur(priceEur("komplet"))}/mes, ${AI_MONTHLY_LIMIT.komplet} analýz mesačne).`
-          : `Vyčerpali ste ${limit} AI analýz v tomto mesiaci. Kvóta sa obnoví na začiatku ďalšieho fakturačného mesiaca.`}
+          ? t("grant.trialExhaustedBody", { limit, price: formatEur(priceEur("komplet")), limit2: AI_MONTHLY_LIMIT.komplet })
+          : t("grant.monthlyExhaustedBody", { limit })}
       </p>
       <WebOnlyPurchase className="mt-4">
         <Link to="/cennik" className="mt-4 inline-block">
-          <Button>Pozrieť plány</Button>
+          <Button>{t("grant.seePlans")}</Button>
         </Link>
       </WebOnlyPurchase>
 
@@ -239,11 +242,12 @@ function TrialExhaustedNotice({ limit, isTrial }: { limit: number; isTrial: bool
 }
 
 function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isExpired: boolean }) {
-  const title = needsUpgrade ? "Granty sú v balíku Komplet" : isExpired ? "Ukážka – vyžaduje aktívne predplatné" : "Ukážka – vyžaduje aktívne predplatné";
-  const cta = needsUpgrade ? `Prejsť na Komplet (${formatEur(priceEur("komplet"))}/mes)` : "Odomknúť analýzu";
+  const { t } = useTranslation("analysis");
+  const title = needsUpgrade ? t("grant.lockedNeedsUpgradeTitle") : t("grant.lockedDemoTitle");
+  const cta = needsUpgrade ? t("grant.lockedUpgradeCta", { price: formatEur(priceEur("komplet")) }) : t("grant.lockedUnlockCta");
   const body = needsUpgrade
-    ? "Grantové výzvy, radary pre granty a AI posúdenie oprávnenosti (právna forma, región, financovanie) sú súčasťou balíka Komplet."
-    : "AI posúdi formálnu oprávnenosť, finančnú realizovateľnosť aj súlad zámeru s cieľmi výzvy.";
+    ? t("grant.lockedUpgradeBody")
+    : t("grant.lockedDemoBody");
 
   return (
     <div className="mt-4 relative overflow-hidden rounded-lg border border-border bg-card p-6">
@@ -275,6 +279,7 @@ function AnalysisView({ analysis, onRerun, rerunning, locked, intent, onIntentCh
   analysis: AnalysisRow; onRerun: () => void; rerunning: boolean; locked: boolean;
   intent: string; onIntentChange: (v: string) => void;
 }) {
+  const { t } = useTranslation("analysis");
   const elig = analysis.eligibility ?? {};
   const formal = elig.formal ?? {};
   const gate = formal.gate ?? {};
@@ -286,27 +291,27 @@ function AnalysisView({ analysis, onRerun, rerunning, locked, intent, onIntentCh
     <div className="mt-4 space-y-6">
       {/* Overall recommendation */}
       <div className={`rounded-lg border p-5 ${recommendationClass(analysis.recommendation)}`}>
-        <div className="text-xs uppercase tracking-wide font-semibold">Odporúčanie</div>
-        <div className="mt-1 font-display text-lg font-bold">{recommendationLabel(analysis.recommendation)}</div>
+        <div className="text-xs uppercase tracking-wide font-semibold">{t("grant.recommendation")}</div>
+        <div className="mt-1 font-display text-lg font-bold">{recommendationLabel(analysis.recommendation, t)}</div>
         {gate.blocked && gate.blocking_reason && (
-          <p className="mt-2 text-sm"><span className="font-medium">Blokujúca prekážka: </span>{gate.blocking_reason}</p>
+          <p className="mt-2 text-sm"><span className="font-medium">{t("grant.blockingObstacle")}</span>{gate.blocking_reason}</p>
         )}
         {elig.zhrnutie && <p className="mt-2 text-sm">{elig.zhrnutie}</p>}
-        {elig.co_chyba && <p className="mt-2 text-sm"><span className="font-medium">Čo firme chýba: </span>{elig.co_chyba}</p>}
+        {elig.co_chyba && <p className="mt-2 text-sm"><span className="font-medium">{t("grant.whatMissing")}</span>{elig.co_chyba}</p>}
       </div>
 
       {/* 1) Formal eligibility */}
       <section>
         <h3 className="font-display font-semibold flex items-center gap-2">
-          <Building2 className="h-4 w-4 text-primary" /> 1. Formálna oprávnenosť
+          <Building2 className="h-4 w-4 text-primary" /> {t("grant.section1Title")}
         </h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Binárna brána: bez toho, aby ste boli oprávneným žiadateľom (právna forma, región, sektor), sa výzvy nemôžete zúčastniť.
+          {t("grant.section1Desc")}
         </p>
         <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-          <GateCard label="Kategória žiadateľa" status={gate.applicant_match} detail={`Vy: ${gate.user_category ?? "?"} · Výzva: ${(gate.applicant_categories ?? []).join(", ") || "?"}`} />
-          <GateCard label="Miesto realizácie" status={gate.region_match} detail={gate.region_hint ?? (gate.region_match === "nationwide" ? "celé Slovensko" : gate.region_match === "match" ? "váš kraj je pokrytý" : "neuvedené")} />
-          <GateCard label="Blokujúca chyba" status={gate.blocked ? "mismatch" : "match"} detail={gate.blocked ? gate.blocking_reason ?? "áno" : "žiadna"} />
+          <GateCard label={t("grant.applicantCategory")} status={gate.applicant_match} detail={t("grant.applicantCategoryDetail", { user: gate.user_category ?? "?", allowed: (gate.applicant_categories ?? []).join(", ") || "?" })} />
+          <GateCard label={t("grant.regionOfImplementation")} status={gate.region_match} detail={gate.region_hint ?? (gate.region_match === "nationwide" ? t("grant.regionNationwide") : gate.region_match === "match" ? t("grant.regionMatch") : t("grant.regionUnspecified"))} />
+          <GateCard label={t("grant.blockingError")} status={gate.blocked ? "mismatch" : "match"} detail={gate.blocked ? gate.blocking_reason ?? t("grant.blockingYes") : t("grant.blockingNone")} />
         </div>
         {posudenia.length > 0 && (
           <ul className="mt-3 space-y-2">
@@ -328,24 +333,24 @@ function AnalysisView({ analysis, onRerun, rerunning, locked, intent, onIntentCh
       {/* 2) Financial feasibility */}
       <section>
         <h3 className="font-display font-semibold flex items-center gap-2">
-          <Wallet className="h-4 w-4 text-primary" /> 2. Finančná realizovateľnosť
+          <Wallet className="h-4 w-4 text-primary" /> {t("grant.section2Title")}
         </h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Odhad vlastného vkladu z miery spolufinancovania a jeho porovnanie s obratom firmy.
+          {t("grant.section2Desc")}
         </p>
         <div className={`mt-3 rounded-lg border p-4 ${financialClass(financial.hodnotenie)}`}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
             <div>
-              <div className="text-xs uppercase tracking-wide text-muted-foreground">Miera spolufinancovania žiadateľa</div>
-              <div className="mt-1 font-semibold text-base">{financial.miera_spolufinancovania_pct != null ? `${financial.miera_spolufinancovania_pct} %` : "neuvedené"}</div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("grant.cofinancingRate")}</div>
+              <div className="mt-1 font-semibold text-base">{financial.miera_spolufinancovania_pct != null ? `${financial.miera_spolufinancovania_pct} %` : t("grant.notSpecified")}</div>
             </div>
             <div>
-              <div className="text-xs uppercase tracking-wide text-muted-foreground">Celková alokácia výzvy</div>
-              <div className="mt-1 font-semibold text-base">{financial.alokacia_eur != null ? `${Math.round(financial.alokacia_eur).toLocaleString("sk-SK")} €` : "—"}</div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("grant.totalAllocation")}</div>
+              <div className="mt-1 font-semibold text-base">{financial.alokacia_eur != null ? `${Math.round(financial.alokacia_eur).toLocaleString("sk-SK")} €` : t("grant.dash")}</div>
             </div>
             <div>
-              <div className="text-xs uppercase tracking-wide text-muted-foreground">Posledný obrat firmy</div>
-              <div className="mt-1 font-semibold text-base">{financial.posledny_obrat ? `${Math.round(financial.posledny_obrat.obrat).toLocaleString("sk-SK")} € (${financial.posledny_obrat.rok})` : "nevyplnené"}</div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("grant.lastRevenue")}</div>
+              <div className="mt-1 font-semibold text-base">{financial.posledny_obrat ? `${Math.round(financial.posledny_obrat.obrat).toLocaleString("sk-SK")} € (${financial.posledny_obrat.rok})` : t("grant.notFilled")}</div>
             </div>
           </div>
           {financial.poznamka && <p className="mt-3 text-sm whitespace-pre-line">{financial.poznamka}</p>}
@@ -359,7 +364,7 @@ function AnalysisView({ analysis, onRerun, rerunning, locked, intent, onIntentCh
       {analysis.summary && (
         <section>
           <h3 className="font-display font-semibold flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-primary" /> 3. Čo výzva financuje
+            <Sparkles className="h-4 w-4 text-primary" /> {t("grant.section3Title")}
           </h3>
           <p className="mt-2 whitespace-pre-line text-foreground/90 leading-relaxed">{analysis.summary}</p>
         </section>
@@ -369,7 +374,7 @@ function AnalysisView({ analysis, onRerun, rerunning, locked, intent, onIntentCh
       {intentBlock && (
         <section>
           <h3 className="font-display font-semibold flex items-center gap-2">
-            <Target className="h-4 w-4 text-primary" /> 4. Súlad vášho zámeru s výzvou
+            <Target className="h-4 w-4 text-primary" /> {t("grant.section4Title")}
           </h3>
           {intentBlock.provided && (
             <div className="mt-2 rounded border border-border bg-muted/40 p-3 text-sm italic">
@@ -378,18 +383,18 @@ function AnalysisView({ analysis, onRerun, rerunning, locked, intent, onIntentCh
           )}
           {intentBlock.skipped ? (
             <p className="mt-2 text-sm text-muted-foreground">
-              Zámer sa neposudzoval — firma nie je oprávneným žiadateľom výzvy.
+              {t("grant.intentSkipped")}
             </p>
           ) : intentBlock.parsed ? (
             <div className={`mt-3 rounded-lg border p-4 ${intentSuladClass(intentBlock.parsed.sulad)}`}>
-              <div className="text-xs uppercase tracking-wide font-semibold">Súlad: {intentSuladLabel(intentBlock.parsed.sulad)}</div>
+              <div className="text-xs uppercase tracking-wide font-semibold">{t("grant.intentCompliance", { level: intentSuladLabel(intentBlock.parsed.sulad, t) })}</div>
               {intentBlock.parsed.odovodnenie && <p className="mt-2 text-sm">{intentBlock.parsed.odovodnenie}</p>}
               {intentBlock.parsed.co_doplnit && (
-                <p className="mt-2 text-sm"><span className="font-medium">Čo v zámere doplniť: </span>{intentBlock.parsed.co_doplnit}</p>
+                <p className="mt-2 text-sm"><span className="font-medium">{t("grant.intentWhatToAdd")}</span>{intentBlock.parsed.co_doplnit}</p>
               )}
             </div>
           ) : (
-            <p className="mt-2 text-sm text-muted-foreground">Súlad zámeru sa nepodarilo vyhodnotiť.</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("grant.intentUnable")}</p>
           )}
         </section>
       )}
@@ -398,11 +403,11 @@ function AnalysisView({ analysis, onRerun, rerunning, locked, intent, onIntentCh
       {!locked && (
         <div className="border-t border-border pt-4 space-y-3">
           <label className="text-sm font-medium flex items-center gap-2">
-            <Target className="h-4 w-4 text-muted-foreground" /> Upraviť zámer a analyzovať znova <span className="text-xs text-muted-foreground font-normal">(voliteľné)</span>
+            <Target className="h-4 w-4 text-muted-foreground" /> {t("grant.editIntentLabel")} <span className="text-xs text-muted-foreground font-normal">{t("grant.editIntentOptional")}</span>
           </label>
           <Textarea
             rows={3}
-            placeholder="Napr. kúpa fotovoltiky a batériového úložiska…"
+            placeholder={t("grant.editIntentPlaceholder")}
             value={intent}
             onChange={(e) => onIntentChange(e.target.value)}
             maxLength={1500}
@@ -410,10 +415,10 @@ function AnalysisView({ analysis, onRerun, rerunning, locked, intent, onIntentCh
           <div className="flex flex-wrap gap-3 items-center">
             <Button variant="outline" onClick={onRerun} disabled={rerunning}>
               {rerunning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-              Analyzovať znova
+              {t("grant.rerunButton")}
             </Button>
             <p className="text-xs text-muted-foreground">
-              Analýza je orientačná, vygenerovaná AI. Overte si podmienky v oficiálnej výzve.
+              {t("grant.disclaimer")}
             </p>
           </div>
         </div>
@@ -436,10 +441,11 @@ function GateCard({ label, status, detail }: { label: string; status: string; de
 }
 
 function FinancialBadge({ hodnotenie }: { hodnotenie: string }) {
-  if (hodnotenie === "realizovatelne") return <span className="inline-flex items-center gap-1 text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" /> Finančne realizovateľné</span>;
-  if (hodnotenie === "hranicne") return <span className="inline-flex items-center gap-1 text-amber-700"><AlertTriangle className="h-3.5 w-3.5" /> Hraničné — vyžaduje plánovanie cash-flow</span>;
-  if (hodnotenie === "rizikove") return <span className="inline-flex items-center gap-1 text-red-700"><XCircle className="h-3.5 w-3.5" /> Rizikové — vysoký vlastný vklad</span>;
-  return <span className="inline-flex items-center gap-1 text-muted-foreground"><HelpCircle className="h-3.5 w-3.5" /> Nemožno posúdiť (doplňte financné roky v /firma)</span>;
+  const { t } = useTranslation("analysis");
+  if (hodnotenie === "realizovatelne") return <span className="inline-flex items-center gap-1 text-emerald-700"><CheckCircle2 className="h-3.5 w-3.5" /> {t("grant.financeRealizable")}</span>;
+  if (hodnotenie === "hranicne") return <span className="inline-flex items-center gap-1 text-amber-700"><AlertTriangle className="h-3.5 w-3.5" /> {t("grant.financeBorderline")}</span>;
+  if (hodnotenie === "rizikove") return <span className="inline-flex items-center gap-1 text-red-700"><XCircle className="h-3.5 w-3.5" /> {t("grant.financeRisky")}</span>;
+  return <span className="inline-flex items-center gap-1 text-muted-foreground"><HelpCircle className="h-3.5 w-3.5" /> {t("grant.financeUnknown")}</span>;
 }
 
 function financialClass(h: string): string {
@@ -456,11 +462,11 @@ function intentSuladClass(s: string): string {
   return "border-border bg-card";
 }
 
-function intentSuladLabel(s: string): string {
-  if (s === "vysoky") return "vysoký";
-  if (s === "stredny") return "stredný";
-  if (s === "nizky") return "nízky";
-  return "nemožno posúdiť";
+function intentSuladLabel(s: string, t: (k: string) => string): string {
+  if (s === "vysoky") return t("grant.intentHigh");
+  if (s === "stredny") return t("grant.intentMedium");
+  if (s === "nizky") return t("grant.intentLow");
+  return t("grant.intentUnknown");
 }
 
 function StavIcon({ stav }: { stav: string }) {
@@ -471,11 +477,11 @@ function StavIcon({ stav }: { stav: string }) {
   return <HelpCircle className="h-5 w-5 text-muted-foreground shrink-0" />;
 }
 
-function recommendationLabel(r: string | null): string {
-  if (r === "odporucame") return "Odporúčame sa uchádzať";
-  if (r === "neodporucame") return "Neodporúčame sa uchádzať";
-  if (r === "opatrne") return "Opatrne – hraničné podmienky";
-  return "Vyhodnotenie";
+function recommendationLabel(r: string | null, t: (k: string) => string): string {
+  if (r === "odporucame") return t("grant.recommendationRecommend");
+  if (r === "neodporucame") return t("grant.recommendationNotRecommend");
+  if (r === "opatrne") return t("grant.recommendationCautious");
+  return t("grant.recommendationEvaluation");
 }
 
 function recommendationClass(r: string | null): string {

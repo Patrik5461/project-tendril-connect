@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { computeSubscription, formatEur, priceEur, tierLabel } from "@/lib/subscription";
-import { useTranslation, Trans } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -414,6 +414,7 @@ function RadarCard({
   onDelete: () => void;
   canDelete: boolean;
 }) {
+  const { t } = useTranslation("account");
   const [nameDraft, setNameDraft] = useState(radar.name);
   const [kwInput, setKwInput] = useState("");
 
@@ -443,19 +444,19 @@ function RadarCard({
 
   const countryLabel =
     (radar.countries ?? []).includes("ALL")
-      ? "všetky krajiny EÚ"
-      : `${(radar.countries ?? []).length || 0} krajín`;
+      ? t("settings.radars.allCountriesShort")
+      : t("settings.radars.countriesCount", { count: (radar.countries ?? []).length || 0 });
 
   const summary = [
-    radar.keywords.length ? `${radar.keywords.length} kľúč. slov` : null,
-    radar.cpv_codes.length ? `${radar.cpv_codes.length} CPV` : null,
+    radar.keywords.length ? t("settings.radars.summaryKeywords", { count: radar.keywords.length }) : null,
+    radar.cpv_codes.length ? t("settings.radars.summaryCpv", { count: radar.cpv_codes.length }) : null,
     countryLabel,
     (radar.countries ?? []).includes("SK") && radar.regions.length
-      ? `${radar.regions.length} krajov`
+      ? t("settings.radars.summaryRegions", { count: radar.regions.length })
       : null,
   ]
     .filter(Boolean)
-    .join(" · ") || "bez filtrov";
+    .join(" · ") || t("settings.radars.summaryEmpty");
 
   return (
     <div className="rounded-lg border border-primary/15 bg-card">
@@ -464,7 +465,7 @@ function RadarCard({
           type="button"
           onClick={onToggleExpanded}
           className="text-muted-foreground hover:text-foreground"
-          aria-label={expanded ? "Zbaliť" : "Rozbaliť"}
+          aria-label={expanded ? t("settings.radars.collapse") : t("settings.radars.expand")}
         >
           {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
@@ -489,7 +490,7 @@ function RadarCard({
               onCheckedChange={(v) => onUpdate({ active: v })}
             />
             <Label htmlFor={`active-${radar.id}`} className="text-xs text-muted-foreground">
-              {radar.active ? "Zapnutý" : "Vypnutý"}
+              {radar.active ? t("settings.radars.active") : t("settings.radars.inactive")}
             </Label>
           </div>
           <Button
@@ -497,7 +498,7 @@ function RadarCard({
             size="icon"
             onClick={onDelete}
             disabled={!canDelete}
-            title={canDelete ? "Zmazať radar" : "Musí zostať aspoň jeden radar"}
+            title={canDelete ? t("settings.radars.deleteTitle") : t("settings.radars.deleteTitleDisabled")}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -507,12 +508,12 @@ function RadarCard({
       {expanded && (
         <div className="border-t border-primary/10 p-4 space-y-6">
           <div>
-            <h3 className="font-semibold text-sm">Kľúčové slová</h3>
+            <h3 className="font-semibold text-sm">{t("settings.radars.keywords")}</h3>
             <div className="mt-2 flex gap-2">
               <Input
                 value={kwInput}
                 onChange={(e) => setKwInput(e.target.value)}
-                placeholder="Pridať kľúčové slovo"
+                placeholder={t("settings.radars.keywordsPlaceholder")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -521,7 +522,7 @@ function RadarCard({
                 }}
               />
               <Button type="button" size="sm" onClick={addKeyword}>
-                Pridať
+                {t("settings.radars.add2")}
               </Button>
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -544,7 +545,7 @@ function RadarCard({
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm">CPV kategórie</h3>
+            <h3 className="font-semibold text-sm">{t("settings.radars.cpvCategories")}</h3>
             <div className="mt-2 grid sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-2">
               {CPV_DIVISIONS.map((d) => (
                 <label
@@ -565,7 +566,7 @@ function RadarCard({
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm">Krajiny</h3>
+            <h3 className="font-semibold text-sm">{t("settings.radars.countries")}</h3>
             <label className="mt-2 flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer">
               <Checkbox
                 checked={(radar.countries ?? []).includes("ALL")}
@@ -575,7 +576,7 @@ function RadarCard({
                   })
                 }
               />
-              <span className="text-sm font-medium">Všetky krajiny EÚ</span>
+              <span className="text-sm font-medium">{t("settings.radars.allEuCountries")}</span>
             </label>
             {!(radar.countries ?? []).includes("ALL") && (
               <div className="mt-2 grid sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-2">
@@ -599,9 +600,9 @@ function RadarCard({
 
           {((radar.countries ?? []).includes("SK") || (radar.countries ?? []).includes("ALL")) && (
             <div>
-              <h3 className="font-semibold text-sm">Kraje (Slovensko) – voliteľné</h3>
+              <h3 className="font-semibold text-sm">{t("settings.radars.skRegionsOptional")}</h3>
               <p className="text-xs text-muted-foreground mt-1">
-                Nechajte prázdne pre celé Slovensko, alebo vyberte konkrétne kraje.
+                {t("settings.radars.skRegionsHelp")}
               </p>
               <div className="mt-2 grid sm:grid-cols-2 gap-2">
                 {REGIONS.map((rg) => (
@@ -626,6 +627,7 @@ function RadarCard({
 }
 
 function SubscriptionSection({ userId }: { userId: string | null }) {
+  const { t } = useTranslation("account");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [row, setRow] = useState<any>(null);
@@ -645,8 +647,8 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
   if (loading) {
     return (
       <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-        <h2 className="font-display font-semibold text-lg tracking-tight">Predplatné</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Načítavam…</p>
+        <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.subscription.heading")}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t("settings.subscription.loading")}</p>
       </section>
     );
   }
@@ -656,53 +658,52 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
   const cancelRequested = !!row?.subscription_cancel_requested_at;
 
   const statusLabel =
-    sub.status === "active" ? (cancelRequested ? "Aktívne (zrušené – dobieha)" : "Aktívne")
-    : sub.status === "trial" ? `Skúšobné (zostáva ${sub.daysLeft} dní)`
-    : "Vypršané";
+    sub.status === "active" ? (cancelRequested ? t("settings.subscription.statusActiveCancelled") : t("settings.subscription.statusActive"))
+    : sub.status === "trial" ? t("settings.subscription.statusTrial", { days: sub.daysLeft })
+    : t("settings.subscription.statusExpired");
 
   async function cancel() {
-    if (!confirm("Zrušiť predplatné? Prístup vám zostane do konca zaplateného obdobia.")) return;
+    if (!confirm(t("settings.subscription.confirmCancel"))) return;
     setBusy(true);
     const { data, error } = await supabase.functions.invoke("gopay-cancel-subscription", { body: {} });
     setBusy(false);
-    if (error) { toast.error("Nepodarilo sa zrušiť: " + error.message); return; }
-    toast.success("Predplatné bolo zrušené." + (data?.valid_until ? " Prístup do " + new Date(data.valid_until).toLocaleDateString("sk-SK") + "." : ""));
+    if (error) { toast.error(t("settings.subscription.cancelError", { message: error.message })); return; }
+    toast.success(t("settings.subscription.cancelled") + (data?.valid_until ? t("settings.subscription.cancelledUntil", { date: new Date(data.valid_until).toLocaleDateString("sk-SK") }) : ""));
     load();
   }
 
   return (
     <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-      <h2 className="font-display font-semibold text-lg tracking-tight">Predplatné</h2>
+      <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.subscription.heading")}</h2>
       <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
         <div>
-          <div className="text-muted-foreground">Stav</div>
+          <div className="text-muted-foreground">{t("settings.subscription.status")}</div>
           <div className="font-medium">{statusLabel}</div>
         </div>
         <div>
-          <div className="text-muted-foreground">Plán / Cena</div>
+          <div className="text-muted-foreground">{t("settings.subscription.planPrice")}</div>
           <div className="font-medium">
-            Tendrik {tierLabel(sub.tier)} · {formatEur(priceEur(sub.tier, sub.period))}{" "}
-            / {sub.period === "yearly" ? "rok" : "mes"}
+            {t("settings.subscription.planPriceValue", { tier: tierLabel(sub.tier), price: formatEur(priceEur(sub.tier, sub.period)), period: sub.period === "yearly" ? t("settings.subscription.perYear") : t("settings.subscription.perMonth") })}
           </div>
         </div>
         <div>
-          <div className="text-muted-foreground">AI analýzy</div>
+          <div className="text-muted-foreground">{t("settings.subscription.aiAnalyses")}</div>
           <div className="font-medium">
             {sub.status === "trial"
-              ? `${sub.aiLimit} v rámci trialu`
-              : sub.aiLimit > 0 ? `${sub.aiLimit} mesačne` : "nie sú v pláne"}
+              ? t("settings.subscription.aiAnalysesTrial", { limit: sub.aiLimit })
+              : sub.aiLimit > 0 ? t("settings.subscription.aiAnalysesMonthly", { limit: sub.aiLimit }) : t("settings.subscription.aiAnalysesNone")}
           </div>
         </div>
 
         {validUntil && (
           <div>
-            <div className="text-muted-foreground">Zaplatené do</div>
+            <div className="text-muted-foreground">{t("settings.subscription.paidUntil")}</div>
             <div className="font-medium num">{validUntil.toLocaleDateString("sk-SK")}</div>
           </div>
         )}
         {row?.last_payment_at && (
           <div>
-            <div className="text-muted-foreground">Posledná platba</div>
+            <div className="text-muted-foreground">{t("settings.subscription.lastPayment")}</div>
             <div className="font-medium num">{new Date(row.last_payment_at).toLocaleDateString("sk-SK")}</div>
           </div>
         )}
@@ -712,26 +713,37 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
         {sub.status !== "active" && (
           <WebOnlyPurchase>
             <Link to="/predplatne">
-              <Button size="sm">Aktivovať predplatné</Button>
+              <Button size="sm">{t("settings.subscription.activate")}</Button>
             </Link>
           </WebOnlyPurchase>
 
         )}
         {sub.status === "active" && !cancelRequested && (
           <Button size="sm" variant="outline" onClick={cancel} disabled={busy}>
-            {busy ? "Rušim…" : "Zrušiť predplatné"}
+            {busy ? t("settings.subscription.cancelling") : t("settings.subscription.cancel")}
           </Button>
         )}
         {cancelRequested && (
           <p className="text-xs text-muted-foreground">
-            Zrušenie vyžiadané. Prístup zostáva do konca zaplateného obdobia.
+            {t("settings.subscription.cancelRequestedNote")}
           </p>
         )}
       </div>
 
       <p className="mt-4 text-xs text-muted-foreground">
-        Platby spracúva GoPay. Detaily nájdete v{" "}
-        <Link to="/pravne/opakovane-platby" className="underline">podmienkach opakovaných platieb</Link>.
+        {(() => {
+          const note = t("settings.subscription.paymentsNote", { link: "__LINK__" });
+          const [before, after] = note.split("__LINK__");
+          return (
+            <>
+              {before}
+              <Link to="/pravne/opakovane-platby" className="underline">
+                {t("settings.subscription.recurringPaymentsTerms")}
+              </Link>
+              {after}
+            </>
+          );
+        })()}
       </p>
     </section>
   );
