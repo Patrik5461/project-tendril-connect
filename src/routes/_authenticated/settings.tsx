@@ -766,6 +766,7 @@ type BillingRow = {
 };
 
 function BillingDetailsSection({ userId }: { userId: string | null }) {
+  const { t } = useTranslation("account");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [row, setRow] = useState<BillingRow>({
@@ -806,8 +807,8 @@ function BillingDetailsSection({ userId }: { userId: string | null }) {
 
   async function save() {
     if (!userId) return;
-    if (!row.name.trim()) { toast.error("Zadaj meno alebo názov firmy."); return; }
-    if (!row.email.trim() || !row.email.includes("@")) { toast.error("Zadaj platný e-mail."); return; }
+    if (!row.name.trim()) { toast.error(t("settings.billing.nameRequired")); return; }
+    if (!row.email.trim() || !row.email.includes("@")) { toast.error(t("settings.billing.emailInvalid")); return; }
     setSaving(true);
     const payload = {
       user_id: userId,
@@ -823,62 +824,62 @@ function BillingDetailsSection({ userId }: { userId: string | null }) {
     const { error } = await (supabase.from("billing_details" as never) as any)
       .upsert(payload, { onConflict: "user_id" });
     setSaving(false);
-    if (error) { toast.error("Nepodarilo sa uložiť: " + error.message); return; }
-    toast.success("Fakturačné údaje uložené.");
+    if (error) { toast.error(t("settings.billing.saveError", { message: error.message })); return; }
+    toast.success(t("settings.billing.saved"));
   }
 
   if (loading) {
     return (
       <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-        <h2 className="font-display font-semibold text-lg tracking-tight">Fakturačné údaje</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Načítavam…</p>
+        <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.billing.heading")}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t("settings.billing.loading")}</p>
       </section>
     );
   }
 
   return (
     <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-      <h2 className="font-display font-semibold text-lg tracking-tight">Fakturačné údaje</h2>
+      <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.billing.heading")}</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Používajú sa na vystavenie faktúry po zaplatení predplatného. Faktúra vám príde na fakturačný e-mail.
+        {t("settings.billing.description")}
       </p>
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="sm:col-span-2">
-          <Label>Meno alebo názov firmy *</Label>
+          <Label>{t("settings.billing.nameLabel")}</Label>
           <Input value={row.name} onChange={(e) => setRow({ ...row, name: e.target.value })} />
         </div>
         <div>
-          <Label>IČO</Label>
+          <Label>{t("settings.billing.icoLabel")}</Label>
           <Input value={row.ico ?? ""} onChange={(e) => setRow({ ...row, ico: e.target.value })} />
         </div>
         <div>
-          <Label>IČ DPH</Label>
+          <Label>{t("settings.billing.icDphLabel")}</Label>
           <Input value={row.ic_dph ?? ""} onChange={(e) => setRow({ ...row, ic_dph: e.target.value })} />
         </div>
         <div className="sm:col-span-2">
-          <Label>Ulica a číslo</Label>
+          <Label>{t("settings.billing.streetLabel")}</Label>
           <Input value={row.street ?? ""} onChange={(e) => setRow({ ...row, street: e.target.value })} />
         </div>
         <div>
-          <Label>Mesto</Label>
+          <Label>{t("settings.billing.cityLabel")}</Label>
           <Input value={row.city ?? ""} onChange={(e) => setRow({ ...row, city: e.target.value })} />
         </div>
         <div>
-          <Label>PSČ</Label>
+          <Label>{t("settings.billing.zipLabel")}</Label>
           <Input value={row.zip ?? ""} onChange={(e) => setRow({ ...row, zip: e.target.value })} />
         </div>
         <div>
-          <Label>Krajina</Label>
+          <Label>{t("settings.billing.countryLabel")}</Label>
           <Input value={row.country} onChange={(e) => setRow({ ...row, country: e.target.value })} />
         </div>
         <div>
-          <Label>Fakturačný e-mail *</Label>
+          <Label>{t("settings.billing.emailLabel")}</Label>
           <Input value={row.email} onChange={(e) => setRow({ ...row, email: e.target.value })} />
         </div>
       </div>
       <div className="mt-4">
         <Button size="sm" onClick={save} disabled={saving}>
-          {saving ? "Ukladám…" : "Uložiť fakturačné údaje"}
+          {saving ? t("settings.billing.saving") : t("settings.billing.save")}
         </Button>
       </div>
     </section>
@@ -890,6 +891,7 @@ function BillingDetailsSection({ userId }: { userId: string | null }) {
 // -----------------------------------------------------------------------------
 
 function InvoicesHistorySection({ userId }: { userId: string | null }) {
+  const { t } = useTranslation("account");
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<any[]>([]);
   const [downloading, setDownloading] = useState<string | null>(null);
@@ -911,26 +913,26 @@ function InvoicesHistorySection({ userId }: { userId: string | null }) {
       body: { action: "pdf", invoice_id: id },
     });
     setDownloading(null);
-    if (error || !data?.url) { toast.error("PDF sa nepodarilo načítať."); return; }
+    if (error || !data?.url) { toast.error(t("settings.invoices.downloadError")); return; }
     window.open(data.url, "_blank", "noopener");
   }
 
   return (
     <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-      <h2 className="font-display font-semibold text-lg tracking-tight">História faktúr</h2>
+      <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.invoices.heading")}</h2>
       {loading ? (
-        <p className="mt-2 text-sm text-muted-foreground">Načítavam…</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("settings.invoices.loading")}</p>
       ) : rows.length === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">Zatiaľ žiadne faktúry.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("settings.invoices.empty")}</p>
       ) : (
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-muted-foreground">
               <tr className="border-b border-primary/10">
-                <th className="py-2 pr-3">Dátum</th>
-                <th className="py-2 pr-3">Číslo</th>
-                <th className="py-2 pr-3">Suma</th>
-                <th className="py-2 pr-3">Stav</th>
+                <th className="py-2 pr-3">{t("settings.invoices.date")}</th>
+                <th className="py-2 pr-3">{t("settings.invoices.number")}</th>
+                <th className="py-2 pr-3">{t("settings.invoices.amount")}</th>
+                <th className="py-2 pr-3">{t("settings.invoices.status")}</th>
                 <th className="py-2 pr-3"></th>
               </tr>
             </thead>
@@ -944,16 +946,16 @@ function InvoicesHistorySection({ userId }: { userId: string | null }) {
                     <td className="py-2 pr-3 num">{r.invoice_number ?? "—"}</td>
                     <td className="py-2 pr-3 num">{Number(r.amount).toFixed(2)} {r.currency}</td>
                     <td className="py-2 pr-3">
-                      {r.status === "sent" ? "Odoslaná"
-                        : r.status === "paid_marked" ? "Vystavená (uhradená)"
-                        : r.status === "issued" ? "Vystavená"
-                        : r.status === "failed" ? <span className="text-destructive">Chyba</span>
-                        : "Čaká sa"}
+                      {r.status === "sent" ? t("settings.invoices.statusSent")
+                        : r.status === "paid_marked" ? t("settings.invoices.statusPaidMarked")
+                        : r.status === "issued" ? t("settings.invoices.statusIssued")
+                        : r.status === "failed" ? <span className="text-destructive">{t("settings.invoices.statusFailed")}</span>
+                        : t("settings.invoices.statusPending")}
                     </td>
                     <td className="py-2 pr-3">
                       {isReady && (
                         <Button size="sm" variant="outline" onClick={() => downloadPdf(r.id)} disabled={downloading === r.id}>
-                          {downloading === r.id ? "…" : "Stiahnuť PDF"}
+                          {downloading === r.id ? "…" : t("settings.invoices.download")}
                         </Button>
                       )}
                     </td>
