@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { computeSubscription, formatEur, priceEur, tierLabel } from "@/lib/subscription";
+import { useTranslation, Trans } from "react-i18next";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +41,7 @@ type Radar = {
 const radars = () => supabase.from("user_radars" as never) as any;
 
 function SettingsPage() {
+  const { t } = useTranslation("account");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [emailNotif, setEmailNotif] = useState(true);
@@ -102,7 +104,7 @@ function SettingsPage() {
       const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const invalid = parts.filter((p) => !emailRe.test(p));
       if (invalid.length > 0) {
-        toast.error(`Neplatná e-mailová adresa: ${invalid[0]}`);
+        toast.error(t("settings.notifications.invalidEmail", { email: invalid[0] }));
         return;
       }
       // Dedupe (case-insensitive)
@@ -116,7 +118,7 @@ function SettingsPage() {
         }
       }
       if (unique.length > 10) {
-        toast.error("Maximálne 10 príjemcov");
+        toast.error(t("settings.notifications.maxRecipients"));
         return;
       }
       normalized = unique.join(", ");
@@ -140,7 +142,7 @@ function SettingsPage() {
     setSaving(false);
     if (error) toast.error(error.message);
     else {
-      toast.success("Notifikácie uložené");
+      toast.success(t("settings.notifications.saved"));
       setNotificationEmail(normalized ?? "");
       if (emailNotif) void sendWelcomeEmailIfNeeded();
       void sendSettingsConfirmationEmail();
@@ -149,7 +151,7 @@ function SettingsPage() {
 
   async function addRadar() {
     if (!userId) return;
-    const name = `Radar ${list.length + 1}`;
+    const name = t("settings.radars.defaultName", { n: list.length + 1 });
     const { data, error } = await radars()
       .insert({
         user_id: userId,
@@ -182,10 +184,10 @@ function SettingsPage() {
 
   async function deleteRadar(id: string) {
     if (list.length <= 1) {
-      toast.error("Musí zostať aspoň jeden radar.");
+      toast.error(t("settings.radars.mustKeepOne"));
       return;
     }
-    if (!confirm("Naozaj zmazať tento radar?")) return;
+    if (!confirm(t("settings.radars.confirmDelete"))) return;
     const prev = list;
     setList(list.filter((r) => r.id !== id));
     const { error } = await radars().delete().eq("id", id);
@@ -193,7 +195,7 @@ function SettingsPage() {
       toast.error(error.message);
       setList(prev);
     } else {
-      toast.success("Radar zmazaný");
+      toast.success(t("settings.radars.deleted"));
       void sendSettingsConfirmationEmail();
     }
   }
@@ -208,53 +210,52 @@ function SettingsPage() {
   }
 
   if (loading) {
-    return <div className="mx-auto max-w-3xl px-4 py-8 text-muted-foreground">Načítavam...</div>;
+    return <div className="mx-auto max-w-3xl px-4 py-8 text-muted-foreground">{t("settings.loading")}</div>;
   }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Nastavenia</h1>
-      <p className="mt-1 text-muted-foreground">Prihlásený ako {email}</p>
+      <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{t("settings.title")}</h1>
+      <p className="mt-1 text-muted-foreground">{t("settings.loggedInAs", { email })}</p>
 
       <Link
         to="/firma"
         className="mt-6 flex items-center justify-between gap-4 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 hover:bg-primary/10 transition-colors"
       >
         <div>
-          <div className="font-medium">Firemný profil</div>
-          <div className="text-sm text-muted-foreground">IČO, obrat po rokoch, referencie, certifikáty – vstup pre AI analýzu zákaziek.</div>
+          <div className="font-medium">{t("settings.companyProfile.title")}</div>
+          <div className="text-sm text-muted-foreground">{t("settings.companyProfile.description")}</div>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </Link>
 
       <Tabs defaultValue="notifications" className="mt-8">
         <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4">
-          <TabsTrigger value="notifications">Notifikácie</TabsTrigger>
-          <TabsTrigger value="radars">Radary</TabsTrigger>
-          <TabsTrigger value="grant-radars">Radary na granty</TabsTrigger>
-          <TabsTrigger value="billing">Predplatné & fakturácia</TabsTrigger>
+          <TabsTrigger value="notifications">{t("settings.tabs.notifications")}</TabsTrigger>
+          <TabsTrigger value="radars">{t("settings.tabs.radars")}</TabsTrigger>
+          <TabsTrigger value="grant-radars">{t("settings.tabs.grantRadars")}</TabsTrigger>
+          <TabsTrigger value="billing">{t("settings.tabs.billing")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="notifications" className="mt-6">
           <section className="rounded-lg border border-primary/15 bg-card p-6">
-            <h2 className="font-display font-semibold text-lg tracking-tight">E-mailové notifikácie</h2>
+            <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.notifications.heading")}</h2>
             <div className="mt-3 flex items-center justify-between gap-4">
               <div>
-                <Label htmlFor="notif">Zasielať upozornenia na nové zákazky</Label>
-                <p className="text-sm text-muted-foreground">Súhrn nových zákaziek na váš e-mail.</p>
+                <Label htmlFor="notif">{t("settings.notifications.newTendersLabel")}</Label>
+                <p className="text-sm text-muted-foreground">{t("settings.notifications.newTendersHelp")}</p>
               </div>
               <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
             </div>
             <div className="mt-4 border-t border-primary/10 pt-4">
-              <Label htmlFor="notifEmail">E-mailové adresy pre notifikácie</Label>
+              <Label htmlFor="notifEmail">{t("settings.notifications.emailsLabel")}</Label>
               <p className="text-sm text-muted-foreground">
-                Jedna alebo viac adries oddelených čiarkou – notifikácie pôjdu všetkým.
-                Ak necháte prázdne, použije sa prihlasovací e-mail ({email}). Max 10 príjemcov.
+                {t("settings.notifications.emailsHelp", { email })}
               </p>
               <Input
                 id="notifEmail"
                 type="text"
-                placeholder={`${email}, kolega@firma.sk`}
+                placeholder={t("settings.notifications.emailsPlaceholder", { email })}
                 value={notificationEmail}
                 onChange={(e) => setNotificationEmail(e.target.value)}
                 className="mt-2 max-w-md"
@@ -262,9 +263,9 @@ function SettingsPage() {
             </div>
             <div className="mt-4 flex items-center justify-between gap-4 border-t border-primary/10 pt-4">
               <div>
-                <Label>Frekvencia notifikácií</Label>
+                <Label>{t("settings.notifications.frequencyLabel")}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Ako často chcete dostávať súhrn nových zákaziek.
+                  {t("settings.notifications.frequencyHelp")}
                 </p>
               </div>
               <div className="inline-flex rounded-md border border-primary/20 overflow-hidden shrink-0">
@@ -277,7 +278,7 @@ function SettingsPage() {
                       : "bg-transparent text-foreground hover:bg-primary/5"
                   }`}
                 >
-                  Denne
+                  {t("settings.notifications.daily")}
                 </button>
                 <button
                   type="button"
@@ -288,15 +289,15 @@ function SettingsPage() {
                       : "bg-transparent text-foreground hover:bg-primary/5"
                   }`}
                 >
-                  Týždenne
+                  {t("settings.notifications.weekly")}
                 </button>
               </div>
             </div>
             <div className="mt-4 flex items-center justify-between gap-4 border-t border-primary/10 pt-4">
               <div>
-                <Label htmlFor="deadlineRem">Pripomienky deadlinov uložených zákaziek</Label>
+                <Label htmlFor="deadlineRem">{t("settings.notifications.deadlineRemindersLabel")}</Label>
                 <p className="text-sm text-muted-foreground">
-                  E-mail 3 dni a 1 deň pred koncom lehoty pri uložených zákazkách.
+                  {t("settings.notifications.deadlineRemindersHelp")}
                 </p>
               </div>
               <Switch
@@ -306,33 +307,33 @@ function SettingsPage() {
               />
             </div>
             <div className="mt-6 border-t border-primary/10 pt-4">
-              <h3 className="font-display font-semibold text-base tracking-tight">Grantové výzvy</h3>
+              <h3 className="font-display font-semibold text-base tracking-tight">{t("settings.notifications.grantsHeading")}</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Iná kadencia než pri zákazkách – zoznam sa mení pomalšie.
+                {t("settings.notifications.grantsHelp")}
               </p>
               <div className="mt-4 flex items-center justify-between gap-4">
                 <div>
-                  <Label htmlFor="gNewMatch">Nová zhoda s grantovým radarom</Label>
+                  <Label htmlFor="gNewMatch">{t("settings.notifications.grantNewMatchLabel")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    E-mail vždy, keď pribudne výzva, ktorá sedí na niektorý z vašich grantových radarov.
+                    {t("settings.notifications.grantNewMatchHelp")}
                   </p>
                 </div>
                 <Switch id="gNewMatch" checked={grantNewMatch} onCheckedChange={setGrantNewMatch} />
               </div>
               <div className="mt-4 flex items-center justify-between gap-4">
                 <div>
-                  <Label htmlFor="gWeekly">Týždenný súhrn grantov</Label>
+                  <Label htmlFor="gWeekly">{t("settings.notifications.grantWeeklyLabel")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Piatkový súhrn nových a otvorených výziev podľa vašich radarov.
+                    {t("settings.notifications.grantWeeklyHelp")}
                   </p>
                 </div>
                 <Switch id="gWeekly" checked={grantWeekly} onCheckedChange={setGrantWeekly} />
               </div>
               <div className="mt-4 flex items-center justify-between gap-4">
                 <div>
-                  <Label htmlFor="gDeadline">Pripomienky deadlinov grantov</Label>
+                  <Label htmlFor="gDeadline">{t("settings.notifications.grantDeadlineLabel")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Len pri one-shot výzvach (s pevným deadlinom), 7 a 2 dni pred koncom.
+                    {t("settings.notifications.grantDeadlineHelp")}
                   </p>
                 </div>
                 <Switch id="gDeadline" checked={grantDeadline} onCheckedChange={setGrantDeadline} />
@@ -340,7 +341,7 @@ function SettingsPage() {
             </div>
             <div className="mt-6 flex justify-end">
               <Button size="sm" onClick={saveNotifications} disabled={saving}>
-                {saving ? "Ukladám..." : "Uložiť notifikácie"}
+                {saving ? t("settings.notifications.saving") : t("settings.notifications.save")}
               </Button>
             </div>
           </section>
@@ -353,14 +354,13 @@ function SettingsPage() {
           <section>
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="font-display font-semibold text-xl tracking-tight">Radary</h2>
+                <h2 className="font-display font-semibold text-xl tracking-tight">{t("settings.radars.heading")}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Každý radar má vlastné kľúčové slová, CPV kategórie a kraje. Zákazka sa objaví,
-                  ak sedí aspoň jednému aktívnemu radaru.
+                  {t("settings.radars.description")}
                 </p>
               </div>
               <Button size="sm" onClick={addRadar}>
-                <Plus className="h-4 w-4 mr-1" /> Pridať radar
+                <Plus className="h-4 w-4 mr-1" /> {t("settings.radars.add")}
               </Button>
             </div>
 
@@ -378,7 +378,7 @@ function SettingsPage() {
               ))}
               {list.length === 0 && (
                 <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-                  Zatiaľ nemáte žiadny radar. Pridajte prvý.
+                  {t("settings.radars.empty")}
                 </div>
               )}
             </div>
