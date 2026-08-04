@@ -35,9 +35,18 @@
   },
   "features": {
     "featureLabel": "Feature {{n}}",
-    "matching": { "title": "Precise matching", "text": "Keywords and CPV codes surface only relevant tenders." },
-    "regions": { "title": "Countries and regions", "text": "Pick the EU countries that matter to you, or specific Slovak regions." },
-    "notifications": { "title": "Email notifications", "text": "Turn on alerts and never miss a deadline." }
+    "matching": {
+      "title": "Precise matching",
+      "text": "Keywords and CPV codes surface only relevant tenders."
+    },
+    "regions": {
+      "title": "Countries and regions",
+      "text": "Pick the EU countries that matter to you, or specific Slovak regions."
+    },
+    "notifications": {
+      "title": "Email notifications",
+      "text": "Turn on alerts and never miss a deadline."
+    }
   },
   "why": {
     "eyebrow": "Why Tendrik",
@@ -113,5 +122,38 @@
     "description": "Tendrik delivers public tenders and grant calls that match your keywords, CPV codes, regions and applicant type — every day. Free.",
     "ogTitle": "Tendrik – tenders and grants find you on their own",
     "ogDescription": "A free service that matches public tenders and grant calls to your industry, region and applicant type."
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "Three plans.",
+    "titleHighlight": "30 days free to try.",
+    "note": "Final prices – Tobify s. r. o. is not a VAT payer. Annual billing includes 2 months free.",
+    "perMonth": "/ mo",
+    "tryFree": "Try for free",
+    "details": "Details",
+    "badgeAi": "Includes AI",
+    "badgeAll": "Tenders and grants",
+    "basicEyebrow": "Basic",
+    "basicTitle": "Tender monitoring",
+    "basicF1": "· Unlimited radars and filters",
+    "basicF2": "· Daily e-mail digests",
+    "basicF3": "· Deadline reminders",
+    "basicF4": "· TED, ÚVO, EKS and JOSEPHINE",
+    "basicF5": "— No AI and no grants",
+    "premiumEyebrow": "Premium",
+    "premiumTitle": "Tenders + AI analysis",
+    "premiumF1": "· Everything in Basic",
+    "premiumF2": "· 30 AI analyses per month",
+    "premiumF3": "· AI tender and eligibility analysis",
+    "premiumF4": "· AI subcontracting and outreach suggestions",
+    "premiumF5": "— No grant calls",
+    "kompletEyebrow": "Complete",
+    "kompletTitle": "Tenders + grants + AI",
+    "kompletF1": "· Everything in Premium",
+    "kompletF2": "· Grant calls and subsidies",
+    "kompletF3": "· Radars and notifications for grants",
+    "kompletF4": "· AI analysis of grant calls",
+    "kompletF5": "· 150 AI analyses per month",
+    "footerNote": "Full pricing and plan comparison at"
   }
 }
