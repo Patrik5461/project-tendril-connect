@@ -35,9 +35,18 @@
   },
   "features": {
     "featureLabel": "Funkce {{n}}",
-    "matching": { "title": "Přesné párování", "text": "Klíčová slova a CPV kódy najdou jen relevantní zakázky." },
-    "regions": { "title": "Země a regiony", "text": "Vyberte země EU, které vás zajímají, případně konkrétní slovenské kraje." },
-    "notifications": { "title": "E-mailová upozornění", "text": "Zapněte si upozornění a nezmeškáte deadline." }
+    "matching": {
+      "title": "Přesné párování",
+      "text": "Klíčová slova a CPV kódy najdou jen relevantní zakázky."
+    },
+    "regions": {
+      "title": "Země a regiony",
+      "text": "Vyberte země EU, které vás zajímají, případně konkrétní slovenské kraje."
+    },
+    "notifications": {
+      "title": "E-mailová upozornění",
+      "text": "Zapněte si upozornění a nezmeškáte deadline."
+    }
   },
   "why": {
     "eyebrow": "Proč Tendrik",
@@ -113,5 +122,38 @@
     "description": "Tendrik vám každý den přinese veřejné zakázky a grantové výzvy přesně podle vašich klíčových slov, CPV kódů, krajů a typu žadatele. Zdarma.",
     "ogTitle": "Tendrik – zakázky a granty si vás najdou samy",
     "ogDescription": "Bezplatná služba, která spáruje veřejné zakázky a grantové výzvy s vaším odvětvím, regionem a typem žadatele."
+  },
+  "pricing": {
+    "eyebrow": "Ceník",
+    "title": "Tři plány.",
+    "titleHighlight": "30 dní zdarma na vyzkoušení.",
+    "note": "Konečné ceny – Tobify s. r. o. není plátcem DPH. Při roční platbě 2 měsíce zdarma.",
+    "perMonth": "/ měs",
+    "tryFree": "Vyzkoušet zdarma",
+    "details": "Detaily",
+    "badgeAi": "Obsahuje AI",
+    "badgeAll": "Zakázky i granty",
+    "basicEyebrow": "Základ",
+    "basicTitle": "Monitoring zakázek",
+    "basicF1": "· Neomezené radary a filtry",
+    "basicF2": "· Denní e-mailové digesty",
+    "basicF3": "· Připomínky před deadline",
+    "basicF4": "· TED, ÚVO, EKS a JOSEPHINE",
+    "basicF5": "— Bez AI a bez grantů",
+    "premiumEyebrow": "Prémium",
+    "premiumTitle": "Zakázky + AI analýza",
+    "premiumF1": "· Vše ze Základu",
+    "premiumF2": "· 30 AI analýz měsíčně",
+    "premiumF3": "· AI analýza zakázky a způsobilosti",
+    "premiumF4": "· AI návrh subdodávek a oslovení",
+    "premiumF5": "— Bez grantových výzev",
+    "kompletEyebrow": "Komplet",
+    "kompletTitle": "Zakázky + granty + AI",
+    "kompletF1": "· Vše z Prémia",
+    "kompletF2": "· Grantové výzvy a dotace",
+    "kompletF3": "· Radary a notifikace pro granty",
+    "kompletF4": "· AI analýza grantových výzev",
+    "kompletF5": "· 150 AI analýz měsíčně",
+    "footerNote": "Kompletní ceník a porovnání plánů na"
   }
 }

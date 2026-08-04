@@ -35,9 +35,18 @@
   },
   "features": {
     "featureLabel": "Funktion {{n}}",
-    "matching": { "title": "Präzises Matching", "text": "Schlüsselwörter und CPV-Codes zeigen nur relevante Ausschreibungen." },
-    "regions": { "title": "Länder und Regionen", "text": "Wählen Sie die EU-Länder, die Sie interessieren, oder bestimmte slowakische Regionen." },
-    "notifications": { "title": "E-Mail-Benachrichtigungen", "text": "Aktivieren Sie Alerts und verpassen Sie keine Frist mehr." }
+    "matching": {
+      "title": "Präzises Matching",
+      "text": "Schlüsselwörter und CPV-Codes zeigen nur relevante Ausschreibungen."
+    },
+    "regions": {
+      "title": "Länder und Regionen",
+      "text": "Wählen Sie die EU-Länder, die Sie interessieren, oder bestimmte slowakische Regionen."
+    },
+    "notifications": {
+      "title": "E-Mail-Benachrichtigungen",
+      "text": "Aktivieren Sie Alerts und verpassen Sie keine Frist mehr."
+    }
   },
   "why": {
     "eyebrow": "Warum Tendrik",
@@ -113,5 +122,38 @@
     "description": "Tendrik liefert Ihnen täglich öffentliche Ausschreibungen und Förderaufrufe passend zu Ihren Schlüsselwörtern, CPV-Codes, Regionen und dem Antragsstellertyp. Gratis.",
     "ogTitle": "Tendrik – Ausschreibungen und Förderungen finden Sie von selbst",
     "ogDescription": "Kostenloser Dienst, der öffentliche Ausschreibungen und Förderaufrufe mit Ihrer Branche, Region und dem Antragsstellertyp abgleicht."
+  },
+  "pricing": {
+    "eyebrow": "Preise",
+    "title": "Drei Tarife.",
+    "titleHighlight": "30 Tage kostenlos testen.",
+    "note": "Endpreise – Tobify s. r. o. ist kein Umsatzsteuerzahler. Bei jährlicher Zahlung 2 Monate gratis.",
+    "perMonth": "/ Mon.",
+    "tryFree": "Kostenlos testen",
+    "details": "Details",
+    "badgeAi": "Mit KI",
+    "badgeAll": "Aufträge und Förderungen",
+    "basicEyebrow": "Basis",
+    "basicTitle": "Auftragsmonitoring",
+    "basicF1": "· Unbegrenzte Radare und Filter",
+    "basicF2": "· Tägliche E-Mail-Digests",
+    "basicF3": "· Erinnerungen vor der Frist",
+    "basicF4": "· TED, ÚVO, EKS und JOSEPHINE",
+    "basicF5": "— Ohne KI und ohne Förderungen",
+    "premiumEyebrow": "Premium",
+    "premiumTitle": "Aufträge + KI-Analyse",
+    "premiumF1": "· Alles aus Basis",
+    "premiumF2": "· 30 KI-Analysen pro Monat",
+    "premiumF3": "· KI-Analyse des Auftrags und der Eignung",
+    "premiumF4": "· KI-Vorschlag für Subunternehmer und Anschreiben",
+    "premiumF5": "— Ohne Förderaufrufe",
+    "kompletEyebrow": "Komplett",
+    "kompletTitle": "Aufträge + Förderungen + KI",
+    "kompletF1": "· Alles aus Premium",
+    "kompletF2": "· Förderaufrufe und Zuschüsse",
+    "kompletF3": "· Radare und Benachrichtigungen für Förderungen",
+    "kompletF4": "· KI-Analyse von Förderaufrufen",
+    "kompletF5": "· 150 KI-Analysen pro Monat",
+    "footerNote": "Vollständige Preisliste und Tarifvergleich unter"
   }
 }
