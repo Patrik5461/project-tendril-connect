@@ -8,6 +8,7 @@ import {
   Loader2, Users, Search, Sparkles, Copy, CheckCircle2, Plus, X, RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   suggestSubcontracting, getSubcontracting, findSubcontractorCandidates,
   generateOutreach, saveSubcontractingSelections,
@@ -55,6 +56,7 @@ type Props = {
 };
 
 export function SubcontractingSection({ tenderId, defaultCity, isActive, analysisReady }: Props) {
+  const { t } = useTranslation("analysis");
   const runSuggest = useServerFn(suggestSubcontracting);
   const load = useServerFn(getSubcontracting);
   const findCandidates = useServerFn(findSubcontractorCandidates);
@@ -103,9 +105,9 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
         selections: (row as any).selections ?? [],
       });
       setCandidates({});
-      toast.success((row as any).cached ? "Načítané uložené návrhy" : "Návrhy pripravené");
+      toast.success((row as any).cached ? t("subcontracting.toastLoadedCached") : t("subcontracting.toastSuggestionsReady"));
     } catch (e: any) {
-      toast.error(e?.message ?? "Nepodarilo sa navrhnúť subdodávky");
+      toast.error(e?.message ?? t("subcontracting.toastSuggestFailed"));
     } finally {
       setRunning(false);
     }
@@ -121,7 +123,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
     const kw = (overrideKeyword ?? existing?.keyword ?? initialKeyword(item)).trim();
     const city = existing?.city ?? defaultCity ?? "";
     if (kw.length < 2) {
-      toast.error("Zadajte aspoň 2 znaky pre hľadaný pojem.");
+      toast.error(t("subcontracting.toastKeywordTooShort"));
       return;
     }
     setCandidates((c) => ({ ...c, [key]: { loading: true, items: [], city, keyword: kw } }));
@@ -143,7 +145,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
       }));
     } catch (e: any) {
       setCandidates((c) => ({ ...c, [key]: { loading: false, items: [], city, keyword: kw, note: e?.message, searched: true } }));
-      toast.error(e?.message ?? "Vyhľadávanie zlyhalo");
+      toast.error(e?.message ?? t("subcontracting.toastSearchFailed"));
     }
   }
 
@@ -162,7 +164,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
       co_dopyt: need.dovod,
     };
     setState((s) => ({ ...s, selections: [...s.selections, sel] }));
-    toast.success(c?.nazov ? `Pridané: ${c.nazov}` : `Pridané prázdne — doplňte firmu pre „${need.nazov}"`);
+    toast.success(c?.nazov ? t("subcontracting.toastAddedNamed", { name: c.nazov }) : t("subcontracting.toastAddedEmpty", { need: need.nazov }));
     scrollToSelections();
   }
 
@@ -177,7 +179,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
         email: "",
       }],
     }));
-    toast.success("Pridaný prázdny záznam – vyplňte údaje firmy nižšie.");
+    toast.success(t("subcontracting.toastAddedManual"));
     scrollToSelections();
   }
 
@@ -190,7 +192,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
 
   async function generate(sel: Selection) {
     if (!sel.need_nazov.trim() || !sel.nazov_firmy.trim() || !(sel.co_dopyt ?? "").trim()) {
-      toast.error("Vyplňte plnenie, firmu a špecifikáciu.");
+      toast.error(t("subcontracting.toastFillFields"));
       return;
     }
     updateSel(sel.key, { oslovenia: { neutralne: null, spolupraca: null } });
@@ -202,19 +204,19 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
         subcontractor_nazov: sel.nazov_firmy,
       } });
       updateSel(sel.key, { oslovenia: res, vybrana_verzia: sel.vybrana_verzia ?? "neutralne" });
-      toast.success("Oslovenia vygenerované");
+      toast.success(t("subcontracting.toastOutreachGenerated"));
     } catch (e: any) {
       updateSel(sel.key, { oslovenia: null });
-      toast.error(e?.message ?? "Generovanie zlyhalo");
+      toast.error(e?.message ?? t("subcontracting.toastOutreachFailed"));
     }
   }
 
   async function saveAll() {
     try {
       await saveSel({ data: { tender_id: tenderId, selections: state.selections } });
-      toast.success("Uložené");
+      toast.success(t("subcontracting.toastSaved"));
     } catch (e: any) {
-      toast.error(e?.message ?? "Uloženie zlyhalo");
+      toast.error(e?.message ?? t("subcontracting.toastSaveFailed"));
     }
   }
 
@@ -224,32 +226,31 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
     <div className="mt-12 border-t-2 border-foreground pt-6">
       <div className="flex items-center gap-2">
         <Users className="h-4 w-4 text-primary" />
-        <div className="eyebrow text-primary">Subdodávky a partneri</div>
+        <div className="eyebrow text-primary">{t("subcontracting.eyebrow")}</div>
       </div>
 
       {!state.loaded ? (
         <div className="mt-4 text-sm text-muted-foreground flex items-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin" /> Načítavam…
+          <Loader2 className="h-4 w-4 animate-spin" /> {t("subcontracting.loading")}
         </div>
       ) : state.suggested.length === 0 && !state.firma_zvladne_sama ? (
         <div className="mt-4 rounded-lg border border-border bg-card p-6">
-          <h3 className="font-display font-semibold text-lg">Čo potrebujete zabezpečiť</h3>
+          <h3 className="font-display font-semibold text-lg">{t("subcontracting.whatToSecureTitle")}</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            AI z podmienok zákazky a vášho profilu navrhne plnenia, na ktoré pravdepodobne
-            potrebujete subdodávateľa alebo partnera.
+            {t("subcontracting.whatToSecureBody")}
           </p>
           <Button className="mt-4" onClick={() => suggest(false)} disabled={running}>
             {running ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
-            Navrhnúť subdodávky
+            {t("subcontracting.suggestButton")}
           </Button>
         </div>
       ) : (
         <div className="mt-4 space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="font-display font-semibold">Čo potrebujete zabezpečiť</h3>
+            <h3 className="font-display font-semibold">{t("subcontracting.whatToSecureTitle")}</h3>
             <Button variant="outline" size="sm" onClick={() => suggest(true)} disabled={running}>
               {running ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-              Prepočítať
+              {t("subcontracting.recalculateButton")}
             </Button>
           </div>
 
@@ -258,7 +259,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 mt-0.5" />
                 <div>
-                  <div className="font-medium">Firma pravdepodobne zvládne všetko sama.</div>
+                  <div className="font-medium">{t("subcontracting.selfSufficientTitle")}</div>
                   {state.poznamka && <div className="mt-1 text-muted-foreground">{state.poznamka}</div>}
                 </div>
               </div>
@@ -277,45 +278,45 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
                     <div className="font-medium">{item.nazov}</div>
                     <div className="text-sm text-muted-foreground mt-1">{item.dovod}</div>
                     {item.nace_kod && (
-                      <div className="text-xs text-muted-foreground mt-2">SK-NACE: <code>{item.nace_kod}</code></div>
+                      <div className="text-xs text-muted-foreground mt-2">{t("subcontracting.naceLabel")} <code>{item.nace_kod}</code></div>
                     )}
                   </div>
                 </div>
 
                 <div className="mt-3 grid grid-cols-1 md:grid-cols-[2fr_1.5fr_auto] gap-2 items-end">
                   <div>
-                    <Label className="text-xs">Hľadaný pojem (upravte ak treba)</Label>
+                    <Label className="text-xs">{t("subcontracting.keywordLabel")}</Label>
                     <Input
                       value={currentKw}
                       onChange={(e) => setCandidates((s) => ({
                         ...s,
                         [key]: { ...(s[key] ?? { loading: false, items: [], city: defaultCity ?? "" }), keyword: e.target.value },
                       }))}
-                      placeholder="napr. záhradn, kosačk, elektroinštal"
+                      placeholder={t("subcontracting.keywordPlaceholder")}
                       className="h-9"
                     />
                   </div>
                   <div>
-                    <Label className="text-xs">Obec (voliteľné)</Label>
+                    <Label className="text-xs">{t("subcontracting.cityLabel")}</Label>
                     <Input
                       value={c?.city ?? defaultCity ?? ""}
                       onChange={(e) => setCandidates((s) => ({
                         ...s,
                         [key]: { ...(s[key] ?? { loading: false, items: [], keyword: currentKw }), city: e.target.value },
                       }))}
-                      placeholder="napr. Bratislava"
+                      placeholder={t("subcontracting.cityPlaceholder")}
                       className="h-9"
                     />
                   </div>
                   <Button size="sm" variant="secondary" onClick={() => searchFor(item, idx)} disabled={c?.loading}>
                     {c?.loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Search className="h-4 w-4 mr-2" />}
-                    Nájsť firmy
+                    {t("subcontracting.findCompaniesButton")}
                   </Button>
                 </div>
 
                 {alts.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-1.5 items-center">
-                    <span className="text-xs text-muted-foreground">Skúsiť aj:</span>
+                    <span className="text-xs text-muted-foreground">{t("subcontracting.tryAlsoLabel")}</span>
                     {alts.map((a, i) => (
                       <button
                         key={i}
@@ -334,13 +335,10 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
                     {c.items.length === 0 ? (
                       <div className="rounded border border-amber-500/40 bg-amber-500/5 p-3 text-sm space-y-2">
                         <p>
-                          Nenašli sme firmy podľa registrovanej činnosti (skúšané:{" "}
-                          {(c as any).tried ? (c as any).tried.join(", ") : currentKw}
-                          {c.dropped_city ? "; aj bez mesta" : ""}). Upravte hľadaný pojem vyššie a skúste znova, alebo pridajte vlastnú firmu.
+                          {t("subcontracting.noCompaniesFound", { tried: (c as any).tried ? (c as any).tried.join(", ") : currentKw, cityNote: c.dropped_city ? t("subcontracting.droppedCitySuffix") : "" })}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Tip: registrové činnosti bývajú formulované všeobecne. Použite krátky koreň slova
-                          (napr. „záhradn", „komunálna technika", „elektrikár") namiesto celej frázy.
+                          {t("subcontracting.tip")}
                         </p>
                       </div>
                     ) : (
@@ -352,14 +350,14 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
                               <div className="min-w-0">
                                 <div className="font-medium text-sm truncate">{cand.nazov ?? "—"}</div>
                                 <div className="text-xs text-muted-foreground">
-                                  IČO {cand.ico ?? "—"} · {cand.mesto ?? "—"} {cand.psc ? `(${cand.psc})` : ""}
+                                  {t("subcontracting.icoLabel", { ico: cand.ico ?? "—" })} · {cand.mesto ?? "—"} {cand.psc ? `(${cand.psc})` : ""}
                                 </div>
                                 {cand.hlavna_cinnost && (
                                   <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{cand.hlavna_cinnost}</div>
                                 )}
                               </div>
                               <Button size="sm" variant="outline" onClick={() => addSelection(item, cand)}>
-                                <Plus className="h-4 w-4 mr-1" /> Vybrať
+                                <Plus className="h-4 w-4 mr-1" /> {t("subcontracting.selectButton")}
                               </Button>
                             </li>
                           ))}
@@ -371,7 +369,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
 
                 <div className="mt-3">
                   <Button size="sm" variant="outline" onClick={() => addSelection(item)}>
-                    <Plus className="h-4 w-4 mr-1" /> Pridať vlastnú firmu pre toto plnenie
+                    <Plus className="h-4 w-4 mr-1" /> {t("subcontracting.addCustomButton")}
                   </Button>
                 </div>
               </div>
@@ -381,17 +379,17 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
           {/* Výber + oslovenia */}
           <div ref={selectionsRef} className="pt-4 border-t border-border scroll-mt-24">
             <div className="flex items-center justify-between">
-              <h3 className="font-display font-semibold">Vybraní subdodávatelia a oslovenia</h3>
+              <h3 className="font-display font-semibold">{t("subcontracting.selectedTitle")}</h3>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={addManual}>
-                  <Plus className="h-4 w-4 mr-1" /> Pridať vlastného
+                  <Plus className="h-4 w-4 mr-1" /> {t("subcontracting.addManualButton")}
                 </Button>
-                <Button size="sm" onClick={saveAll}>Uložiť</Button>
+                <Button size="sm" onClick={saveAll}>{t("subcontracting.saveButton")}</Button>
               </div>
             </div>
 
             {state.selections.length === 0 ? (
-              <p className="mt-3 text-sm text-muted-foreground">Zatiaľ nikto nie je vybraný.</p>
+              <p className="mt-3 text-sm text-muted-foreground">{t("subcontracting.noneSelected")}</p>
             ) : (
               <div className="mt-3 space-y-4">
                 {state.selections.map((sel) => (
@@ -408,8 +406,7 @@ export function SubcontractingSection({ tenderId, defaultCity, isActive, analysi
           </div>
 
           <p className="text-xs text-muted-foreground rounded border border-dashed border-border p-3">
-            Návrhy subdodávok aj firiem sú orientačné, generované AI z verejných registrov (RPO ŠÚ SR).
-            Overte si referencie, kapacitu a spoľahlivosť sami. Tendrik oslovenia neodosiela — pošlete ich z vlastnej pošty.
+            {t("subcontracting.footerDisclaimer")}
           </p>
         </div>
       )}
@@ -423,6 +420,7 @@ function SelectionCard({ sel, onChange, onRemove, onGenerate }: {
   onRemove: () => void;
   onGenerate: () => void;
 }) {
+  const { t } = useTranslation("analysis");
   const [copying, setCopying] = useState(false);
   const active = sel.vybrana_verzia ?? "neutralne";
   const version = sel.oslovenia?.[active];
@@ -442,45 +440,45 @@ function SelectionCard({ sel, onChange, onRemove, onGenerate }: {
       <div className="flex items-start justify-between gap-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
           <div>
-            <Label className="text-xs">Plnenie (čo dopytujeme)</Label>
+            <Label className="text-xs">{t("subcontracting.needLabel")}</Label>
             <Input value={sel.need_nazov} onChange={(e) => onChange({ need_nazov: e.target.value })} className="h-9" />
           </div>
           <div>
-            <Label className="text-xs">Názov firmy</Label>
+            <Label className="text-xs">{t("subcontracting.companyNameLabel")}</Label>
             <Input value={sel.nazov_firmy} onChange={(e) => onChange({ nazov_firmy: e.target.value })} className="h-9" />
           </div>
           <div>
-            <Label className="text-xs">Kontaktný e-mail (voliteľné)</Label>
-            <Input value={sel.email ?? ""} onChange={(e) => onChange({ email: e.target.value })} className="h-9" placeholder="pre vaše potreby, nikam sa neodosiela" />
+            <Label className="text-xs">{t("subcontracting.contactEmailLabel")}</Label>
+            <Input value={sel.email ?? ""} onChange={(e) => onChange({ email: e.target.value })} className="h-9" placeholder={t("subcontracting.contactEmailPlaceholder")} />
           </div>
           <div>
-            <Label className="text-xs">IČO (voliteľné)</Label>
+            <Label className="text-xs">{t("subcontracting.icoOptionalLabel")}</Label>
             <Input value={sel.ico ?? ""} onChange={(e) => onChange({ ico: e.target.value })} className="h-9" />
           </div>
           <div className="md:col-span-2">
-            <Label className="text-xs">Špecifikácia – čo od nich chcete</Label>
+            <Label className="text-xs">{t("subcontracting.specificationLabel")}</Label>
             <Textarea value={sel.co_dopyt ?? ""} onChange={(e) => onChange({ co_dopyt: e.target.value })} rows={2} />
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onRemove} aria-label="Odstrániť">
+        <Button variant="ghost" size="icon" onClick={onRemove} aria-label={t("subcontracting.removeAria")}>
           <X className="h-4 w-4" />
         </Button>
       </div>
 
       <div className="mt-3 flex items-center gap-2 flex-wrap">
         <Button size="sm" onClick={onGenerate}>
-          <Sparkles className="h-4 w-4 mr-2" /> {sel.oslovenia ? "Vygenerovať znova" : "Vygenerovať oslovenie"}
+          <Sparkles className="h-4 w-4 mr-2" /> {sel.oslovenia ? t("subcontracting.regenerateButton") : t("subcontracting.generateButton")}
         </Button>
         {sel.oslovenia && (sel.oslovenia.neutralne || sel.oslovenia.spolupraca) && (
           <div className="flex rounded border border-border overflow-hidden text-xs">
             <button
               className={`px-3 py-1.5 ${active === "neutralne" ? "bg-primary text-primary-foreground" : "bg-card"}`}
               onClick={() => onChange({ vybrana_verzia: "neutralne" })}
-            >Neutrálny dopyt</button>
+            >{t("subcontracting.neutralTab")}</button>
             <button
               className={`px-3 py-1.5 ${active === "spolupraca" ? "bg-primary text-primary-foreground" : "bg-card"}`}
               onClick={() => onChange({ vybrana_verzia: "spolupraca" })}
-            >Dopyt + spolupráca</button>
+            >{t("subcontracting.cooperationTab")}</button>
           </div>
         )}
       </div>
@@ -488,7 +486,7 @@ function SelectionCard({ sel, onChange, onRemove, onGenerate }: {
       {version && (
         <div className="mt-3 space-y-2">
           <div>
-            <Label className="text-xs">Predmet</Label>
+            <Label className="text-xs">{t("subcontracting.subjectLabel")}</Label>
             <Input value={version.predmet} onChange={(e) => {
               const next = { ...sel.oslovenia! };
               (next as any)[active] = { ...(next as any)[active], predmet: e.target.value };
@@ -496,7 +494,7 @@ function SelectionCard({ sel, onChange, onRemove, onGenerate }: {
             }} className="h-9" />
           </div>
           <div>
-            <Label className="text-xs">Text e-mailu</Label>
+            <Label className="text-xs">{t("subcontracting.emailTextLabel")}</Label>
             <Textarea rows={10} value={version.telo} onChange={(e) => {
               const next = { ...sel.oslovenia! };
               (next as any)[active] = { ...(next as any)[active], telo: e.target.value };
@@ -505,7 +503,7 @@ function SelectionCard({ sel, onChange, onRemove, onGenerate }: {
           </div>
           <div>
             <Button size="sm" variant="outline" onClick={copyEmail}>
-              <Copy className="h-4 w-4 mr-2" /> {copying ? "Skopírované" : "Kopírovať predmet + text"}
+              <Copy className="h-4 w-4 mr-2" /> {copying ? t("subcontracting.copiedButton") : t("subcontracting.copyButton")}
             </Button>
           </div>
         </div>

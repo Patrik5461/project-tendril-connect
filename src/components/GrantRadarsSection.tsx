@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
 import { REGIONS } from "@/lib/slovakia";
+import { useTranslation } from "react-i18next";
 import { trackConversion } from "@/lib/analytics";
 import {
   CATEGORY_LABEL,
@@ -34,6 +35,7 @@ const CATEGORIES: ApplicantCategory[] = ["podnikatelia", "verejny", "neziskovky"
 const table = () => supabase.from("user_grant_radars");
 
 export default function GrantRadarsSection({ userId }: { userId: string | null }) {
+  const { t } = useTranslation("account");
   const [list, setList] = useState<GrantRadar[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -62,7 +64,7 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
 
   async function addRadar() {
     if (!userId) return;
-    const name = `Grantový radar ${list.length + 1}`;
+    const name = t("grantRadars.defaultName", { n: list.length + 1 });
     const applicant = defaultCategory ? [defaultCategory] : [];
     const { data, error } = await table()
       .insert({
@@ -95,7 +97,7 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
   }
 
   async function deleteRadar(id: string) {
-    if (!confirm("Naozaj zmazať tento grantový radar?")) return;
+    if (!confirm(t("grantRadars.confirmDelete"))) return;
     const prev = list;
     setList(list.filter((r) => r.id !== id));
     const { error } = await table().delete().eq("id", id);
@@ -103,7 +105,7 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
       toast.error(error.message);
       setList(prev);
     } else {
-      toast.success("Radar zmazaný");
+      toast.success(t("grantRadars.deleted"));
     }
   }
 
@@ -116,20 +118,19 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
     });
   }
 
-  if (loading) return <div className="text-muted-foreground">Načítavam...</div>;
+  if (loading) return <div className="text-muted-foreground">{t("settings.loading")}</div>;
 
   return (
     <section>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display font-semibold text-xl tracking-tight">Radary na granty</h2>
+          <h2 className="font-display font-semibold text-xl tracking-tight">{t("grantRadars.heading")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Monitoring grantových výziev z ITMS21+. Nová zhoda príde e-mailom; deadline reminder
-            len pri one-shot výzvach. Dostupné v Základe aj Prémium.
+            {t("grantRadars.description")}
           </p>
         </div>
         <Button size="sm" onClick={addRadar}>
-          <Plus className="h-4 w-4 mr-1" /> Pridať grantový radar
+          <Plus className="h-4 w-4 mr-1" /> {t("grantRadars.add")}
         </Button>
       </div>
 
@@ -147,11 +148,13 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
         ))}
         {list.length === 0 && (
           <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-            Zatiaľ nemáte žiadny grantový radar. Pridajte prvý.
+            {t("grantRadars.empty")}
             {defaultCategory && (
-              <div className="mt-2 text-xs">
-                Automaticky predvyplníme typ žiadateľa podľa profilu: <b>{CATEGORY_LABEL[defaultCategory]}</b>.
-              </div>
+              <div className="mt-2 text-xs"
+                dangerouslySetInnerHTML={{
+                  __html: t("grantRadars.autoFillCategory", { category: CATEGORY_LABEL[defaultCategory] }),
+                }}
+              />
             )}
           </div>
         )}
