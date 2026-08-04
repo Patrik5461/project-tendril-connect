@@ -13,6 +13,8 @@ import {
 import { differenceInDays, format, parseISO } from "date-fns";
 import { flagEmoji, countryName } from "@/lib/eu-countries";
 import { TenderAnalysisSection } from "@/components/TenderAnalysisSection";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n/config";
 
 type Tender = {
   id: string;
@@ -39,10 +41,11 @@ export const Route = createFileRoute("/zakazka/$id")({
   component: TenderDetail,
   errorComponent: ({ error, reset }) => {
     const router = useRouter();
+    const { t } = useTranslation("app");
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <h1 className="font-display text-2xl font-semibold">
-          Nepodarilo sa načítať zákazku
+          {t("tenderDetail.loadError.title")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
         <Button
@@ -52,27 +55,31 @@ export const Route = createFileRoute("/zakazka/$id")({
             reset();
           }}
         >
-          Skúsiť znova
+          {t("tenderDetail.loadError.retry")}
         </Button>
       </div>
     );
   },
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-      <h1 className="font-display text-2xl font-semibold">Zákazka neexistuje</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Túto zákazku sa nám nepodarilo nájsť.
-      </p>
-      <Link to="/dashboard" className="mt-6 inline-block">
-        <Button>
-          <ArrowLeft className="h-4 w-4 mr-2" /> Späť na zákazky
-        </Button>
-      </Link>
-    </div>
-  ),
+  notFoundComponent: () => {
+    const { t } = useTranslation("app");
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <h1 className="font-display text-2xl font-semibold">{t("tenderDetail.notFound.title")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("tenderDetail.notFound.description")}
+        </p>
+        <Link to="/dashboard" className="mt-6 inline-block">
+          <Button>
+            <ArrowLeft className="h-4 w-4 mr-2" /> {t("tenderDetail.notFound.back")}
+          </Button>
+        </Link>
+      </div>
+    );
+  },
 });
 
 function TenderDetail() {
+  const { t } = useTranslation("app");
   const { id } = Route.useParams();
   const [tender, setTender] = useState<Tender | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,7 +100,7 @@ function TenderDetail() {
   if (loading) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-12 text-muted-foreground">
-        Načítavam…
+        {t("common.loadingEllipsis")}
       </div>
     );
   }
@@ -101,13 +108,13 @@ function TenderDetail() {
   if (!tender) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="font-display text-2xl font-semibold">Zákazka neexistuje</h1>
+        <h1 className="font-display text-2xl font-semibold">{t("tenderDetail.notFound.title")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Túto zákazku sa nám nepodarilo nájsť.
+          {t("tenderDetail.notFound.description")}
         </p>
         <Link to="/dashboard" className="mt-6 inline-block">
           <Button variant="outline">
-            <ArrowLeft className="h-4 w-4 mr-2" /> Späť na zákazky
+            <ArrowLeft className="h-4 w-4 mr-2" /> {t("tenderDetail.notFound.back")}
           </Button>
         </Link>
       </div>
@@ -130,12 +137,12 @@ function TenderDetail() {
         ? "border border-primary text-primary"
         : "border border-accent text-accent";
   const sourceTitle = isJos
-    ? "JOSEPHINE (proEBIZ)"
+    ? t("tenderDetail.sourceTitle.josephine")
     : isEks
-      ? "Elektronický kontraktačný systém (EKS)"
+      ? t("tenderDetail.sourceTitle.eks")
       : isUvo
-        ? "Vestník verejného obstarávania ÚVO"
-        : "Tenders Electronic Daily (EÚ)";
+        ? t("tenderDetail.sourceTitle.uvo")
+        : t("tenderDetail.sourceTitle.ted");
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
@@ -143,7 +150,7 @@ function TenderDetail() {
         to={authed ? "/dashboard" : "/"}
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="h-4 w-4" /> Späť
+        <ArrowLeft className="h-4 w-4" /> {t("tenderDetail.back")}
       </Link>
 
       <div className="mt-6 flex items-center gap-3 flex-wrap">
@@ -156,7 +163,7 @@ function TenderDetail() {
         {daysLeft !== null && (
           daysLeft < 0 ? (
             <span className="eyebrow inline-flex items-center border border-border bg-secondary px-2 py-0.5 text-muted-foreground">
-              Po termíne
+              {t("tenderDetail.overdue")}
             </span>
           ) : (
             <span
@@ -167,8 +174,8 @@ function TenderDetail() {
               }`}
             >
               {daysLeft === 0
-                ? "Posledný deň"
-                : `${daysLeft} ${daysLeft === 1 ? "deň" : daysLeft < 5 ? "dni" : "dní"}`}
+                ? t("tenderDetail.lastDay")
+                : t("tenderDetail.daysLeft", { count: daysLeft })}
             </span>
           )
         )}
@@ -185,7 +192,7 @@ function TenderDetail() {
 
       {tender.estimated_value != null && (
         <div className="mt-8 border-t-2 border-foreground border-b border-border py-5">
-          <div className="eyebrow text-muted-foreground">Predpokladaná hodnota</div>
+          <div className="eyebrow text-muted-foreground">{t("tenderDetail.estimatedValue")}</div>
           <div className="num mt-1 text-4xl md:text-5xl font-bold text-primary leading-tight">
             {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
               .format(Number(tender.estimated_value))
@@ -198,7 +205,7 @@ function TenderDetail() {
       <dl className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8 border-t border-border pt-6">
         <Field
           icon={<Calendar className="h-4 w-4" />}
-          label="Deadline"
+          label={t("tenderDetail.fields.deadline")}
           value={
             deadlineDate ? (
               <>
@@ -214,53 +221,53 @@ function TenderDetail() {
                     }`}
                   >
                     {daysLeft < 0
-                      ? "po termíne"
+                      ? t("tenderDetail.fields.deadlineOverdue")
                       : daysLeft === 0
-                        ? "posledný deň"
-                        : `zostáva ${daysLeft} dní`}
+                        ? t("tenderDetail.fields.deadlineLastDay")
+                        : t("tenderDetail.fields.deadlineRemaining", { count: daysLeft })}
                   </span>
                 )}
               </>
             ) : (
-              "Neurčené"
+              t("tenderDetail.fields.noDeadline")
             )
           }
         />
         <Field
           icon={<Calendar className="h-4 w-4" />}
-          label="Zverejnené"
+          label={t("tenderDetail.fields.published")}
           value={
             tender.published_at ? (
               <span className="num">
                 {format(parseISO(tender.published_at), "d.M.yyyy")}
               </span>
             ) : (
-              "—"
+              t("tenderDetail.fields.none")
             )
           }
         />
         <Field
           icon={<MapPin className="h-4 w-4" />}
-          label="Krajina"
+          label={t("tenderDetail.fields.country")}
           value={
             tender.country
               ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}${tender.country === "SK" && tender.region ? ` · ${tender.region}` : ""}`
-              : (tender.region ?? "—")
+              : (tender.region ?? t("tenderDetail.fields.none"))
           }
         />
         <Field
           icon={<Tag className="h-4 w-4" />}
-          label="CPV"
+          label={t("tenderDetail.fields.cpv")}
           value={
             tender.cpv_code ? (
               <span className="font-mono text-sm">
                 {tender.cpv_code}
                 <span className="ml-1 text-muted-foreground">
-                  · {cpvCategory(tender.cpv_code)}
+                  · {cpvCategory(tender.cpv_code, t)}
                 </span>
               </span>
             ) : (
-              "—"
+              t("tenderDetail.fields.none")
             )
           }
         />
@@ -269,7 +276,7 @@ function TenderDetail() {
       {tender.ai_summary && (
         <div className="mt-10 border-t border-border pt-6">
           <div className="flex items-center gap-2">
-            <div className="eyebrow text-primary">Zhrnutie</div>
+            <div className="eyebrow text-primary">{t("tenderDetail.aiSummary.label")}</div>
             <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border border-border px-1.5 py-0.5">
               AI
             </span>
@@ -278,14 +285,14 @@ function TenderDetail() {
             {tender.ai_summary}
           </p>
           <p className="mt-2 text-xs text-muted-foreground">
-            Vygenerované AI – overte si detaily v oficiálnom zdroji.
+            {t("tenderDetail.aiSummary.disclaimer")}
           </p>
         </div>
       )}
 
       {tender.description && (
         <div className="mt-10 border-t border-border pt-6">
-          <div className="eyebrow text-muted-foreground">Popis zákazky</div>
+          <div className="eyebrow text-muted-foreground">{t("tenderDetail.description")}</div>
           <p className="mt-3 whitespace-pre-line text-foreground/90 leading-relaxed">
             {tender.description}
           </p>
@@ -305,14 +312,14 @@ function TenderDetail() {
         {tender.source_url && (
           <a href={tender.source_url} target="_blank" rel="noopener noreferrer">
             <Button>
-              Otvoriť oficiálny zdroj{" "}
+              {t("tenderDetail.openSource")}{" "}
               <ExternalLink className="h-4 w-4 ml-2" />
             </Button>
           </a>
         )}
         <Link to={authed ? "/dashboard" : "/"}>
           <Button variant="outline">
-            <ArrowLeft className="h-4 w-4 mr-2" /> Späť na zákazky
+            <ArrowLeft className="h-4 w-4 mr-2" /> {t("tenderDetail.backToTenders")}
           </Button>
         </Link>
       </div>
@@ -322,17 +329,17 @@ function TenderDetail() {
           <div>
             <div className="eyebrow flex items-center text-foreground">
               <span className="red-square" aria-hidden="true" />
-              Bezplatná služba
+              {t("tenderDetail.cta.badge")}
             </div>
             <p className="mt-2 font-display font-bold text-xl text-foreground">
-              Zaregistruj sa a dostávaj takéto zákazky e-mailom
+              {t("tenderDetail.cta.title")}
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Nastav si kľúčové slová, CPV kategórie a kraje.
+              {t("tenderDetail.cta.description")}
             </p>
           </div>
           <Link to="/auth">
-            <Button size="lg">Začať zadarmo</Button>
+            <Button size="lg">{t("tenderDetail.cta.button")}</Button>
           </Link>
         </div>
       )}

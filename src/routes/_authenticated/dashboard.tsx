@@ -344,7 +344,7 @@ function Dashboard() {
             count: Number(r.cnt),
             label:
               r.country === "XX"
-                ? "neznáma krajina"
+                ? t("dashboard.country.unknown")
                 : (countryName(r.country) ?? r.country),
           })),
         );
@@ -389,7 +389,7 @@ function Dashboard() {
           count: Number(r.cnt),
           label:
             r.country === "XX"
-              ? "neznáma krajina"
+              ? t("dashboard.country.unknown")
               : (countryName(r.country) ?? r.country),
         })),
       );
@@ -636,20 +636,19 @@ function Dashboard() {
 
 
   if (loading) {
-    return <div className="mx-auto max-w-6xl px-4 py-8 text-muted-foreground">Načítavam...</div>;
+    return <div className="mx-auto max-w-6xl px-4 py-8 text-muted-foreground">{t("common.loading")}</div>;
   }
 
   const hasAnyRadar = userRadars.length > 0;
   if (!prefs?.onboarding_completed || !hasAnyRadar) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">Ešte ste nenastavili radar</h1>
+        <h1 className="text-2xl font-semibold">{t("dashboard.noRadar.title")}</h1>
         <p className="mt-2 text-muted-foreground">
-          Aby sme vám ukázali relevantné zákazky, potrebujeme vaše kľúčové slová, CPV kategórie a
-          kraje.
+          {t("dashboard.noRadar.description")}
         </p>
         <Link to="/onboarding" className="mt-6 inline-block">
-          <Button size="lg">Nastaviť radar</Button>
+          <Button size="lg">{t("dashboard.noRadar.cta")}</Button>
         </Link>
       </div>
     );
@@ -666,21 +665,23 @@ function Dashboard() {
 
       <div className="flex items-baseline justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Vaše zákazky</h1>
+          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{t("dashboard.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Aktuálne verejné zákazky z TED, ÚVO, EKS a JOSEPHINE podľa vašich radarov.
+            {t("dashboard.subtitle")}
           </p>
         </div>
         <div className="text-sm text-muted-foreground">
           {totalCount === 0 ? (
-            "Žiadne zákazky pre aktuálne filtre."
+            t("dashboard.resultsCount.none")
           ) : (
             <>
               <span className="num font-semibold text-foreground">
                 {pageStart + 1}–{pageEnd}
               </span>{" "}
-              z <span className="num font-semibold text-foreground">{totalCount}</span>{" "}
-              {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
+              {t("dashboard.resultsCount.showing", {
+                total: totalCount,
+                tabWord: t(`dashboard.tabWord.${tab}`),
+              })}
             </>
           )}
         </div>
@@ -703,9 +704,9 @@ function Dashboard() {
             }
           >
             <TabsList>
-              <TabsTrigger value="foryou">Pre vás</TabsTrigger>
-              <TabsTrigger value="saved">Uložené</TabsTrigger>
-              <TabsTrigger value="hidden">Skryté</TabsTrigger>
+              <TabsTrigger value="foryou">{t("dashboard.tabs.foryou")}</TabsTrigger>
+              <TabsTrigger value="saved">{t("dashboard.tabs.saved")}</TabsTrigger>
+              <TabsTrigger value="hidden">{t("dashboard.tabs.hidden")}</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -718,13 +719,13 @@ function Dashboard() {
                 })
               }
             >
-              <SelectTrigger className="w-28" aria-label="Počet na stránku">
+              <SelectTrigger className="w-28" aria-label={t("dashboard.perPageAriaLabel")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {PAGE_SIZE_OPTIONS.map((n) => (
                   <SelectItem key={n} value={String(n)}>
-                    {n} / str.
+                    {t("dashboard.perPageOption", { count: n })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -748,11 +749,11 @@ function Dashboard() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Všetky radary</SelectItem>
+                <SelectItem value="all">{t("dashboard.filters.allRadars")}</SelectItem>
                 {userRadars.map((r) => (
                   <SelectItem key={r.id} value={r.id}>
                     {r.name}
-                    {!r.active ? " (vypnutý)" : ""}
+                    {!r.active ? t("dashboard.filters.inactiveSuffix") : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -761,7 +762,7 @@ function Dashboard() {
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Hľadať v zákazkach..."
+              placeholder={t("dashboard.filters.searchPlaceholder")}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="pl-8 w-full"
@@ -793,11 +794,11 @@ function Dashboard() {
               })
             }
           >
-            <SelectTrigger className="w-full" aria-label="Zdroj">
+            <SelectTrigger className="w-full" aria-label={t("dashboard.filters.sourceAriaLabel")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Všetky zdroje</SelectItem>
+              <SelectItem value="all">{t("dashboard.filters.allSources")}</SelectItem>
               <SelectItem value="TED">TED</SelectItem>
               <SelectItem value="UVO">ÚVO</SelectItem>
               <SelectItem value="EKS">EKS</SelectItem>
@@ -820,10 +821,10 @@ function Dashboard() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="deadline">Najbližší deadline</SelectItem>
-              <SelectItem value="newest">Najnovšie</SelectItem>
-              <SelectItem value="value">Najvyššia hodnota</SelectItem>
-              <SelectItem value="value_asc">Najnižšia hodnota</SelectItem>
+              <SelectItem value="deadline">{t("dashboard.sort.deadline")}</SelectItem>
+              <SelectItem value="newest">{t("dashboard.sort.newest")}</SelectItem>
+              <SelectItem value="value">{t("dashboard.sort.value")}</SelectItem>
+              <SelectItem value="value_asc">{t("dashboard.sort.valueAsc")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
