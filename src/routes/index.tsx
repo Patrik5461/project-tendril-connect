@@ -407,89 +407,89 @@ function Landing() {
       <section id="cennik" className="mx-auto max-w-6xl px-4 py-16 md:py-20">
         <div className="eyebrow flex items-center text-foreground">
           <span className="red-square" aria-hidden="true" />
-          Cenník
+          {t("pricing.eyebrow")}
         </div>
         <div className="mt-5 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
           <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight">
-            Tri plány. <span className="hero-underline">30 dní zdarma na vyskúšanie.</span>
+            {t("pricing.title")} <span className="hero-underline">{t("pricing.titleHighlight")}</span>
           </h2>
           <p className="text-sm text-muted-foreground md:max-w-sm">
-            Konečné ceny – Tobify s. r. o. nie je platca DPH. Pri ročnej platbe 2 mesiace zdarma.
+            {t("pricing.note")}
           </p>
         </div>
 
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           <div className="rounded-lg border-2 border-foreground bg-card p-6 flex flex-col">
-            <div className="eyebrow">Základ</div>
-            <h3 className="mt-2 font-display text-2xl font-bold">Monitoring zákaziek</h3>
+            <div className="eyebrow">{t("pricing.basicEyebrow")}</div>
+            <h3 className="mt-2 font-display text-2xl font-bold">{t("pricing.basicTitle")}</h3>
             <p className="mt-4 num text-4xl font-bold">
-              4,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span>
+              4,99 € <span className="text-base font-medium text-muted-foreground">{t("pricing.perMonth")}</span>
             </p>
             <ul className="mt-5 space-y-1.5 text-sm flex-1">
-              <li>· Neobmedzené radary a filtre</li>
-              <li>· Denné e-mailové digesty</li>
-              <li>· Pripomienky pred deadline</li>
-              <li>· TED, ÚVO, EKS a JOSEPHINE</li>
-              <li className="text-muted-foreground">— Bez AI a bez grantov</li>
+              <li>{t("pricing.basicF1")}</li>
+              <li>{t("pricing.basicF2")}</li>
+              <li>{t("pricing.basicF3")}</li>
+              <li>{t("pricing.basicF4")}</li>
+              <li className="text-muted-foreground">{t("pricing.basicF5")}</li>
             </ul>
             <div className="mt-6 flex gap-2">
               <Link to="/auth" search={{ mode: "signup" }} className="flex-1">
-                <Button variant="outline" className="w-full">Vyskúšať zdarma</Button>
+                <Button variant="outline" className="w-full">{t("pricing.tryFree")}</Button>
               </Link>
               <Link to="/cennik">
-                <Button variant="ghost">Detaily</Button>
+                <Button variant="ghost">{t("pricing.details")}</Button>
               </Link>
             </div>
           </div>
 
           <div className="rounded-lg border-2 border-primary bg-primary/5 p-6 relative flex flex-col">
             <span className="absolute -top-3 left-4 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wider px-2 py-0.5">
-              Obsahuje AI
+              {t("pricing.badgeAi")}
             </span>
-            <div className="eyebrow text-primary">Prémium</div>
-            <h3 className="mt-2 font-display text-2xl font-bold">Zákazky + AI analýza</h3>
+            <div className="eyebrow text-primary">{t("pricing.premiumEyebrow")}</div>
+            <h3 className="mt-2 font-display text-2xl font-bold">{t("pricing.premiumTitle")}</h3>
             <p className="mt-4 num text-4xl font-bold">
-              14,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span>
+              14,99 € <span className="text-base font-medium text-muted-foreground">{t("pricing.perMonth")}</span>
             </p>
             <ul className="mt-5 space-y-1.5 text-sm flex-1">
-              <li>· Všetko zo Základu</li>
-              <li>· 30 AI analýz mesačne</li>
-              <li>· AI analýza zákazky a spôsobilosti</li>
-              <li>· AI návrh subdodávok a oslovení</li>
-              <li className="text-muted-foreground">— Bez grantových výziev</li>
+              <li>{t("pricing.premiumF1")}</li>
+              <li>{t("pricing.premiumF2")}</li>
+              <li>{t("pricing.premiumF3")}</li>
+              <li>{t("pricing.premiumF4")}</li>
+              <li className="text-muted-foreground">{t("pricing.premiumF5")}</li>
             </ul>
             <div className="mt-6 flex gap-2">
               <Link to="/auth" search={{ mode: "signup" }} className="flex-1">
-                <Button className="w-full">Vyskúšať zdarma</Button>
+                <Button className="w-full">{t("pricing.tryFree")}</Button>
               </Link>
               <Link to="/cennik">
-                <Button variant="ghost">Detaily</Button>
+                <Button variant="ghost">{t("pricing.details")}</Button>
               </Link>
             </div>
           </div>
 
           <div className="rounded-lg border-2 border-foreground bg-card p-6 relative flex flex-col">
             <span className="absolute -top-3 left-4 bg-foreground text-background text-xs font-semibold uppercase tracking-wider px-2 py-0.5">
-              Zákazky aj granty
+              {t("pricing.badgeAll")}
             </span>
-            <div className="eyebrow">Komplet</div>
-            <h3 className="mt-2 font-display text-2xl font-bold">Zákazky + granty + AI</h3>
+            <div className="eyebrow">{t("pricing.kompletEyebrow")}</div>
+            <h3 className="mt-2 font-display text-2xl font-bold">{t("pricing.kompletTitle")}</h3>
             <p className="mt-4 num text-4xl font-bold">
-              24,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span>
+              24,99 € <span className="text-base font-medium text-muted-foreground">{t("pricing.perMonth")}</span>
             </p>
             <ul className="mt-5 space-y-1.5 text-sm flex-1">
-              <li>· Všetko z Prémia</li>
-              <li>· Grantové výzvy a dotácie</li>
-              <li>· Radary a notifikácie pre granty</li>
-              <li>· AI analýza grantových výziev</li>
-              <li>· 150 AI analýz mesačne</li>
+              <li>{t("pricing.kompletF1")}</li>
+              <li>{t("pricing.kompletF2")}</li>
+              <li>{t("pricing.kompletF3")}</li>
+              <li>{t("pricing.kompletF4")}</li>
+              <li>{t("pricing.kompletF5")}</li>
             </ul>
             <div className="mt-6 flex gap-2">
               <Link to="/auth" search={{ mode: "signup" }} className="flex-1">
-                <Button variant="outline" className="w-full">Vyskúšať zdarma</Button>
+                <Button variant="outline" className="w-full">{t("pricing.tryFree")}</Button>
               </Link>
               <Link to="/cennik">
-                <Button variant="ghost">Detaily</Button>
+                <Button variant="ghost">{t("pricing.details")}</Button>
               </Link>
             </div>
           </div>
@@ -497,7 +497,7 @@ function Landing() {
 
 
         <p className="mt-6 text-sm text-muted-foreground">
-          Kompletný cenník a porovnanie plánov na <Link to="/cennik" className="underline text-foreground">/cennik</Link>.
+          {t("pricing.footerNote")} <Link to="/cennik" className="underline text-foreground">/cennik</Link>.
         </p>
       </section>
 
