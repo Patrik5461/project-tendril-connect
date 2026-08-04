@@ -14,7 +14,6 @@ import { differenceInDays, format, parseISO } from "date-fns";
 import { flagEmoji, countryName } from "@/lib/eu-countries";
 import { TenderAnalysisSection } from "@/components/TenderAnalysisSection";
 import { useTranslation } from "react-i18next";
-import i18n from "@/i18n/config";
 
 type Tender = {
   id: string;
@@ -367,7 +366,7 @@ function Field({
   );
 }
 
-function cpvCategory(code: string): string {
+function cpvCategory(code: string, t: (key: string, opts?: any) => string): string {
   const map: Record<string, string> = {
     "03": "Poľnohospodárske produkty",
     "09": "Ropa, palivá, elektrina",
@@ -411,5 +410,7 @@ function cpvCategory(code: string): string {
     "92": "Rekreácia, kultúra, šport",
     "98": "Iné komunálne, sociálne a osobné služby",
   };
-  return map[code.slice(0, 2)] ?? "Iné";
+  const key = code.slice(0, 2);
+  const fallback = map[key] ?? t("tenderDetail.cpvOther");
+  return t(`tenderDetail.cpvCategories.${key}`, { defaultValue: fallback });
 }

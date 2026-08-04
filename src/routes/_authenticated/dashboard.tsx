@@ -906,7 +906,7 @@ function Dashboard() {
 }
 
 function TrialBanner({ daysLeft, isEndingSoon }: { daysLeft: number; isEndingSoon: boolean }) {
-  const dayWord = daysLeft === 1 ? "deň" : daysLeft >= 2 && daysLeft <= 4 ? "dni" : "dní";
+  const { t } = useTranslation("app");
   return (
     <div
       className={`mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-md border px-4 py-3 text-sm ${
@@ -918,17 +918,17 @@ function TrialBanner({ daysLeft, isEndingSoon }: { daysLeft: number; isEndingSoo
       <div className="flex items-center gap-2">
         <Sparkles className={`h-4 w-4 ${isEndingSoon ? "text-primary" : "text-muted-foreground"}`} />
         <span>
-          Skúšobné obdobie:{" "}
+          {t("dashboard.trialBanner.label")}{" "}
           <b className="num text-foreground">
-            zostáva {daysLeft} {dayWord}
+            {t("dashboard.trialBanner.remaining", { count: daysLeft })}
           </b>
-          {isEndingSoon && " – potom Tendrik prejde na predplatné."}
+          {isEndingSoon && t("dashboard.trialBanner.endingSoon")}
         </span>
       </div>
       <WebOnlyPurchase>
         <Link to="/predplatne">
           <Button size="sm" variant={isEndingSoon ? "default" : "outline"}>
-            Aktivovať predplatné za {formatEurPrice(MONTHLY_PRICE_EUR)}/mes
+            {t("dashboard.trialBanner.cta", { price: formatEurPrice(MONTHLY_PRICE_EUR) })}
           </Button>
         </Link>
       </WebOnlyPurchase>
@@ -938,18 +938,19 @@ function TrialBanner({ daysLeft, isEndingSoon }: { daysLeft: number; isEndingSoo
 }
 
 function ExpiredBanner() {
+  const { t } = useTranslation("app");
   return (
     <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-md border-2 border-primary bg-primary/10 px-4 py-3 text-sm">
       <div className="flex items-center gap-2">
         <Lock className="h-4 w-4 text-primary" />
         <span>
-          <b>Vaše skúšobné obdobie skončilo.</b> Pokračujte za{" "}
-          {formatEurPrice(MONTHLY_PRICE_EUR)}/mesiac.
+          <b>{t("dashboard.expiredBanner.title")}</b>{" "}
+          {t("dashboard.expiredBanner.text", { price: formatEurPrice(MONTHLY_PRICE_EUR) })}
         </span>
       </div>
       <WebOnlyPurchase>
         <Link to="/predplatne">
-          <Button size="sm">Aktivovať predplatné</Button>
+          <Button size="sm">{t("dashboard.expiredBanner.cta")}</Button>
         </Link>
       </WebOnlyPurchase>
 
@@ -958,20 +959,16 @@ function ExpiredBanner() {
 }
 
 function LockedOverlay() {
+  const { t } = useTranslation("app");
   return (
     <div className="absolute inset-x-0 top-0 z-10 flex justify-center pt-12 pointer-events-none">
       <div className="pointer-events-auto max-w-md rounded-lg border-2 border-foreground bg-card p-8 text-center shadow-lg">
         <Lock className="mx-auto h-8 w-8 text-primary" />
         <h2 className="mt-4 font-display text-2xl font-bold">
-          Skúšobné obdobie skončilo
+          {t("dashboard.lockedOverlay.title")}
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          Ak chcete ďalej dostávať upozornenia a vidieť denné zákazky,
-          aktivujte si predplatné za{" "}
-          <b className="text-foreground">
-            {formatEurPrice(MONTHLY_PRICE_EUR)}/mesiac
-          </b>
-          . Bez záväzkov, kedykoľvek zrušíte.
+          {t("dashboard.lockedOverlay.description", { price: formatEurPrice(MONTHLY_PRICE_EUR) })}
         </p>
         <WebOnlyPurchase className="mt-6 block">
           <Link to="/predplatne" className="mt-6 inline-block">
