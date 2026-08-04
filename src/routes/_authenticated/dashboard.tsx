@@ -1554,11 +1554,12 @@ function Pagination({
   pageEnd: number;
   onPageChange: (page: number) => void;
 }) {
+  const { t } = useTranslation("app");
   if (totalPages <= 1) {
     return (
       <div className="mt-6 flex items-center justify-center text-sm text-muted-foreground">
-        Zobrazené <b className="num text-foreground mx-1">{pageStart + 1}–{pageEnd}</b>{" "}
-        z <b className="num text-foreground ml-1">{totalCount}</b>
+        {t("dashboard.pagination.shown")} <b className="num text-foreground mx-1">{pageStart + 1}–{pageEnd}</b>{" "}
+        {t("dashboard.pagination.of")} <b className="num text-foreground ml-1">{totalCount}</b>
       </div>
     );
   }
@@ -1583,20 +1584,20 @@ function Pagination({
   return (
     <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div className="text-sm text-muted-foreground">
-        Zobrazené{" "}
+        {t("dashboard.pagination.shown")}{" "}
         <b className="num text-foreground">
           {pageStart + 1}–{pageEnd}
         </b>{" "}
-        z <b className="num text-foreground">{totalCount}</b>
+        {t("dashboard.pagination.of")} <b className="num text-foreground">{totalCount}</b>
       </div>
-      <div className="flex flex-wrap items-center gap-1" role="navigation" aria-label="Stránkovanie">
+      <div className="flex flex-wrap items-center gap-1" role="navigation" aria-label={t("dashboard.pagination.navAriaLabel")}>
         <button
           type="button"
           className={`${btn} ${inactive}`}
           disabled={page === 1}
           onClick={() => onPageChange(1)}
-          aria-label="Prvá stránka"
-          title="Prvá stránka"
+          aria-label={t("dashboard.pagination.firstAria")}
+          title={t("dashboard.pagination.firstAria")}
         >
           <ChevronsLeft className="h-4 w-4" />
         </button>
@@ -1605,8 +1606,8 @@ function Pagination({
           className={`${btn} ${inactive}`}
           disabled={page === 1}
           onClick={() => onPageChange(page - 1)}
-          aria-label="Predchádzajúca stránka"
-          title="Predchádzajúca"
+          aria-label={t("dashboard.pagination.prevAria")}
+          title={t("dashboard.pagination.prevTitle")}
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -1625,7 +1626,7 @@ function Pagination({
               className={`${btn} ${p === page ? active : inactive} num`}
               onClick={() => onPageChange(p)}
               aria-current={p === page ? "page" : undefined}
-              aria-label={`Stránka ${p}`}
+              aria-label={t("dashboard.pagination.pageAria", { page: p })}
             >
               {p}
             </button>
@@ -1636,8 +1637,8 @@ function Pagination({
           className={`${btn} ${inactive}`}
           disabled={page === totalPages}
           onClick={() => onPageChange(page + 1)}
-          aria-label="Nasledujúca stránka"
-          title="Nasledujúca"
+          aria-label={t("dashboard.pagination.nextAria")}
+          title={t("dashboard.pagination.nextTitle")}
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -1646,8 +1647,8 @@ function Pagination({
           className={`${btn} ${inactive}`}
           disabled={page === totalPages}
           onClick={() => onPageChange(totalPages)}
-          aria-label="Posledná stránka"
-          title="Posledná stránka"
+          aria-label={t("dashboard.pagination.lastAria")}
+          title={t("dashboard.pagination.lastAria")}
         >
           <ChevronsRight className="h-4 w-4" />
         </button>
