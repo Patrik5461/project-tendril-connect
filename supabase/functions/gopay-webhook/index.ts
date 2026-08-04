@@ -168,10 +168,33 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
         });
       }
     } else if (mapped === "expired") {
-      const { error: expErr } = await admin.from("user_preferences").update({
-        subscription_status: "expired",
-      }).eq("user_id", userId);
-      if (expErr) throw new Error(`expire user_preferences: ${expErr.message}`);
+      // Neúspešná NOVÁ platba nesmie zrušiť trial ani platné predplatné.
+      // Expirujeme len vtedy, ak zlyhala obnova práve bežiaceho predplatného.
+      const { data: pref, error: prefErr } = await admin
+        .from("user_preferences")
+        .select("subscription_status,subscription_valid_until,gopay_recurrence_id")
+        .eq("user_id", userId).maybeSingle();
+      if (prefErr) throw new Error(`load user_preferences: ${prefErr.message}`);
+
+      const ids = [payment.parent_id, payment.id]
+        .filter((v: unknown) => v !== null && v !== undefined)
+        .map((v: unknown) => String(v));
+      const recId = (pref as any)?.gopay_recurrence_id
+        ? String((pref as any).gopay_recurrence_id) : null;
+      const validUntil = (pref as any)?.subscription_valid_until
+        ? new Date((pref as any).subscription_valid_until) : null;
+
+      const shouldExpire =
+        (pref as any)?.subscription_status === "active" &&
+        !!recId && ids.includes(recId) &&
+        !!validUntil && validUntil < new Date();
+
+      if (shouldExpire) {
+        const { error: expErr } = await admin.from("user_preferences").update({
+          subscription_status: "expired",
+        }).eq("user_id", userId);
+        if (expErr) throw new Error(`expire user_preferences: ${expErr.message}`);
+      }
     }
   } catch (e) {
     const msg = String((e as Error)?.message ?? e);
