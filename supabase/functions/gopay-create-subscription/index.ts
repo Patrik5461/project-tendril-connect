@@ -148,11 +148,10 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+    // Pozor: subscription_tier a billing_period nastavuje VÝHRADNE webhook pri PAID.
     await admin.from("user_preferences").update({
       gopay_subscription_id: String(j.id),
       gopay_recurrence_id: autorenewApplied ? String(j.id) : null,
-      subscription_tier: tier,
-      billing_period: period,
     }).eq("user_id", user.id);
 
     return new Response(JSON.stringify({
