@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
 import { REGIONS } from "@/lib/slovakia";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { trackConversion } from "@/lib/analytics";
 import {
   CATEGORY_LABEL,
@@ -150,11 +150,14 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
           <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
             {t("grantRadars.empty")}
             {defaultCategory && (
-              <div className="mt-2 text-xs"
-                dangerouslySetInnerHTML={{
-                  __html: t("grantRadars.autoFillCategory", { category: CATEGORY_LABEL[defaultCategory] }),
-                }}
-              />
+              <div className="mt-2 text-xs">
+                <Trans
+                  i18nKey="grantRadars.autoFillCategory"
+                  ns="account"
+                  values={{ category: CATEGORY_LABEL[defaultCategory] }}
+                  components={{ b: <b /> }}
+                />
+              </div>
             )}
           </div>
         )}
