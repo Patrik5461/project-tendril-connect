@@ -482,6 +482,7 @@ function EmptyState({ category, onReset }: { category: ApplicantCategory | "all"
 }
 
 function GrantCard({ g }: { g: Grant }) {
+  const { t } = useTranslation("app");
   const deadlineDate = g.deadline ? parseISO(g.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
   const rolling = g.typ === "OTVORENA";
