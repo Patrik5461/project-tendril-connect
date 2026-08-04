@@ -16,6 +16,7 @@ import {
 } from "@/lib/grant-applicant-categories";
 import { AI_MONTHLY_LIMIT, computeSubscription, formatEur, priceEur } from "@/lib/subscription";
 import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+import { useTranslation } from "react-i18next";
 
 
 
@@ -96,10 +97,10 @@ function extractRegionNames(mr: any): string[] {
   return Array.from(out);
 }
 
-function regionLabel(regions: string[]): string {
-  if (regions.length === 0) return "—";
-  if (regions.length >= 8) return "Celé Slovensko";
-  if (regions.length >= 5) return `${regions.length} krajov`;
+function regionLabel(regions: string[], t: (k: string, o?: any) => string): string {
+  if (regions.length === 0) return t("granty.regionLabel.none");
+  if (regions.length >= 8) return t("granty.regionLabel.wholeCountry");
+  if (regions.length >= 5) return t("granty.regionLabel.manyRegions", { count: regions.length });
   return regions.join(", ");
 }
 
@@ -111,6 +112,7 @@ const CATEGORY_ICON: Record<ApplicantCategory, typeof Briefcase> = {
 
 function GrantyList() {
   const { stav, typ, program, region, kategoria, q, sort, page } = Route.useSearch();
+  const { t } = useTranslation("app");
   const navigate = useNavigate({ from: "/granty" });
 
   const [allItems, setAllItems] = useState<Grant[]>([]);
@@ -233,22 +235,20 @@ function GrantyList() {
   if (grantAccess === false) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16">
-        <h1 className="font-display text-3xl font-bold tracking-tight">Granty a dotácie</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight">{t("granty.title")}</h1>
         <div className="mt-6 rounded-lg border-2 border-primary bg-primary/5 p-6">
           <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-            <LockIcon className="h-4 w-4" /> Granty sú súčasťou balíka Komplet
+            <LockIcon className="h-4 w-4" /> {t("granty.locked.badge")}
           </div>
           <p className="mt-2 text-sm text-foreground/80">
-            Monitoring grantových výziev (Program Slovensko, fondy EÚ), radary, notifikácie
-            a AI analýza oprávnenosti sú v balíku Komplet za {formatEur(priceEur("komplet"))} / mes
-            ({AI_MONTHLY_LIMIT.komplet} AI analýz mesačne).
+            {t("granty.locked.description", { price: formatEur(priceEur("komplet")), limit: AI_MONTHLY_LIMIT.komplet })}
           </p>
           <WebOnlyPurchase className="mt-5">
             <div className="mt-5 flex flex-wrap gap-3">
               <Link to="/predplatne" search={{ tier: "komplet", period: "monthly" } as never}>
-                <Button>Aktivovať Komplet</Button>
+                <Button>{t("granty.locked.cta")}</Button>
               </Link>
-              <Link to="/cennik"><Button variant="outline">Porovnať plány</Button></Link>
+              <Link to="/cennik"><Button variant="outline">{t("granty.locked.compare")}</Button></Link>
             </div>
           </WebOnlyPurchase>
 
@@ -262,14 +262,14 @@ function GrantyList() {
     <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
       <div className="flex items-baseline justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Granty a dotácie</h1>
+          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{t("granty.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Aktuálne grantové výzvy z Programu Slovensko a fondov EÚ (ITMS21+).
+            {t("granty.subtitle")}
           </p>
         </div>
         <div className="text-sm text-muted-foreground">
           <span className="num font-semibold text-foreground">{total.toLocaleString("sk")}</span>{" "}
-          {stav === "OTVORENA" ? "otvorených" : "nájdených"} výziev
+          {stav === "OTVORENA" ? t("granty.count", { count: total }) : t("granty.countAll", { count: total })}
         </div>
       </div>
 
@@ -277,10 +277,10 @@ function GrantyList() {
       <div className="mt-6 border border-border bg-card p-4">
         <div className="flex items-center gap-2 mb-3">
           <Users className="h-4 w-4 text-muted-foreground" />
-          <div className="eyebrow text-muted-foreground">Typ žiadateľa</div>
+          <div className="eyebrow text-muted-foreground">{t("granty.applicantType.label")}</div>
           {showAutoHint && (
             <span className="text-xs text-muted-foreground">
-              · predvolené podľa vášho firemného profilu ({CATEGORY_SHORT[profileCategory!]})
+              {t("granty.applicantType.autoHint", { category: CATEGORY_SHORT[profileCategory!] })}
             </span>
           )}
         </div>
@@ -289,38 +289,38 @@ function GrantyList() {
             active={effectiveCategory === "podnikatelia"}
             onClick={() => updateSearch({ kategoria: "podnikatelia" })}
             icon={Briefcase}
-            label="Podnikatelia"
+            label={t("granty.applicantType.businesses")}
             count={counts.podnikatelia}
-            hint="s.r.o., a.s., živnostník"
+            hint={t("granty.applicantType.businessesHint")}
           />
           <CategoryButton
             active={effectiveCategory === "verejny"}
             onClick={() => updateSearch({ kategoria: "verejny" })}
             icon={Landmark}
-            label="Verejný sektor"
+            label={t("granty.applicantType.public")}
             count={counts.verejny}
-            hint="obce, VÚC, ministerstvá"
+            hint={t("granty.applicantType.publicHint")}
           />
           <CategoryButton
             active={effectiveCategory === "neziskovky"}
             onClick={() => updateSearch({ kategoria: "neziskovky" })}
             icon={HeartHandshake}
-            label="Neziskovky a školy"
+            label={t("granty.applicantType.nonprofits")}
             count={counts.neziskovky}
-            hint="n.o., nadácie, združenia"
+            hint={t("granty.applicantType.nonprofitsHint")}
           />
           <CategoryButton
             active={effectiveCategory === "all"}
             onClick={() => updateSearch({ kategoria: "all" })}
             icon={Users}
-            label="Všetky"
+            label={t("granty.applicantType.all")}
             count={allItems.length}
-            hint="bez ohľadu na žiadateľa"
+            hint={t("granty.applicantType.allHint")}
           />
         </div>
         {!profileLoaded ? null : profileCategory === null && kategoria === "auto" && (
           <p className="mt-3 text-xs text-muted-foreground">
-            Tip: vyplňte si <Link to="/firma" className="underline hover:text-foreground">firemný profil</Link> a Tendrik vám automaticky predvyberie relevantné výzvy.
+            {t("granty.applicantType.tip", { link: "" })}<Link to="/firma" className="underline hover:text-foreground">{t("granty.applicantType.tipLink")}</Link>
           </p>
         )}
       </div>
@@ -559,7 +559,7 @@ function GrantCard({ g }: { g: Grant }) {
           <div>
             <dt className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" /> Región</dt>
             <dd className="mt-0.5 text-xs">
-              {regionLabel(regions)}
+              {regionLabel(regions, t)}
             </dd>
           </div>
           <div>
