@@ -155,17 +155,17 @@ function PredplatnePage() {
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">
-        {(["basic", "premium", "komplet"] as SubscriptionTier[]).map((t) => (
+        {(["basic", "premium", "komplet"] as SubscriptionTier[]).map((tv) => (
           <TierCard
-            key={t}
-            selected={tier === t}
-            onSelect={() => setTier(t)}
-            eyebrow={tierLabel(t)}
-            title={TIER_INFO[t].title}
-            monthlyEur={yearly ? monthlyEquivalentEur(t) : tierPrice(t, "monthly")}
-            note={yearly ? t("predplatne.yearlyEurNote", { price: formatEur(tierPrice(t, "yearly")) }) : t("predplatne.monthlyFinalNote")}
-            highlight={TIER_INFO[t].highlight}
-            features={TIER_INFO[t].features}
+            key={tv}
+            selected={tier === tv}
+            onSelect={() => setTier(tv)}
+            eyebrow={tierLabel(tv)}
+            title={TIER_INFO[tv].title}
+            monthlyEur={yearly ? monthlyEquivalentEur(tv) : tierPrice(tv, "monthly")}
+            note={yearly ? t("predplatne.yearlyEurNote", { price: formatEur(tierPrice(tv, "yearly")) }) : t("predplatne.monthlyFinalNote")}
+            highlight={TIER_INFO[tv].highlight}
+            features={TIER_INFO[tv].features}
             aiBadgeLabel={t("predplatne.aiBadge")}
             priceSuffix={t("predplatne.priceSuffixMonth")}
           />
