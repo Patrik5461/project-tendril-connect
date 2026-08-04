@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useIsNative } from "@/lib/native";
+import { useTranslation } from "react-i18next";
 
 /**
  * Predplatné sa nakupuje výhradne na webe.
@@ -7,16 +8,17 @@ import { useIsNative } from "@/lib/native";
  */
 export function WebOnlyPurchase({
   children,
-  note = "Predplatné spravuješ na tendrik.sk",
+  note,
   className,
 }: {
   children: ReactNode;
   note?: string;
   className?: string;
 }) {
+  const { t } = useTranslation("public");
   const native = useIsNative();
   if (native) {
-    return <p className={`text-sm text-muted-foreground ${className ?? ""}`}>{note}</p>;
+    return <p className={`text-sm text-muted-foreground ${className ?? ""}`}>{note ?? t("webOnlyPurchase.defaultNote")}</p>;
   }
   return <>{children}</>;
 }

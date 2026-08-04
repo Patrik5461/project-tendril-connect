@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { SUPPORTED_LANGS, LANG_LABELS, type Lang } from "@/i18n/config";
+import { SUPPORTED_LANGS, LANG_LABELS, DEFAULT_LANG, type Lang } from "@/i18n/config";
 import { changeLang } from "@/i18n/I18nProvider";
 import {
   DropdownMenu,
@@ -11,7 +12,9 @@ import { Button } from "@/components/ui/button";
 
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { i18n, t } = useTranslation();
-  const current = (i18n.language as Lang) || "sk";
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const current = mounted ? ((i18n.language as Lang) || DEFAULT_LANG) : DEFAULT_LANG;
   const label = LANG_LABELS[current] ?? LANG_LABELS.sk;
 
   return (

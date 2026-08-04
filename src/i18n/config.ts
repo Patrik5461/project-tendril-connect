@@ -9,6 +9,26 @@ import skMarketing from "./locales/sk/marketing.json";
 import csMarketing from "./locales/cs/marketing.json";
 import enMarketing from "./locales/en/marketing.json";
 import deMarketing from "./locales/de/marketing.json";
+import skLegal from "./locales/sk/legal.json";
+import csLegal from "./locales/cs/legal.json";
+import enLegal from "./locales/en/legal.json";
+import deLegal from "./locales/de/legal.json";
+import skPublic from "./locales/sk/public.json";
+import csPublic from "./locales/cs/public.json";
+import enPublic from "./locales/en/public.json";
+import dePublic from "./locales/de/public.json";
+import skApp from "./locales/sk/app.json";
+import csApp from "./locales/cs/app.json";
+import enApp from "./locales/en/app.json";
+import deApp from "./locales/de/app.json";
+import skAccount from "./locales/sk/account.json";
+import csAccount from "./locales/cs/account.json";
+import enAccount from "./locales/en/account.json";
+import deAccount from "./locales/de/account.json";
+import skAnalysis from "./locales/sk/analysis.json";
+import csAnalysis from "./locales/cs/analysis.json";
+import enAnalysis from "./locales/en/analysis.json";
+import deAnalysis from "./locales/de/analysis.json";
 
 export const SUPPORTED_LANGS = ["sk", "cs", "en", "de"] as const;
 export type Lang = (typeof SUPPORTED_LANGS)[number];
@@ -27,10 +47,10 @@ export function ensureI18n(initialLang?: Lang) {
   if (initialized) return i18n;
   i18n.use(initReactI18next).init({
     resources: {
-      sk: { common: skCommon, marketing: skMarketing },
-      cs: { common: csCommon, marketing: csMarketing },
-      en: { common: enCommon, marketing: enMarketing },
-      de: { common: deCommon, marketing: deMarketing },
+      sk: { common: skCommon, marketing: skMarketing, legal: skLegal, public: skPublic, app: skApp, account: skAccount, analysis: skAnalysis },
+      cs: { common: csCommon, marketing: csMarketing, legal: csLegal, public: csPublic, app: csApp, account: csAccount, analysis: csAnalysis },
+      en: { common: enCommon, marketing: enMarketing, legal: enLegal, public: enPublic, app: enApp, account: enAccount, analysis: enAnalysis },
+      de: { common: deCommon, marketing: deMarketing, legal: deLegal, public: dePublic, app: deApp, account: deAccount, analysis: deAnalysis },
     },
     lng: initialLang ?? DEFAULT_LANG,
     fallbackLng: DEFAULT_LANG,

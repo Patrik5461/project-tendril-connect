@@ -11,6 +11,7 @@ import { EU_COUNTRY_LIST, flagEmoji } from "@/lib/eu-countries";
 import { X } from "lucide-react";
 import { sendWelcomeEmailIfNeeded } from "@/lib/welcome-email";
 import { trackConversion } from "@/lib/analytics";
+import { useTranslation, Trans } from "react-i18next";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({ meta: [{ title: "Nastavenie filtrov – Tendrik" }] }),
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
 });
 
 function Onboarding() {
+  const { t } = useTranslation("account");
   const navigate = useNavigate();
   const [keywords, setKeywords] = useState<string[]>([]);
   const [kwInput, setKwInput] = useState("");
@@ -55,11 +57,11 @@ function Onboarding() {
 
   async function save() {
     if (keywords.length === 0 && cpvCodes.length === 0) {
-      toast.error("Zadajte aspoň jedno kľúčové slovo alebo CPV kategóriu.");
+      toast.error(t("onboarding.keywordsRequired"));
       return;
     }
     if (countries.length === 0) {
-      toast.error("Vyberte aspoň jednu krajinu.");
+      toast.error(t("onboarding.countryRequired"));
       return;
     }
     // Regióny sú voliteľné – prázdny výber = celé Slovensko.
@@ -108,7 +110,7 @@ function Onboarding() {
       toast.error(error.message);
       return;
     }
-    toast.success("Radar uložený");
+    toast.success(t("onboarding.saved"));
     trackConversion("onboarding_completed", { keywords: keywords.length, regions: regions.length });
     void sendWelcomeEmailIfNeeded();
     navigate({ to: "/dashboard" });
@@ -117,21 +119,20 @@ function Onboarding() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
-        Nastavte si filtre
+        {t("onboarding.title")}
       </h1>
       <p className="mt-2 text-muted-foreground">
-        Zákazka sa zobrazí, ak sa v názve/popise nájde niektoré kľúčové slovo <b>alebo</b> sa
-        zhoduje CPV kód, <b>a zároveň</b> sedí región.
+        <Trans i18nKey="onboarding.description" ns="account" components={{ b: <b /> }} />
       </p>
 
       <section className="mt-8 rounded-xl border bg-card p-6">
-        <h2 className="font-semibold text-lg">1. Kľúčové slová</h2>
-        <p className="text-sm text-muted-foreground">Napr. „strecha", „server", „autobus".</p>
+        <h2 className="font-semibold text-lg">{t("onboarding.step1.heading")}</h2>
+        <p className="text-sm text-muted-foreground">{t("onboarding.step1.example")}</p>
         <div className="mt-3 flex gap-2">
           <Input
             value={kwInput}
             onChange={(e) => setKwInput(e.target.value)}
-            placeholder="Pridať kľúčové slovo"
+            placeholder={t("onboarding.step1.placeholder")}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -140,7 +141,7 @@ function Onboarding() {
             }}
           />
           <Button type="button" onClick={addKeyword}>
-            Pridať
+            {t("onboarding.step1.add")}
           </Button>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -159,8 +160,8 @@ function Onboarding() {
       </section>
 
       <section className="mt-6 rounded-xl border bg-card p-6">
-        <h2 className="font-semibold text-lg">2. CPV kategórie</h2>
-        <p className="text-sm text-muted-foreground">Vyberte hlavné divízie, ktoré vás zaujímajú.</p>
+        <h2 className="font-semibold text-lg">{t("onboarding.step2.heading")}</h2>
+        <p className="text-sm text-muted-foreground">{t("onboarding.step2.description")}</p>
         <div className="mt-4 grid sm:grid-cols-2 gap-2 max-h-96 overflow-y-auto pr-2">
           {CPV_DIVISIONS.map((d) => (
             <label
@@ -181,9 +182,9 @@ function Onboarding() {
       </section>
 
       <section className="mt-6 rounded-xl border bg-card p-6">
-        <h2 className="font-semibold text-lg">3. Krajiny</h2>
+        <h2 className="font-semibold text-lg">{t("onboarding.step3.heading")}</h2>
         <p className="text-sm text-muted-foreground">
-          Ktoré krajiny EÚ sledovať? Predvolene je Slovensko.
+          {t("onboarding.step3.description")}
         </p>
         <label className="mt-3 flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer">
           <Checkbox
@@ -192,7 +193,7 @@ function Onboarding() {
               setCountries(countries.includes("ALL") ? ["SK"] : ["ALL"])
             }
           />
-          <span className="text-sm font-medium">Všetky krajiny EÚ</span>
+          <span className="text-sm font-medium">{t("onboarding.step3.allEuCountries")}</span>
         </label>
         {!countries.includes("ALL") && (
           <div className="mt-3 grid sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-2">
@@ -216,9 +217,9 @@ function Onboarding() {
 
       {(countries.includes("SK") || countries.includes("ALL")) && (
         <section className="mt-6 rounded-xl border bg-card p-6">
-          <h2 className="font-semibold text-lg">4. Kraje (Slovensko) – voliteľné</h2>
+          <h2 className="font-semibold text-lg">{t("onboarding.step4.heading")}</h2>
           <p className="text-sm text-muted-foreground">
-            Nechajte prázdne pre celé Slovensko, alebo vyberte konkrétne kraje.
+            {t("onboarding.step4.description")}
           </p>
           <div className="mt-4 grid sm:grid-cols-2 gap-2">
             {REGIONS.map((r) => (
@@ -239,7 +240,7 @@ function Onboarding() {
 
       <div className="mt-8 flex justify-end">
         <Button size="lg" onClick={save} disabled={saving}>
-          {saving ? "Ukladám..." : "Uložiť a pokračovať"}
+          {saving ? t("onboarding.saving") : t("onboarding.saveAndContinue")}
         </Button>
       </div>
     </div>

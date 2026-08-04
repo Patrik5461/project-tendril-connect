@@ -1,0 +1,300 @@
+{
+  "cookies": {
+    "title": "Zásady používania cookies",
+    "intro": "Cookies sú malé textové súbory, ktoré ukladáme do vášho prehliadača, aby Tendrik.sk fungoval a aby sme mu rozumeli.",
+    "whatWeUse": {
+      "heading": "Aké cookies používame",
+      "necessaryTitle": "1. Nevyhnutné (bez súhlasu)",
+      "session": "<0>Session cookie</0> – udržiava vaše prihlásenie.",
+      "csrf": "<0>CSRF token</0> – ochrana pred podvrhnutím požiadavky.",
+      "consent": "<0>Cookie súhlas</0> – zapamätá si vašu voľbu tohto banneru.",
+      "analyticsTitle": "2. Analytické (so súhlasom)",
+      "analyticsItem": "Anonymizované štatistiky návštevnosti (Plausible / GA4) – iba ak ich povolíte.",
+      "noMarketing": "Marketingové ani reklamné cookies nepoužívame."
+    },
+    "howToDisable": {
+      "heading": "Ako cookies vypnúť",
+      "intro": "Voľbu môžete kedykoľvek zmeniť:",
+      "viaButton": "Cez tlačidlo <0>Nastavenia cookies</0> v päte stránky alebo tu:",
+      "openSettingsButton": "Otvoriť nastavenia cookies",
+      "viaBrowser": "V nastaveniach vášho prehliadača (Chrome, Firefox, Safari, Edge…).",
+      "cannotDisable": "Nevyhnutné cookies vypnúť nemožno – bez nich by sa nedalo prihlásiť."
+    },
+    "retention": {
+      "heading": "Doba uchovávania",
+      "session": "Session cookie: do zatvorenia prehliadača.",
+      "consentAnalytics": "Súhlasové a analytické cookies: max. 24 mesiacov."
+    }
+  },
+  "gdpr": {
+    "title": "Ochrana osobných údajov (GDPR)",
+    "intro": "Informácie o spracovaní osobných údajov podľa nariadenia (EÚ) 2016/679 (GDPR) a zákona č. 18/2018 Z. z.",
+    "s1": {
+      "heading": "1. Prevádzkovateľ",
+      "company": "<0>Tobify s. r. o.</0>, Športová 707/43, 919 26 Zavar, SR",
+      "ico": "IČO: 56607016, DIČ: 2122358579 (neplatiteľ DPH)",
+      "email": "E-mail: <0>info@tendrik.sk</0>",
+      "phone": "Telefón: <0>+421 907 702 422</0>"
+    },
+    "s2": {
+      "heading": "2. Aké údaje spracúvame",
+      "reg": "<0>Registračné údaje:</0> e-mailová adresa, heslo (uložené v hašovanej podobe).",
+      "optional": "<0>Voliteľné údaje:</0> meno, názov firmy, IČO, telefón.",
+      "billing": "<0>Fakturačné údaje</0> (pri platenom predplatnom): fakturačná adresa, IČO/DIČ.",
+      "payment": "<0>Platobné metadáta</0> od GoPay: ID transakcie, čas, suma – nie číslo karty.",
+      "prefs": "<0>Preferencie:</0> kľúčové slová, CPV kódy, sledované regióny, nastavenia notifikácií.",
+      "technical": "<0>Technické údaje:</0> IP adresa, log prihlásení, cookies (viď <1>Cookies</1>)."
+    },
+    "s3": {
+      "heading": "3. Účel a právny základ",
+      "contract": "<0>Plnenie zmluvy (čl. 6 ods. 1 písm. b GDPR):</0> poskytovanie služby, e-mailové notifikácie, fakturácia, zákaznícka podpora.",
+      "legalObligation": "<0>Zákonná povinnosť (čl. 6 ods. 1 písm. c):</0> uchovanie účtovných dokladov 10 rokov.",
+      "legitimateInterest": "<0>Oprávnený záujem (čl. 6 ods. 1 písm. f):</0> bezpečnosť a prevencia zneužitia služby.",
+      "consent": "<0>Súhlas (čl. 6 ods. 1 písm. a):</0> analytické cookies, marketingová komunikácia."
+    },
+    "s4": {
+      "heading": "4. Doba uchovávania",
+      "account": "Účet: po dobu existencie účtu + 3 roky po jeho zrušení.",
+      "invoices": "Fakturačné doklady: 10 rokov (zákonná povinnosť).",
+      "analytics": "Analytické cookies: max. 24 mesiacov."
+    },
+    "s5": {
+      "heading": "5. Príjemcovia (sprostredkovatelia)",
+      "supabase": "<0>Supabase / Lovable Cloud</0> – hosting databázy a autentifikácia (EÚ).",
+      "gopay": "<0>GoPay s. r. o.</0> – spracovanie platieb (ČR/EÚ).",
+      "resend": "<0>Resend</0> – odosielanie transakčných e-mailov (EÚ).",
+      "accounting": "Účtovná firma – iba fakturačné údaje.",
+      "noTransfer": "Údaje neprenášame mimo EHP."
+    },
+    "s6": {
+      "heading": "6. Vaše práva",
+      "intro": "Ako dotknutá osoba máte právo na:",
+      "access": "prístup k údajom a ich kópiu,",
+      "correction": "opravu nesprávnych údajov,",
+      "erasure": "vymazanie („právo byť zabudnutý\"),",
+      "restriction": "obmedzenie spracovania,",
+      "portability": "prenosnosť údajov,",
+      "object": "namietať proti spracovaniu na základe oprávneného záujmu,",
+      "withdraw": "odvolať súhlas,",
+      "complaint": "podať sťažnosť dozornému orgánu – <0>Úrad na ochranu osobných údajov SR</0>, <1>dataprotection.gov.sk</1>.",
+      "exercise": "Uplatnenie práv: <0>info@tendrik.sk</0>. Reagujeme do 30 dní."
+    },
+    "s7": {
+      "heading": "7. Zodpovedná osoba (DPO)",
+      "text": "Prevádzkovateľ nespĺňa podmienky podľa čl. 37 GDPR a nemá povinnosť ustanoviť zodpovednú osobu (DPO). Vo veciach ochrany údajov kontaktujte <0>info@tendrik.sk</0>."
+    },
+    "s8": {
+      "heading": "8. Zabezpečenie",
+      "text": "Údaje sú prenášané cez HTTPS/TLS, heslá sú hašované, prístupy sú logované. Databáza je chránená row-level security politikami."
+    }
+  },
+  "terms": {
+    "title": "Obchodné podmienky",
+    "intro": "Účinné od 1. 1. 2026. Tieto podmienky upravujú používanie služby Tendrik.sk.",
+    "s1": {
+      "heading": "1. Prevádzkovateľ",
+      "p": "Prevádzkovateľom služby Tendrik.sk (ďalej len „Služba\") je spoločnosť:",
+      "company": "<0>Tobify s. r. o.</0>",
+      "seat": "Sídlo: Športová 707/43, 919 26 Zavar, Slovenská republika",
+      "ico": "IČO: 56607016",
+      "dic": "DIČ: 2122358579",
+      "vat": "Neplatiteľ DPH",
+      "email": "E-mail: <0>info@tendrik.sk</0>",
+      "phone": "Telefón: <0>+421 907 702 422</0>",
+      "vatNote": "Spoločnosť <0>nie je platiteľom DPH</0>; ceny uvedené na Tendrik.sk sú konečné."
+    },
+    "s2": {
+      "heading": "2. Popis služby",
+      "p": "Tendrik.sk je online SaaS platforma, ktorá automaticky monitoruje verejné zákazky zverejnené v Úradnom vestníku EÚ (TED) a vo vestníku Úradu pre verejné obstarávanie SR (ÚVO). Používateľom umožňuje:",
+      "item1": "filtrovať zákazky podľa kľúčových slov, CPV kódov, krajín a regiónov,",
+      "item2": "dostávať e-mailové notifikácie o nových zákazkách a blížiacich sa uzávierkach,",
+      "item3": "zobrazovať detail zákazky s odkazom na zdroj (TED / ÚVO / EKS / JOSEPHINE)."
+    },
+    "s3": {
+      "heading": "3. Cena a platobné podmienky",
+      "p": "Používanie Služby je spoplatnené paušálnou mesačnou sumou podľa zvoleného tieru:",
+      "basic": "Základ: <0>4,99 € / mesiac</0>",
+      "premium": "Prémium (s AI): <0>14,99 € / mesiac</0>",
+      "vatNote": "Dodávateľ <0>Tobify s. r. o.</0> nie je platiteľom DPH – uvedené sumy sú konečné.",
+      "payment": "Platba prebieha prostredníctvom platobnej brány <0>GoPay</0> platobnou kartou (Visa, Mastercard) so zabezpečením 3D Secure. Predplatné sa automaticky obnovuje každý mesiac, viac v dokumente <1>Opakované platby</1>."
+    },
+    "s4": {
+      "heading": "4. Skúšobné obdobie (trial)",
+      "text": "Nový používateľ získava <0>30 dní zdarma</0> od registrácie, bez potreby zadávania platobnej karty. Trial obsahuje neobmedzený monitoring, radary a e-maily, a<1> 5 kompletných AI analýz zákaziek</1> počas trvania trialu. Po uplynutí skúšobného obdobia sa prístup k plateným funkciám uzamkne, kým používateľ neaktivuje platené predplatné."
+    },
+    "s5": {
+      "heading": "5. Uzavretie zmluvy",
+      "text": "Zmluva medzi Prevádzkovateľom a používateľom vzniká momentom potvrdenia objednávky (aktivácia platby) v používateľskom rozhraní. Používateľ potvrdzuje, že sa oboznámil s týmito podmienkami a súhlasí s nimi."
+    },
+    "s6": {
+      "heading": "6. Odstúpenie od zmluvy (14 dní)",
+      "text": "Spotrebiteľ má právo odstúpiť od zmluvy uzavretej na diaľku do <0>14 dní</0> bez udania dôvodu podľa § 7 zákona č. 102/2014 Z. z. Odstúpenie je potrebné zaslať na e-mail <1>info@tendrik.sk</1>. Ak bola v tejto lehote Služba už poskytovaná so súhlasom spotrebiteľa, vráti sa alikvotná časť ceny."
+    },
+    "s7": {
+      "heading": "7. Storno a ukončenie predplatného",
+      "text": "Predplatné je možné zrušiť <0>kedykoľvek</0> v nastaveniach účtu alebo e-mailom na <1>info@tendrik.sk</1>. Po zrušení už nebude predplatné automaticky obnovené. <2>Zostatok už zaplateného obdobia sa nerefunduje</2> (mimo prípadu podľa bodu 6 alebo úspešnej reklamácie)."
+    },
+    "s8": {
+      "heading": "8. Reklamačný postup",
+      "text": "Reklamácie prijímame e-mailom na <0>info@tendrik.sk</0> alebo poštou na adresu sídla. Reklamáciu vybavíme najneskôr do <1>30 dní</1> od jej doručenia. Podrobnosti nájdete v <2>Reklamačnom poriadku</2>."
+    },
+    "s9": {
+      "heading": "9. Zodpovednosť za obsah",
+      "text": "Údaje o zákazkach pochádzajú z verejných zdrojov TED, ÚVO, EKS a JOSEPHINE. Prevádzkovateľ nezodpovedá za správnosť, úplnosť ani aktuálnosť týchto zdrojových údajov. Používanie výsledkov je na vlastnú zodpovednosť používateľa."
+    },
+    "s10": {
+      "heading": "10. Ochrana osobných údajov",
+      "text": "Spracovanie osobných údajov upravuje samostatný dokument <0>GDPR – ochrana osobných údajov</0>."
+    },
+    "s11": {
+      "heading": "11. Riešenie sporov",
+      "text": "Prípadné spory sa riešia primárne dohodou. Spotrebiteľ má právo obrátiť sa na Slovenskú obchodnú inšpekciu (<0>soi.sk</0>) alebo využiť platformu ODR: <1>ec.europa.eu/consumers/odr</1>."
+    },
+    "s12": {
+      "heading": "12. Záverečné ustanovenia",
+      "text": "Prevádzkovateľ si vyhradzuje právo tieto podmienky meniť. O podstatných zmenách bude používateľov informovať e-mailom minimálne 15 dní vopred. Vzťahy neupravené týmito podmienkami sa riadia právnym poriadkom Slovenskej republiky."
+    }
+  },
+  "recurringPayments": {
+    "title": "Opakované platby",
+    "intro": "Predplatné Tendrik sa hradí formou automatických mesačných platieb cez platobnú bránu GoPay.",
+    "summary": {
+      "eyebrow": "Zhrnutie",
+      "amount": "💳 Suma: <0>4,99 € / mesiac</0> (Základ) alebo <1>14,99 € / mesiac</1> (Prémium) – konečná cena",
+      "frequency": "🔁 Frekvencia: <0>každý mesiac</0>, automaticky",
+      "trial": "🎁 <0>30 dní zdarma</0> na vyskúšanie (skúšobné obdobie, vrátane 5 AI analýz)",
+      "cancel": "❌ Zrušenie kedykoľvek v nastaveniach účtu"
+    },
+    "s1": {
+      "heading": "Čo sú opakované platby",
+      "text": "Opakovaná platba je automatická platba kartou, ktorá sa strháva v pravidelných intervaloch bez toho, aby ste museli platbu zakaždým znova potvrdzovať. Prvú platbu autorizujete pri aktivácii predplatného, ďalšie platby sa vykonávajú automaticky na základe tokenu z bezpečnej platobnej brány <0>GoPay</0>."
+    },
+    "s2": {
+      "heading": "Výška platby",
+      "basic": "Základ: <0>4,99 € / mesiac</0>",
+      "premium": "Prémium: <0>14,99 € / mesiac</0>",
+      "vatNote": "Dodávateľ (Tobify s. r. o.) nie je platiteľom DPH – uvedené sumy sú konečné.",
+      "changeNotice": "O prípadnej zmene ceny vás budeme informovať e-mailom najmenej 15 dní vopred."
+    },
+    "s3": {
+      "heading": "Kedy sa platba strhne",
+      "first": "<0>Prvá platba:</0> po skončení 2-mesačného skúšobného obdobia, resp. po aktivácii predplatného.",
+      "next": "<0>Ďalšie platby:</0> každý mesiac v deň zodpovedajúci dátumu aktivácie.",
+      "invoice": "Pred každou platbou vám pošleme e-mail s daňovým dokladom."
+    },
+    "s4": {
+      "heading": "Ako platby zrušiť",
+      "intro": "Opakované platby môžete kedykoľvek zrušiť dvoma spôsobmi:",
+      "way1": "V <0>nastaveniach účtu</0> na Tendrik.sk kliknutím na „Zrušiť predplatné\".",
+      "way2": "E-mailom na <0>info@tendrik.sk</0> z e-mailu, na ktorý je účet registrovaný.",
+      "afterCancel": "Po zrušení už nebude z vašej karty strhnutá žiadna ďalšia platba. Prístup ku plateným funkciám zostáva zachovaný do konca aktuálneho zúčtovacieho obdobia."
+    },
+    "s5": {
+      "heading": "Bezpečnosť platieb",
+      "text": "Údaje o platobnej karte spracúva výlučne platobná brána <0>GoPay s. r. o.</0> v štandarde <1>PCI-DSS Level 1</1>. Tendrik nikdy nemá prístup k číslu vašej karty ani k CVV kódu; ukladá sa iba anonymizovaný token potrebný na opakované strhávanie. Platby sú chránené <2>3D Secure</2> autentizáciou."
+    },
+    "s6": {
+      "heading": "Kontakt",
+      "text": "Otázky k platbám: <0>info@tendrik.sk</0>, <1>+421 907 702 422</1>."
+    }
+  },
+  "complaints": {
+    "title": "Reklamačný poriadok",
+    "intro": "Postup pri uplatnení reklamácie služby Tendrik.sk (SaaS platforma monitoringu verejného obstarávania).",
+    "s1": {
+      "heading": "1. Prevádzkovateľ",
+      "text": "<0>Tobify s. r. o.</0>, Športová 707/43, 919 26 Zavar, IČO: 56607016, <1>info@tendrik.sk</1>, <2>+421 907 702 422</2>."
+    },
+    "s2": {
+      "heading": "2. Predmet reklamácie",
+      "intro": "Reklamovať možno najmä:",
+      "item1": "nedostupnosť Služby dlhšiu než 24 hodín zavinenú Prevádzkovateľom,",
+      "item2": "nefunkčnosť platených funkcií,",
+      "item3": "chybne vyúčtovanú platbu,",
+      "item4": "nezaslanie objednaných e-mailových notifikácií."
+    },
+    "s3": {
+      "heading": "3. Ako reklamáciu podať",
+      "intro": "Reklamáciu môžete uplatniť:",
+      "email": "<0>E-mailom:</0> <1>info@tendrik.sk</1> (odporúčame),",
+      "post": "<0>Poštou:</0> Tobify s. r. o., Športová 707/43, 919 26 Zavar,",
+      "phone": "<0>Telefonicky:</0> <1>+421 907 702 422</1> (následne potvrďte e-mailom).",
+      "note": "V reklamácii uveďte: registračný e-mail, popis vady, dátum vzniku, prípadne screenshoty."
+    },
+    "s4": {
+      "heading": "4. Lehoty",
+      "confirm": "Prijatie reklamácie potvrdíme do <0>3 pracovných dní</0>.",
+      "resolve": "Reklamáciu vybavíme najneskôr do <0>30 dní</0> od jej doručenia.",
+      "notify": "O výsledku informujeme e-mailom."
+    },
+    "s5": {
+      "heading": "5. Spôsoby vybavenia",
+      "item1": "odstránenie vady,",
+      "item2": "predĺženie predplatného o čas nedostupnosti,",
+      "item3": "vrátenie alikvotnej časti ceny,",
+      "item4": "odôvodnené zamietnutie reklamácie."
+    },
+    "s6": {
+      "heading": "6. Alternatívne riešenie sporov",
+      "text": "Ak nesúhlasíte s vybavením reklamácie, môžete sa obrátiť na Slovenskú obchodnú inšpekciu (<0>soi.sk</0>) alebo na platformu ODR: <1>ec.europa.eu/consumers/odr</1>."
+    }
+  },
+  "privacy": {
+    "backHome": "← Späť na úvod",
+    "title": "Ochrana osobných údajov",
+    "intro": "Tendrik je služba pre podnikateľov (30 dní zdarma, potom od 4,99 €/mesiac). Osobné údaje spracúvame len v rozsahu potrebnom na fungovanie služby.",
+    "dataSection": {
+      "heading": "Aké údaje spracúvame",
+      "text": "Pri registrácii uchovávame e-mailovú adresu a nastavenia notifikácií (radary, frekvencia e-mailov, uložené zákazky). Údaje používame výhradne na doručovanie služby."
+    },
+    "cookiesSection": {
+      "heading": "Cookies",
+      "intro": "Používame dve kategórie cookies:",
+      "necessary": "<0>Nevyhnutné</0> – potrebné na prihlásenie, session a základné nastavenia. Bez nich stránka nemôže fungovať.",
+      "analytics": "<0>Analytické</0> – voliteľné. Načítajú sa iba ak dáte súhlas. Pomáhajú nám merať používanie služby.",
+      "openSettingsButton": "Otvoriť nastavenia cookies"
+    },
+    "rightsSection": {
+      "heading": "Vaše práva",
+      "text": "Máte právo na prístup k svojim údajom, ich opravu a vymazanie. V prípade otázok nás kontaktujte na e-maile uvedenom v aplikácii."
+    }
+  },
+  "legalPage": {
+    "backHome": "← Späť na úvod"
+  },
+  "footer": {
+    "paymentBadgesAria": "Podporované spôsoby platby",
+    "brandDescription": "Monitoring verejného obstarávania z TED, ÚVO, EKS a JOSEPHINE.",
+    "operator": "Prevádzkovateľ:",
+    "vatFree": "Neplatiteľ DPH",
+    "contact": "Kontakt",
+    "contactForm": "Kontaktný formulár",
+    "legal": "Právne",
+    "terms": "Obchodné podmienky",
+    "recurringPayments": "Opakované platby",
+    "gdpr": "GDPR",
+    "complaints": "Reklamačný poriadok",
+    "cookies": "Cookies",
+    "payments": "Platby",
+    "paymentsNote": "Platby spracúva GoPay s.r.o. cez zabezpečenú platobnú bránu s podporou 3D Secure.",
+    "copyright": "© {{year}} Tobify s. r. o. Všetky práva vyhradené.",
+    "tagline": "Tendrik.sk – monitoring verejného obstarávania"
+  },
+  "cookieBanner": {
+    "ariaLabel": "Súhlas s používaním cookies",
+    "title": "Používame cookies",
+    "text": "Tendrik používa nevyhnutné cookies na fungovanie stránky (prihlásenie, nastavenia). Ak povolíte, budeme používať aj analytické cookies, aby sme lepšie rozumeli používaniu služby.",
+    "privacyLink": "Ochrana osobných údajov",
+    "rejectOptional": "Odmietnuť nepovinné",
+    "settings": "Nastavenia",
+    "acceptAll": "Prijať všetky",
+    "dialogTitle": "Nastavenia cookies",
+    "dialogDescription": "Vyberte, ktoré kategórie cookies chcete povoliť. Voľbu môžete kedykoľvek zmeniť cez odkaz v päte stránky.",
+    "necessaryLabel": "Nevyhnutné",
+    "necessaryDesc": "Potrebné pre prihlásenie, session a základné nastavenia. Nedajú sa vypnúť.",
+    "necessaryAria": "Nevyhnutné cookies vždy zapnuté",
+    "analyticsLabel": "Analytické",
+    "analyticsDesc": "Pomáhajú nám merať používanie služby (napr. Google Analytics, pixely). Načítajú sa iba po vašom súhlase.",
+    "saveSelection": "Uložiť výber"
+  }
+}

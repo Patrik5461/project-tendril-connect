@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LayoutDashboard, Settings, LogOut, ShieldCheck, Tag, Coins } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { HelpChatWidget } from "@/components/HelpChatWidget";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthedLayout() {
+  const { t } = useTranslation("app");
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -73,7 +75,7 @@ function AuthedLayout() {
               </span>
               <span className="absolute inset-0 border border-primary-foreground/30" />
             </span>
-            <span className="hidden sm:inline">Tendrik</span>
+            <span className="hidden sm:inline">{t("nav.brand")}</span>
           </Link>
           <nav className="flex items-center gap-1">
             {!native && (
@@ -81,25 +83,25 @@ function AuthedLayout() {
                 <Link to="/dashboard">
                   <Button variant="ghost" size="sm">
                     <LayoutDashboard className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Zákazky</span>
+                    <span className="hidden sm:inline">{t("nav.tenders")}</span>
                   </Button>
                 </Link>
                 <Link to="/granty">
                   <Button variant="ghost" size="sm">
                     <Coins className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Granty</span>
+                    <span className="hidden sm:inline">{t("nav.grants")}</span>
                   </Button>
                 </Link>
                 <Link to="/settings">
                   <Button variant="ghost" size="sm">
                     <Settings className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Nastavenia</span>
+                    <span className="hidden sm:inline">{t("nav.settings")}</span>
                   </Button>
                 </Link>
                 <Link to="/cennik">
                   <Button variant="ghost" size="sm">
                     <Tag className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Cenník</span>
+                    <span className="hidden sm:inline">{t("nav.pricing")}</span>
                   </Button>
                 </Link>
               </>
@@ -108,13 +110,13 @@ function AuthedLayout() {
               <Link to="/admin">
                 <Button variant="ghost" size="sm">
                   <ShieldCheck className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Admin</span>
+                  <span className="hidden sm:inline">{t("nav.admin")}</span>
                 </Button>
               </Link>
             )}
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Odhlásiť</span>
+              <span className="hidden sm:inline">{t("nav.signOut")}</span>
             </Button>
             <LanguageSwitcher compact />
           </nav>

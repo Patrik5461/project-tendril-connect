@@ -11,6 +11,7 @@ import { analyzeTender, getTenderAnalysis, getCompanyProfile, getAiCreditStatus 
 import { SubcontractingSection } from "@/components/SubcontractingSection";
 import { trackConversion } from "@/lib/analytics";
 import { AI_MONTHLY_LIMIT, formatEur, priceEur } from "@/lib/subscription";
+import { useTranslation } from "react-i18next";
 
 import {
   awardBreakdown,
@@ -37,6 +38,7 @@ type Props = {
 };
 
 export function TenderAnalysisSection({ tenderId, defaultCity, source, structuredCriteria }: Props) {
+  const { t } = useTranslation("analysis");
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [tier, setTier] = useState<string>("basic");
@@ -99,9 +101,9 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
         setCredit((prev) => prev ? { ...prev, remaining: r.credit_remaining } : { unlimited: false, remaining: r.credit_remaining, limit: 5 });
       }
       if (!r?.cached) trackConversion("ai_analysis", { analysis_type: "tender" });
-      toast.success(r?.cached ? "Načítaná uložená analýza" : "Analýza dokončená");
+      toast.success(r?.cached ? t("tender.toastCached") : t("tender.toastDone"));
     } catch (e: any) {
-      toast.error(e?.message ?? "Analýza zlyhala");
+      toast.error(e?.message ?? t("tender.toastFailed"));
     } finally {
       setRunning(false);
       setTimeout(() => setProgress(0), 800);
@@ -127,10 +129,10 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
 
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
-        <div className="eyebrow text-primary">AI analýza spôsobilosti</div>
+        <div className="eyebrow text-primary">{t("tender.eyebrow")}</div>
         {isTrial && credit && !credit.unlimited && (
           <span className="ml-auto text-xs text-muted-foreground">
-            Trial: <b className="text-foreground">{credit.remaining}</b> z {credit.limit} AI analýz
+            {t("tender.trialPrefix")} <b className="text-foreground">{credit.remaining}</b> {t("tender.trialSuffix", { limit: credit.limit })}
           </span>
         )}
       </div>
@@ -141,23 +143,23 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
 
       {hasAiAccess && !hasProfile && !analysis && (
         <div className="mt-4 rounded-lg border border-border bg-card p-6">
-          <h3 className="font-display font-semibold text-lg">Vyplňte firemný profil</h3>
+          <h3 className="font-display font-semibold text-lg">{t("tender.fillProfileTitle")}</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Aby AI vedela porovnať podmienky zákazky s vašou firmou, potrebujeme aspoň IČO a základné údaje.
+            {t("tender.fillProfileBody")}
           </p>
-          <Link to="/firma"><Button className="mt-4">Otvoriť firemný profil</Button></Link>
+          <Link to="/firma"><Button className="mt-4">{t("tender.openProfile")}</Button></Link>
         </div>
       )}
 
       {hasAiAccess && hasProfile && !analysis && !running && !trialExhausted && (
         <div className="mt-4">
           <Button onClick={() => run(false)} size="lg">
-            <Sparkles className="h-4 w-4 mr-2" /> Analyzovať zákazku
+            <Sparkles className="h-4 w-4 mr-2" /> {t("tender.analyzeButton")}
           </Button>
           <p className="mt-2 text-xs text-muted-foreground">
-            Analýza trvá ~30 sekúnd. Výsledok uložíme, pri ďalšom otvorení sa načíta okamžite.
+            {t("tender.analyzeHelp")}
             {isTrial && credit && !credit.unlimited && (
-              <> Táto analýza spotrebuje 1 z {credit.limit} trial AI kreditov (zahŕňa aj subdodávky a oslovenia pre tú istú zákazku).</>
+              <> {t("tender.trialCreditNote", { limit: credit.limit })}</>
             )}
           </p>
         </div>
@@ -171,15 +173,15 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
         <div className="mt-4 rounded-lg border border-border bg-card p-6">
           <div className="flex items-center gap-2 text-sm">
             <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            <span>Analyzujem zákazku… (~30 s)</span>
+            <span>{t("tender.analyzing")}</span>
           </div>
           <div className="mt-3 h-2 w-full overflow-hidden rounded bg-secondary">
             <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
           </div>
           <ol className="mt-4 space-y-1 text-xs text-muted-foreground">
-            <li>1. Zhrnutie zákazky</li>
-            <li>2. Extrakcia podmienok účasti</li>
-            <li>3. Porovnanie s vaším firemným profilom (Gemini Pro)</li>
+            <li>{t("tender.step1")}</li>
+            <li>{t("tender.step2")}</li>
+            <li>{t("tender.step3")}</li>
           </ol>
         </div>
       )}
@@ -194,9 +196,9 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
           />
           {trialExhausted && (
             <div className="mt-3 rounded-lg border-2 border-primary bg-primary/5 p-3 text-xs">
-              Analýzu môžete naďalej prezerať, ale trial AI kredity sú vyčerpané.{" "}
-              <WebOnlyPurchase note="Predplatné spravuješ na tendrik.sk">
-                <Link to="/cennik" className="underline font-semibold">Pozrite si plány</Link> pre vyššiu mesačnú kvótu analýz.
+              {t("tender.trialExhaustedInline")}{" "}
+              <WebOnlyPurchase note={t("tender.webOnlyNote")}>
+                <Link to="/cennik" className="underline font-semibold">{t("tender.seePlansLink")}</Link> {t("tender.higherQuota")}
               </WebOnlyPurchase>
             </div>
 
@@ -215,23 +217,24 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
 }
 
 function TrialExhaustedNotice({ limit, isTrial }: { limit: number; isTrial: boolean }) {
+  const { t } = useTranslation("analysis");
   return (
     <div className="mt-4 rounded-lg border-2 border-primary bg-primary/5 p-6">
       <div className="flex items-center gap-2 text-sm font-semibold">
         <Lock className="h-4 w-4 text-primary" />
-        {isTrial ? "Trial AI kredity vyčerpané" : "Mesačná kvóta AI analýz vyčerpaná"}
+        {isTrial ? t("tender.trialExhaustedTitle") : t("tender.monthlyExhaustedTitle")}
       </div>
       <p className="mt-2 text-sm text-foreground/80">
         {isTrial
-          ? `Využili ste všetkých ${limit} AI analýz z trial verzie. Vyberte si plán s AI – Prémium (${formatEur(priceEur("premium"))}/mes, ${AI_MONTHLY_LIMIT.premium} analýz mesačne) alebo Komplet (${formatEur(priceEur("komplet"))}/mes, ${AI_MONTHLY_LIMIT.komplet} analýz + granty).`
-          : `Vyčerpali ste ${limit} AI analýz v tomto mesiaci. Kvóta sa obnoví na začiatku ďalšieho fakturačného mesiaca, alebo prejdite na vyšší plán.`}
+          ? t("tender.trialExhaustedBody", { limit, premiumPrice: formatEur(priceEur("premium")), premiumLimit: AI_MONTHLY_LIMIT.premium, kompletPrice: formatEur(priceEur("komplet")), kompletLimit: AI_MONTHLY_LIMIT.komplet })
+          : t("tender.monthlyExhaustedBody", { limit })}
       </p>
       <p className="mt-1 text-xs text-muted-foreground">
-        Už vygenerované analýzy si môžete naďalej prezerať.
+        {t("tender.alreadySavedNote")}
       </p>
       <WebOnlyPurchase className="mt-4">
         <Link to="/cennik" className="mt-4 inline-block">
-          <Button>Pozrieť plány</Button>
+          <Button>{t("tender.seePlans")}</Button>
         </Link>
       </WebOnlyPurchase>
 
@@ -241,17 +244,16 @@ function TrialExhaustedNotice({ limit, isTrial }: { limit: number; isTrial: bool
 
 
 function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isExpired: boolean }) {
+  const { t } = useTranslation("analysis");
   const title = needsUpgrade
-    ? "AI analýza je v balíkoch Prémium a Komplet"
-    : isExpired
-    ? "Ukážka – vyžaduje aktívne predplatné"
-    : "Ukážka – vyžaduje aktívne predplatné";
+    ? t("tender.lockedNeedsUpgradeTitle")
+    : t("tender.lockedDemoTitle");
   const cta = needsUpgrade
-    ? `Upgradnúť na Prémium (${formatEur(priceEur("premium"))}/mes)`
-    : "Odomknúť analýzu – aktivovať predplatné";
+    ? t("tender.lockedUpgradeCta", { price: formatEur(priceEur("premium")) })
+    : t("tender.lockedUnlockCta");
   const body = needsUpgrade
-    ? "V balíku Základ máte monitoring, radary a notifikácie. AI porovnanie podmienok s vašou firmou (spôsobilosť, subdodávky) je súčasťou Prémia a Kompletu."
-    : "AI porovná podmienky účasti s vašou firmou a povie, či sa oplatí uchádzať.";
+    ? t("tender.lockedUpgradeBody")
+    : t("tender.lockedDemoBody");
 
   return (
     <div className="mt-4 relative overflow-hidden rounded-lg border border-border bg-card p-6">
@@ -283,6 +285,7 @@ function LockedTeaser({ needsUpgrade, isExpired }: { needsUpgrade: boolean; isEx
 function AnalysisView({ analysis, onRerun, rerunning, locked }: {
   analysis: AnalysisRow; onRerun: () => void; rerunning: boolean; locked: boolean;
 }) {
+  const { t } = useTranslation("analysis");
   const req = analysis.requirements ?? {};
   const elig = analysis.eligibility ?? {};
   const posudenia: Array<{ podmienka: string; stav: string; vysvetlenie: string }> = elig?.posudenia ?? [];
@@ -293,13 +296,13 @@ function AnalysisView({ analysis, onRerun, rerunning, locked }: {
       {/* Overall recommendation */}
       {elig?.zhrnutie && (
         <div className={`rounded-lg border p-5 ${recommendationClass(analysis.recommendation)}`}>
-          <div className="text-xs uppercase tracking-wide font-semibold">Odporúčanie</div>
+          <div className="text-xs uppercase tracking-wide font-semibold">{t("tender.recommendation")}</div>
           <div className="mt-1 font-display text-lg font-bold">
-            {recommendationLabel(analysis.recommendation)}
+            {recommendationLabel(analysis.recommendation, t)}
           </div>
           <p className="mt-2 text-sm">{elig.zhrnutie}</p>
           {elig?.co_chyba && (
-            <p className="mt-2 text-sm"><span className="font-medium">Čo firme chýba: </span>{elig.co_chyba}</p>
+            <p className="mt-2 text-sm"><span className="font-medium">{t("tender.whatMissing")}</span>{elig.co_chyba}</p>
           )}
         </div>
       )}
@@ -307,35 +310,34 @@ function AnalysisView({ analysis, onRerun, rerunning, locked }: {
       {/* Summary */}
       {analysis.summary && (
         <section>
-          <h3 className="font-display font-semibold">Súhrn zákazky</h3>
+          <h3 className="font-display font-semibold">{t("tender.summaryTitle")}</h3>
           <p className="mt-2 whitespace-pre-line text-foreground/90 leading-relaxed">{analysis.summary}</p>
         </section>
       )}
 
       {/* Requirements */}
       <section>
-        <h3 className="font-display font-semibold">Podmienky účasti</h3>
+        <h3 className="font-display font-semibold">{t("tender.requirementsTitle")}</h3>
         <dl className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
           {[
-            ["Obrat", req.obrat],
-            ["Referencie", req.referencie],
-            ["Certifikáty", req.certifikaty],
-            ["Technická spôsobilosť", req.technicka_sposobilost],
-            ["Personálna spôsobilosť", req.personalna_sposobilost],
-            ["Zábezpeka", req.zabezpeka],
-            ["Ostatné", req.ostatne],
+            [t("tender.reqTurnover"), req.obrat],
+            [t("tender.reqReferences"), req.referencie],
+            [t("tender.reqCertificates"), req.certifikaty],
+            [t("tender.reqTechnicalCapacity"), req.technicka_sposobilost],
+            [t("tender.reqPersonnelCapacity"), req.personalna_sposobilost],
+            [t("tender.reqGuarantee"), req.zabezpeka],
+            [t("tender.reqOther"), req.ostatne],
           ].map(([k, v]) => (
             <div key={k as string} className="rounded border border-border p-3">
               <dt className="text-xs uppercase tracking-wide text-muted-foreground">{k as string}</dt>
-              <dd className="mt-1 text-sm">{(v as string) || <span className="text-muted-foreground italic">neuvedené</span>}</dd>
+              <dd className="mt-1 text-sm">{(v as string) || <span className="text-muted-foreground italic">{t("tender.notSpecified")}</span>}</dd>
             </div>
           ))}
         </dl>
         {notedCount >= 4 && (
           <p className="mt-3 text-xs text-muted-foreground rounded border border-dashed border-border p-3">
             <HelpCircle className="inline h-3.5 w-3.5 mr-1" />
-            Väčšina podmienok je „neuvedené". Detailné podmienky bývajú v súťažných podkladoch (PDF prílohách),
-            ktoré nie sú vo verejnom popise. Táto analýza vychádza z dostupného textu zákazky.
+            {t("tender.mostlyUnspecifiedNote")}
           </p>
         )}
       </section>
@@ -343,7 +345,7 @@ function AnalysisView({ analysis, onRerun, rerunning, locked }: {
       {/* Eligibility */}
       {posudenia.length > 0 && (
         <section>
-          <h3 className="font-display font-semibold">Posúdenie spôsobilosti</h3>
+          <h3 className="font-display font-semibold">{t("tender.eligibilityTitle")}</h3>
           <ul className="mt-3 space-y-2">
             {posudenia.map((p, i) => (
               <li key={i} className="rounded border border-border p-3">
@@ -364,11 +366,11 @@ function AnalysisView({ analysis, onRerun, rerunning, locked }: {
         {!locked && (
           <Button variant="outline" onClick={onRerun} disabled={rerunning}>
             {rerunning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-            Analyzovať znova
+            {t("tender.rerunButton")}
           </Button>
         )}
         <p className="text-xs text-muted-foreground">
-          Analýza je orientačná, vygenerovaná AI. Overte si podmienky v oficiálnom zadaní.
+          {t("tender.disclaimer")}
         </p>
       </div>
     </div>
@@ -393,11 +395,11 @@ function countNoted(req: any): number {
   return n;
 }
 
-function recommendationLabel(r: string | null): string {
-  if (r === "odporucame") return "Odporúčame sa uchádzať";
-  if (r === "neodporucame") return "Neodporúčame sa uchádzať";
-  if (r === "opatrne") return "Opatrne – hraničné podmienky";
-  return "Vyhodnotenie";
+function recommendationLabel(r: string | null, t: (k: string) => string): string {
+  if (r === "odporucame") return t("tender.recommendationRecommend");
+  if (r === "neodporucame") return t("tender.recommendationNotRecommend");
+  if (r === "opatrne") return t("tender.recommendationCautious");
+  return t("tender.recommendationEvaluation");
 }
 
 function recommendationClass(r: string | null): string {
@@ -409,6 +411,7 @@ function recommendationClass(r: string | null): string {
 
 // ---------- TED structured facts (no AI) ----------
 function TedStructuredFacts({ sc }: { sc: StructuredCriteria }) {
+  const { t } = useTranslation("analysis");
   const award = awardBreakdown(sc);
   const exclusions = sc.exclusion_grounds ?? [];
   const inNotice = hasNoticeSelectionCriteria(sc);
@@ -427,13 +430,13 @@ function TedStructuredFacts({ sc }: { sc: StructuredCriteria }) {
     <div className="mb-8 rounded-lg border border-border bg-card p-5 space-y-5">
       <div className="flex items-center gap-2">
         <FileText className="h-4 w-4 text-primary" />
-        <div className="eyebrow text-primary">Podmienky z TED registra</div>
+        <div className="eyebrow text-primary">{t("tender.tedEyebrow")}</div>
       </div>
 
       {award && (
         <section>
           <div className="flex items-center gap-2 text-sm font-medium">
-            <Scale className="h-4 w-4" /> Kritériá hodnotenia ponúk
+            <Scale className="h-4 w-4" /> {t("tender.tedAwardTitle")}
           </div>
           <div className="mt-2 text-sm">{award.summary}</div>
           {award.items.length > 1 && (
@@ -460,7 +463,7 @@ function TedStructuredFacts({ sc }: { sc: StructuredCriteria }) {
       {exclusions.length > 0 && (
         <section>
           <div className="flex items-center gap-2 text-sm font-medium">
-            <ShieldAlert className="h-4 w-4" /> Dôvody vylúčenia uchádzača
+            <ShieldAlert className="h-4 w-4" /> {t("tender.tedExclusionTitle")}
           </div>
           <ul className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-1 text-xs text-muted-foreground">
             {exclusions.map((code) => (
@@ -479,7 +482,7 @@ function TedStructuredFacts({ sc }: { sc: StructuredCriteria }) {
       {inNotice && (sc.selection_criterion_descriptions?.length ?? 0) > 0 && (
         <section>
           <div className="flex items-center gap-2 text-sm font-medium">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Podmienky účasti (overené z oznámenia)
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" /> {t("tender.tedSelectionVerifiedTitle")}
           </div>
           <ul className="mt-2 space-y-1.5 text-sm">
             {sc.selection_criterion_descriptions.slice(0, 8).map((d, i) => (
@@ -493,7 +496,7 @@ function TedStructuredFacts({ sc }: { sc: StructuredCriteria }) {
           </ul>
           {sc.language && sc.language !== "slk" && sc.language !== "sk" && (
             <p className="mt-2 text-xs text-muted-foreground">
-              Text je v pôvodnom jazyku ({sc.language}). AI analýza nižšie ho spracuje po slovensky.
+              {t("tender.tedLanguageNote", { language: sc.language })}
             </p>
           )}
         </section>
@@ -504,10 +507,9 @@ function TedStructuredFacts({ sc }: { sc: StructuredCriteria }) {
           <div className="flex items-start gap-2">
             <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
             <div>
-              <div className="font-medium">Podmienky sú v prílohách</div>
+              <div className="font-medium">{t("tender.tedInAttachmentsTitle")}</div>
               <div className="text-xs text-muted-foreground mt-1">
-                TED oznámenie uvádza, že detailné podmienky účasti sú v súťažných podkladoch (prílohách), nie v samotnom oznámení.
-                AI analýza pracuje s popisom nižšie; presné podmienky nájdete v priloženej dokumentácii.
+                {t("tender.tedInAttachmentsBody")}
               </div>
             </div>
           </div>
@@ -518,13 +520,13 @@ function TedStructuredFacts({ sc }: { sc: StructuredCriteria }) {
         <section className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
           {sc.guarantee_required_description && (
             <div className="rounded border border-border p-3">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground">Zábezpeka</div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("tender.tedGuarantee")}</div>
               <div className="mt-1">{sc.guarantee_required_description}</div>
             </div>
           )}
           {sc.tenderer_legal_form_description && (
             <div className="rounded border border-border p-3">
-              <div className="text-xs uppercase tracking-wide text-muted-foreground">Právna forma uchádzača</div>
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("tender.tedLegalForm")}</div>
               <div className="mt-1">{sc.tenderer_legal_form_description}</div>
             </div>
           )}

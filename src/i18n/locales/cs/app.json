@@ -1,0 +1,396 @@
+{
+  "nav": {
+    "tenders": "Zakázky",
+    "grants": "Granty",
+    "settings": "Nastavení",
+    "pricing": "Ceník",
+    "admin": "Admin",
+    "signOut": "Odhlásit se",
+    "brand": "Tendrik"
+  },
+  "mobileNav": {
+    "tenders": "Zakázky",
+    "grants": "Granty",
+    "company": "Firma",
+    "settings": "Nastavení",
+    "ariaLabel": "Hlavní navigace"
+  },
+  "common": {
+    "loading": "Načítám...",
+    "loadingEllipsis": "Načítám…"
+  },
+  "dashboard": {
+    "title": "Vaše zakázky",
+    "subtitle": "Aktuální veřejné zakázky z TED, ÚVO, EKS a JOSEPHINE podle vašich radarů.",
+    "noRadar": {
+      "title": "Ještě jste nenastavili radar",
+      "description": "Abychom vám mohli ukázat relevantní zakázky, potřebujeme vaše klíčová slova, CPV kategorie a kraje.",
+      "cta": "Nastavit radar"
+    },
+    "trialBanner": {
+      "label": "Zkušební období:",
+      "remaining_one": "zbývá {{count}} den",
+      "remaining_few": "zbývají {{count}} dny",
+      "remaining_many": "zbývá {{count}} dní",
+      "remaining_other": "zbývá {{count}} dní",
+      "endingSoon": " – poté Tendrik přejde na předplatné.",
+      "cta": "Aktivovat předplatné za {{price}}/měs"
+    },
+    "expiredBanner": {
+      "title": "Vaše zkušební období skončilo.",
+      "text": "Pokračujte za {{price}}/měsíc.",
+      "cta": "Aktivovat předplatné"
+    },
+    "lockedOverlay": {
+      "title": "Zkušební období skončilo",
+      "description": "Pokud chcete i nadále dostávat upozornění a vidět denní zakázky, aktivujte si předplatné za {{price}}/měsíc. Bez závazků, kdykoli zrušíte.",
+      "cta": "Aktivovat předplatné"
+    },
+    "resultsCount": {
+      "none": "Žádné zakázky pro aktuální filtry.",
+      "showing": "z {{total}} {{tabWord}} zakázek"
+    },
+    "tabWord": {
+      "foryou": "aktivních",
+      "saved": "uložených",
+      "hidden": "skrytých"
+    },
+    "tabs": {
+      "foryou": "Pro vás",
+      "saved": "Uložené",
+      "hidden": "Skryté"
+    },
+    "perPageAriaLabel": "Počet na stránku",
+    "perPageOption": "{{count}} / str.",
+    "view": {
+      "ariaLabel": "Zobrazení zakázek",
+      "listAria": "Zobrazit jako seznam",
+      "listTitle": "Seznam",
+      "gridAria": "Zobrazit jako mřížku",
+      "gridTitle": "Mřížka"
+    },
+    "filters": {
+      "allRadars": "Všechny radary",
+      "inactiveSuffix": " (vypnutý)",
+      "searchPlaceholder": "Hledat v zakázkách...",
+      "sourceAriaLabel": "Zdroj",
+      "allSources": "Všechny zdroje"
+    },
+    "sort": {
+      "deadline": "Nejbližší deadline",
+      "newest": "Nejnovější",
+      "value": "Nejvyšší hodnota",
+      "valueAsc": "Nejnižší hodnota"
+    },
+    "country": {
+      "all": "Všechny země",
+      "count": "{{count}} zemí",
+      "ariaLabel": "Filtr zemí",
+      "title": "Země",
+      "clear": "Zrušit výběr",
+      "empty": "Žádné země v aktuálních výsledcích",
+      "unknown": "neznámá země"
+    },
+    "emptyState": {
+      "noQueryResultsPrefix": "Nic jsme nenašli pro",
+      "noQueryResultsSuffix": "– zkuste jiné slovo.",
+      "savedEmpty": "Zatím nemáte uložené zakázky – klikněte na hvězdičku u zakázky, která vás zaujme.",
+      "hiddenEmpty": "Nemáte žádné skryté zakázky.",
+      "forYouTitle": "Váš radar zatím nic nezachytil",
+      "forYouDesc": "Zkuste upravit filtry nebo si prohlédněte všechny zakázky.",
+      "editFilters": "Upravit filtry",
+      "showAll": "Zobrazit všechny zakázky"
+    },
+    "card": {
+      "authority": "Zadavatel",
+      "deadline": "Deadline",
+      "region": "Region",
+      "value": "Hodnota",
+      "detail": "Detail",
+      "restoreAria": "Obnovit zakázku",
+      "restoreTitle": "Obnovit",
+      "saveAria": "Uložit zakázku",
+      "saveTitle": "Uložit",
+      "unsaveAria": "Zrušit uložení",
+      "unsaveTitle": "Zrušit uložení",
+      "hideAria": "Skrýt zakázku",
+      "hideTitle": "Skrýt",
+      "matchedByRadar": "Zachyceno radarem",
+      "cpv": "CPV",
+      "noDeadline": "Neurčeno",
+      "none": "—"
+    },
+    "deadlineBadge": {
+      "overdue": "Po termínu",
+      "lastDay": "Poslední den",
+      "daysLeft_one": "{{count}} den",
+      "daysLeft_few": "{{count}} dny",
+      "daysLeft_many": "{{count}} dní",
+      "daysLeft_other": "{{count}} dní"
+    },
+    "sourceBadge": {
+      "titleJosephine": "JOSEPHINE (proEBIZ)",
+      "titleEks": "Elektronický kontraktační systém (EKS)",
+      "titleUvo": "Věstník veřejného obstarávání ÚVO",
+      "titleTed": "Tenders Electronic Daily (EU)"
+    },
+    "pagination": {
+      "shown": "Zobrazeno",
+      "of": "z",
+      "firstAria": "První stránka",
+      "prevAria": "Předchozí stránka",
+      "prevTitle": "Předchozí",
+      "nextAria": "Následující stránka",
+      "nextTitle": "Následující",
+      "lastAria": "Poslední stránka",
+      "navAriaLabel": "Stránkování",
+      "pageAria": "Strana {{page}}"
+    }
+  },
+  "granty": {
+    "title": "Granty a dotace",
+    "subtitle": "Aktuální grantové výzvy z Programu Slovensko a fondů EU (ITMS21+).",
+    "count_one": "otevřená výzva",
+    "count_few": "otevřené výzvy",
+    "count_many": "otevřené výzvy",
+    "count_other": "otevřených výzev",
+    "countAll_one": "nalezená výzva",
+    "countAll_few": "nalezené výzvy",
+    "countAll_many": "nalezené výzvy",
+    "countAll_other": "nalezených výzev",
+    "locked": {
+      "badge": "Granty jsou součástí balíčku Komplet",
+      "description": "Monitoring grantových výzev (Program Slovensko, fondy EU), radary, notifikace a AI analýza způsobilosti jsou v balíčku Komplet za {{price}} / měs ({{limit}} AI analýz měsíčně).",
+      "cta": "Aktivovat Komplet",
+      "compare": "Porovnat plány"
+    },
+    "applicantType": {
+      "label": "Typ žadatele",
+      "autoHint": "· přednastaveno podle vašeho firemního profilu ({{category}})",
+      "businesses": "Podnikatelé",
+      "businessesHint": "s.r.o., a.s., živnostník",
+      "public": "Veřejný sektor",
+      "publicHint": "obce, kraje, ministerstva",
+      "nonprofits": "Neziskovky a školy",
+      "nonprofitsHint": "n.o., nadace, sdružení",
+      "all": "Všechny",
+      "allHint": "bez ohledu na žadatele",
+      "tip": "Tip: vyplňte si {{link}} a Tendrik vám automaticky přednastaví relevantní výzvy.",
+      "tipLink": "firemní profil"
+    },
+    "filters": {
+      "searchPlaceholder": "Hledat podle názvu, kódu nebo poskytovatele…",
+      "statusPlaceholder": "Stav",
+      "statusOpen": "Otevřené",
+      "statusClosed": "Uzavřené",
+      "statusCancelled": "Zrušené",
+      "statusAll": "Všechny",
+      "typePlaceholder": "Formát výzvy",
+      "typeAll": "Formát: všechny",
+      "typeRolling": "Průběžné (rolling)",
+      "typeOneShot": "One-shot (uzavírající se)",
+      "programPlaceholder": "Program",
+      "programAll": "Všechny programy",
+      "regionPlaceholder": "Místo realizace",
+      "regionAll": "Všechny kraje ({{count}})",
+      "regionSummary": "({{whole}} celostátních + {{regional}} reg.)",
+      "sortPlaceholder": "Seřadit",
+      "sortDeadline": "Podle deadlinu",
+      "sortNewest": "Nejnověji vyhlášené",
+      "sortSumDesc": "Nejvyšší částka EU",
+      "sortSumAsc": "Nejnižší částka EU",
+      "reset": "Vyčistit filtry"
+    },
+    "list": {
+      "loading": "Načítám…"
+    },
+    "emptyState": {
+      "allNoMatch": "Žádné výzvy neodpovídají filtrům.",
+      "categoryNoMatch": "Pro kategorii „{{category}}\" nejsou momentálně otevřené výzvy odpovídající filtrům.",
+      "categoryHint": "Eurofondové výzvy z Programu Slovensko jsou zpravidla určeny veřejnému sektoru (ministerstvům, krajům, obcím a státním organizacím). Zkuste rozšířit výběr nebo upravit ostatní filtry.",
+      "showAll": "Zobrazit všechny výzvy"
+    },
+    "pagination": {
+      "prev": "Předchozí",
+      "next": "Další",
+      "page": "Strana {{page}} z {{total}}"
+    },
+    "card": {
+      "rolling": "Průběžná",
+      "oneShot": "One-shot",
+      "lastDay": "Poslední den",
+      "daysLeft": "{{count}} dní",
+      "allocation": "Alokace EU+ŠR",
+      "provider": "Poskytovatel",
+      "deadline": "Deadline",
+      "rollingCall": "průběžná výzva",
+      "region": "Region",
+      "documents": "Dokumenty",
+      "none": "—"
+    },
+    "regionLabel": {
+      "wholeCountry": "Celé Slovensko",
+      "manyRegions": "{{count}} krajů",
+      "none": "—"
+    }
+  },
+  "tenderDetail": {
+    "meta": {
+      "title": "Detail zakázky – Tendrik"
+    },
+    "loadError": {
+      "title": "Nepodařilo se načíst zakázku",
+      "retry": "Zkusit znovu"
+    },
+    "notFound": {
+      "title": "Zakázka neexistuje",
+      "description": "Tuto zakázku se nám nepodařilo najít.",
+      "back": "Zpět na zakázky"
+    },
+    "back": "Zpět",
+    "backToTenders": "Zpět na zakázky",
+    "overdue": "Po termínu",
+    "lastDay": "Poslední den",
+    "daysLeft_one": "{{count}} den",
+    "daysLeft_few": "{{count}} dny",
+    "daysLeft_many": "{{count}} dní",
+    "daysLeft_other": "{{count}} dní",
+    "estimatedValue": "Předpokládaná hodnota",
+    "fields": {
+      "deadline": "Deadline",
+      "deadlineOverdue": "po termínu",
+      "deadlineLastDay": "poslední den",
+      "deadlineRemaining": "zbývá {{count}} dní",
+      "published": "Zveřejněno",
+      "country": "Země",
+      "cpv": "CPV",
+      "none": "—",
+      "noDeadline": "Neurčeno"
+    },
+    "aiSummary": {
+      "label": "Shrnutí",
+      "disclaimer": "Vygenerováno AI – ověřte si detaily v oficiálním zdroji."
+    },
+    "description": "Popis zakázky",
+    "openSource": "Otevřít oficiální zdroj",
+    "sourceTitle": {
+      "josephine": "JOSEPHINE (proEBIZ)",
+      "eks": "Elektronický kontraktační systém (EKS)",
+      "uvo": "Věstník veřejného obstarávání ÚVO",
+      "ted": "Tenders Electronic Daily (EU)"
+    },
+    "cta": {
+      "badge": "Bezplatná služba",
+      "title": "Zaregistrujte se a dostávejte takové zakázky e-mailem",
+      "description": "Nastavte si klíčová slova, CPV kategorie a kraje.",
+      "button": "Začít zdarma"
+    },
+    "cpvCategories": {
+      "03": "Zemědělské produkty",
+      "09": "Ropa, paliva, elektřina",
+      "14": "Těžba a nerosty",
+      "15": "Potraviny a nápoje",
+      "18": "Oděvy, obuv",
+      "22": "Tiskoviny",
+      "24": "Chemikálie",
+      "30": "Kancelářské stroje a IT",
+      "31": "Elektrická zařízení",
+      "32": "Rádiová a TV zařízení",
+      "33": "Zdravotnické pomůcky",
+      "34": "Dopravní prostředky",
+      "35": "Bezpečnostní vybavení",
+      "37": "Hudební a sportovní potřeby",
+      "38": "Laboratorní zařízení",
+      "39": "Nábytek",
+      "42": "Průmyslové stroje",
+      "44": "Stavební konstrukce",
+      "45": "Stavební práce",
+      "48": "Software",
+      "50": "Opravy a údržba",
+      "51": "Instalační služby",
+      "55": "Hotely, restaurace",
+      "60": "Doprava",
+      "63": "Podpůrné dopravní služby",
+      "64": "Poštovní a telekomunikační služby",
+      "65": "Energie, voda, odpad",
+      "66": "Finanční a pojišťovací služby",
+      "70": "Nemovitosti",
+      "71": "Architektura a inženýrství",
+      "72": "IT služby",
+      "73": "Výzkum a vývoj",
+      "75": "Veřejná správa",
+      "76": "Ropný a plynárenský průmysl",
+      "77": "Zemědělské služby",
+      "79": "Podnikatelské služby",
+      "80": "Vzdělávání",
+      "85": "Zdravotnictví a sociální služby",
+      "90": "Odpad, čištění, životní prostředí",
+      "92": "Rekreace, kultura, sport",
+      "98": "Jiné komunální, sociální a osobní služby"
+    },
+    "cpvOther": "Jiné"
+  },
+  "grantDetail": {
+    "meta": {
+      "title": "Detail grantové výzvy – Tendrik",
+      "description": "Detail grantové výzvy z ITMS21+ včetně podmínek, způsobilých výdajů a AI posouzení způsobilosti."
+    },
+    "loadError": {
+      "title": "Nepodařilo se načíst výzvu",
+      "retry": "Zkusit znovu"
+    },
+    "notFound": {
+      "title": "Výzva neexistuje",
+      "back": "Zpět na granty"
+    },
+    "loading": "Načítám…",
+    "back": "Zpět",
+    "backToGrants": "Zpět na granty",
+    "rollingCall": "Průběžná výzva",
+    "oneShotCall": "One-shot výzva",
+    "overdue": "Po termínu",
+    "lastDay": "Poslední den",
+    "daysLeft": "Zbývá {{count}} dní",
+    "stats": {
+      "allocation": "Alokace (EU + ŠR)",
+      "eu": "EU",
+      "sr": "ŠR",
+      "deadline": "Deadline",
+      "deadlineOverdue": "po termínu",
+      "deadlineLastDay": "poslední den",
+      "deadlineRemaining": "zbývá {{count}} dní",
+      "rollingCall": "Průběžná výzva",
+      "announced": "vyhlášena {{date}}",
+      "coFinancing": "Míra spolufinancování"
+    },
+    "sections": {
+      "whoFor": "Pro koho je výzva",
+      "eligibleApplicant": "Způsobilý žadatel",
+      "implementationPlace": "Místo realizace",
+      "wholeCountry": "Celé Slovensko",
+      "targetGroup": "Cílová skupina",
+      "interventionAreas": "Oblasti intervence",
+      "supportForm": "Forma podpory a zařazení",
+      "supportFormLabel": "Forma podpory",
+      "regionCategory": "Kategorie regionů",
+      "specificGoal": "Specifický cíl",
+      "priority": "Priorita",
+      "coFinancing": "Míra spolufinancování",
+      "conditions": "Podmínky poskytnutí příspěvku",
+      "condition": "Podmínka {{n}}",
+      "attachments": "Přílohy",
+      "eligibleExpensesAndIndicators": "Způsobilé výdaje a indikátory",
+      "eligibleExpenses": "Způsobilé výdaje",
+      "outputIndicators": "Výstupové ukazatele",
+      "resultIndicators": "Výsledkové ukazatele",
+      "documents": "Dokumenty ({{count}})",
+      "documentsFull": "Kompletní dokumenty i s přílohami najdete v {{link}}.",
+      "contact": "Kontakt"
+    },
+    "document": "Dokument {{n}}",
+    "openInItms": "Otevřít v ITMS21+",
+    "showLess": "Zobrazit méně",
+    "showMore": "Zobrazit celé",
+    "showMoreCount": "+ dalších {{count}}"
+  }
+}

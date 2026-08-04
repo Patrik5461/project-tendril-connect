@@ -16,6 +16,7 @@ import {
 } from "@/lib/grant-applicant-categories";
 import { AI_MONTHLY_LIMIT, computeSubscription, formatEur, priceEur } from "@/lib/subscription";
 import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+import { useTranslation } from "react-i18next";
 
 
 
@@ -96,10 +97,10 @@ function extractRegionNames(mr: any): string[] {
   return Array.from(out);
 }
 
-function regionLabel(regions: string[]): string {
-  if (regions.length === 0) return "—";
-  if (regions.length >= 8) return "Celé Slovensko";
-  if (regions.length >= 5) return `${regions.length} krajov`;
+function regionLabel(regions: string[], t: (k: string, o?: any) => string): string {
+  if (regions.length === 0) return t("granty.regionLabel.none");
+  if (regions.length >= 8) return t("granty.regionLabel.wholeCountry");
+  if (regions.length >= 5) return t("granty.regionLabel.manyRegions", { count: regions.length });
   return regions.join(", ");
 }
 
@@ -111,6 +112,7 @@ const CATEGORY_ICON: Record<ApplicantCategory, typeof Briefcase> = {
 
 function GrantyList() {
   const { stav, typ, program, region, kategoria, q, sort, page } = Route.useSearch();
+  const { t } = useTranslation("app");
   const navigate = useNavigate({ from: "/granty" });
 
   const [allItems, setAllItems] = useState<Grant[]>([]);
@@ -233,22 +235,20 @@ function GrantyList() {
   if (grantAccess === false) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16">
-        <h1 className="font-display text-3xl font-bold tracking-tight">Granty a dotácie</h1>
+        <h1 className="font-display text-3xl font-bold tracking-tight">{t("granty.title")}</h1>
         <div className="mt-6 rounded-lg border-2 border-primary bg-primary/5 p-6">
           <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-            <LockIcon className="h-4 w-4" /> Granty sú súčasťou balíka Komplet
+            <LockIcon className="h-4 w-4" /> {t("granty.locked.badge")}
           </div>
           <p className="mt-2 text-sm text-foreground/80">
-            Monitoring grantových výziev (Program Slovensko, fondy EÚ), radary, notifikácie
-            a AI analýza oprávnenosti sú v balíku Komplet za {formatEur(priceEur("komplet"))} / mes
-            ({AI_MONTHLY_LIMIT.komplet} AI analýz mesačne).
+            {t("granty.locked.description", { price: formatEur(priceEur("komplet")), limit: AI_MONTHLY_LIMIT.komplet })}
           </p>
           <WebOnlyPurchase className="mt-5">
             <div className="mt-5 flex flex-wrap gap-3">
               <Link to="/predplatne" search={{ tier: "komplet", period: "monthly" } as never}>
-                <Button>Aktivovať Komplet</Button>
+                <Button>{t("granty.locked.cta")}</Button>
               </Link>
-              <Link to="/cennik"><Button variant="outline">Porovnať plány</Button></Link>
+              <Link to="/cennik"><Button variant="outline">{t("granty.locked.compare")}</Button></Link>
             </div>
           </WebOnlyPurchase>
 
@@ -262,14 +262,14 @@ function GrantyList() {
     <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
       <div className="flex items-baseline justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Granty a dotácie</h1>
+          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{t("granty.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Aktuálne grantové výzvy z Programu Slovensko a fondov EÚ (ITMS21+).
+            {t("granty.subtitle")}
           </p>
         </div>
         <div className="text-sm text-muted-foreground">
           <span className="num font-semibold text-foreground">{total.toLocaleString("sk")}</span>{" "}
-          {stav === "OTVORENA" ? "otvorených" : "nájdených"} výziev
+          {stav === "OTVORENA" ? t("granty.count", { count: total }) : t("granty.countAll", { count: total })}
         </div>
       </div>
 
@@ -277,10 +277,10 @@ function GrantyList() {
       <div className="mt-6 border border-border bg-card p-4">
         <div className="flex items-center gap-2 mb-3">
           <Users className="h-4 w-4 text-muted-foreground" />
-          <div className="eyebrow text-muted-foreground">Typ žiadateľa</div>
+          <div className="eyebrow text-muted-foreground">{t("granty.applicantType.label")}</div>
           {showAutoHint && (
             <span className="text-xs text-muted-foreground">
-              · predvolené podľa vášho firemného profilu ({CATEGORY_SHORT[profileCategory!]})
+              {t("granty.applicantType.autoHint", { category: CATEGORY_SHORT[profileCategory!] })}
             </span>
           )}
         </div>
@@ -289,38 +289,38 @@ function GrantyList() {
             active={effectiveCategory === "podnikatelia"}
             onClick={() => updateSearch({ kategoria: "podnikatelia" })}
             icon={Briefcase}
-            label="Podnikatelia"
+            label={t("granty.applicantType.businesses")}
             count={counts.podnikatelia}
-            hint="s.r.o., a.s., živnostník"
+            hint={t("granty.applicantType.businessesHint")}
           />
           <CategoryButton
             active={effectiveCategory === "verejny"}
             onClick={() => updateSearch({ kategoria: "verejny" })}
             icon={Landmark}
-            label="Verejný sektor"
+            label={t("granty.applicantType.public")}
             count={counts.verejny}
-            hint="obce, VÚC, ministerstvá"
+            hint={t("granty.applicantType.publicHint")}
           />
           <CategoryButton
             active={effectiveCategory === "neziskovky"}
             onClick={() => updateSearch({ kategoria: "neziskovky" })}
             icon={HeartHandshake}
-            label="Neziskovky a školy"
+            label={t("granty.applicantType.nonprofits")}
             count={counts.neziskovky}
-            hint="n.o., nadácie, združenia"
+            hint={t("granty.applicantType.nonprofitsHint")}
           />
           <CategoryButton
             active={effectiveCategory === "all"}
             onClick={() => updateSearch({ kategoria: "all" })}
             icon={Users}
-            label="Všetky"
+            label={t("granty.applicantType.all")}
             count={allItems.length}
-            hint="bez ohľadu na žiadateľa"
+            hint={t("granty.applicantType.allHint")}
           />
         </div>
         {!profileLoaded ? null : profileCategory === null && kategoria === "auto" && (
           <p className="mt-3 text-xs text-muted-foreground">
-            Tip: vyplňte si <Link to="/firma" className="underline hover:text-foreground">firemný profil</Link> a Tendrik vám automaticky predvyberie relevantné výzvy.
+            {t("granty.applicantType.tip", { link: "" })}<Link to="/firma" className="underline hover:text-foreground">{t("granty.applicantType.tipLink")}</Link>
           </p>
         )}
       </div>
@@ -331,7 +331,7 @@ function GrantyList() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Hľadať podľa názvu, kódu alebo poskytovateľa…"
+            placeholder={t("granty.filters.searchPlaceholder")}
             value={qInput}
             onChange={(e) => setQInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") updateSearch({ q: qInput }); }}
@@ -340,37 +340,37 @@ function GrantyList() {
         </div>
 
         <Select value={stav} onValueChange={(v) => updateSearch({ stav: v as any })}>
-          <SelectTrigger><SelectValue placeholder="Stav" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t("granty.filters.statusPlaceholder")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="OTVORENA">Otvorené</SelectItem>
-            <SelectItem value="UZAVRETA">Uzavreté</SelectItem>
-            <SelectItem value="ZRUSENA">Zrušené</SelectItem>
-            <SelectItem value="all">Všetky</SelectItem>
+            <SelectItem value="OTVORENA">{t("granty.filters.statusOpen")}</SelectItem>
+            <SelectItem value="UZAVRETA">{t("granty.filters.statusClosed")}</SelectItem>
+            <SelectItem value="ZRUSENA">{t("granty.filters.statusCancelled")}</SelectItem>
+            <SelectItem value="all">{t("granty.filters.statusAll")}</SelectItem>
           </SelectContent>
         </Select>
 
         <Select value={typ} onValueChange={(v) => updateSearch({ typ: v as any })}>
-          <SelectTrigger><SelectValue placeholder="Formát výzvy" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t("granty.filters.typePlaceholder")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Formát: všetky</SelectItem>
-            <SelectItem value="OTVORENA">Priebežné (rolling)</SelectItem>
-            <SelectItem value="UZAVRETA">One-shot (uzatvárajúce sa)</SelectItem>
+            <SelectItem value="all">{t("granty.filters.typeAll")}</SelectItem>
+            <SelectItem value="OTVORENA">{t("granty.filters.typeRolling")}</SelectItem>
+            <SelectItem value="UZAVRETA">{t("granty.filters.typeOneShot")}</SelectItem>
           </SelectContent>
         </Select>
 
         <Select value={program || "__all__"} onValueChange={(v) => updateSearch({ program: v === "__all__" ? "" : v })}>
-          <SelectTrigger><SelectValue placeholder="Program" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t("granty.filters.programPlaceholder")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">Všetky programy</SelectItem>
+            <SelectItem value="__all__">{t("granty.filters.programAll")}</SelectItem>
             {programs.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
           </SelectContent>
         </Select>
 
         <Select value={region || "__all__"} onValueChange={(v) => updateSearch({ region: v === "__all__" ? "" : v })}>
-          <SelectTrigger><SelectValue placeholder="Miesto realizácie" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t("granty.filters.regionPlaceholder")} /></SelectTrigger>
           <SelectContent>
             <SelectItem value="__all__">
-              Všetky kraje ({allItems.length})
+              {t("granty.filters.regionAll", { count: allItems.length })}
             </SelectItem>
             {REGIONS.map((r) => {
               const total = (regionCounts[r] ?? 0);
@@ -378,7 +378,7 @@ function GrantyList() {
               const regional = Math.max(0, total - whole);
               return (
                 <SelectItem key={r} value={r}>
-                  {r} — {total} <span className="text-muted-foreground">({whole} celoslov. + {regional} reg.)</span>
+                  {r} — {total} <span className="text-muted-foreground">{t("granty.filters.regionSummary", { whole, regional })}</span>
                 </SelectItem>
               );
             })}
@@ -386,23 +386,23 @@ function GrantyList() {
         </Select>
 
         <Select value={sort} onValueChange={(v) => updateSearch({ sort: v as any })}>
-          <SelectTrigger><SelectValue placeholder="Zoradiť" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t("granty.filters.sortPlaceholder")} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="deadline">Podľa deadlinu</SelectItem>
-            <SelectItem value="newest">Najnovšie vyhlásené</SelectItem>
-            <SelectItem value="suma_desc">Najvyššia suma EÚ</SelectItem>
-            <SelectItem value="suma_asc">Najnižšia suma EÚ</SelectItem>
+            <SelectItem value="deadline">{t("granty.filters.sortDeadline")}</SelectItem>
+            <SelectItem value="newest">{t("granty.filters.sortNewest")}</SelectItem>
+            <SelectItem value="suma_desc">{t("granty.filters.sortSumDesc")}</SelectItem>
+            <SelectItem value="suma_asc">{t("granty.filters.sortSumAsc")}</SelectItem>
           </SelectContent>
         </Select>
 
         <Button variant="ghost" size="sm" onClick={resetFilters} className="justify-start">
-          <RotateCcw className="h-4 w-4 mr-2" /> Vyčistiť filtre
+          <RotateCcw className="h-4 w-4 mr-2" /> {t("granty.filters.reset")}
         </Button>
       </div>
 
       {/* List */}
       <div className="mt-6 space-y-3">
-        {loading && <div className="text-muted-foreground text-sm py-8">Načítavam…</div>}
+        {loading && <div className="text-muted-foreground text-sm py-8">{t("granty.list.loading")}</div>}
         {!loading && filtered.length === 0 && (
           <EmptyState category={effectiveCategory} onReset={() => updateSearch({ kategoria: "all" })} />
         )}
@@ -413,13 +413,13 @@ function GrantyList() {
       {totalPages > 1 && (
         <div className="mt-8 flex items-center justify-center gap-2">
           <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => navigate({ search: (p: z.infer<typeof searchSchema>) => ({ ...p, page: page - 1 }) })}>
-            Predchádzajúca
+            {t("granty.pagination.prev")}
           </Button>
           <span className="text-sm text-muted-foreground">
-            Strana <span className="num font-medium text-foreground">{page}</span> z <span className="num">{totalPages}</span>
+            {t("granty.pagination.page", { page, total: totalPages })}
           </span>
           <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => navigate({ search: (p: z.infer<typeof searchSchema>) => ({ ...p, page: page + 1 }) })}>
-            Ďalšia
+            {t("granty.pagination.next")}
           </Button>
         </div>
       )}
@@ -456,10 +456,11 @@ function CategoryButton({
 }
 
 function EmptyState({ category, onReset }: { category: ApplicantCategory | "all"; onReset: () => void }) {
+  const { t } = useTranslation("app");
   if (category === "all") {
     return (
       <div className="text-center py-16 text-muted-foreground">
-        Žiadne výzvy nezodpovedajú filtrom.
+        {t("granty.emptyState.allNoMatch")}
       </div>
     );
   }
@@ -467,21 +468,20 @@ function EmptyState({ category, onReset }: { category: ApplicantCategory | "all"
   return (
     <div className="border border-border bg-muted/30 p-8 text-center">
       <div className="font-medium text-foreground">
-        Pre kategóriu „{label}" nie sú momentálne otvorené výzvy zodpovedajúce filtrom.
+        {t("granty.emptyState.categoryNoMatch", { category: label })}
       </div>
       <p className="mt-2 text-sm text-muted-foreground max-w-lg mx-auto">
-        Eurofondové výzvy z Programu Slovensko sú z veľkej časti určené verejnému sektoru
-        (ministerstvám, VÚC, obciam a štátnym organizáciám). Skúste rozšíriť výber alebo
-        upraviť ostatné filtre.
+        {t("granty.emptyState.categoryHint")}
       </p>
       <Button variant="outline" size="sm" className="mt-4" onClick={onReset}>
-        Zobraziť všetky výzvy
+        {t("granty.emptyState.showAll")}
       </Button>
     </div>
   );
 }
 
 function GrantCard({ g }: { g: Grant }) {
+  const { t } = useTranslation("app");
   const deadlineDate = g.deadline ? parseISO(g.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
   const rolling = g.typ === "OTVORENA";
@@ -502,11 +502,11 @@ function GrantCard({ g }: { g: Grant }) {
             )}
             {rolling ? (
               <span className="eyebrow inline-flex items-center border border-emerald-600 text-emerald-700 dark:text-emerald-400 px-2 py-0.5">
-                <InfinityIcon className="h-3 w-3 mr-1" /> Priebežná
+                <InfinityIcon className="h-3 w-3 mr-1" /> {t("granty.card.rolling")}
               </span>
             ) : (
               <span className="eyebrow inline-flex items-center border border-primary text-primary px-2 py-0.5">
-                One-shot
+                {t("granty.card.oneShot")}
               </span>
             )}
             {Array.from(cats).map((c) => {
@@ -519,13 +519,13 @@ function GrantCard({ g }: { g: Grant }) {
             })}
             {deadlineDate && daysLeft !== null && daysLeft >= 0 && daysLeft < 30 && (
               <span className={`eyebrow inline-flex items-center px-2 py-0.5 ${daysLeft < 7 ? "border border-primary bg-primary text-primary-foreground" : "border border-foreground text-foreground"}`}>
-                {daysLeft === 0 ? "Posledný deň" : `${daysLeft} dní`}
+                {daysLeft === 0 ? t("granty.card.lastDay") : t("granty.card.daysLeft", { count: daysLeft })}
               </span>
             )}
           </div>
           {totalSum > 0 && (
             <div className="text-right">
-              <div className="eyebrow text-muted-foreground">Alokácia EÚ+ŠR</div>
+              <div className="eyebrow text-muted-foreground">{t("granty.card.allocation")}</div>
               <div className="num font-bold text-primary text-lg leading-tight">
                 {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 }).format(totalSum)} €
               </div>
@@ -543,27 +543,27 @@ function GrantCard({ g }: { g: Grant }) {
 
         <dl className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm">
           <div>
-            <dt className="text-xs text-muted-foreground flex items-center gap-1"><Building2 className="h-3 w-3" /> Poskytovateľ</dt>
-            <dd className="mt-0.5 line-clamp-2">{g.poskytovatel ?? "—"}</dd>
+            <dt className="text-xs text-muted-foreground flex items-center gap-1"><Building2 className="h-3 w-3" /> {t("granty.card.provider")}</dt>
+            <dd className="mt-0.5 line-clamp-2">{g.poskytovatel ?? t("granty.card.none")}</dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground flex items-center gap-1"><Calendar className="h-3 w-3" /> Deadline</dt>
+            <dt className="text-xs text-muted-foreground flex items-center gap-1"><Calendar className="h-3 w-3" /> {t("granty.card.deadline")}</dt>
             <dd className="mt-0.5">
               {deadlineDate ? (
                 <span className="num">{format(deadlineDate, "d.M.yyyy")}</span>
               ) : (
-                <span className="text-emerald-700 dark:text-emerald-400 text-xs font-medium">priebežná výzva</span>
+                <span className="text-emerald-700 dark:text-emerald-400 text-xs font-medium">{t("granty.card.rollingCall")}</span>
               )}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" /> Región</dt>
+            <dt className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" /> {t("granty.card.region")}</dt>
             <dd className="mt-0.5 text-xs">
-              {regionLabel(regions)}
+              {regionLabel(regions, t)}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground flex items-center gap-1"><FileText className="h-3 w-3" /> Dokumenty</dt>
+            <dt className="text-xs text-muted-foreground flex items-center gap-1"><FileText className="h-3 w-3" /> {t("granty.card.documents")}</dt>
             <dd className="mt-0.5 num">{docsCount}</dd>
           </div>
         </dl>

@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
@@ -127,6 +128,7 @@ function parseCountryParam(v: string): string[] {
 }
 
 function Dashboard() {
+  const { t } = useTranslation("app");
   const {
     tab,
     sort,
@@ -344,7 +346,7 @@ function Dashboard() {
             count: Number(r.cnt),
             label:
               r.country === "XX"
-                ? "neznáma krajina"
+                ? t("dashboard.country.unknown")
                 : (countryName(r.country) ?? r.country),
           })),
         );
@@ -389,7 +391,7 @@ function Dashboard() {
           count: Number(r.cnt),
           label:
             r.country === "XX"
-              ? "neznáma krajina"
+              ? t("dashboard.country.unknown")
               : (countryName(r.country) ?? r.country),
         })),
       );
@@ -636,20 +638,19 @@ function Dashboard() {
 
 
   if (loading) {
-    return <div className="mx-auto max-w-6xl px-4 py-8 text-muted-foreground">Načítavam...</div>;
+    return <div className="mx-auto max-w-6xl px-4 py-8 text-muted-foreground">{t("common.loading")}</div>;
   }
 
   const hasAnyRadar = userRadars.length > 0;
   if (!prefs?.onboarding_completed || !hasAnyRadar) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-semibold">Ešte ste nenastavili radar</h1>
+        <h1 className="text-2xl font-semibold">{t("dashboard.noRadar.title")}</h1>
         <p className="mt-2 text-muted-foreground">
-          Aby sme vám ukázali relevantné zákazky, potrebujeme vaše kľúčové slová, CPV kategórie a
-          kraje.
+          {t("dashboard.noRadar.description")}
         </p>
         <Link to="/onboarding" className="mt-6 inline-block">
-          <Button size="lg">Nastaviť radar</Button>
+          <Button size="lg">{t("dashboard.noRadar.cta")}</Button>
         </Link>
       </div>
     );
@@ -666,21 +667,23 @@ function Dashboard() {
 
       <div className="flex items-baseline justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Vaše zákazky</h1>
+          <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{t("dashboard.title")}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Aktuálne verejné zákazky z TED, ÚVO, EKS a JOSEPHINE podľa vašich radarov.
+            {t("dashboard.subtitle")}
           </p>
         </div>
         <div className="text-sm text-muted-foreground">
           {totalCount === 0 ? (
-            "Žiadne zákazky pre aktuálne filtre."
+            t("dashboard.resultsCount.none")
           ) : (
             <>
               <span className="num font-semibold text-foreground">
                 {pageStart + 1}–{pageEnd}
               </span>{" "}
-              z <span className="num font-semibold text-foreground">{totalCount}</span>{" "}
-              {tab === "saved" ? "uložených" : tab === "hidden" ? "skrytých" : "aktívnych"} zákaziek
+              {t("dashboard.resultsCount.showing", {
+                total: totalCount,
+                tabWord: t(`dashboard.tabWord.${tab}`),
+              })}
             </>
           )}
         </div>
@@ -703,9 +706,9 @@ function Dashboard() {
             }
           >
             <TabsList>
-              <TabsTrigger value="foryou">Pre vás</TabsTrigger>
-              <TabsTrigger value="saved">Uložené</TabsTrigger>
-              <TabsTrigger value="hidden">Skryté</TabsTrigger>
+              <TabsTrigger value="foryou">{t("dashboard.tabs.foryou")}</TabsTrigger>
+              <TabsTrigger value="saved">{t("dashboard.tabs.saved")}</TabsTrigger>
+              <TabsTrigger value="hidden">{t("dashboard.tabs.hidden")}</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -718,13 +721,13 @@ function Dashboard() {
                 })
               }
             >
-              <SelectTrigger className="w-28" aria-label="Počet na stránku">
+              <SelectTrigger className="w-28" aria-label={t("dashboard.perPageAriaLabel")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {PAGE_SIZE_OPTIONS.map((n) => (
                   <SelectItem key={n} value={String(n)}>
-                    {n} / str.
+                    {t("dashboard.perPageOption", { count: n })}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -748,11 +751,11 @@ function Dashboard() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Všetky radary</SelectItem>
+                <SelectItem value="all">{t("dashboard.filters.allRadars")}</SelectItem>
                 {userRadars.map((r) => (
                   <SelectItem key={r.id} value={r.id}>
                     {r.name}
-                    {!r.active ? " (vypnutý)" : ""}
+                    {!r.active ? t("dashboard.filters.inactiveSuffix") : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -761,7 +764,7 @@ function Dashboard() {
           <div className="relative">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Hľadať v zákazkach..."
+              placeholder={t("dashboard.filters.searchPlaceholder")}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="pl-8 w-full"
@@ -793,11 +796,11 @@ function Dashboard() {
               })
             }
           >
-            <SelectTrigger className="w-full" aria-label="Zdroj">
+            <SelectTrigger className="w-full" aria-label={t("dashboard.filters.sourceAriaLabel")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Všetky zdroje</SelectItem>
+              <SelectItem value="all">{t("dashboard.filters.allSources")}</SelectItem>
               <SelectItem value="TED">TED</SelectItem>
               <SelectItem value="UVO">ÚVO</SelectItem>
               <SelectItem value="EKS">EKS</SelectItem>
@@ -820,10 +823,10 @@ function Dashboard() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="deadline">Najbližší deadline</SelectItem>
-              <SelectItem value="newest">Najnovšie</SelectItem>
-              <SelectItem value="value">Najvyššia hodnota</SelectItem>
-              <SelectItem value="value_asc">Najnižšia hodnota</SelectItem>
+              <SelectItem value="deadline">{t("dashboard.sort.deadline")}</SelectItem>
+              <SelectItem value="newest">{t("dashboard.sort.newest")}</SelectItem>
+              <SelectItem value="value">{t("dashboard.sort.value")}</SelectItem>
+              <SelectItem value="value_asc">{t("dashboard.sort.valueAsc")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -905,7 +908,7 @@ function Dashboard() {
 }
 
 function TrialBanner({ daysLeft, isEndingSoon }: { daysLeft: number; isEndingSoon: boolean }) {
-  const dayWord = daysLeft === 1 ? "deň" : daysLeft >= 2 && daysLeft <= 4 ? "dni" : "dní";
+  const { t } = useTranslation("app");
   return (
     <div
       className={`mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-md border px-4 py-3 text-sm ${
@@ -917,17 +920,17 @@ function TrialBanner({ daysLeft, isEndingSoon }: { daysLeft: number; isEndingSoo
       <div className="flex items-center gap-2">
         <Sparkles className={`h-4 w-4 ${isEndingSoon ? "text-primary" : "text-muted-foreground"}`} />
         <span>
-          Skúšobné obdobie:{" "}
+          {t("dashboard.trialBanner.label")}{" "}
           <b className="num text-foreground">
-            zostáva {daysLeft} {dayWord}
+            {t("dashboard.trialBanner.remaining", { count: daysLeft })}
           </b>
-          {isEndingSoon && " – potom Tendrik prejde na predplatné."}
+          {isEndingSoon && t("dashboard.trialBanner.endingSoon")}
         </span>
       </div>
       <WebOnlyPurchase>
         <Link to="/predplatne">
           <Button size="sm" variant={isEndingSoon ? "default" : "outline"}>
-            Aktivovať predplatné za {formatEurPrice(MONTHLY_PRICE_EUR)}/mes
+            {t("dashboard.trialBanner.cta", { price: formatEurPrice(MONTHLY_PRICE_EUR) })}
           </Button>
         </Link>
       </WebOnlyPurchase>
@@ -937,18 +940,19 @@ function TrialBanner({ daysLeft, isEndingSoon }: { daysLeft: number; isEndingSoo
 }
 
 function ExpiredBanner() {
+  const { t } = useTranslation("app");
   return (
     <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-md border-2 border-primary bg-primary/10 px-4 py-3 text-sm">
       <div className="flex items-center gap-2">
         <Lock className="h-4 w-4 text-primary" />
         <span>
-          <b>Vaše skúšobné obdobie skončilo.</b> Pokračujte za{" "}
-          {formatEurPrice(MONTHLY_PRICE_EUR)}/mesiac.
+          <b>{t("dashboard.expiredBanner.title")}</b>{" "}
+          {t("dashboard.expiredBanner.text", { price: formatEurPrice(MONTHLY_PRICE_EUR) })}
         </span>
       </div>
       <WebOnlyPurchase>
         <Link to="/predplatne">
-          <Button size="sm">Aktivovať predplatné</Button>
+          <Button size="sm">{t("dashboard.expiredBanner.cta")}</Button>
         </Link>
       </WebOnlyPurchase>
 
@@ -957,24 +961,20 @@ function ExpiredBanner() {
 }
 
 function LockedOverlay() {
+  const { t } = useTranslation("app");
   return (
     <div className="absolute inset-x-0 top-0 z-10 flex justify-center pt-12 pointer-events-none">
       <div className="pointer-events-auto max-w-md rounded-lg border-2 border-foreground bg-card p-8 text-center shadow-lg">
         <Lock className="mx-auto h-8 w-8 text-primary" />
         <h2 className="mt-4 font-display text-2xl font-bold">
-          Skúšobné obdobie skončilo
+          {t("dashboard.lockedOverlay.title")}
         </h2>
         <p className="mt-3 text-sm text-muted-foreground">
-          Ak chcete ďalej dostávať upozornenia a vidieť denné zákazky,
-          aktivujte si predplatné za{" "}
-          <b className="text-foreground">
-            {formatEurPrice(MONTHLY_PRICE_EUR)}/mesiac
-          </b>
-          . Bez záväzkov, kedykoľvek zrušíte.
+          {t("dashboard.lockedOverlay.description", { price: formatEurPrice(MONTHLY_PRICE_EUR) })}
         </p>
         <WebOnlyPurchase className="mt-6 block">
           <Link to="/predplatne" className="mt-6 inline-block">
-            <Button size="lg">Aktivovať predplatné</Button>
+            <Button size="lg">{t("dashboard.lockedOverlay.cta")}</Button>
           </Link>
         </WebOnlyPurchase>
 
@@ -992,13 +992,14 @@ function EmptyState({
   tab: "foryou" | "saved" | "hidden";
   query: string;
 }) {
+  const { t } = useTranslation("app");
   if (query.trim()) {
     return (
       <div className="mt-12 rounded-xl border bg-card p-12 text-center">
         <Search className="mx-auto h-10 w-10 text-muted-foreground/60" />
         <p className="mt-4 text-muted-foreground">
-          Nič sme nenašli pre{" "}
-          <b className="text-foreground">„{query}"</b> – skúste iné slovo.
+          {t("dashboard.emptyState.noQueryResultsPrefix")}{" "}
+          <b className="text-foreground">„{query}"</b> {t("dashboard.emptyState.noQueryResultsSuffix")}
         </p>
       </div>
     );
@@ -1009,8 +1010,7 @@ function EmptyState({
       <div className="mt-12 rounded-xl border bg-card p-12 text-center">
         <Star className="mx-auto h-10 w-10 text-muted-foreground/60" />
         <p className="mt-4 text-muted-foreground">
-          Zatiaľ nemáte uložené zákazky – kliknite na hviezdičku pri zákazke,
-          ktorá vás zaujme.
+          {t("dashboard.emptyState.savedEmpty")}
         </p>
       </div>
     );
@@ -1021,7 +1021,7 @@ function EmptyState({
       <div className="mt-12 rounded-xl border bg-card p-12 text-center">
         <X className="mx-auto h-10 w-10 text-muted-foreground/60" />
         <p className="mt-4 text-muted-foreground">
-          Nemáte žiadne skryté zákazky.
+          {t("dashboard.emptyState.hiddenEmpty")}
         </p>
       </div>
     );
@@ -1032,17 +1032,17 @@ function EmptyState({
     <div className="mt-12 rounded-xl border bg-card p-12 text-center">
       <Radar className="mx-auto h-12 w-12 text-primary/70" />
       <h2 className="mt-4 font-display text-xl font-semibold">
-        Váš radar zatiaľ nič nezachytil
+        {t("dashboard.emptyState.forYouTitle")}
       </h2>
       <p className="mt-2 text-muted-foreground">
-        Skúste upraviť filtre alebo si pozrite všetky zákazky.
+        {t("dashboard.emptyState.forYouDesc")}
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         <Link to="/settings">
-          <Button>Upraviť filtre</Button>
+          <Button>{t("dashboard.emptyState.editFilters")}</Button>
         </Link>
         <Link to="/dashboard" search={{ tab: "foryou", sort: "newest", q: "" }}>
-          <Button variant="outline">Zobraziť všetky zákazky</Button>
+          <Button variant="outline">{t("dashboard.emptyState.showAll")}</Button>
         </Link>
       </div>
     </div>
@@ -1064,6 +1064,7 @@ function TenderCard({
   onToggle: (id: string, action: Action) => void;
   radarLabels?: string[];
 }) {
+  const { t } = useTranslation("app");
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
   const expired = daysLeft !== null && daysLeft < 0;
@@ -1094,7 +1095,7 @@ function TenderCard({
             <span
               key={n}
               className="eyebrow inline-flex items-center gap-1 border border-primary/40 text-primary px-2 py-0.5"
-              title="Zachytené radarom"
+              title={t("dashboard.card.matchedByRadar")}
             >
               <Radar className="h-3 w-3" /> {n}
             </span>
@@ -1104,7 +1105,7 @@ function TenderCard({
         <div className="flex items-start gap-4">
           {tender.estimated_value != null && (
             <div className="text-right">
-              <div className="eyebrow text-muted-foreground">Hodnota</div>
+              <div className="eyebrow text-muted-foreground">{t("dashboard.card.value")}</div>
               <div className="num font-bold text-primary text-lg leading-tight">
                 {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
                   .format(Number(tender.estimated_value))
@@ -1117,8 +1118,8 @@ function TenderCard({
             {tab === "hidden" ? (
               <button
                 type="button"
-                aria-label="Obnoviť zákazku"
-                title="Obnoviť"
+                aria-label={t("dashboard.card.restoreAria")}
+                title={t("dashboard.card.restoreTitle")}
                 onClick={() => onToggle(tender.id, "hidden")}
                 className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -1128,8 +1129,8 @@ function TenderCard({
               <>
                 <button
                   type="button"
-                  aria-label={saved ? "Zrušiť uloženie" : "Uložiť zákazku"}
-                  title={saved ? "Zrušiť uloženie" : "Uložiť"}
+                  aria-label={saved ? t("dashboard.card.unsaveAria") : t("dashboard.card.saveAria")}
+                  title={saved ? t("dashboard.card.unsaveTitle") : t("dashboard.card.saveTitle")}
                   onClick={() => onToggle(tender.id, "saved")}
                   className="p-1.5 hover:bg-secondary transition-colors"
                 >
@@ -1141,8 +1142,8 @@ function TenderCard({
                 </button>
                 <button
                   type="button"
-                  aria-label="Skryť zákazku"
-                  title="Skryť"
+                  aria-label={t("dashboard.card.hideAria")}
+                  title={t("dashboard.card.hideTitle")}
                   onClick={() => onToggle(tender.id, "hidden")}
                   className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -1173,32 +1174,32 @@ function TenderCard({
       <dl className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm">
         <div className="min-w-0">
           <dt className="text-xs text-muted-foreground flex items-center gap-1">
-            <Building2 className="h-3 w-3" /> Obstarávateľ
+            <Building2 className="h-3 w-3" /> {t("dashboard.card.authority")}
           </dt>
-          <dd className="mt-0.5 line-clamp-2">{tender.contracting_authority ?? "—"}</dd>
+          <dd className="mt-0.5 line-clamp-2">{tender.contracting_authority ?? t("dashboard.card.none")}</dd>
         </div>
         <div className="min-w-0">
           <dt className="text-xs text-muted-foreground flex items-center gap-1">
-            <Calendar className="h-3 w-3" /> Deadline
+            <Calendar className="h-3 w-3" /> {t("dashboard.card.deadline")}
           </dt>
           <dd className="mt-0.5 num">
-            {deadlineDate ? format(deadlineDate, "d.M.yyyy") : "Neurčené"}
+            {deadlineDate ? format(deadlineDate, "d.M.yyyy") : t("dashboard.card.noDeadline")}
           </dd>
         </div>
         <div className="min-w-0">
           <dt className="text-xs text-muted-foreground flex items-center gap-1">
-            <MapPin className="h-3 w-3" /> Región
+            <MapPin className="h-3 w-3" /> {t("dashboard.card.region")}
           </dt>
           <dd className="mt-0.5 text-xs">
             {tender.country && tender.country !== "SK"
               ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}`
-              : (tender.region ?? "—")}
+              : (tender.region ?? t("dashboard.card.none"))}
           </dd>
         </div>
         <div className="min-w-0 flex items-end">
           <Link to="/zakazka/$id" params={{ id: tender.id }}>
             <Button size="sm" variant="outline">
-              Detail
+              {t("dashboard.card.detail")}
             </Button>
           </Link>
         </div>
@@ -1215,11 +1216,12 @@ function DeadlineBadge({
   daysLeft: number | null;
   expired: boolean;
 }) {
+  const { t } = useTranslation("app");
   if (daysLeft === null) return null;
   if (expired) {
     return (
       <span className="eyebrow inline-flex items-center border border-border bg-secondary px-2 py-0.5 text-muted-foreground">
-        Po termíne
+        {t("dashboard.deadlineBadge.overdue")}
       </span>
     );
   }
@@ -1228,7 +1230,7 @@ function DeadlineBadge({
     ? "border border-primary bg-primary text-primary-foreground"
     : "border border-foreground bg-transparent text-foreground";
   const label =
-    daysLeft === 0 ? "Posledný deň" : `${daysLeft} ${daysLeft === 1 ? "deň" : daysLeft < 5 ? "dni" : "dní"}`;
+    daysLeft === 0 ? t("dashboard.deadlineBadge.lastDay") : t("dashboard.deadlineBadge.daysLeft", { count: daysLeft });
   return (
     <span className={`eyebrow inline-flex items-center rounded-sm px-2 py-0.5 ${cls}`}>
       {label}
@@ -1237,6 +1239,7 @@ function DeadlineBadge({
 }
 
 function SourceBadge({ source }: { source: string }) {
+  const { t } = useTranslation("app");
   const isUvo = source === "UVO";
   const isEks = source === "EKS";
   const isJos = source === "JOSEPHINE";
@@ -1249,12 +1252,12 @@ function SourceBadge({ source }: { source: string }) {
         ? "border border-primary text-primary"
         : "border border-accent text-accent";
   const title = isJos
-    ? "JOSEPHINE (proEBIZ)"
+    ? t("dashboard.sourceBadge.titleJosephine")
     : isEks
-      ? "Elektronický kontraktačný systém (EKS)"
+      ? t("dashboard.sourceBadge.titleEks")
       : isUvo
-        ? "Vestník verejného obstarávania ÚVO"
-        : "Tenders Electronic Daily (EÚ)";
+        ? t("dashboard.sourceBadge.titleUvo")
+        : t("dashboard.sourceBadge.titleTed");
   return (
     <span
       className={`eyebrow inline-flex items-center rounded-sm bg-transparent px-2 py-0.5 ${cls}`}
@@ -1277,13 +1280,14 @@ function ViewToggle({
   const active = "border-foreground text-foreground bg-secondary";
   const inactive =
     "border-border text-muted-foreground hover:text-foreground hover:border-foreground";
+  const { t } = useTranslation("app");
   return (
-    <div className="flex" role="group" aria-label="Zobrazenie zákaziek">
+    <div className="flex" role="group" aria-label={t("dashboard.view.ariaLabel")}>
       <button
         type="button"
-        aria-label="Zobraziť ako zoznam"
+        aria-label={t("dashboard.view.listAria")}
         aria-pressed={view === "list"}
-        title="Zoznam"
+        title={t("dashboard.view.listTitle")}
         onClick={() => onChange("list")}
         className={`${base} ${view === "list" ? active : inactive} relative`}
       >
@@ -1297,9 +1301,9 @@ function ViewToggle({
       </button>
       <button
         type="button"
-        aria-label="Zobraziť ako mriežku"
+        aria-label={t("dashboard.view.gridAria")}
         aria-pressed={view === "grid"}
-        title="Mriežka"
+        title={t("dashboard.view.gridTitle")}
         onClick={() => onChange("grid")}
         className={`${base} ${view === "grid" ? active : inactive} relative -ml-px`}
       >
@@ -1338,6 +1342,7 @@ function TenderGridCard({
   onToggle: (id: string, action: Action) => void;
   radarLabels?: string[];
 }) {
+  const { t } = useTranslation("app");
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
   const expired = daysLeft !== null && daysLeft < 0;
@@ -1355,7 +1360,7 @@ function TenderGridCard({
           <span
             key={n}
             className="inline-flex items-center gap-1 rounded-sm border border-primary/40 text-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
-            title="Zachytené radarom"
+            title={t("dashboard.card.matchedByRadar")}
           >
             <Radar className="h-3 w-3" /> {n}
           </span>
@@ -1383,13 +1388,13 @@ function TenderGridCard({
           <span className="truncate">
             {tender.country && tender.country !== "SK"
               ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}`
-              : (tender.region ?? "—")}
+              : (tender.region ?? t("dashboard.card.none"))}
           </span>
         </div>
       </div>
       {tender.estimated_value != null && (
         <div className="mt-4 pt-3 border-t border-border">
-          <div className="eyebrow text-muted-foreground">Hodnota</div>
+          <div className="eyebrow text-muted-foreground">{t("dashboard.card.value")}</div>
           <div className="num text-lg font-semibold text-foreground">
             {formatEur(Number(tender.estimated_value))}
           </div>
@@ -1398,15 +1403,15 @@ function TenderGridCard({
       <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-2">
         <Link to="/zakazka/$id" params={{ id: tender.id }}>
           <Button size="sm" variant="outline">
-            Detail
+            {t("dashboard.card.detail")}
           </Button>
         </Link>
         <div className="flex items-center gap-1">
           {tab === "hidden" ? (
             <button
               type="button"
-              aria-label="Obnoviť zákazku"
-              title="Obnoviť"
+              aria-label={t("dashboard.card.restoreAria")}
+              title={t("dashboard.card.restoreTitle")}
               onClick={() => onToggle(tender.id, "hidden")}
               className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -1416,8 +1421,8 @@ function TenderGridCard({
             <>
               <button
                 type="button"
-                aria-label={saved ? "Zrušiť uloženie" : "Uložiť zákazku"}
-                title={saved ? "Zrušiť uloženie" : "Uložiť"}
+                aria-label={saved ? t("dashboard.card.unsaveAria") : t("dashboard.card.saveAria")}
+                title={saved ? t("dashboard.card.unsaveTitle") : t("dashboard.card.saveTitle")}
                 onClick={() => onToggle(tender.id, "saved")}
                 className="p-1.5 hover:bg-secondary transition-colors"
               >
@@ -1429,8 +1434,8 @@ function TenderGridCard({
               </button>
               <button
                 type="button"
-                aria-label="Skryť zákazku"
-                title="Skryť"
+                aria-label={t("dashboard.card.hideAria")}
+                title={t("dashboard.card.hideTitle")}
                 onClick={() => onToggle(tender.id, "hidden")}
                 className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -1455,14 +1460,15 @@ function CountryFilter({
   selected: string[];
   onChange: (codes: string[]) => void;
 }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(false);
   const selectedSet = new Set(selected);
   const label =
     selected.length === 0
-      ? "Všetky krajiny"
+      ? t("dashboard.country.all")
       : selected.length === 1
         ? `${flagEmoji(selected[0])} ${countryName(selected[0]) ?? selected[0]}`
-        : `${selected.length} krajín`;
+        : t("dashboard.country.count", { count: selected.length });
 
   function toggle(code: string) {
     const next = new Set(selectedSet);
@@ -1478,7 +1484,7 @@ function CountryFilter({
           variant="outline"
           size="default"
           className="w-full justify-between h-9 font-normal"
-          aria-label="Filter krajín"
+          aria-label={t("dashboard.country.ariaLabel")}
         >
           <span className="flex items-center gap-2 truncate">
             <Globe className="h-4 w-4 shrink-0" />
@@ -1488,21 +1494,21 @@ function CountryFilter({
       </PopoverTrigger>
       <PopoverContent className="w-72 p-0" align="end">
         <div className="flex items-center justify-between p-3 border-b">
-          <span className="text-sm font-medium">Krajiny</span>
+          <span className="text-sm font-medium">{t("dashboard.country.title")}</span>
           {selected.length > 0 && (
             <button
               type="button"
               onClick={() => onChange([])}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
-              Vymazať výber
+              {t("dashboard.country.clear")}
             </button>
           )}
         </div>
         <div className="max-h-80 overflow-y-auto p-1">
           {facets.length === 0 ? (
             <div className="px-3 py-6 text-center text-sm text-muted-foreground">
-              Žiadne krajiny v aktuálnych výsledkoch
+              {t("dashboard.country.empty")}
             </div>
           ) : (
             facets.map((f) => (
@@ -1548,11 +1554,12 @@ function Pagination({
   pageEnd: number;
   onPageChange: (page: number) => void;
 }) {
+  const { t } = useTranslation("app");
   if (totalPages <= 1) {
     return (
       <div className="mt-6 flex items-center justify-center text-sm text-muted-foreground">
-        Zobrazené <b className="num text-foreground mx-1">{pageStart + 1}–{pageEnd}</b>{" "}
-        z <b className="num text-foreground ml-1">{totalCount}</b>
+        {t("dashboard.pagination.shown")} <b className="num text-foreground mx-1">{pageStart + 1}–{pageEnd}</b>{" "}
+        {t("dashboard.pagination.of")} <b className="num text-foreground ml-1">{totalCount}</b>
       </div>
     );
   }
@@ -1577,20 +1584,20 @@ function Pagination({
   return (
     <div className="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div className="text-sm text-muted-foreground">
-        Zobrazené{" "}
+        {t("dashboard.pagination.shown")}{" "}
         <b className="num text-foreground">
           {pageStart + 1}–{pageEnd}
         </b>{" "}
-        z <b className="num text-foreground">{totalCount}</b>
+        {t("dashboard.pagination.of")} <b className="num text-foreground">{totalCount}</b>
       </div>
-      <div className="flex flex-wrap items-center gap-1" role="navigation" aria-label="Stránkovanie">
+      <div className="flex flex-wrap items-center gap-1" role="navigation" aria-label={t("dashboard.pagination.navAriaLabel")}>
         <button
           type="button"
           className={`${btn} ${inactive}`}
           disabled={page === 1}
           onClick={() => onPageChange(1)}
-          aria-label="Prvá stránka"
-          title="Prvá stránka"
+          aria-label={t("dashboard.pagination.firstAria")}
+          title={t("dashboard.pagination.firstAria")}
         >
           <ChevronsLeft className="h-4 w-4" />
         </button>
@@ -1599,8 +1606,8 @@ function Pagination({
           className={`${btn} ${inactive}`}
           disabled={page === 1}
           onClick={() => onPageChange(page - 1)}
-          aria-label="Predchádzajúca stránka"
-          title="Predchádzajúca"
+          aria-label={t("dashboard.pagination.prevAria")}
+          title={t("dashboard.pagination.prevTitle")}
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -1619,7 +1626,7 @@ function Pagination({
               className={`${btn} ${p === page ? active : inactive} num`}
               onClick={() => onPageChange(p)}
               aria-current={p === page ? "page" : undefined}
-              aria-label={`Stránka ${p}`}
+              aria-label={t("dashboard.pagination.pageAria", { page: p })}
             >
               {p}
             </button>
@@ -1630,8 +1637,8 @@ function Pagination({
           className={`${btn} ${inactive}`}
           disabled={page === totalPages}
           onClick={() => onPageChange(page + 1)}
-          aria-label="Nasledujúca stránka"
-          title="Nasledujúca"
+          aria-label={t("dashboard.pagination.nextAria")}
+          title={t("dashboard.pagination.nextTitle")}
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -1640,8 +1647,8 @@ function Pagination({
           className={`${btn} ${inactive}`}
           disabled={page === totalPages}
           onClick={() => onPageChange(totalPages)}
-          aria-label="Posledná stránka"
-          title="Posledná stránka"
+          aria-label={t("dashboard.pagination.lastAria")}
+          title={t("dashboard.pagination.lastAria")}
         >
           <ChevronsRight className="h-4 w-4" />
         </button>

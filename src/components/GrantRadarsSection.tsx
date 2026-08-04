@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { X, Plus, Trash2, ChevronDown, ChevronRight, Radar as RadarIcon } from "lucide-react";
 import { REGIONS } from "@/lib/slovakia";
+import { Trans, useTranslation } from "react-i18next";
 import { trackConversion } from "@/lib/analytics";
 import {
   CATEGORY_LABEL,
@@ -34,6 +35,7 @@ const CATEGORIES: ApplicantCategory[] = ["podnikatelia", "verejny", "neziskovky"
 const table = () => supabase.from("user_grant_radars");
 
 export default function GrantRadarsSection({ userId }: { userId: string | null }) {
+  const { t } = useTranslation("account");
   const [list, setList] = useState<GrantRadar[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -62,7 +64,7 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
 
   async function addRadar() {
     if (!userId) return;
-    const name = `Grantový radar ${list.length + 1}`;
+    const name = t("grantRadars.defaultName", { n: list.length + 1 });
     const applicant = defaultCategory ? [defaultCategory] : [];
     const { data, error } = await table()
       .insert({
@@ -95,7 +97,7 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
   }
 
   async function deleteRadar(id: string) {
-    if (!confirm("Naozaj zmazať tento grantový radar?")) return;
+    if (!confirm(t("grantRadars.confirmDelete"))) return;
     const prev = list;
     setList(list.filter((r) => r.id !== id));
     const { error } = await table().delete().eq("id", id);
@@ -103,7 +105,7 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
       toast.error(error.message);
       setList(prev);
     } else {
-      toast.success("Radar zmazaný");
+      toast.success(t("grantRadars.deleted"));
     }
   }
 
@@ -116,20 +118,19 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
     });
   }
 
-  if (loading) return <div className="text-muted-foreground">Načítavam...</div>;
+  if (loading) return <div className="text-muted-foreground">{t("settings.loading")}</div>;
 
   return (
     <section>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display font-semibold text-xl tracking-tight">Radary na granty</h2>
+          <h2 className="font-display font-semibold text-xl tracking-tight">{t("grantRadars.heading")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Monitoring grantových výziev z ITMS21+. Nová zhoda príde e-mailom; deadline reminder
-            len pri one-shot výzvach. Dostupné v Základe aj Prémium.
+            {t("grantRadars.description")}
           </p>
         </div>
         <Button size="sm" onClick={addRadar}>
-          <Plus className="h-4 w-4 mr-1" /> Pridať grantový radar
+          <Plus className="h-4 w-4 mr-1" /> {t("grantRadars.add")}
         </Button>
       </div>
 
@@ -147,10 +148,15 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
         ))}
         {list.length === 0 && (
           <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-            Zatiaľ nemáte žiadny grantový radar. Pridajte prvý.
+            {t("grantRadars.empty")}
             {defaultCategory && (
               <div className="mt-2 text-xs">
-                Automaticky predvyplníme typ žiadateľa podľa profilu: <b>{CATEGORY_LABEL[defaultCategory]}</b>.
+                <Trans
+                  i18nKey="grantRadars.autoFillCategory"
+                  ns="account"
+                  values={{ category: CATEGORY_LABEL[defaultCategory] }}
+                  components={{ b: <b /> }}
+                />
               </div>
             )}
           </div>
@@ -175,6 +181,7 @@ function GrantRadarCard({
   onDelete: () => void;
   programs: Array<{ program: string; cnt: number }>;
 }) {
+  const { t } = useTranslation("account");
   const [nameDraft, setNameDraft] = useState(radar.name);
   const [kwInput, setKwInput] = useState("");
   useEffect(() => setNameDraft(radar.name), [radar.name]);
@@ -204,14 +211,22 @@ function GrantRadarCard({
 
   const summary =
     [
-      radar.keywords.length ? `${radar.keywords.length} kľúč.` : null,
-      radar.applicant_categories.length ? `${radar.applicant_categories.length} typ` : null,
-      radar.programs.length ? `${radar.programs.length} programov` : null,
-      radar.regions.length ? `${radar.regions.length} krajov` : "celé SK",
-      radar.formats.length === 1 ? (radar.formats[0] === "rolling" ? "priebežné" : "one-shot") : null,
+      radar.keywords.length ? t("grantRadars.summary.keywords", { count: radar.keywords.length }) : null,
+      radar.applicant_categories.length
+        ? t("grantRadars.summary.type", { count: radar.applicant_categories.length })
+        : null,
+      radar.programs.length ? t("grantRadars.summary.programs", { count: radar.programs.length }) : null,
+      radar.regions.length
+        ? t("grantRadars.summary.regions", { count: radar.regions.length })
+        : t("grantRadars.summary.wholeSk"),
+      radar.formats.length === 1
+        ? radar.formats[0] === "rolling"
+          ? t("grantRadars.summary.rolling")
+          : t("grantRadars.summary.oneshot")
+        : null,
     ]
       .filter(Boolean)
-      .join(" · ") || "bez filtrov";
+      .join(" · ") || t("grantRadars.summary.empty");
 
   return (
     <div className="rounded-lg border border-primary/15 bg-card">
@@ -220,7 +235,7 @@ function GrantRadarCard({
           type="button"
           onClick={onToggleExpanded}
           className="text-muted-foreground hover:text-foreground"
-          aria-label={expanded ? "Zbaliť" : "Rozbaliť"}
+          aria-label={expanded ? t("grantRadars.collapse") : t("grantRadars.expand")}
         >
           {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
@@ -242,7 +257,7 @@ function GrantRadarCard({
             checked={radar.active}
             onCheckedChange={(v) => onUpdate({ active: v })}
           />
-          <Button variant="ghost" size="icon" onClick={onDelete} title="Zmazať">
+          <Button variant="ghost" size="icon" onClick={onDelete} title={t("grantRadars.deleteTitle")}>
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -252,12 +267,12 @@ function GrantRadarCard({
         <div className="border-t border-primary/10 p-4 space-y-6">
           {/* Keywords */}
           <div>
-            <h3 className="font-semibold text-sm">Kľúčové slová (názov / zameranie)</h3>
+            <h3 className="font-semibold text-sm">{t("grantRadars.keywords.heading")}</h3>
             <div className="mt-2 flex gap-2">
               <Input
                 value={kwInput}
                 onChange={(e) => setKwInput(e.target.value)}
-                placeholder="napr. digitaliz, inovác, energet"
+                placeholder={t("grantRadars.keywords.placeholder")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -265,7 +280,7 @@ function GrantRadarCard({
                   }
                 }}
               />
-              <Button type="button" size="sm" onClick={addKeyword}>Pridať</Button>
+              <Button type="button" size="sm" onClick={addKeyword}>{t("grantRadars.keywords.add")}</Button>
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
               {radar.keywords.map((k) => (
@@ -288,10 +303,10 @@ function GrantRadarCard({
 
           {/* Applicant categories */}
           <div>
-            <h3 className="font-semibold text-sm">Typ žiadateľa</h3>
+            <h3 className="font-semibold text-sm">{t("grantRadars.applicantType.heading")}</h3>
             {radar.applicant_categories.length === 0 && (
               <p className="text-xs text-muted-foreground mt-1">
-                Ak neoznačíte žiadny typ, zahrnú sa všetky.
+                {t("grantRadars.applicantType.hint")}
               </p>
             )}
             <div className="mt-2 grid sm:grid-cols-3 gap-2">
@@ -312,9 +327,9 @@ function GrantRadarCard({
 
           {/* Programs */}
           <div>
-            <h3 className="font-semibold text-sm">Program</h3>
+            <h3 className="font-semibold text-sm">{t("grantRadars.programs.heading")}</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Prázdne = všetky programy. K dispozícii: {programs.length}.
+              {t("grantRadars.programs.hint", { count: programs.length })}
             </p>
             <div className="mt-2 grid sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-2">
               {programs.map((p) => (
@@ -336,9 +351,9 @@ function GrantRadarCard({
 
           {/* Regions */}
           <div>
-            <h3 className="font-semibold text-sm">Kraje</h3>
+            <h3 className="font-semibold text-sm">{t("grantRadars.regions.heading")}</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Celoslovenské výzvy sú zahrnuté automaticky pri každom výbere.
+              {t("grantRadars.regions.hint")}
             </p>
             <div className="mt-2 grid sm:grid-cols-2 gap-2">
               {REGIONS.map((rg) => (
@@ -358,10 +373,10 @@ function GrantRadarCard({
 
           {/* Alokácia EÚ */}
           <div>
-            <h3 className="font-semibold text-sm">Alokácia EÚ (€)</h3>
+            <h3 className="font-semibold text-sm">{t("grantRadars.allocation.heading")}</h3>
             <div className="mt-2 grid grid-cols-2 gap-3 max-w-md">
               <div>
-                <Label className="text-xs">Od</Label>
+                <Label className="text-xs">{t("grantRadars.allocation.fromLabel")}</Label>
                 <Input
                   type="number"
                   min={0}
@@ -370,11 +385,11 @@ function GrantRadarCard({
                     const v = e.target.value === "" ? null : Number(e.target.value);
                     onUpdate({ suma_eu_min: v });
                   }}
-                  placeholder="napr. 100000"
+                  placeholder={t("grantRadars.allocation.fromPlaceholder")}
                 />
               </div>
               <div>
-                <Label className="text-xs">Do</Label>
+                <Label className="text-xs">{t("grantRadars.allocation.toLabel")}</Label>
                 <Input
                   type="number"
                   min={0}
@@ -383,7 +398,7 @@ function GrantRadarCard({
                     const v = e.target.value === "" ? null : Number(e.target.value);
                     onUpdate({ suma_eu_max: v });
                   }}
-                  placeholder="napr. 5000000"
+                  placeholder={t("grantRadars.allocation.toPlaceholder")}
                 />
               </div>
             </div>
@@ -391,14 +406,14 @@ function GrantRadarCard({
 
           {/* Format */}
           <div>
-            <h3 className="font-semibold text-sm">Formát výzvy</h3>
+            <h3 className="font-semibold text-sm">{t("grantRadars.format.heading")}</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Neoznačené = obidva. „Priebežná" = bez deadlinu, „One-shot" = s pevným deadlinom.
+              {t("grantRadars.format.hint")}
             </p>
             <div className="mt-2 flex gap-2">
               {[
-                { v: "rolling", label: "Priebežná (rolling)" },
-                { v: "oneshot", label: "One-shot" },
+                { v: "rolling", label: t("grantRadars.format.rolling") },
+                { v: "oneshot", label: t("grantRadars.format.oneshot") },
               ].map((f) => (
                 <label
                   key={f.v}

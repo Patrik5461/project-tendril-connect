@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { computeSubscription, formatEur, priceEur, tierLabel } from "@/lib/subscription";
+import { useTranslation } from "react-i18next";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +41,7 @@ type Radar = {
 const radars = () => supabase.from("user_radars" as never) as any;
 
 function SettingsPage() {
+  const { t } = useTranslation("account");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [emailNotif, setEmailNotif] = useState(true);
@@ -102,7 +104,7 @@ function SettingsPage() {
       const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const invalid = parts.filter((p) => !emailRe.test(p));
       if (invalid.length > 0) {
-        toast.error(`Neplatná e-mailová adresa: ${invalid[0]}`);
+        toast.error(t("settings.notifications.invalidEmail", { email: invalid[0] }));
         return;
       }
       // Dedupe (case-insensitive)
@@ -116,7 +118,7 @@ function SettingsPage() {
         }
       }
       if (unique.length > 10) {
-        toast.error("Maximálne 10 príjemcov");
+        toast.error(t("settings.notifications.maxRecipients"));
         return;
       }
       normalized = unique.join(", ");
@@ -140,7 +142,7 @@ function SettingsPage() {
     setSaving(false);
     if (error) toast.error(error.message);
     else {
-      toast.success("Notifikácie uložené");
+      toast.success(t("settings.notifications.saved"));
       setNotificationEmail(normalized ?? "");
       if (emailNotif) void sendWelcomeEmailIfNeeded();
       void sendSettingsConfirmationEmail();
@@ -149,7 +151,7 @@ function SettingsPage() {
 
   async function addRadar() {
     if (!userId) return;
-    const name = `Radar ${list.length + 1}`;
+    const name = t("settings.radars.defaultName", { n: list.length + 1 });
     const { data, error } = await radars()
       .insert({
         user_id: userId,
@@ -182,10 +184,10 @@ function SettingsPage() {
 
   async function deleteRadar(id: string) {
     if (list.length <= 1) {
-      toast.error("Musí zostať aspoň jeden radar.");
+      toast.error(t("settings.radars.mustKeepOne"));
       return;
     }
-    if (!confirm("Naozaj zmazať tento radar?")) return;
+    if (!confirm(t("settings.radars.confirmDelete"))) return;
     const prev = list;
     setList(list.filter((r) => r.id !== id));
     const { error } = await radars().delete().eq("id", id);
@@ -193,7 +195,7 @@ function SettingsPage() {
       toast.error(error.message);
       setList(prev);
     } else {
-      toast.success("Radar zmazaný");
+      toast.success(t("settings.radars.deleted"));
       void sendSettingsConfirmationEmail();
     }
   }
@@ -208,53 +210,52 @@ function SettingsPage() {
   }
 
   if (loading) {
-    return <div className="mx-auto max-w-3xl px-4 py-8 text-muted-foreground">Načítavam...</div>;
+    return <div className="mx-auto max-w-3xl px-4 py-8 text-muted-foreground">{t("settings.loading")}</div>;
   }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Nastavenia</h1>
-      <p className="mt-1 text-muted-foreground">Prihlásený ako {email}</p>
+      <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{t("settings.title")}</h1>
+      <p className="mt-1 text-muted-foreground">{t("settings.loggedInAs", { email })}</p>
 
       <Link
         to="/firma"
         className="mt-6 flex items-center justify-between gap-4 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 hover:bg-primary/10 transition-colors"
       >
         <div>
-          <div className="font-medium">Firemný profil</div>
-          <div className="text-sm text-muted-foreground">IČO, obrat po rokoch, referencie, certifikáty – vstup pre AI analýzu zákaziek.</div>
+          <div className="font-medium">{t("settings.companyProfile.title")}</div>
+          <div className="text-sm text-muted-foreground">{t("settings.companyProfile.description")}</div>
         </div>
         <ChevronRight className="h-4 w-4 text-muted-foreground" />
       </Link>
 
       <Tabs defaultValue="notifications" className="mt-8">
         <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4">
-          <TabsTrigger value="notifications">Notifikácie</TabsTrigger>
-          <TabsTrigger value="radars">Radary</TabsTrigger>
-          <TabsTrigger value="grant-radars">Radary na granty</TabsTrigger>
-          <TabsTrigger value="billing">Predplatné & fakturácia</TabsTrigger>
+          <TabsTrigger value="notifications">{t("settings.tabs.notifications")}</TabsTrigger>
+          <TabsTrigger value="radars">{t("settings.tabs.radars")}</TabsTrigger>
+          <TabsTrigger value="grant-radars">{t("settings.tabs.grantRadars")}</TabsTrigger>
+          <TabsTrigger value="billing">{t("settings.tabs.billing")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="notifications" className="mt-6">
           <section className="rounded-lg border border-primary/15 bg-card p-6">
-            <h2 className="font-display font-semibold text-lg tracking-tight">E-mailové notifikácie</h2>
+            <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.notifications.heading")}</h2>
             <div className="mt-3 flex items-center justify-between gap-4">
               <div>
-                <Label htmlFor="notif">Zasielať upozornenia na nové zákazky</Label>
-                <p className="text-sm text-muted-foreground">Súhrn nových zákaziek na váš e-mail.</p>
+                <Label htmlFor="notif">{t("settings.notifications.newTendersLabel")}</Label>
+                <p className="text-sm text-muted-foreground">{t("settings.notifications.newTendersHelp")}</p>
               </div>
               <Switch id="notif" checked={emailNotif} onCheckedChange={setEmailNotif} />
             </div>
             <div className="mt-4 border-t border-primary/10 pt-4">
-              <Label htmlFor="notifEmail">E-mailové adresy pre notifikácie</Label>
+              <Label htmlFor="notifEmail">{t("settings.notifications.emailsLabel")}</Label>
               <p className="text-sm text-muted-foreground">
-                Jedna alebo viac adries oddelených čiarkou – notifikácie pôjdu všetkým.
-                Ak necháte prázdne, použije sa prihlasovací e-mail ({email}). Max 10 príjemcov.
+                {t("settings.notifications.emailsHelp", { email })}
               </p>
               <Input
                 id="notifEmail"
                 type="text"
-                placeholder={`${email}, kolega@firma.sk`}
+                placeholder={t("settings.notifications.emailsPlaceholder", { email })}
                 value={notificationEmail}
                 onChange={(e) => setNotificationEmail(e.target.value)}
                 className="mt-2 max-w-md"
@@ -262,9 +263,9 @@ function SettingsPage() {
             </div>
             <div className="mt-4 flex items-center justify-between gap-4 border-t border-primary/10 pt-4">
               <div>
-                <Label>Frekvencia notifikácií</Label>
+                <Label>{t("settings.notifications.frequencyLabel")}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Ako často chcete dostávať súhrn nových zákaziek.
+                  {t("settings.notifications.frequencyHelp")}
                 </p>
               </div>
               <div className="inline-flex rounded-md border border-primary/20 overflow-hidden shrink-0">
@@ -277,7 +278,7 @@ function SettingsPage() {
                       : "bg-transparent text-foreground hover:bg-primary/5"
                   }`}
                 >
-                  Denne
+                  {t("settings.notifications.daily")}
                 </button>
                 <button
                   type="button"
@@ -288,15 +289,15 @@ function SettingsPage() {
                       : "bg-transparent text-foreground hover:bg-primary/5"
                   }`}
                 >
-                  Týždenne
+                  {t("settings.notifications.weekly")}
                 </button>
               </div>
             </div>
             <div className="mt-4 flex items-center justify-between gap-4 border-t border-primary/10 pt-4">
               <div>
-                <Label htmlFor="deadlineRem">Pripomienky deadlinov uložených zákaziek</Label>
+                <Label htmlFor="deadlineRem">{t("settings.notifications.deadlineRemindersLabel")}</Label>
                 <p className="text-sm text-muted-foreground">
-                  E-mail 3 dni a 1 deň pred koncom lehoty pri uložených zákazkách.
+                  {t("settings.notifications.deadlineRemindersHelp")}
                 </p>
               </div>
               <Switch
@@ -306,33 +307,33 @@ function SettingsPage() {
               />
             </div>
             <div className="mt-6 border-t border-primary/10 pt-4">
-              <h3 className="font-display font-semibold text-base tracking-tight">Grantové výzvy</h3>
+              <h3 className="font-display font-semibold text-base tracking-tight">{t("settings.notifications.grantsHeading")}</h3>
               <p className="text-sm text-muted-foreground mt-1">
-                Iná kadencia než pri zákazkách – zoznam sa mení pomalšie.
+                {t("settings.notifications.grantsHelp")}
               </p>
               <div className="mt-4 flex items-center justify-between gap-4">
                 <div>
-                  <Label htmlFor="gNewMatch">Nová zhoda s grantovým radarom</Label>
+                  <Label htmlFor="gNewMatch">{t("settings.notifications.grantNewMatchLabel")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    E-mail vždy, keď pribudne výzva, ktorá sedí na niektorý z vašich grantových radarov.
+                    {t("settings.notifications.grantNewMatchHelp")}
                   </p>
                 </div>
                 <Switch id="gNewMatch" checked={grantNewMatch} onCheckedChange={setGrantNewMatch} />
               </div>
               <div className="mt-4 flex items-center justify-between gap-4">
                 <div>
-                  <Label htmlFor="gWeekly">Týždenný súhrn grantov</Label>
+                  <Label htmlFor="gWeekly">{t("settings.notifications.grantWeeklyLabel")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Piatkový súhrn nových a otvorených výziev podľa vašich radarov.
+                    {t("settings.notifications.grantWeeklyHelp")}
                   </p>
                 </div>
                 <Switch id="gWeekly" checked={grantWeekly} onCheckedChange={setGrantWeekly} />
               </div>
               <div className="mt-4 flex items-center justify-between gap-4">
                 <div>
-                  <Label htmlFor="gDeadline">Pripomienky deadlinov grantov</Label>
+                  <Label htmlFor="gDeadline">{t("settings.notifications.grantDeadlineLabel")}</Label>
                   <p className="text-sm text-muted-foreground">
-                    Len pri one-shot výzvach (s pevným deadlinom), 7 a 2 dni pred koncom.
+                    {t("settings.notifications.grantDeadlineHelp")}
                   </p>
                 </div>
                 <Switch id="gDeadline" checked={grantDeadline} onCheckedChange={setGrantDeadline} />
@@ -340,7 +341,7 @@ function SettingsPage() {
             </div>
             <div className="mt-6 flex justify-end">
               <Button size="sm" onClick={saveNotifications} disabled={saving}>
-                {saving ? "Ukladám..." : "Uložiť notifikácie"}
+                {saving ? t("settings.notifications.saving") : t("settings.notifications.save")}
               </Button>
             </div>
           </section>
@@ -353,14 +354,13 @@ function SettingsPage() {
           <section>
             <div className="flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h2 className="font-display font-semibold text-xl tracking-tight">Radary</h2>
+                <h2 className="font-display font-semibold text-xl tracking-tight">{t("settings.radars.heading")}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Každý radar má vlastné kľúčové slová, CPV kategórie a kraje. Zákazka sa objaví,
-                  ak sedí aspoň jednému aktívnemu radaru.
+                  {t("settings.radars.description")}
                 </p>
               </div>
               <Button size="sm" onClick={addRadar}>
-                <Plus className="h-4 w-4 mr-1" /> Pridať radar
+                <Plus className="h-4 w-4 mr-1" /> {t("settings.radars.add")}
               </Button>
             </div>
 
@@ -378,7 +378,7 @@ function SettingsPage() {
               ))}
               {list.length === 0 && (
                 <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
-                  Zatiaľ nemáte žiadny radar. Pridajte prvý.
+                  {t("settings.radars.empty")}
                 </div>
               )}
             </div>
@@ -414,6 +414,7 @@ function RadarCard({
   onDelete: () => void;
   canDelete: boolean;
 }) {
+  const { t } = useTranslation("account");
   const [nameDraft, setNameDraft] = useState(radar.name);
   const [kwInput, setKwInput] = useState("");
 
@@ -443,19 +444,19 @@ function RadarCard({
 
   const countryLabel =
     (radar.countries ?? []).includes("ALL")
-      ? "všetky krajiny EÚ"
-      : `${(radar.countries ?? []).length || 0} krajín`;
+      ? t("settings.radars.allCountriesShort")
+      : t("settings.radars.countriesCount", { count: (radar.countries ?? []).length || 0 });
 
   const summary = [
-    radar.keywords.length ? `${radar.keywords.length} kľúč. slov` : null,
-    radar.cpv_codes.length ? `${radar.cpv_codes.length} CPV` : null,
+    radar.keywords.length ? t("settings.radars.summaryKeywords", { count: radar.keywords.length }) : null,
+    radar.cpv_codes.length ? t("settings.radars.summaryCpv", { count: radar.cpv_codes.length }) : null,
     countryLabel,
     (radar.countries ?? []).includes("SK") && radar.regions.length
-      ? `${radar.regions.length} krajov`
+      ? t("settings.radars.summaryRegions", { count: radar.regions.length })
       : null,
   ]
     .filter(Boolean)
-    .join(" · ") || "bez filtrov";
+    .join(" · ") || t("settings.radars.summaryEmpty");
 
   return (
     <div className="rounded-lg border border-primary/15 bg-card">
@@ -464,7 +465,7 @@ function RadarCard({
           type="button"
           onClick={onToggleExpanded}
           className="text-muted-foreground hover:text-foreground"
-          aria-label={expanded ? "Zbaliť" : "Rozbaliť"}
+          aria-label={expanded ? t("settings.radars.collapse") : t("settings.radars.expand")}
         >
           {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </button>
@@ -489,7 +490,7 @@ function RadarCard({
               onCheckedChange={(v) => onUpdate({ active: v })}
             />
             <Label htmlFor={`active-${radar.id}`} className="text-xs text-muted-foreground">
-              {radar.active ? "Zapnutý" : "Vypnutý"}
+              {radar.active ? t("settings.radars.active") : t("settings.radars.inactive")}
             </Label>
           </div>
           <Button
@@ -497,7 +498,7 @@ function RadarCard({
             size="icon"
             onClick={onDelete}
             disabled={!canDelete}
-            title={canDelete ? "Zmazať radar" : "Musí zostať aspoň jeden radar"}
+            title={canDelete ? t("settings.radars.deleteTitle") : t("settings.radars.deleteTitleDisabled")}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -507,12 +508,12 @@ function RadarCard({
       {expanded && (
         <div className="border-t border-primary/10 p-4 space-y-6">
           <div>
-            <h3 className="font-semibold text-sm">Kľúčové slová</h3>
+            <h3 className="font-semibold text-sm">{t("settings.radars.keywords")}</h3>
             <div className="mt-2 flex gap-2">
               <Input
                 value={kwInput}
                 onChange={(e) => setKwInput(e.target.value)}
-                placeholder="Pridať kľúčové slovo"
+                placeholder={t("settings.radars.keywordsPlaceholder")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -521,7 +522,7 @@ function RadarCard({
                 }}
               />
               <Button type="button" size="sm" onClick={addKeyword}>
-                Pridať
+                {t("settings.radars.add2")}
               </Button>
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -544,7 +545,7 @@ function RadarCard({
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm">CPV kategórie</h3>
+            <h3 className="font-semibold text-sm">{t("settings.radars.cpvCategories")}</h3>
             <div className="mt-2 grid sm:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-2">
               {CPV_DIVISIONS.map((d) => (
                 <label
@@ -565,7 +566,7 @@ function RadarCard({
           </div>
 
           <div>
-            <h3 className="font-semibold text-sm">Krajiny</h3>
+            <h3 className="font-semibold text-sm">{t("settings.radars.countries")}</h3>
             <label className="mt-2 flex items-center gap-2 rounded-md border p-2 hover:bg-accent cursor-pointer">
               <Checkbox
                 checked={(radar.countries ?? []).includes("ALL")}
@@ -575,7 +576,7 @@ function RadarCard({
                   })
                 }
               />
-              <span className="text-sm font-medium">Všetky krajiny EÚ</span>
+              <span className="text-sm font-medium">{t("settings.radars.allEuCountries")}</span>
             </label>
             {!(radar.countries ?? []).includes("ALL") && (
               <div className="mt-2 grid sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-2">
@@ -599,9 +600,9 @@ function RadarCard({
 
           {((radar.countries ?? []).includes("SK") || (radar.countries ?? []).includes("ALL")) && (
             <div>
-              <h3 className="font-semibold text-sm">Kraje (Slovensko) – voliteľné</h3>
+              <h3 className="font-semibold text-sm">{t("settings.radars.skRegionsOptional")}</h3>
               <p className="text-xs text-muted-foreground mt-1">
-                Nechajte prázdne pre celé Slovensko, alebo vyberte konkrétne kraje.
+                {t("settings.radars.skRegionsHelp")}
               </p>
               <div className="mt-2 grid sm:grid-cols-2 gap-2">
                 {REGIONS.map((rg) => (
@@ -626,6 +627,7 @@ function RadarCard({
 }
 
 function SubscriptionSection({ userId }: { userId: string | null }) {
+  const { t } = useTranslation("account");
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [row, setRow] = useState<any>(null);
@@ -645,8 +647,8 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
   if (loading) {
     return (
       <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-        <h2 className="font-display font-semibold text-lg tracking-tight">Predplatné</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Načítavam…</p>
+        <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.subscription.heading")}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t("settings.subscription.loading")}</p>
       </section>
     );
   }
@@ -656,53 +658,52 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
   const cancelRequested = !!row?.subscription_cancel_requested_at;
 
   const statusLabel =
-    sub.status === "active" ? (cancelRequested ? "Aktívne (zrušené – dobieha)" : "Aktívne")
-    : sub.status === "trial" ? `Skúšobné (zostáva ${sub.daysLeft} dní)`
-    : "Vypršané";
+    sub.status === "active" ? (cancelRequested ? t("settings.subscription.statusActiveCancelled") : t("settings.subscription.statusActive"))
+    : sub.status === "trial" ? t("settings.subscription.statusTrial", { days: sub.daysLeft })
+    : t("settings.subscription.statusExpired");
 
   async function cancel() {
-    if (!confirm("Zrušiť predplatné? Prístup vám zostane do konca zaplateného obdobia.")) return;
+    if (!confirm(t("settings.subscription.confirmCancel"))) return;
     setBusy(true);
     const { data, error } = await supabase.functions.invoke("gopay-cancel-subscription", { body: {} });
     setBusy(false);
-    if (error) { toast.error("Nepodarilo sa zrušiť: " + error.message); return; }
-    toast.success("Predplatné bolo zrušené." + (data?.valid_until ? " Prístup do " + new Date(data.valid_until).toLocaleDateString("sk-SK") + "." : ""));
+    if (error) { toast.error(t("settings.subscription.cancelError", { message: error.message })); return; }
+    toast.success(t("settings.subscription.cancelled") + (data?.valid_until ? t("settings.subscription.cancelledUntil", { date: new Date(data.valid_until).toLocaleDateString("sk-SK") }) : ""));
     load();
   }
 
   return (
     <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-      <h2 className="font-display font-semibold text-lg tracking-tight">Predplatné</h2>
+      <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.subscription.heading")}</h2>
       <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
         <div>
-          <div className="text-muted-foreground">Stav</div>
+          <div className="text-muted-foreground">{t("settings.subscription.status")}</div>
           <div className="font-medium">{statusLabel}</div>
         </div>
         <div>
-          <div className="text-muted-foreground">Plán / Cena</div>
+          <div className="text-muted-foreground">{t("settings.subscription.planPrice")}</div>
           <div className="font-medium">
-            Tendrik {tierLabel(sub.tier)} · {formatEur(priceEur(sub.tier, sub.period))}{" "}
-            / {sub.period === "yearly" ? "rok" : "mes"}
+            {t("settings.subscription.planPriceValue", { tier: tierLabel(sub.tier), price: formatEur(priceEur(sub.tier, sub.period)), period: sub.period === "yearly" ? t("settings.subscription.perYear") : t("settings.subscription.perMonth") })}
           </div>
         </div>
         <div>
-          <div className="text-muted-foreground">AI analýzy</div>
+          <div className="text-muted-foreground">{t("settings.subscription.aiAnalyses")}</div>
           <div className="font-medium">
             {sub.status === "trial"
-              ? `${sub.aiLimit} v rámci trialu`
-              : sub.aiLimit > 0 ? `${sub.aiLimit} mesačne` : "nie sú v pláne"}
+              ? t("settings.subscription.aiAnalysesTrial", { limit: sub.aiLimit })
+              : sub.aiLimit > 0 ? t("settings.subscription.aiAnalysesMonthly", { limit: sub.aiLimit }) : t("settings.subscription.aiAnalysesNone")}
           </div>
         </div>
 
         {validUntil && (
           <div>
-            <div className="text-muted-foreground">Zaplatené do</div>
+            <div className="text-muted-foreground">{t("settings.subscription.paidUntil")}</div>
             <div className="font-medium num">{validUntil.toLocaleDateString("sk-SK")}</div>
           </div>
         )}
         {row?.last_payment_at && (
           <div>
-            <div className="text-muted-foreground">Posledná platba</div>
+            <div className="text-muted-foreground">{t("settings.subscription.lastPayment")}</div>
             <div className="font-medium num">{new Date(row.last_payment_at).toLocaleDateString("sk-SK")}</div>
           </div>
         )}
@@ -712,26 +713,37 @@ function SubscriptionSection({ userId }: { userId: string | null }) {
         {sub.status !== "active" && (
           <WebOnlyPurchase>
             <Link to="/predplatne">
-              <Button size="sm">Aktivovať predplatné</Button>
+              <Button size="sm">{t("settings.subscription.activate")}</Button>
             </Link>
           </WebOnlyPurchase>
 
         )}
         {sub.status === "active" && !cancelRequested && (
           <Button size="sm" variant="outline" onClick={cancel} disabled={busy}>
-            {busy ? "Rušim…" : "Zrušiť predplatné"}
+            {busy ? t("settings.subscription.cancelling") : t("settings.subscription.cancel")}
           </Button>
         )}
         {cancelRequested && (
           <p className="text-xs text-muted-foreground">
-            Zrušenie vyžiadané. Prístup zostáva do konca zaplateného obdobia.
+            {t("settings.subscription.cancelRequestedNote")}
           </p>
         )}
       </div>
 
       <p className="mt-4 text-xs text-muted-foreground">
-        Platby spracúva GoPay. Detaily nájdete v{" "}
-        <Link to="/pravne/opakovane-platby" className="underline">podmienkach opakovaných platieb</Link>.
+        {(() => {
+          const note = t("settings.subscription.paymentsNote", { link: "__LINK__" });
+          const [before, after] = note.split("__LINK__");
+          return (
+            <>
+              {before}
+              <Link to="/pravne/opakovane-platby" className="underline">
+                {t("settings.subscription.recurringPaymentsTerms")}
+              </Link>
+              {after}
+            </>
+          );
+        })()}
       </p>
     </section>
   );
@@ -754,6 +766,7 @@ type BillingRow = {
 };
 
 function BillingDetailsSection({ userId }: { userId: string | null }) {
+  const { t } = useTranslation("account");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [row, setRow] = useState<BillingRow>({
@@ -794,8 +807,8 @@ function BillingDetailsSection({ userId }: { userId: string | null }) {
 
   async function save() {
     if (!userId) return;
-    if (!row.name.trim()) { toast.error("Zadaj meno alebo názov firmy."); return; }
-    if (!row.email.trim() || !row.email.includes("@")) { toast.error("Zadaj platný e-mail."); return; }
+    if (!row.name.trim()) { toast.error(t("settings.billing.nameRequired")); return; }
+    if (!row.email.trim() || !row.email.includes("@")) { toast.error(t("settings.billing.emailInvalid")); return; }
     setSaving(true);
     const payload = {
       user_id: userId,
@@ -811,62 +824,62 @@ function BillingDetailsSection({ userId }: { userId: string | null }) {
     const { error } = await (supabase.from("billing_details" as never) as any)
       .upsert(payload, { onConflict: "user_id" });
     setSaving(false);
-    if (error) { toast.error("Nepodarilo sa uložiť: " + error.message); return; }
-    toast.success("Fakturačné údaje uložené.");
+    if (error) { toast.error(t("settings.billing.saveError", { message: error.message })); return; }
+    toast.success(t("settings.billing.saved"));
   }
 
   if (loading) {
     return (
       <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-        <h2 className="font-display font-semibold text-lg tracking-tight">Fakturačné údaje</h2>
-        <p className="mt-2 text-sm text-muted-foreground">Načítavam…</p>
+        <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.billing.heading")}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t("settings.billing.loading")}</p>
       </section>
     );
   }
 
   return (
     <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-      <h2 className="font-display font-semibold text-lg tracking-tight">Fakturačné údaje</h2>
+      <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.billing.heading")}</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Používajú sa na vystavenie faktúry po zaplatení predplatného. Faktúra vám príde na fakturačný e-mail.
+        {t("settings.billing.description")}
       </p>
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="sm:col-span-2">
-          <Label>Meno alebo názov firmy *</Label>
+          <Label>{t("settings.billing.nameLabel")}</Label>
           <Input value={row.name} onChange={(e) => setRow({ ...row, name: e.target.value })} />
         </div>
         <div>
-          <Label>IČO</Label>
+          <Label>{t("settings.billing.icoLabel")}</Label>
           <Input value={row.ico ?? ""} onChange={(e) => setRow({ ...row, ico: e.target.value })} />
         </div>
         <div>
-          <Label>IČ DPH</Label>
+          <Label>{t("settings.billing.icDphLabel")}</Label>
           <Input value={row.ic_dph ?? ""} onChange={(e) => setRow({ ...row, ic_dph: e.target.value })} />
         </div>
         <div className="sm:col-span-2">
-          <Label>Ulica a číslo</Label>
+          <Label>{t("settings.billing.streetLabel")}</Label>
           <Input value={row.street ?? ""} onChange={(e) => setRow({ ...row, street: e.target.value })} />
         </div>
         <div>
-          <Label>Mesto</Label>
+          <Label>{t("settings.billing.cityLabel")}</Label>
           <Input value={row.city ?? ""} onChange={(e) => setRow({ ...row, city: e.target.value })} />
         </div>
         <div>
-          <Label>PSČ</Label>
+          <Label>{t("settings.billing.zipLabel")}</Label>
           <Input value={row.zip ?? ""} onChange={(e) => setRow({ ...row, zip: e.target.value })} />
         </div>
         <div>
-          <Label>Krajina</Label>
+          <Label>{t("settings.billing.countryLabel")}</Label>
           <Input value={row.country} onChange={(e) => setRow({ ...row, country: e.target.value })} />
         </div>
         <div>
-          <Label>Fakturačný e-mail *</Label>
+          <Label>{t("settings.billing.emailLabel")}</Label>
           <Input value={row.email} onChange={(e) => setRow({ ...row, email: e.target.value })} />
         </div>
       </div>
       <div className="mt-4">
         <Button size="sm" onClick={save} disabled={saving}>
-          {saving ? "Ukladám…" : "Uložiť fakturačné údaje"}
+          {saving ? t("settings.billing.saving") : t("settings.billing.save")}
         </Button>
       </div>
     </section>
@@ -878,6 +891,7 @@ function BillingDetailsSection({ userId }: { userId: string | null }) {
 // -----------------------------------------------------------------------------
 
 function InvoicesHistorySection({ userId }: { userId: string | null }) {
+  const { t } = useTranslation("account");
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<any[]>([]);
   const [downloading, setDownloading] = useState<string | null>(null);
@@ -899,26 +913,26 @@ function InvoicesHistorySection({ userId }: { userId: string | null }) {
       body: { action: "pdf", invoice_id: id },
     });
     setDownloading(null);
-    if (error || !data?.url) { toast.error("PDF sa nepodarilo načítať."); return; }
+    if (error || !data?.url) { toast.error(t("settings.invoices.downloadError")); return; }
     window.open(data.url, "_blank", "noopener");
   }
 
   return (
     <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-      <h2 className="font-display font-semibold text-lg tracking-tight">História faktúr</h2>
+      <h2 className="font-display font-semibold text-lg tracking-tight">{t("settings.invoices.heading")}</h2>
       {loading ? (
-        <p className="mt-2 text-sm text-muted-foreground">Načítavam…</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("settings.invoices.loading")}</p>
       ) : rows.length === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">Zatiaľ žiadne faktúry.</p>
+        <p className="mt-2 text-sm text-muted-foreground">{t("settings.invoices.empty")}</p>
       ) : (
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-muted-foreground">
               <tr className="border-b border-primary/10">
-                <th className="py-2 pr-3">Dátum</th>
-                <th className="py-2 pr-3">Číslo</th>
-                <th className="py-2 pr-3">Suma</th>
-                <th className="py-2 pr-3">Stav</th>
+                <th className="py-2 pr-3">{t("settings.invoices.date")}</th>
+                <th className="py-2 pr-3">{t("settings.invoices.number")}</th>
+                <th className="py-2 pr-3">{t("settings.invoices.amount")}</th>
+                <th className="py-2 pr-3">{t("settings.invoices.status")}</th>
                 <th className="py-2 pr-3"></th>
               </tr>
             </thead>
@@ -932,16 +946,16 @@ function InvoicesHistorySection({ userId }: { userId: string | null }) {
                     <td className="py-2 pr-3 num">{r.invoice_number ?? "—"}</td>
                     <td className="py-2 pr-3 num">{Number(r.amount).toFixed(2)} {r.currency}</td>
                     <td className="py-2 pr-3">
-                      {r.status === "sent" ? "Odoslaná"
-                        : r.status === "paid_marked" ? "Vystavená (uhradená)"
-                        : r.status === "issued" ? "Vystavená"
-                        : r.status === "failed" ? <span className="text-destructive">Chyba</span>
-                        : "Čaká sa"}
+                      {r.status === "sent" ? t("settings.invoices.statusSent")
+                        : r.status === "paid_marked" ? t("settings.invoices.statusPaidMarked")
+                        : r.status === "issued" ? t("settings.invoices.statusIssued")
+                        : r.status === "failed" ? <span className="text-destructive">{t("settings.invoices.statusFailed")}</span>
+                        : t("settings.invoices.statusPending")}
                     </td>
                     <td className="py-2 pr-3">
                       {isReady && (
                         <Button size="sm" variant="outline" onClick={() => downloadPdf(r.id)} disabled={downloading === r.id}>
-                          {downloading === r.id ? "…" : "Stiahnuť PDF"}
+                          {downloading === r.id ? "…" : t("settings.invoices.download")}
                         </Button>
                       )}
                     </td>

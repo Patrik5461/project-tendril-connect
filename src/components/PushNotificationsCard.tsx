@@ -4,9 +4,11 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useIsNative } from "@/lib/native";
 import { disablePush, enablePush, getPushStatus, hasStoredToken } from "@/lib/push";
+import { useTranslation } from "react-i18next";
 
 /** Sekcia "Notifikácie v aplikácii" – zobrazuje sa len na natívnej platforme. */
 export function PushNotificationsCard() {
+  const { t } = useTranslation("account");
   const native = useIsNative();
   const [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -30,17 +32,17 @@ export function PushNotificationsCard() {
         const res = await enablePush();
         if (res.ok) {
           setEnabled(true);
-          toast.success("Push notifikácie sú zapnuté.");
+          toast.success(t("push.enabled"));
         } else if (res.reason === "denied") {
           setDenied(true);
-          toast.error("Povolenie zamietnuté. Zapnite ho v nastaveniach telefónu.");
+          toast.error(t("push.denied"));
         } else {
-          toast.error("Nepodarilo sa zapnúť notifikácie.");
+          toast.error(t("push.enableFailed"));
         }
       } else {
         await disablePush();
         setEnabled(false);
-        toast.success("Push notifikácie sú vypnuté.");
+        toast.success(t("push.disabled"));
       }
     } finally {
       setBusy(false);
@@ -49,13 +51,12 @@ export function PushNotificationsCard() {
 
   return (
     <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
-      <h2 className="font-display font-semibold text-lg tracking-tight">Notifikácie v aplikácii</h2>
+      <h2 className="font-display font-semibold text-lg tracking-tight">{t("push.heading")}</h2>
       <div className="mt-3 flex items-center justify-between gap-4">
         <div>
-          <Label htmlFor="pushNotif">Push notifikácie na tomto zariadení</Label>
+          <Label htmlFor="pushNotif">{t("push.toggleLabel")}</Label>
           <p className="text-sm text-muted-foreground">
-            Nové zákazky podľa radaru, pripomienky deadlinov uložených zákaziek a dokončené AI
-            analýzy. Rešpektuje vaše nastavenia vyššie.
+            {t("push.description")}
           </p>
         </div>
         <Switch
@@ -68,8 +69,7 @@ export function PushNotificationsCard() {
       </div>
       {denied && (
         <p className="mt-3 text-xs text-muted-foreground">
-          Povolenie na notifikácie je zamietnuté – zmeniť sa dá len v systémových nastaveniach
-          telefónu.
+          {t("push.deniedNote")}
         </p>
       )}
     </section>

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation, Trans } from "react-i18next";
 import { openCookieSettings } from "@/lib/cookie-consent";
 
 export const Route = createFileRoute("/ochrana-osobnych-udajov")({
@@ -16,49 +17,41 @@ export const Route = createFileRoute("/ochrana-osobnych-udajov")({
 });
 
 function PrivacyPage() {
+  const { t } = useTranslation("legal");
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <Link
         to="/"
         className="eyebrow text-muted-foreground hover:text-foreground"
       >
-        ← Späť na úvod
+        {t("privacy.backHome")}
       </Link>
       <h1 className="mt-3 font-display text-3xl md:text-4xl font-bold tracking-tight">
-        Ochrana osobných údajov
+        {t("privacy.title")}
       </h1>
       <p className="mt-2 text-muted-foreground">
-        Tendrik je služba pre podnikateľov (30 dní zdarma, potom od 4,99 €/mesiac). Osobné údaje
-        spracúvame len v rozsahu potrebnom na fungovanie služby.
+        {t("privacy.intro")}
       </p>
 
       <section className="mt-8 space-y-3">
         <h2 className="font-display text-xl font-semibold tracking-tight">
-          Aké údaje spracúvame
+          {t("privacy.dataSection.heading")}
         </h2>
         <p className="text-sm leading-relaxed">
-          Pri registrácii uchovávame e-mailovú adresu a nastavenia notifikácií
-          (radary, frekvencia e-mailov, uložené zákazky). Údaje používame výhradne
-          na doručovanie služby.
+          {t("privacy.dataSection.text")}
         </p>
       </section>
 
       <section className="mt-8 space-y-3">
         <h2 className="font-display text-xl font-semibold tracking-tight">
-          Cookies
+          {t("privacy.cookiesSection.heading")}
         </h2>
         <p className="text-sm leading-relaxed">
-          Používame dve kategórie cookies:
+          {t("privacy.cookiesSection.intro")}
         </p>
         <ul className="list-disc pl-6 text-sm leading-relaxed space-y-1">
-          <li>
-            <strong>Nevyhnutné</strong> – potrebné na prihlásenie, session a
-            základné nastavenia. Bez nich stránka nemôže fungovať.
-          </li>
-          <li>
-            <strong>Analytické</strong> – voliteľné. Načítajú sa iba ak dáte
-            súhlas. Pomáhajú nám merať používanie služby.
-          </li>
+          <li><Trans t={t} i18nKey="privacy.cookiesSection.necessary" components={[<strong />]} /></li>
+          <li><Trans t={t} i18nKey="privacy.cookiesSection.analytics" components={[<strong />]} /></li>
         </ul>
         <p className="text-sm">
           <button
@@ -66,18 +59,17 @@ function PrivacyPage() {
             onClick={openCookieSettings}
             className="underline underline-offset-2 hover:text-primary"
           >
-            Otvoriť nastavenia cookies
+            {t("privacy.cookiesSection.openSettingsButton")}
           </button>
         </p>
       </section>
 
       <section className="mt-8 space-y-3">
         <h2 className="font-display text-xl font-semibold tracking-tight">
-          Vaše práva
+          {t("privacy.rightsSection.heading")}
         </h2>
         <p className="text-sm leading-relaxed">
-          Máte právo na prístup k svojim údajom, ich opravu a vymazanie. V prípade
-          otázok nás kontaktujte na e-maile uvedenom v aplikácii.
+          {t("privacy.rightsSection.text")}
         </p>
       </section>
     </div>

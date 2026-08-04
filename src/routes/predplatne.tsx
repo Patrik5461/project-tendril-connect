@@ -17,6 +17,7 @@ import { PaymentBadges } from "@/components/LegalFooter";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useIsNative } from "@/lib/native";
+import { useTranslation, Trans } from "react-i18next";
 
 
 export const Route = createFileRoute("/predplatne")({
@@ -37,43 +38,26 @@ export const Route = createFileRoute("/predplatne")({
   component: PredplatnePage,
 });
 
-const TIER_INFO: Record<SubscriptionTier, { title: string; features: string[]; highlight?: boolean }> = {
-  basic: {
-    title: "Monitoring zákaziek",
-    features: [
-      "Radary a filtre",
-      "Denné e-mailové digesty",
-      "Pripomienky pred deadline",
-      "TED, ÚVO, EKS a JOSEPHINE",
-      "Bez AI a bez grantov",
-    ],
-  },
-  premium: {
-    title: "Zákazky + AI analýza",
-    highlight: true,
-    features: [
-      "Všetko zo Základu",
-      `${AI_MONTHLY_LIMIT.premium} AI analýz mesačne`,
-      "AI analýza spôsobilosti",
-      "AI návrh subdodávok a oslovení",
-      "TED podmienky štruktúrovane",
-    ],
-  },
-  komplet: {
-    title: "Zákazky + granty + AI",
-    features: [
-      "Všetko z Prémia",
-      "Grantové výzvy a radary",
-      "AI analýza grantových výziev",
-      `${AI_MONTHLY_LIMIT.komplet} AI analýz mesačne`,
-      "Prioritná podpora",
-    ],
-  },
-};
-
 function PredplatnePage() {
+  const { t } = useTranslation("public");
   const search = Route.useSearch();
   const native = useIsNative();
+
+  const TIER_INFO: Record<SubscriptionTier, { title: string; features: string[]; highlight?: boolean }> = {
+    basic: {
+      title: t("predplatne.tierTitle.basic"),
+      features: t("predplatne.tierFeatures.basic", { returnObjects: true }) as string[],
+    },
+    premium: {
+      title: t("predplatne.tierTitle.premium"),
+      highlight: true,
+      features: (t("predplatne.tierFeatures.premium", { returnObjects: true, count: AI_MONTHLY_LIMIT.premium }) as string[]),
+    },
+    komplet: {
+      title: t("predplatne.tierTitle.komplet"),
+      features: (t("predplatne.tierFeatures.komplet", { returnObjects: true, count: AI_MONTHLY_LIMIT.komplet }) as string[]),
+    },
+  };
   const [tier, setTier] = useState<SubscriptionTier>(search.tier ?? "premium");
   const [period, setPeriod] = useState<BillingPeriod>(search.period ?? "monthly");
   const [loading, setLoading] = useState(false);
@@ -97,8 +81,8 @@ function PredplatnePage() {
   if (native) {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center safe-top">
-        <h1 className="font-display text-2xl font-bold tracking-tight">Predplatné</h1>
-        <p className="mt-4 text-sm text-muted-foreground">Predplatné spravuješ na tendrik.sk</p>
+        <h1 className="font-display text-2xl font-bold tracking-tight">{t("predplatne.nativeTitle")}</h1>
+        <p className="mt-4 text-sm text-muted-foreground">{t("predplatne.nativeNote")}</p>
       </div>
     );
   }
@@ -112,21 +96,21 @@ function PredplatnePage() {
         body: { tier, period, autorenew: canAutorenew && autorenew },
       });
       if (error || !data) {
-        toast.error("Nepodarilo sa spustiť platbu. " + (error?.message ?? ""));
+        toast.error(t("predplatne.toastInvokeError", { message: error?.message ?? "" }));
         return;
       }
       if (data.error === "GOPAY_NOT_CONFIGURED") {
         setEnv(data.env ?? "sandbox");
-        toast.error("GoPay kľúče zatiaľ nie sú vyplnené (režim: " + (data.env ?? "sandbox") + ").");
+        toast.error(t("predplatne.toastNotConfigured", { env: data.env ?? "sandbox" }));
         return;
       }
       if (data.gw_url) {
         window.location.href = data.gw_url;
         return;
       }
-      toast.error("GoPay nevrátil URL brány.");
+      toast.error(t("predplatne.toastNoUrl"));
     } catch (e) {
-      toast.error("Chyba: " + String((e as Error).message ?? e));
+      toast.error(t("predplatne.toastGenericError", { message: String((e as Error).message ?? e) }));
     } finally {
       setLoading(false);
     }
@@ -138,17 +122,17 @@ function PredplatnePage() {
     <div className="mx-auto max-w-4xl px-4 py-16">
       <div className="eyebrow flex items-center justify-center text-foreground">
         <span className="red-square" aria-hidden="true" />
-        Predplatné
+        {t("predplatne.eyebrow")}
       </div>
       <h1 className="mt-6 font-display text-3xl md:text-4xl font-bold tracking-tight text-center">
-        Vyberte si plán
+        {t("predplatne.heading")}
       </h1>
       <p className="mt-3 text-center text-muted-foreground">
         {yearly
-          ? "Ročné predplatné: jednorazová platba na 12 mesiacov."
+          ? t("predplatne.yearlyNote")
           : recurringEnabled
-            ? "Automatické obnovenie cez GoPay, zrušenie kedykoľvek."
-            : "Jednorazová platba na 1 mesiac. Pred koncom obdobia vám pošleme pripomienku."}
+            ? t("predplatne.recurringNote")
+            : t("predplatne.onetimeNote")}
       </p>
 
       <div className="mt-6 flex justify-center">
@@ -158,30 +142,32 @@ function PredplatnePage() {
             onClick={() => setPeriod("monthly")}
             className={`px-4 py-2 text-sm font-semibold ${!yearly ? "bg-foreground text-background" : "text-foreground"}`}
           >
-            Mesačne
+            {t("predplatne.periodMonthly")}
           </button>
           <button
             type="button"
             onClick={() => setPeriod("yearly")}
             className={`px-4 py-2 text-sm font-semibold ${yearly ? "bg-foreground text-background" : "text-foreground"}`}
           >
-            Ročne <span className="text-primary">−2 mesiace</span>
+            {t("predplatne.periodYearly")} <span className="text-primary">{t("predplatne.periodYearlyDiscount")}</span>
           </button>
         </div>
       </div>
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">
-        {(["basic", "premium", "komplet"] as SubscriptionTier[]).map((t) => (
+        {(["basic", "premium", "komplet"] as SubscriptionTier[]).map((tv) => (
           <TierCard
-            key={t}
-            selected={tier === t}
-            onSelect={() => setTier(t)}
-            eyebrow={tierLabel(t)}
-            title={TIER_INFO[t].title}
-            monthlyEur={yearly ? monthlyEquivalentEur(t) : tierPrice(t, "monthly")}
-            note={yearly ? `${formatEur(tierPrice(t, "yearly"))} ročne` : "Konečná cena (neplatca DPH)"}
-            highlight={TIER_INFO[t].highlight}
-            features={TIER_INFO[t].features}
+            key={tv}
+            selected={tier === tv}
+            onSelect={() => setTier(tv)}
+            eyebrow={tierLabel(tv)}
+            title={TIER_INFO[tv].title}
+            monthlyEur={yearly ? monthlyEquivalentEur(tv) : tierPrice(tv, "monthly")}
+            note={yearly ? t("predplatne.yearlyEurNote", { price: formatEur(tierPrice(tv, "yearly")) }) : t("predplatne.monthlyFinalNote")}
+            highlight={TIER_INFO[tv].highlight}
+            features={TIER_INFO[tv].features}
+            aiBadgeLabel={t("predplatne.aiBadge")}
+            priceSuffix={t("predplatne.priceSuffixMonth")}
           />
         ))}
       </div>
@@ -197,15 +183,15 @@ function PredplatnePage() {
 
         <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
           <div className="text-sm">
-            <div className="text-muted-foreground">Vybraný plán</div>
+            <div className="text-muted-foreground">{t("predplatne.selectedPlanLabel")}</div>
             <div className="font-display text-lg font-bold">
-              Tendrik {tierLabel(tier)} · {yearly ? "ročne" : "mesačne"}
+              Tendrik {tierLabel(tier)} · {yearly ? t("predplatne.planYearly") : t("predplatne.planMonthly")}
             </div>
           </div>
           <div className="text-right">
             <div className="num text-2xl font-bold">{formatEur(chargedEur)}</div>
             <div className="text-xs text-muted-foreground">
-              {yearly ? "konečná cena / 12 mesiacov" : "konečná cena / mes"}
+              {yearly ? t("predplatne.chargedYearlyNote") : t("predplatne.chargedMonthlyNote")}
             </div>
           </div>
         </div>
@@ -213,28 +199,32 @@ function PredplatnePage() {
         {canAutorenew && (
           <label className="mt-4 flex items-center gap-2 text-sm">
             <Checkbox checked={autorenew} onCheckedChange={(v) => setAutorenew(v === true)} />
-            Automaticky obnovovať každý mesiac
+            {t("predplatne.autorenewCheckbox")}
           </label>
         )}
 
         <PaymentBadges className="mt-4" />
         <Button className="mt-6 w-full" size="lg" onClick={activate} disabled={loading}>
           {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-          Pokračovať na platbu
+          {t("predplatne.submit")}
         </Button>
         {env === "sandbox" && (
           <p className="mt-3 text-xs text-muted-foreground text-center">
-            Režim: <b>SANDBOX</b> – testovacia prevádzka.
+            <Trans i18nKey="predplatne.sandboxNote" ns="public" components={{ b: <b /> }} />
           </p>
         )}
         <p className="mt-3 text-xs text-muted-foreground text-center">
-          Kliknutím súhlasíte s{" "}
-          <Link to="/pravne/obchodne-podmienky" className="underline">obchodnými podmienkami</Link>
+          <Trans
+            i18nKey="predplatne.agreementNote"
+            ns="public"
+            components={{ terms: <Link to="/pravne/obchodne-podmienky" className="underline" /> }}
+          />
           {canAutorenew && autorenew ? (
-            <>
-              {" "}a{" "}
-              <Link to="/pravne/opakovane-platby" className="underline">opakovanými platbami</Link>
-            </>
+            <Trans
+              i18nKey="predplatne.agreementNoteRecurring"
+              ns="public"
+              components={{ recurring: <Link to="/pravne/opakovane-platby" className="underline" /> }}
+            />
           ) : null}
           .
         </p>
@@ -243,7 +233,7 @@ function PredplatnePage() {
       <div className="mt-8 text-center">
         <Button variant="ghost" onClick={() => navigate({ to: "/dashboard", search: { tab: "foryou", sort: "deadline", q: "", view: "list", radar: "all", country: "", page: 1, pageSize: 20 } as never })}>
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Späť na dashboard
+          {t("predplatne.backToDashboard")}
         </Button>
       </div>
     </div>
@@ -251,10 +241,11 @@ function PredplatnePage() {
 }
 
 function TierCard({
-  selected, onSelect, eyebrow, title, monthlyEur, note, features, highlight,
+  selected, onSelect, eyebrow, title, monthlyEur, note, features, highlight, aiBadgeLabel, priceSuffix,
 }: {
   selected: boolean; onSelect: () => void; eyebrow: string; title: string;
   monthlyEur: number; note: string; features: string[]; highlight?: boolean;
+  aiBadgeLabel?: string; priceSuffix?: string;
 }) {
   return (
     <button
@@ -267,7 +258,7 @@ function TierCard({
       {highlight && (
         <span className="absolute -top-3 left-4 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wider px-2 py-0.5">
           <Sparkles className="inline h-3 w-3 mr-1" />
-          Obsahuje AI
+          {aiBadgeLabel}
         </span>
       )}
       <div className="flex items-start justify-between">
@@ -278,7 +269,7 @@ function TierCard({
         <div className={`h-5 w-5 rounded-full border-2 shrink-0 ${selected ? "border-primary bg-primary" : "border-muted-foreground"}`} />
       </div>
       <p className="mt-3 num text-3xl font-bold">
-        {formatEur(monthlyEur)} <span className="text-sm font-medium text-muted-foreground">/ mes</span>
+        {formatEur(monthlyEur)} <span className="text-sm font-medium text-muted-foreground">{priceSuffix}</span>
       </p>
       <p className="text-xs text-muted-foreground">{note}</p>
       <ul className="mt-4 space-y-1.5 text-sm">

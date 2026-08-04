@@ -1,0 +1,289 @@
+{
+  "settings": {
+    "title": "Einstellungen",
+    "loggedInAs": "Angemeldet als {{email}}",
+    "loading": "Wird geladen...",
+    "companyProfile": {
+      "title": "Firmenprofil",
+      "description": "Handelsregisternummer, Umsatz nach Jahren, Referenzen, Zertifikate – Grundlage für die KI-Analyse von Ausschreibungen."
+    },
+    "tabs": {
+      "notifications": "Benachrichtigungen",
+      "radars": "Radare",
+      "grantRadars": "Förderradare",
+      "billing": "Abo & Abrechnung"
+    },
+    "notifications": {
+      "heading": "E-Mail-Benachrichtigungen",
+      "newTendersLabel": "Benachrichtigungen über neue Ausschreibungen senden",
+      "newTendersHelp": "Zusammenfassung neuer Ausschreibungen per E-Mail.",
+      "emailsLabel": "E-Mail-Adressen für Benachrichtigungen",
+      "emailsHelp": "Eine oder mehrere durch Kommas getrennte Adressen – Benachrichtigungen gehen an alle. Bleibt es leer, wird die Anmelde-E-Mail ({{email}}) verwendet. Max. 10 Empfänger.",
+      "emailsPlaceholder": "{{email}}, kollege@firma.de",
+      "frequencyLabel": "Häufigkeit der Benachrichtigungen",
+      "frequencyHelp": "Wie oft möchten Sie eine Zusammenfassung neuer Ausschreibungen erhalten.",
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "deadlineRemindersLabel": "Fristerinnerungen für gespeicherte Ausschreibungen",
+      "deadlineRemindersHelp": "E-Mail 3 Tage und 1 Tag vor Fristablauf bei gespeicherten Ausschreibungen.",
+      "grantsHeading": "Förderausschreibungen",
+      "grantsHelp": "Anderer Rhythmus als bei Ausschreibungen – die Liste ändert sich langsamer.",
+      "grantNewMatchLabel": "Neue Übereinstimmung mit einem Förderradar",
+      "grantNewMatchHelp": "E-Mail jedes Mal, wenn eine Ausschreibung erscheint, die zu einem Ihrer Förderradare passt.",
+      "grantWeeklyLabel": "Wöchentliche Förder-Zusammenfassung",
+      "grantWeeklyHelp": "Freitägliche Zusammenfassung neuer und offener Ausschreibungen gemäß Ihren Radaren.",
+      "grantDeadlineLabel": "Fristerinnerungen für Förderungen",
+      "grantDeadlineHelp": "Nur bei One-Shot-Ausschreibungen (mit fester Frist), 7 und 2 Tage vor Ablauf.",
+      "saving": "Wird gespeichert...",
+      "save": "Benachrichtigungen speichern",
+      "invalidEmail": "Ungültige E-Mail-Adresse: {{email}}",
+      "maxRecipients": "Maximal 10 Empfänger",
+      "saved": "Benachrichtigungen gespeichert"
+    },
+    "radars": {
+      "heading": "Radare",
+      "description": "Jeder Radar hat eigene Schlüsselwörter, CPV-Kategorien und Regionen. Eine Ausschreibung erscheint, wenn sie mindestens einem aktiven Radar entspricht.",
+      "add": "Radar hinzufügen",
+      "empty": "Sie haben noch keinen Radar. Fügen Sie den ersten hinzu.",
+      "mustKeepOne": "Es muss mindestens ein Radar bestehen bleiben.",
+      "confirmDelete": "Diesen Radar wirklich löschen?",
+      "deleted": "Radar gelöscht",
+      "defaultName": "Radar {{n}}",
+      "collapse": "Einklappen",
+      "expand": "Aufklappen",
+      "active": "Aktiviert",
+      "inactive": "Deaktiviert",
+      "deleteTitle": "Radar löschen",
+      "deleteTitleDisabled": "Es muss mindestens ein Radar bestehen bleiben",
+      "keywords": "Schlüsselwörter",
+      "keywordsPlaceholder": "Schlüsselwort hinzufügen",
+      "add2": "Hinzufügen",
+      "cpvCategories": "CPV-Kategorien",
+      "countries": "Länder",
+      "allEuCountries": "Alle EU-Länder",
+      "skRegionsOptional": "Regionen (Slowakei) – optional",
+      "skRegionsHelp": "Leer lassen für die gesamte Slowakei oder bestimmte Regionen auswählen.",
+      "allCountriesShort": "alle EU-Länder",
+      "countriesCount": "{{count}} Länder",
+      "summaryKeywords": "{{count}} Schlüsselw.",
+      "summaryCpv": "{{count}} CPV",
+      "summaryRegions": "{{count}} Regionen",
+      "summaryEmpty": "keine Filter"
+    },
+    "subscription": {
+      "heading": "Abonnement",
+      "loading": "Wird geladen…",
+      "statusActiveCancelled": "Aktiv (gekündigt – läuft aus)",
+      "statusActive": "Aktiv",
+      "statusTrial": "Testphase (noch {{days}} Tage)",
+      "statusExpired": "Abgelaufen",
+      "confirmCancel": "Abonnement kündigen? Der Zugang bleibt bis zum Ende des bezahlten Zeitraums bestehen.",
+      "cancelError": "Kündigung fehlgeschlagen: {{message}}",
+      "cancelled": "Das Abonnement wurde gekündigt.",
+      "cancelledUntil": " Zugang bis {{date}}.",
+      "status": "Status",
+      "planPrice": "Plan / Preis",
+      "planPriceValue": "Tendrik {{tier}} · {{price}} / {{period}}",
+      "perYear": "Jahr",
+      "perMonth": "Monat",
+      "aiAnalyses": "KI-Analysen",
+      "aiAnalysesTrial": "{{limit}} im Rahmen der Testphase",
+      "aiAnalysesMonthly": "{{limit}} monatlich",
+      "aiAnalysesNone": "nicht im Plan enthalten",
+      "paidUntil": "Bezahlt bis",
+      "lastPayment": "Letzte Zahlung",
+      "activate": "Abonnement aktivieren",
+      "cancelling": "Wird gekündigt…",
+      "cancel": "Abonnement kündigen",
+      "cancelRequestedNote": "Kündigung angefordert. Der Zugang bleibt bis zum Ende des bezahlten Zeitraums bestehen.",
+      "paymentsNote": "Zahlungen werden von GoPay abgewickelt. Details finden Sie in den {{link}}.",
+      "recurringPaymentsTerms": "Bedingungen für wiederkehrende Zahlungen"
+    },
+    "billing": {
+      "heading": "Rechnungsdaten",
+      "loading": "Wird geladen…",
+      "description": "Werden zur Rechnungsstellung nach Bezahlung des Abonnements verwendet. Die Rechnung wird an Ihre Rechnungs-E-Mail gesendet.",
+      "nameLabel": "Name oder Firmenname *",
+      "icoLabel": "Handelsregisternummer",
+      "icDphLabel": "USt-IdNr.",
+      "streetLabel": "Straße und Hausnummer",
+      "cityLabel": "Stadt",
+      "zipLabel": "PLZ",
+      "countryLabel": "Land",
+      "emailLabel": "Rechnungs-E-Mail *",
+      "saving": "Wird gespeichert…",
+      "save": "Rechnungsdaten speichern",
+      "nameRequired": "Bitte Name oder Firmennamen angeben.",
+      "emailInvalid": "Bitte eine gültige E-Mail-Adresse angeben.",
+      "saveError": "Speichern fehlgeschlagen: {{message}}",
+      "saved": "Rechnungsdaten gespeichert."
+    },
+    "invoices": {
+      "heading": "Rechnungsverlauf",
+      "loading": "Wird geladen…",
+      "empty": "Noch keine Rechnungen.",
+      "date": "Datum",
+      "number": "Nummer",
+      "amount": "Betrag",
+      "status": "Status",
+      "statusSent": "Gesendet",
+      "statusPaidMarked": "Ausgestellt (bezahlt)",
+      "statusIssued": "Ausgestellt",
+      "statusFailed": "Fehler",
+      "statusPending": "Ausstehend",
+      "download": "PDF herunterladen",
+      "downloadError": "PDF konnte nicht geladen werden."
+    }
+  },
+  "onboarding": {
+    "title": "Filter einrichten",
+    "description": "Eine Ausschreibung erscheint, wenn ihr Titel/Beschreibung ein Schlüsselwort enthält <b>oder</b> ein CPV-Code übereinstimmt, <b>und gleichzeitig</b> die Region passt.",
+    "keywordsRequired": "Geben Sie mindestens ein Schlüsselwort oder eine CPV-Kategorie ein.",
+    "countryRequired": "Wählen Sie mindestens ein Land.",
+    "saved": "Radar gespeichert",
+    "step1": {
+      "heading": "1. Schlüsselwörter",
+      "example": "Z. B. „Dach“, „Server“, „Bus“.",
+      "placeholder": "Schlüsselwort hinzufügen",
+      "add": "Hinzufügen"
+    },
+    "step2": {
+      "heading": "2. CPV-Kategorien",
+      "description": "Wählen Sie die Hauptbereiche, die Sie interessieren."
+    },
+    "step3": {
+      "heading": "3. Länder",
+      "description": "Welche EU-Länder sollen beobachtet werden? Standardmäßig die Slowakei.",
+      "allEuCountries": "Alle EU-Länder"
+    },
+    "step4": {
+      "heading": "4. Regionen (Slowakei) – optional",
+      "description": "Leer lassen für die gesamte Slowakei oder bestimmte Regionen auswählen."
+    },
+    "saving": "Wird gespeichert...",
+    "saveAndContinue": "Speichern und fortfahren"
+  },
+  "firma": {
+    "title": "Firmenprofil",
+    "description": "Die KI vergleicht diese Angaben bei „Ausschreibung analysieren“ mit den Anforderungen der Ausschreibung.",
+    "loading": "Wird geladen…",
+    "invalidIco": "Geben Sie eine gültige Handelsregisternummer ein",
+    "registriesErrorPrefix": "Register: ",
+    "registriesLoaded": "Registerdaten geladen",
+    "registriesFetchError": "Fehler beim Laden der Registerdaten",
+    "profileSaved": "Firmenprofil gespeichert",
+    "saveError": "Fehler beim Speichern",
+    "identification": {
+      "heading": "Identifikation",
+      "description": "Geben Sie die Handelsregisternummer ein und laden Sie Daten aus RPO + registeruz.sk.",
+      "icoLabel": "Handelsregisternummer",
+      "icoPlaceholder": "12345678",
+      "fetchButton": "Aus Registern laden",
+      "nameLabel": "Name",
+      "dicLabel": "Steuernummer",
+      "addressLabel": "Adresse",
+      "cityLabel": "Stadt",
+      "zipLabel": "PLZ",
+      "legalFormLabel": "Rechtsform",
+      "naceCodeLabel": "NACE-Code",
+      "naceNameLabel": "NACE-Bezeichnung",
+      "sizeCategoryLabel": "Größenkategorie"
+    },
+    "financials": {
+      "heading": "Umsatz und Mitarbeiter nach Jahren",
+      "description": "Die KI vergleicht dies mit der Anforderung „durchschnittlicher Jahresumsatz der letzten 3 Jahre“.",
+      "addYear": "Jahr hinzufügen",
+      "empty": "Noch keine Jahre.",
+      "yearLabel": "Jahr",
+      "turnoverLabel": "Umsatz (EUR)",
+      "employeesLabel": "Mitarbeiter"
+    },
+    "references": {
+      "heading": "Referenzen",
+      "description": "Liste bedeutender Aufträge – die KI vergleicht Anzahl und Wert.",
+      "add": "Hinzufügen",
+      "empty": "Noch keine Referenzen.",
+      "nameLabel": "Auftragsbezeichnung",
+      "contractingAuthorityLabel": "Auftraggeber",
+      "valueLabel": "Wert (EUR)",
+      "yearLabel": "Jahr"
+    },
+    "certificates": {
+      "heading": "Zertifikate",
+      "description": "Z. B. ISO 9001, ISO 14001, ISO 27001…",
+      "placeholder": "ISO 9001"
+    },
+    "other": {
+      "technicalEquipmentLabel": "Technische Ausstattung",
+      "technicalEquipmentPlaceholder": "Maschinen, Fahrzeuge, Labore, Software…",
+      "keyExpertsLabel": "Schlüsselexperten",
+      "keyExpertsPlaceholder": "Fachkenntnisse, Erfahrung, Qualifikationen…",
+      "additionalInfoLabel": "Zusätzliche Informationen"
+    },
+    "save": "Profil speichern",
+    "backToSettings": "Zurück zu den Einstellungen"
+  },
+  "push": {
+    "heading": "Benachrichtigungen in der App",
+    "toggleLabel": "Push-Benachrichtigungen auf diesem Gerät",
+    "description": "Neue Ausschreibungen gemäß Ihren Radaren, Fristerinnerungen für gespeicherte Ausschreibungen und abgeschlossene KI-Analysen. Berücksichtigt Ihre obigen Einstellungen.",
+    "enabled": "Push-Benachrichtigungen sind aktiviert.",
+    "denied": "Berechtigung verweigert. Aktivieren Sie sie in den Telefoneinstellungen.",
+    "enableFailed": "Benachrichtigungen konnten nicht aktiviert werden.",
+    "disabled": "Push-Benachrichtigungen sind deaktiviert.",
+    "deniedNote": "Die Benachrichtigungsberechtigung wurde verweigert – sie kann nur in den Systemeinstellungen des Telefons geändert werden."
+  },
+  "grantRadars": {
+    "heading": "Förderradare",
+    "description": "Überwachung von Förderausschreibungen aus ITMS21+. Eine neue Übereinstimmung wird per E-Mail gemeldet; Fristerinnerungen nur bei One-Shot-Ausschreibungen. Verfügbar in Basic und Premium.",
+    "add": "Förderradar hinzufügen",
+    "empty": "Sie haben noch keinen Förderradar. Fügen Sie den ersten hinzu.",
+    "autoFillCategory": "Wir füllen den Antragstellertyp automatisch anhand Ihres Profils aus: <b>{{category}}</b>.",
+    "confirmDelete": "Diesen Förderradar wirklich löschen?",
+    "deleted": "Radar gelöscht",
+    "defaultName": "Förderradar {{n}}",
+    "collapse": "Einklappen",
+    "expand": "Aufklappen",
+    "deleteTitle": "Löschen",
+    "keywords": {
+      "heading": "Schlüsselwörter (Titel / Fokus)",
+      "placeholder": "z. B. Digitalisier, Innovat, Energie",
+      "add": "Hinzufügen"
+    },
+    "applicantType": {
+      "heading": "Antragstellertyp",
+      "hint": "Wenn Sie keinen Typ auswählen, werden alle einbezogen."
+    },
+    "programs": {
+      "heading": "Programm",
+      "hint": "Leer = alle Programme. Verfügbar: {{count}}."
+    },
+    "regions": {
+      "heading": "Regionen",
+      "hint": "Landesweite Ausschreibungen werden bei jeder Auswahl automatisch einbezogen."
+    },
+    "allocation": {
+      "heading": "EU-Zuweisung (€)",
+      "fromLabel": "Von",
+      "fromPlaceholder": "z. B. 100000",
+      "toLabel": "Bis",
+      "toPlaceholder": "z. B. 5000000"
+    },
+    "format": {
+      "heading": "Format der Ausschreibung",
+      "hint": "Nicht ausgewählt = beide. „Laufend“ = ohne Frist, „One-Shot“ = mit fester Frist.",
+      "rolling": "Laufend (rolling)",
+      "oneshot": "One-Shot"
+    },
+    "summary": {
+      "keywords": "{{count}} Schlüsselw.",
+      "type": "{{count}} Typ",
+      "programs": "{{count}} Programme",
+      "regions": "{{count}} Regionen",
+      "wholeSk": "ganze SK",
+      "rolling": "laufend",
+      "oneshot": "one-shot",
+      "empty": "keine Filter"
+    }
+  }
+}

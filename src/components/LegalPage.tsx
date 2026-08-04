@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { LegalFooter } from "@/components/LegalFooter";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
@@ -12,6 +13,7 @@ export function LegalPage({
   intro?: string;
   children: ReactNode;
 }) {
+  const { t } = useTranslation("legal");
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b-2 border-foreground bg-background">
@@ -22,7 +24,7 @@ export function LegalPage({
           </Link>
           <div className="flex items-center gap-2">
             <LanguageSwitcher compact />
-            <Link to="/" className="eyebrow text-muted-foreground hover:text-foreground">← Späť na úvod</Link>
+            <Link to="/" className="eyebrow text-muted-foreground hover:text-foreground">{t("legalPage.backHome")}</Link>
           </div>
         </div>
       </header>

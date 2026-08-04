@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Building2, Calendar, ExternalLink, MapPin, FileText, Infinity as InfinityIcon, Users, Coins, Target, Mail, Phone, User, ChevronDown } from "lucide-react";
 import { differenceInDays, format, parseISO } from "date-fns";
 import { GrantAnalysisSection } from "@/components/GrantAnalysisSection";
+import { useTranslation } from "react-i18next";
 
 type Grant = {
   id: string;
@@ -41,20 +42,24 @@ export const Route = createFileRoute("/grant/$id")({
   component: GrantDetail,
   errorComponent: ({ error, reset }) => {
     const router = useRouter();
+    const { t } = useTranslation("app");
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="font-display text-2xl font-semibold">Nepodarilo sa načítať výzvu</h1>
+        <h1 className="font-display text-2xl font-semibold">{t("grantDetail.loadError.title")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
-        <Button className="mt-6" onClick={() => { router.invalidate(); reset(); }}>Skúsiť znova</Button>
+        <Button className="mt-6" onClick={() => { router.invalidate(); reset(); }}>{t("grantDetail.loadError.retry")}</Button>
       </div>
     );
   },
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-      <h1 className="font-display text-2xl font-semibold">Výzva neexistuje</h1>
-      <Link to="/granty" className="mt-6 inline-block"><Button><ArrowLeft className="h-4 w-4 mr-2" /> Späť na granty</Button></Link>
-    </div>
-  ),
+  notFoundComponent: () => {
+    const { t } = useTranslation("app");
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <h1 className="font-display text-2xl font-semibold">{t("grantDetail.notFound.title")}</h1>
+        <Link to="/granty" className="mt-6 inline-block"><Button><ArrowLeft className="h-4 w-4 mr-2" /> {t("grantDetail.notFound.back")}</Button></Link>
+      </div>
+    );
+  },
 });
 
 // ---------- HTML / text helpers ----------
@@ -223,6 +228,7 @@ function parseKontakt(raw: unknown): Kontakt | null {
 // ---------- Component ----------
 
 function GrantDetail() {
+  const { t } = useTranslation("app");
   const { id } = Route.useParams();
   const [grant, setGrant] = useState<Grant | null>(null);
   const [loading, setLoading] = useState(true);
@@ -263,11 +269,11 @@ function GrantDetail() {
     };
   }, [grant]);
 
-  if (loading) return <div className="mx-auto max-w-3xl px-4 py-12 text-muted-foreground">Načítavam…</div>;
+  if (loading) return <div className="mx-auto max-w-3xl px-4 py-12 text-muted-foreground">{t("grantDetail.loading")}</div>;
   if (!grant || !derived) return (
     <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-      <h1 className="font-display text-2xl font-semibold">Výzva neexistuje</h1>
-      <Link to="/granty" className="mt-6 inline-block"><Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> Späť na granty</Button></Link>
+      <h1 className="font-display text-2xl font-semibold">{t("grantDetail.notFound.title")}</h1>
+      <Link to="/granty" className="mt-6 inline-block"><Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> {t("grantDetail.notFound.back")}</Button></Link>
     </div>
   );
 
@@ -279,7 +285,7 @@ function GrantDetail() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
       <Link to={authed ? "/granty" : "/"} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-4 w-4" /> Späť
+        <ArrowLeft className="h-4 w-4" /> {t("grantDetail.back")}
       </Link>
 
       {/* --------- Hlavička --------- */}
@@ -288,20 +294,20 @@ function GrantDetail() {
           {grant.kod && <span className="font-mono text-xs bg-secondary px-2 py-0.5 rounded">{grant.kod}</span>}
           {rolling ? (
             <span className="eyebrow inline-flex items-center border border-emerald-600 text-emerald-700 dark:text-emerald-400 px-2 py-0.5">
-              <InfinityIcon className="h-3 w-3 mr-1" /> Priebežná výzva
+              <InfinityIcon className="h-3 w-3 mr-1" /> {t("grantDetail.rollingCall")}
             </span>
           ) : (
-            <span className="eyebrow inline-flex items-center border border-primary text-primary px-2 py-0.5">One-shot výzva</span>
+            <span className="eyebrow inline-flex items-center border border-primary text-primary px-2 py-0.5">{t("grantDetail.oneShotCall")}</span>
           )}
           {grant.stav && (
             <span className="eyebrow inline-flex items-center border border-border px-2 py-0.5 text-muted-foreground">{grant.stav}</span>
           )}
           {daysLeft !== null && (
             daysLeft < 0 ? (
-              <span className="eyebrow border border-border bg-secondary px-2 py-0.5 text-muted-foreground">Po termíne</span>
+              <span className="eyebrow border border-border bg-secondary px-2 py-0.5 text-muted-foreground">{t("grantDetail.overdue")}</span>
             ) : (
               <span className={`eyebrow px-2 py-0.5 ${daysLeft < 7 ? "border border-primary bg-primary text-primary-foreground" : "border border-foreground"}`}>
-                {daysLeft === 0 ? "Posledný deň" : `Zostáva ${daysLeft} dní`}
+                {daysLeft === 0 ? t("grantDetail.lastDay") : t("grantDetail.daysLeft", { count: daysLeft })}
               </span>
             )
           )}
@@ -324,39 +330,39 @@ function GrantDetail() {
       {/* --------- Kľúčové čísla (karty) --------- */}
       <section className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3">
         {totalSum > 0 && (
-          <StatCard label="Alokácia (EÚ + ŠR)">
+          <StatCard label={t("grantDetail.stats.allocation")}>
             <div className="num text-2xl font-bold text-primary leading-tight">
               {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 }).format(totalSum)} €
             </div>
             <div className="mt-1 text-xs text-muted-foreground space-x-2">
-              {grant.suma_eu != null && <span>EÚ <span className="num font-medium text-foreground">{new Intl.NumberFormat("sk-SK").format(grant.suma_eu)} €</span></span>}
-              {grant.suma_sr != null && <span>· ŠR <span className="num font-medium text-foreground">{new Intl.NumberFormat("sk-SK").format(grant.suma_sr)} €</span></span>}
+              {grant.suma_eu != null && <span>{t("grantDetail.stats.eu")} <span className="num font-medium text-foreground">{new Intl.NumberFormat("sk-SK").format(grant.suma_eu)} €</span></span>}
+              {grant.suma_sr != null && <span>· {t("grantDetail.stats.sr")} <span className="num font-medium text-foreground">{new Intl.NumberFormat("sk-SK").format(grant.suma_sr)} €</span></span>}
             </div>
           </StatCard>
         )}
 
-        <StatCard label="Deadline">
+        <StatCard label={t("grantDetail.stats.deadline")}>
           {deadlineDate ? (
             <>
               <div className="num text-2xl font-bold leading-tight">{format(deadlineDate, "d.M.yyyy")}</div>
               {daysLeft !== null && (
                 <div className={`mt-1 text-xs ${daysLeft < 0 ? "text-muted-foreground" : daysLeft < 7 ? "text-primary" : "text-muted-foreground"}`}>
-                  {daysLeft < 0 ? "po termíne" : daysLeft === 0 ? "posledný deň" : `zostáva ${daysLeft} dní`}
+                  {daysLeft < 0 ? t("grantDetail.stats.deadlineOverdue") : daysLeft === 0 ? t("grantDetail.stats.deadlineLastDay") : t("grantDetail.stats.deadlineRemaining", { count: daysLeft })}
                 </div>
               )}
             </>
           ) : (
-            <div className="text-emerald-700 dark:text-emerald-400 font-medium">Priebežná výzva</div>
+            <div className="text-emerald-700 dark:text-emerald-400 font-medium">{t("grantDetail.stats.rollingCall")}</div>
           )}
           {grant.datum_vyhlasenia && (
             <div className="mt-1 text-xs text-muted-foreground">
-              vyhlásená <span className="num">{format(parseISO(grant.datum_vyhlasenia), "d.M.yyyy")}</span>
+              {t("grantDetail.stats.announced", { date: format(parseISO(grant.datum_vyhlasenia), "d.M.yyyy") })}
             </div>
           )}
         </StatCard>
 
         {derived.coFin.length > 0 && (
-          <StatCard label="Miera spolufinancovania">
+          <StatCard label={t("grantDetail.stats.coFinancing")}>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
               {derived.coFin.map((r) => (
                 <div key={r.label} className="flex items-baseline gap-1">
@@ -370,42 +376,42 @@ function GrantDetail() {
       </section>
 
       {/* --------- Pre koho je výzva --------- */}
-      <Section title="Pre koho je výzva">
+      <Section title={t("grantDetail.sections.whoFor")}>
         {derived.ziadatele.length > 0 && (
-          <Row label="Oprávnený žiadateľ">
-            <Chips items={derived.ziadatele} initial={8} />
+          <Row label={t("grantDetail.sections.eligibleApplicant")}>
+            <Chips items={derived.ziadatele} initial={8} moreLabel={(count) => t("grantDetail.showMoreCount", { count })} />
           </Row>
         )}
         {derived.regions.length > 0 && (
-          <Row label="Miesto realizácie">
+          <Row label={t("grantDetail.sections.implementationPlace")}>
             <div className="text-sm">
-              {derived.regions.length >= 8 ? "Celé Slovensko" : derived.regions.join(", ")}
+              {derived.regions.length >= 8 ? t("grantDetail.sections.wholeCountry") : derived.regions.join(", ")}
             </div>
           </Row>
         )}
         {derived.cielovaSkupina.length > 0 && (
-          <Row label="Cieľová skupina">
-            <Chips items={derived.cielovaSkupina} initial={8} />
+          <Row label={t("grantDetail.sections.targetGroup")}>
+            <Chips items={derived.cielovaSkupina} initial={8} moreLabel={(count) => t("grantDetail.showMoreCount", { count })} />
           </Row>
         )}
         {derived.oblasti.length > 0 && (
-          <Row label="Oblasti intervencie">
-            <Chips items={derived.oblasti} initial={6} />
+          <Row label={t("grantDetail.sections.interventionAreas")}>
+            <Chips items={derived.oblasti} initial={6} moreLabel={(count) => t("grantDetail.showMoreCount", { count })} />
           </Row>
         )}
       </Section>
 
       {/* --------- Forma podpory + priorita --------- */}
       {derived.formaPodporyRows.length > 0 && (
-        <Section title="Forma podpory a zaradenie">
+        <Section title={t("grantDetail.sections.supportForm")}>
           <div className="space-y-3">
             {derived.formaPodporyRows.map((r, i) => (
               <div key={i} className="border border-border p-3">
                 <dl className="grid grid-cols-1 sm:grid-cols-[10rem_1fr] gap-x-4 gap-y-1 text-sm">
-                  {r.forma && (<><dt className="text-muted-foreground">Forma podpory</dt><dd>{r.forma}</dd></>)}
-                  {r.kategorieRegionov.length > 0 && (<><dt className="text-muted-foreground">Kategória regiónov</dt><dd>{r.kategorieRegionov.join(", ")}</dd></>)}
-                  {r.specCiel && (<><dt className="text-muted-foreground">Špecifický cieľ</dt><dd className="max-w-[62ch]">{r.specCiel}</dd></>)}
-                  {r.priorita && (<><dt className="text-muted-foreground">Priorita</dt><dd className="max-w-[62ch]">{r.priorita}</dd></>)}
+                  {r.forma && (<><dt className="text-muted-foreground">{t("grantDetail.sections.supportFormLabel")}</dt><dd>{r.forma}</dd></>)}
+                  {r.kategorieRegionov.length > 0 && (<><dt className="text-muted-foreground">{t("grantDetail.sections.regionCategory")}</dt><dd>{r.kategorieRegionov.join(", ")}</dd></>)}
+                  {r.specCiel && (<><dt className="text-muted-foreground">{t("grantDetail.sections.specificGoal")}</dt><dd className="max-w-[62ch]">{r.specCiel}</dd></>)}
+                  {r.priorita && (<><dt className="text-muted-foreground">{t("grantDetail.sections.priority")}</dt><dd className="max-w-[62ch]">{r.priorita}</dd></>)}
                 </dl>
               </div>
             ))}
@@ -415,17 +421,17 @@ function GrantDetail() {
 
       {/* --------- Miera spolufinancovania – detailný popis (ak nešlo do karty) --------- */}
       {derived.coFin.length === 0 && derived.coFinParagraphs.length > 0 && (
-        <Section title="Miera spolufinancovania" icon={<Coins className="h-4 w-4" />}>
+        <Section title={t("grantDetail.sections.coFinancing")} icon={<Coins className="h-4 w-4" />}>
           <LongText paragraphs={derived.coFinParagraphs} collapseAfter={4} />
         </Section>
       )}
 
       {/* --------- Podmienky poskytnutia príspevku --------- */}
       {derived.podmienky.length > 0 && (
-        <Section title="Podmienky poskytnutia príspevku">
+        <Section title={t("grantDetail.sections.conditions")}>
           <div className="space-y-3">
             {derived.podmienky.slice(0, 25).map((p: any, i: number) => {
-              const title = p?.nazovSk ?? `Podmienka ${i + 1}`;
+              const title = p?.nazovSk ?? t("grantDetail.sections.condition", { n: i + 1 });
               const paragraphs = htmlToParagraphs(p?.popisSk);
               const priloha: string[] = Array.isArray(p?.priloha)
                 ? p.priloha.map((x: any) => x?.nazovSk).filter(Boolean) : [];
@@ -439,7 +445,7 @@ function GrantDetail() {
                     <LongText paragraphs={paragraphs} collapseAfter={4} />
                     {priloha.length > 0 && (
                       <div className="pt-2 mt-2 border-t border-border">
-                        <div className="eyebrow text-muted-foreground mb-1">Prílohy</div>
+                        <div className="eyebrow text-muted-foreground mb-1">{t("grantDetail.sections.attachments")}</div>
                         <ul className="text-sm space-y-1">
                           {priloha.map((n, j) => <li key={j} className="flex items-start gap-2"><FileText className="h-3 w-3 mt-1 text-muted-foreground shrink-0" /><span>{n}</span></li>)}
                         </ul>
@@ -455,21 +461,21 @@ function GrantDetail() {
 
       {/* --------- Oprávnené výdavky + Indikátory --------- */}
       {(derived.opravneneVydavky.length > 0 || derived.indikatoryVystup.length > 0 || derived.indikatoryVysledok.length > 0) && (
-        <Section title="Oprávnené výdavky a indikátory">
+        <Section title={t("grantDetail.sections.eligibleExpensesAndIndicators")}>
           {derived.opravneneVydavky.length > 0 && (
-            <Row label="Oprávnené výdavky">
-              <Chips items={derived.opravneneVydavky} initial={8} />
+            <Row label={t("grantDetail.sections.eligibleExpenses")}>
+              <Chips items={derived.opravneneVydavky} initial={8} moreLabel={(count) => t("grantDetail.showMoreCount", { count })} />
             </Row>
           )}
           {derived.indikatoryVystup.length > 0 && (
-            <Row label="Výstupové ukazovatele">
+            <Row label={t("grantDetail.sections.outputIndicators")}>
               <ul className="list-disc list-inside text-sm space-y-1 max-w-[62ch]">
                 {derived.indikatoryVystup.map((n, i) => <li key={i}>{n}</li>)}
               </ul>
             </Row>
           )}
           {derived.indikatoryVysledok.length > 0 && (
-            <Row label="Výsledkové ukazovatele">
+            <Row label={t("grantDetail.sections.resultIndicators")}>
               <ul className="list-disc list-inside text-sm space-y-1 max-w-[62ch]">
                 {derived.indikatoryVysledok.map((n, i) => <li key={i}>{n}</li>)}
               </ul>
@@ -480,10 +486,10 @@ function GrantDetail() {
 
       {/* --------- Dokumenty --------- */}
       {derived.documents.length > 0 && (
-        <Section title={`Dokumenty (${derived.documents.length})`} icon={<FileText className="h-4 w-4" />}>
+        <Section title={t("grantDetail.sections.documents", { count: derived.documents.length })} icon={<FileText className="h-4 w-4" />}>
           <ul className="space-y-2">
             {derived.documents.map((d: any, i: number) => {
-              const nazov = d?.nazov ?? d?.title ?? d?.nazovSk ?? `Dokument ${i + 1}`;
+              const nazov = d?.nazov ?? d?.title ?? d?.nazovSk ?? t("grantDetail.document", { n: i + 1 });
               const uuid = d?.uuid ?? null;
               const size = d?.velkost ?? d?.size ?? null;
               const extMatch = /\.([A-Za-z0-9]{1,6})$/.exec(String(nazov));
@@ -517,7 +523,8 @@ function GrantDetail() {
           </ul>
           {grant.detail_url && (
             <p className="mt-3 text-xs text-muted-foreground">
-              Kompletné dokumenty aj s prílohami nájdete v <a href={grant.detail_url} target="_blank" rel="noopener noreferrer" className="underline">ITMS21+</a>.
+              {t("grantDetail.sections.documentsFull", { link: "" })}
+              <a href={grant.detail_url} target="_blank" rel="noopener noreferrer" className="underline">ITMS21+</a>.
             </p>
           )}
         </Section>
@@ -525,7 +532,7 @@ function GrantDetail() {
 
       {/* --------- Kontakt --------- */}
       {derived.kontakt && (
-        <Section title="Kontakt">
+        <Section title={t("grantDetail.sections.contact")}>
           <div className="space-y-2 text-sm">
             {derived.kontakt.nazov && (
               <div className="flex items-start gap-2"><Building2 className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" /><span>{derived.kontakt.nazov}</span></div>
@@ -556,11 +563,11 @@ function GrantDetail() {
       <div className="mt-10 flex flex-wrap gap-3">
         {grant.detail_url && (
           <a href={grant.detail_url} target="_blank" rel="noopener noreferrer">
-            <Button>Otvoriť v ITMS21+ <ExternalLink className="h-4 w-4 ml-2" /></Button>
+            <Button>{t("grantDetail.openInItms")} <ExternalLink className="h-4 w-4 ml-2" /></Button>
           </a>
         )}
         <Link to={authed ? "/granty" : "/"}>
-          <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> Späť</Button>
+          <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-2" /> {t("grantDetail.backToGrants")}</Button>
         </Link>
       </div>
     </div>
@@ -598,7 +605,7 @@ function StatCard({ label, children }: { label: string; children: React.ReactNod
   );
 }
 
-function Chips({ items, initial = 8 }: { items: string[]; initial?: number }) {
+function Chips({ items, initial = 8, moreLabel }: { items: string[]; initial?: number; moreLabel?: (count: number) => string }) {
   const [expanded, setExpanded] = useState(false);
   const hidden = Math.max(0, items.length - initial);
   const shown = expanded ? items : items.slice(0, initial);
@@ -615,7 +622,7 @@ function Chips({ items, initial = 8 }: { items: string[]; initial?: number }) {
           onClick={() => setExpanded(true)}
           className="inline-block border border-dashed border-border text-muted-foreground text-xs px-2 py-1 hover:text-foreground hover:border-foreground"
         >
-          + ďalších {hidden}
+          {moreLabel ? moreLabel(hidden) : `+ ${hidden}`}
         </button>
       )}
     </div>
@@ -623,6 +630,7 @@ function Chips({ items, initial = 8 }: { items: string[]; initial?: number }) {
 }
 
 function LongText({ paragraphs, collapseAfter = 4 }: { paragraphs: string[]; collapseAfter?: number }) {
+  const { t } = useTranslation("app");
   const [expanded, setExpanded] = useState(false);
   if (paragraphs.length === 0) return null;
   const overflow = paragraphs.length > collapseAfter;
@@ -638,7 +646,7 @@ function LongText({ paragraphs, collapseAfter = 4 }: { paragraphs: string[]; col
           onClick={() => setExpanded((v) => !v)}
           className="text-xs text-primary hover:underline"
         >
-          {expanded ? "Zobraziť menej" : "Zobraziť celé"}
+          {expanded ? t("grantDetail.showLess") : t("grantDetail.showMore")}
         </button>
       )}
     </div>

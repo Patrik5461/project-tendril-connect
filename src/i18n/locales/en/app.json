@@ -1,0 +1,396 @@
+{
+  "nav": {
+    "tenders": "Tenders",
+    "grants": "Grants",
+    "settings": "Settings",
+    "pricing": "Pricing",
+    "admin": "Admin",
+    "signOut": "Sign out",
+    "brand": "Tendrik"
+  },
+  "mobileNav": {
+    "tenders": "Tenders",
+    "grants": "Grants",
+    "company": "Company",
+    "settings": "Settings",
+    "ariaLabel": "Main navigation"
+  },
+  "common": {
+    "loading": "Loading...",
+    "loadingEllipsis": "Loading…"
+  },
+  "dashboard": {
+    "title": "Your tenders",
+    "subtitle": "Current public tenders from TED, ÚVO, EKS and JOSEPHINE based on your radars.",
+    "noRadar": {
+      "title": "You haven't set up a radar yet",
+      "description": "To show you relevant tenders, we need your keywords, CPV categories and regions.",
+      "cta": "Set up radar"
+    },
+    "trialBanner": {
+      "label": "Trial period:",
+      "remaining_one": "{{count}} day left",
+      "remaining_few": "{{count}} days left",
+      "remaining_many": "{{count}} days left",
+      "remaining_other": "{{count}} days left",
+      "endingSoon": " – then Tendrik will switch to a subscription.",
+      "cta": "Activate subscription for {{price}}/mo"
+    },
+    "expiredBanner": {
+      "title": "Your trial period has ended.",
+      "text": "Continue for {{price}}/month.",
+      "cta": "Activate subscription"
+    },
+    "lockedOverlay": {
+      "title": "Trial period has ended",
+      "description": "To keep receiving alerts and seeing daily tenders, activate your subscription for {{price}}/month. No commitment, cancel anytime.",
+      "cta": "Activate subscription"
+    },
+    "resultsCount": {
+      "none": "No tenders match the current filters.",
+      "showing": "of {{total}} {{tabWord}} tenders"
+    },
+    "tabWord": {
+      "foryou": "active",
+      "saved": "saved",
+      "hidden": "hidden"
+    },
+    "tabs": {
+      "foryou": "For you",
+      "saved": "Saved",
+      "hidden": "Hidden"
+    },
+    "perPageAriaLabel": "Items per page",
+    "perPageOption": "{{count}} / page",
+    "view": {
+      "ariaLabel": "Tender display",
+      "listAria": "Show as list",
+      "listTitle": "List",
+      "gridAria": "Show as grid",
+      "gridTitle": "Grid"
+    },
+    "filters": {
+      "allRadars": "All radars",
+      "inactiveSuffix": " (inactive)",
+      "searchPlaceholder": "Search tenders...",
+      "sourceAriaLabel": "Source",
+      "allSources": "All sources"
+    },
+    "sort": {
+      "deadline": "Nearest deadline",
+      "newest": "Newest",
+      "value": "Highest value",
+      "valueAsc": "Lowest value"
+    },
+    "country": {
+      "all": "All countries",
+      "count": "{{count}} countries",
+      "ariaLabel": "Country filter",
+      "title": "Countries",
+      "clear": "Clear selection",
+      "empty": "No countries in current results",
+      "unknown": "unknown country"
+    },
+    "emptyState": {
+      "noQueryResultsPrefix": "We found nothing for",
+      "noQueryResultsSuffix": "– try a different word.",
+      "savedEmpty": "You haven't saved any tenders yet – click the star on a tender that interests you.",
+      "hiddenEmpty": "You don't have any hidden tenders.",
+      "forYouTitle": "Your radar hasn't caught anything yet",
+      "forYouDesc": "Try adjusting the filters or browse all tenders.",
+      "editFilters": "Edit filters",
+      "showAll": "Show all tenders"
+    },
+    "card": {
+      "authority": "Contracting authority",
+      "deadline": "Deadline",
+      "region": "Region",
+      "value": "Value",
+      "detail": "Details",
+      "restoreAria": "Restore tender",
+      "restoreTitle": "Restore",
+      "saveAria": "Save tender",
+      "saveTitle": "Save",
+      "unsaveAria": "Unsave",
+      "unsaveTitle": "Unsave",
+      "hideAria": "Hide tender",
+      "hideTitle": "Hide",
+      "matchedByRadar": "Matched by radar",
+      "cpv": "CPV",
+      "noDeadline": "Not set",
+      "none": "—"
+    },
+    "deadlineBadge": {
+      "overdue": "Past deadline",
+      "lastDay": "Last day",
+      "daysLeft_one": "{{count}} day",
+      "daysLeft_few": "{{count}} days",
+      "daysLeft_many": "{{count}} days",
+      "daysLeft_other": "{{count}} days"
+    },
+    "sourceBadge": {
+      "titleJosephine": "JOSEPHINE (proEBIZ)",
+      "titleEks": "Electronic Contracting System (EKS)",
+      "titleUvo": "ÚVO Public Procurement Bulletin",
+      "titleTed": "Tenders Electronic Daily (EU)"
+    },
+    "pagination": {
+      "shown": "Showing",
+      "of": "of",
+      "firstAria": "First page",
+      "prevAria": "Previous page",
+      "prevTitle": "Previous",
+      "nextAria": "Next page",
+      "nextTitle": "Next",
+      "lastAria": "Last page",
+      "navAriaLabel": "Pagination",
+      "pageAria": "Page {{page}}"
+    }
+  },
+  "granty": {
+    "title": "Grants and subsidies",
+    "subtitle": "Current grant calls from Program Slovensko and EU funds (ITMS21+).",
+    "count_one": "open call",
+    "count_few": "open calls",
+    "count_many": "open calls",
+    "count_other": "open calls",
+    "countAll_one": "call found",
+    "countAll_few": "calls found",
+    "countAll_many": "calls found",
+    "countAll_other": "calls found",
+    "locked": {
+      "badge": "Grants are part of the Komplet plan",
+      "description": "Monitoring of grant calls (Program Slovensko, EU funds), radars, notifications and AI eligibility analysis are part of the Komplet plan for {{price}} / mo ({{limit}} AI analyses per month).",
+      "cta": "Activate Komplet",
+      "compare": "Compare plans"
+    },
+    "applicantType": {
+      "label": "Applicant type",
+      "autoHint": "· preselected based on your company profile ({{category}})",
+      "businesses": "Businesses",
+      "businessesHint": "LLC, joint-stock, sole trader",
+      "public": "Public sector",
+      "publicHint": "municipalities, regions, ministries",
+      "nonprofits": "Nonprofits and schools",
+      "nonprofitsHint": "NGOs, foundations, associations",
+      "all": "All",
+      "allHint": "regardless of applicant",
+      "tip": "Tip: fill in your {{link}} and Tendrik will automatically preselect relevant calls for you.",
+      "tipLink": "company profile"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by name, code or provider…",
+      "statusPlaceholder": "Status",
+      "statusOpen": "Open",
+      "statusClosed": "Closed",
+      "statusCancelled": "Cancelled",
+      "statusAll": "All",
+      "typePlaceholder": "Call format",
+      "typeAll": "Format: all",
+      "typeRolling": "Rolling",
+      "typeOneShot": "One-shot (closing)",
+      "programPlaceholder": "Program",
+      "programAll": "All programs",
+      "regionPlaceholder": "Place of implementation",
+      "regionAll": "All regions ({{count}})",
+      "regionSummary": "({{whole}} nationwide + {{regional}} regional)",
+      "sortPlaceholder": "Sort",
+      "sortDeadline": "By deadline",
+      "sortNewest": "Most recently announced",
+      "sortSumDesc": "Highest EU amount",
+      "sortSumAsc": "Lowest EU amount",
+      "reset": "Clear filters"
+    },
+    "list": {
+      "loading": "Loading…"
+    },
+    "emptyState": {
+      "allNoMatch": "No calls match the filters.",
+      "categoryNoMatch": "There are currently no open calls matching the filters for category \"{{category}}\".",
+      "categoryHint": "EU fund calls from Program Slovensko are largely aimed at the public sector (ministries, regions, municipalities and state organizations). Try broadening your selection or adjusting other filters.",
+      "showAll": "Show all calls"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "page": "Page {{page}} of {{total}}"
+    },
+    "card": {
+      "rolling": "Rolling",
+      "oneShot": "One-shot",
+      "lastDay": "Last day",
+      "daysLeft": "{{count}} days",
+      "allocation": "EU+SR allocation",
+      "provider": "Provider",
+      "deadline": "Deadline",
+      "rollingCall": "rolling call",
+      "region": "Region",
+      "documents": "Documents",
+      "none": "—"
+    },
+    "regionLabel": {
+      "wholeCountry": "Whole Slovakia",
+      "manyRegions": "{{count}} regions",
+      "none": "—"
+    }
+  },
+  "tenderDetail": {
+    "meta": {
+      "title": "Tender details – Tendrik"
+    },
+    "loadError": {
+      "title": "Failed to load the tender",
+      "retry": "Try again"
+    },
+    "notFound": {
+      "title": "Tender does not exist",
+      "description": "We could not find this tender.",
+      "back": "Back to tenders"
+    },
+    "back": "Back",
+    "backToTenders": "Back to tenders",
+    "overdue": "Past deadline",
+    "lastDay": "Last day",
+    "daysLeft_one": "{{count}} day",
+    "daysLeft_few": "{{count}} days",
+    "daysLeft_many": "{{count}} days",
+    "daysLeft_other": "{{count}} days",
+    "estimatedValue": "Estimated value",
+    "fields": {
+      "deadline": "Deadline",
+      "deadlineOverdue": "past deadline",
+      "deadlineLastDay": "last day",
+      "deadlineRemaining": "{{count}} days left",
+      "published": "Published",
+      "country": "Country",
+      "cpv": "CPV",
+      "none": "—",
+      "noDeadline": "Not set"
+    },
+    "aiSummary": {
+      "label": "Summary",
+      "disclaimer": "Generated by AI – verify details in the official source."
+    },
+    "description": "Tender description",
+    "openSource": "Open official source",
+    "sourceTitle": {
+      "josephine": "JOSEPHINE (proEBIZ)",
+      "eks": "Electronic Contracting System (EKS)",
+      "uvo": "ÚVO Public Procurement Bulletin",
+      "ted": "Tenders Electronic Daily (EU)"
+    },
+    "cta": {
+      "badge": "Free service",
+      "title": "Sign up and receive tenders like this by email",
+      "description": "Set your keywords, CPV categories and regions.",
+      "button": "Start for free"
+    },
+    "cpvCategories": {
+      "03": "Agricultural products",
+      "09": "Oil, fuel, electricity",
+      "14": "Mining and minerals",
+      "15": "Food and beverages",
+      "18": "Clothing, footwear",
+      "22": "Printed matter",
+      "24": "Chemicals",
+      "30": "Office machinery and IT",
+      "31": "Electrical equipment",
+      "32": "Radio and TV equipment",
+      "33": "Medical equipment",
+      "34": "Transport equipment",
+      "35": "Security equipment",
+      "37": "Musical and sports goods",
+      "38": "Laboratory equipment",
+      "39": "Furniture",
+      "42": "Industrial machinery",
+      "44": "Construction structures",
+      "45": "Construction work",
+      "48": "Software",
+      "50": "Repair and maintenance",
+      "51": "Installation services",
+      "55": "Hotels, restaurants",
+      "60": "Transport",
+      "63": "Supporting transport services",
+      "64": "Postal and telecommunications services",
+      "65": "Utilities",
+      "66": "Financial and insurance services",
+      "70": "Real estate",
+      "71": "Architecture and engineering",
+      "72": "IT services",
+      "73": "Research and development",
+      "75": "Public administration",
+      "76": "Oil and gas industry",
+      "77": "Agricultural services",
+      "79": "Business services",
+      "80": "Education",
+      "85": "Health and social services",
+      "90": "Waste, cleaning, environment",
+      "92": "Recreation, culture, sport",
+      "98": "Other community, social and personal services"
+    },
+    "cpvOther": "Other"
+  },
+  "grantDetail": {
+    "meta": {
+      "title": "Grant call details – Tendrik",
+      "description": "Grant call details from ITMS21+ including conditions, eligible expenses and AI eligibility assessment."
+    },
+    "loadError": {
+      "title": "Failed to load the call",
+      "retry": "Try again"
+    },
+    "notFound": {
+      "title": "Call does not exist",
+      "back": "Back to grants"
+    },
+    "loading": "Loading…",
+    "back": "Back",
+    "backToGrants": "Back to grants",
+    "rollingCall": "Rolling call",
+    "oneShotCall": "One-shot call",
+    "overdue": "Past deadline",
+    "lastDay": "Last day",
+    "daysLeft": "{{count}} days left",
+    "stats": {
+      "allocation": "Allocation (EU + SR)",
+      "eu": "EU",
+      "sr": "SR",
+      "deadline": "Deadline",
+      "deadlineOverdue": "past deadline",
+      "deadlineLastDay": "last day",
+      "deadlineRemaining": "{{count}} days left",
+      "rollingCall": "Rolling call",
+      "announced": "announced {{date}}",
+      "coFinancing": "Co-financing rate"
+    },
+    "sections": {
+      "whoFor": "Who is this call for",
+      "eligibleApplicant": "Eligible applicant",
+      "implementationPlace": "Place of implementation",
+      "wholeCountry": "Whole Slovakia",
+      "targetGroup": "Target group",
+      "interventionAreas": "Intervention areas",
+      "supportForm": "Form of support and classification",
+      "supportFormLabel": "Form of support",
+      "regionCategory": "Region category",
+      "specificGoal": "Specific objective",
+      "priority": "Priority",
+      "coFinancing": "Co-financing rate",
+      "conditions": "Conditions for granting the contribution",
+      "condition": "Condition {{n}}",
+      "attachments": "Attachments",
+      "eligibleExpensesAndIndicators": "Eligible expenses and indicators",
+      "eligibleExpenses": "Eligible expenses",
+      "outputIndicators": "Output indicators",
+      "resultIndicators": "Result indicators",
+      "documents": "Documents ({{count}})",
+      "documentsFull": "You can find complete documents including attachments in {{link}}.",
+      "contact": "Contact"
+    },
+    "document": "Document {{n}}",
+    "openInItms": "Open in ITMS21+",
+    "showLess": "Show less",
+    "showMore": "Show full text",
+    "showMoreCount": "+ {{count}} more"
+  }
+}

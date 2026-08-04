@@ -1,0 +1,289 @@
+{
+  "settings": {
+    "title": "Nastavenia",
+    "loggedInAs": "Prihlásený ako {{email}}",
+    "loading": "Načítavam...",
+    "companyProfile": {
+      "title": "Firemný profil",
+      "description": "IČO, obrat po rokoch, referencie, certifikáty – vstup pre AI analýzu zákaziek."
+    },
+    "tabs": {
+      "notifications": "Notifikácie",
+      "radars": "Radary",
+      "grantRadars": "Radary na granty",
+      "billing": "Predplatné & fakturácia"
+    },
+    "notifications": {
+      "heading": "E-mailové notifikácie",
+      "newTendersLabel": "Zasielať upozornenia na nové zákazky",
+      "newTendersHelp": "Súhrn nových zákaziek na váš e-mail.",
+      "emailsLabel": "E-mailové adresy pre notifikácie",
+      "emailsHelp": "Jedna alebo viac adries oddelených čiarkou – notifikácie pôjdu všetkým. Ak necháte prázdne, použije sa prihlasovací e-mail ({{email}}). Max 10 príjemcov.",
+      "emailsPlaceholder": "{{email}}, kolega@firma.sk",
+      "frequencyLabel": "Frekvencia notifikácií",
+      "frequencyHelp": "Ako často chcete dostávať súhrn nových zákaziek.",
+      "daily": "Denne",
+      "weekly": "Týždenne",
+      "deadlineRemindersLabel": "Pripomienky deadlinov uložených zákaziek",
+      "deadlineRemindersHelp": "E-mail 3 dni a 1 deň pred koncom lehoty pri uložených zákazkách.",
+      "grantsHeading": "Grantové výzvy",
+      "grantsHelp": "Iná kadencia než pri zákazkách – zoznam sa mení pomalšie.",
+      "grantNewMatchLabel": "Nová zhoda s grantovým radarom",
+      "grantNewMatchHelp": "E-mail vždy, keď pribudne výzva, ktorá sedí na niektorý z vašich grantových radarov.",
+      "grantWeeklyLabel": "Týždenný súhrn grantov",
+      "grantWeeklyHelp": "Piatkový súhrn nových a otvorených výziev podľa vašich radarov.",
+      "grantDeadlineLabel": "Pripomienky deadlinov grantov",
+      "grantDeadlineHelp": "Len pri one-shot výzvach (s pevným deadlinom), 7 a 2 dni pred koncom.",
+      "saving": "Ukladám...",
+      "save": "Uložiť notifikácie",
+      "invalidEmail": "Neplatná e-mailová adresa: {{email}}",
+      "maxRecipients": "Maximálne 10 príjemcov",
+      "saved": "Notifikácie uložené"
+    },
+    "radars": {
+      "heading": "Radary",
+      "description": "Každý radar má vlastné kľúčové slová, CPV kategórie a kraje. Zákazka sa objaví, ak sedí aspoň jednému aktívnemu radaru.",
+      "add": "Pridať radar",
+      "empty": "Zatiaľ nemáte žiadny radar. Pridajte prvý.",
+      "mustKeepOne": "Musí zostať aspoň jeden radar.",
+      "confirmDelete": "Naozaj zmazať tento radar?",
+      "deleted": "Radar zmazaný",
+      "defaultName": "Radar {{n}}",
+      "collapse": "Zbaliť",
+      "expand": "Rozbaliť",
+      "active": "Zapnutý",
+      "inactive": "Vypnutý",
+      "deleteTitle": "Zmazať radar",
+      "deleteTitleDisabled": "Musí zostať aspoň jeden radar",
+      "keywords": "Kľúčové slová",
+      "keywordsPlaceholder": "Pridať kľúčové slovo",
+      "add2": "Pridať",
+      "cpvCategories": "CPV kategórie",
+      "countries": "Krajiny",
+      "allEuCountries": "Všetky krajiny EÚ",
+      "skRegionsOptional": "Kraje (Slovensko) – voliteľné",
+      "skRegionsHelp": "Nechajte prázdne pre celé Slovensko, alebo vyberte konkrétne kraje.",
+      "allCountriesShort": "všetky krajiny EÚ",
+      "countriesCount": "{{count}} krajín",
+      "summaryKeywords": "{{count}} kľúč. slov",
+      "summaryCpv": "{{count}} CPV",
+      "summaryRegions": "{{count}} krajov",
+      "summaryEmpty": "bez filtrov"
+    },
+    "subscription": {
+      "heading": "Predplatné",
+      "loading": "Načítavam…",
+      "statusActiveCancelled": "Aktívne (zrušené – dobieha)",
+      "statusActive": "Aktívne",
+      "statusTrial": "Skúšobné (zostáva {{days}} dní)",
+      "statusExpired": "Vypršané",
+      "confirmCancel": "Zrušiť predplatné? Prístup vám zostane do konca zaplateného obdobia.",
+      "cancelError": "Nepodarilo sa zrušiť: {{message}}",
+      "cancelled": "Predplatné bolo zrušené.",
+      "cancelledUntil": " Prístup do {{date}}.",
+      "status": "Stav",
+      "planPrice": "Plán / Cena",
+      "planPriceValue": "Tendrik {{tier}} · {{price}} / {{period}}",
+      "perYear": "rok",
+      "perMonth": "mes",
+      "aiAnalyses": "AI analýzy",
+      "aiAnalysesTrial": "{{limit}} v rámci trialu",
+      "aiAnalysesMonthly": "{{limit}} mesačne",
+      "aiAnalysesNone": "nie sú v pláne",
+      "paidUntil": "Zaplatené do",
+      "lastPayment": "Posledná platba",
+      "activate": "Aktivovať predplatné",
+      "cancelling": "Rušim…",
+      "cancel": "Zrušiť predplatné",
+      "cancelRequestedNote": "Zrušenie vyžiadané. Prístup zostáva do konca zaplateného obdobia.",
+      "paymentsNote": "Platby spracúva GoPay. Detaily nájdete v {{link}}.",
+      "recurringPaymentsTerms": "podmienkach opakovaných platieb"
+    },
+    "billing": {
+      "heading": "Fakturačné údaje",
+      "loading": "Načítavam…",
+      "description": "Používajú sa na vystavenie faktúry po zaplatení predplatného. Faktúra vám príde na fakturačný e-mail.",
+      "nameLabel": "Meno alebo názov firmy *",
+      "icoLabel": "IČO",
+      "icDphLabel": "IČ DPH",
+      "streetLabel": "Ulica a číslo",
+      "cityLabel": "Mesto",
+      "zipLabel": "PSČ",
+      "countryLabel": "Krajina",
+      "emailLabel": "Fakturačný e-mail *",
+      "saving": "Ukladám…",
+      "save": "Uložiť fakturačné údaje",
+      "nameRequired": "Zadaj meno alebo názov firmy.",
+      "emailInvalid": "Zadaj platný e-mail.",
+      "saveError": "Nepodarilo sa uložiť: {{message}}",
+      "saved": "Fakturačné údaje uložené."
+    },
+    "invoices": {
+      "heading": "História faktúr",
+      "loading": "Načítavam…",
+      "empty": "Zatiaľ žiadne faktúry.",
+      "date": "Dátum",
+      "number": "Číslo",
+      "amount": "Suma",
+      "status": "Stav",
+      "statusSent": "Odoslaná",
+      "statusPaidMarked": "Vystavená (uhradená)",
+      "statusIssued": "Vystavená",
+      "statusFailed": "Chyba",
+      "statusPending": "Čaká sa",
+      "download": "Stiahnuť PDF",
+      "downloadError": "PDF sa nepodarilo načítať."
+    }
+  },
+  "onboarding": {
+    "title": "Nastavte si filtre",
+    "description": "Zákazka sa zobrazí, ak sa v názve/popise nájde niektoré kľúčové slovo <b>alebo</b> sa zhoduje CPV kód, <b>a zároveň</b> sedí región.",
+    "keywordsRequired": "Zadajte aspoň jedno kľúčové slovo alebo CPV kategóriu.",
+    "countryRequired": "Vyberte aspoň jednu krajinu.",
+    "saved": "Radar uložený",
+    "step1": {
+      "heading": "1. Kľúčové slová",
+      "example": "Napr. „strecha\", „server\", „autobus\".",
+      "placeholder": "Pridať kľúčové slovo",
+      "add": "Pridať"
+    },
+    "step2": {
+      "heading": "2. CPV kategórie",
+      "description": "Vyberte hlavné divízie, ktoré vás zaujímajú."
+    },
+    "step3": {
+      "heading": "3. Krajiny",
+      "description": "Ktoré krajiny EÚ sledovať? Predvolene je Slovensko.",
+      "allEuCountries": "Všetky krajiny EÚ"
+    },
+    "step4": {
+      "heading": "4. Kraje (Slovensko) – voliteľné",
+      "description": "Nechajte prázdne pre celé Slovensko, alebo vyberte konkrétne kraje."
+    },
+    "saving": "Ukladám...",
+    "saveAndContinue": "Uložiť a pokračovať"
+  },
+  "firma": {
+    "title": "Firemný profil",
+    "description": "AI porovná túto informáciu s podmienkami zákaziek pri „Analyzovať zákazku\".",
+    "loading": "Načítavam…",
+    "invalidIco": "Zadajte platné IČO",
+    "registriesErrorPrefix": "Registre: ",
+    "registriesLoaded": "Údaje z registrov načítané",
+    "registriesFetchError": "Chyba pri načítaní z registrov",
+    "profileSaved": "Firemný profil uložený",
+    "saveError": "Chyba pri ukladaní",
+    "identification": {
+      "heading": "Identifikácia",
+      "description": "Zadajte IČO a načítajte údaje z RPO + registeruz.sk.",
+      "icoLabel": "IČO",
+      "icoPlaceholder": "12345678",
+      "fetchButton": "Načítať z registrov",
+      "nameLabel": "Názov",
+      "dicLabel": "DIČ",
+      "addressLabel": "Adresa",
+      "cityLabel": "Mesto",
+      "zipLabel": "PSČ",
+      "legalFormLabel": "Právna forma",
+      "naceCodeLabel": "SK-NACE kód",
+      "naceNameLabel": "SK-NACE názov",
+      "sizeCategoryLabel": "Veľkostná kategória"
+    },
+    "financials": {
+      "heading": "Obrat a zamestnanci po rokoch",
+      "description": "AI porovnáva s podmienkou „priemerný ročný obrat za posledné 3 roky\".",
+      "addYear": "Pridať rok",
+      "empty": "Zatiaľ žiadne roky.",
+      "yearLabel": "Rok",
+      "turnoverLabel": "Obrat (EUR)",
+      "employeesLabel": "Zamestnanci"
+    },
+    "references": {
+      "heading": "Referencie",
+      "description": "Zoznam významných zákaziek – AI porovnáva počet a hodnotu.",
+      "add": "Pridať",
+      "empty": "Zatiaľ žiadne referencie.",
+      "nameLabel": "Názov zákazky",
+      "contractingAuthorityLabel": "Obstarávateľ",
+      "valueLabel": "Hodnota (EUR)",
+      "yearLabel": "Rok"
+    },
+    "certificates": {
+      "heading": "Certifikáty",
+      "description": "Napr. ISO 9001, ISO 14001, ISO 27001…",
+      "placeholder": "ISO 9001"
+    },
+    "other": {
+      "technicalEquipmentLabel": "Technické vybavenie",
+      "technicalEquipmentPlaceholder": "Stroje, vozidlá, laboratóriá, softvér…",
+      "keyExpertsLabel": "Kľúčoví odborníci",
+      "keyExpertsPlaceholder": "Odbornosť, prax, oprávnenia…",
+      "additionalInfoLabel": "Doplňujúce informácie"
+    },
+    "save": "Uložiť profil",
+    "backToSettings": "Späť na nastavenia"
+  },
+  "push": {
+    "heading": "Notifikácie v aplikácii",
+    "toggleLabel": "Push notifikácie na tomto zariadení",
+    "description": "Nové zákazky podľa radaru, pripomienky deadlinov uložených zákaziek a dokončené AI analýzy. Rešpektuje vaše nastavenia vyššie.",
+    "enabled": "Push notifikácie sú zapnuté.",
+    "denied": "Povolenie zamietnuté. Zapnite ho v nastaveniach telefónu.",
+    "enableFailed": "Nepodarilo sa zapnúť notifikácie.",
+    "disabled": "Push notifikácie sú vypnuté.",
+    "deniedNote": "Povolenie na notifikácie je zamietnuté – zmeniť sa dá len v systémových nastaveniach telefónu."
+  },
+  "grantRadars": {
+    "heading": "Radary na granty",
+    "description": "Monitoring grantových výziev z ITMS21+. Nová zhoda príde e-mailom; deadline reminder len pri one-shot výzvach. Dostupné v Základe aj Prémium.",
+    "add": "Pridať grantový radar",
+    "empty": "Zatiaľ nemáte žiadny grantový radar. Pridajte prvý.",
+    "autoFillCategory": "Automaticky predvyplníme typ žiadateľa podľa profilu: <b>{{category}}</b>.",
+    "confirmDelete": "Naozaj zmazať tento grantový radar?",
+    "deleted": "Radar zmazaný",
+    "defaultName": "Grantový radar {{n}}",
+    "collapse": "Zbaliť",
+    "expand": "Rozbaliť",
+    "deleteTitle": "Zmazať",
+    "keywords": {
+      "heading": "Kľúčové slová (názov / zameranie)",
+      "placeholder": "napr. digitaliz, inovác, energet",
+      "add": "Pridať"
+    },
+    "applicantType": {
+      "heading": "Typ žiadateľa",
+      "hint": "Ak neoznačíte žiadny typ, zahrnú sa všetky."
+    },
+    "programs": {
+      "heading": "Program",
+      "hint": "Prázdne = všetky programy. K dispozícii: {{count}}."
+    },
+    "regions": {
+      "heading": "Kraje",
+      "hint": "Celoslovenské výzvy sú zahrnuté automaticky pri každom výbere."
+    },
+    "allocation": {
+      "heading": "Alokácia EÚ (€)",
+      "fromLabel": "Od",
+      "fromPlaceholder": "napr. 100000",
+      "toLabel": "Do",
+      "toPlaceholder": "napr. 5000000"
+    },
+    "format": {
+      "heading": "Formát výzvy",
+      "hint": "Neoznačené = obidva. „Priebežná\" = bez deadlinu, „One-shot\" = s pevným deadlinom.",
+      "rolling": "Priebežná (rolling)",
+      "oneshot": "One-shot"
+    },
+    "summary": {
+      "keywords": "{{count}} kľúč.",
+      "type": "{{count}} typ",
+      "programs": "{{count}} programov",
+      "regions": "{{count}} krajov",
+      "wholeSk": "celé SK",
+      "rolling": "priebežné",
+      "oneshot": "one-shot",
+      "empty": "bez filtrov"
+    }
+  }
+}

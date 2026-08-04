@@ -1,0 +1,289 @@
+{
+  "settings": {
+    "title": "Settings",
+    "loggedInAs": "Logged in as {{email}}",
+    "loading": "Loading...",
+    "companyProfile": {
+      "title": "Company profile",
+      "description": "Registration number, turnover by year, references, certificates – input for AI analysis of tenders."
+    },
+    "tabs": {
+      "notifications": "Notifications",
+      "radars": "Radars",
+      "grantRadars": "Grant radars",
+      "billing": "Subscription & billing"
+    },
+    "notifications": {
+      "heading": "Email notifications",
+      "newTendersLabel": "Send alerts for new tenders",
+      "newTendersHelp": "A summary of new tenders sent to your email.",
+      "emailsLabel": "Email addresses for notifications",
+      "emailsHelp": "One or more addresses separated by commas – notifications will go to all of them. If left empty, your login email ({{email}}) will be used. Max 10 recipients.",
+      "emailsPlaceholder": "{{email}}, colleague@company.com",
+      "frequencyLabel": "Notification frequency",
+      "frequencyHelp": "How often you'd like to receive a summary of new tenders.",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "deadlineRemindersLabel": "Deadline reminders for saved tenders",
+      "deadlineRemindersHelp": "Email 3 days and 1 day before the deadline for saved tenders.",
+      "grantsHeading": "Grant calls",
+      "grantsHelp": "A different cadence than for tenders – the list changes more slowly.",
+      "grantNewMatchLabel": "New match with a grant radar",
+      "grantNewMatchHelp": "Email whenever a call matching one of your grant radars appears.",
+      "grantWeeklyLabel": "Weekly grant digest",
+      "grantWeeklyHelp": "Friday summary of new and open calls based on your radars.",
+      "grantDeadlineLabel": "Grant deadline reminders",
+      "grantDeadlineHelp": "Only for one-shot calls (with a fixed deadline), 7 and 2 days before the end.",
+      "saving": "Saving...",
+      "save": "Save notifications",
+      "invalidEmail": "Invalid email address: {{email}}",
+      "maxRecipients": "Maximum of 10 recipients",
+      "saved": "Notifications saved"
+    },
+    "radars": {
+      "heading": "Radars",
+      "description": "Each radar has its own keywords, CPV categories and regions. A tender appears if it matches at least one active radar.",
+      "add": "Add radar",
+      "empty": "You don't have any radar yet. Add your first one.",
+      "mustKeepOne": "At least one radar must remain.",
+      "confirmDelete": "Really delete this radar?",
+      "deleted": "Radar deleted",
+      "defaultName": "Radar {{n}}",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "active": "Enabled",
+      "inactive": "Disabled",
+      "deleteTitle": "Delete radar",
+      "deleteTitleDisabled": "At least one radar must remain",
+      "keywords": "Keywords",
+      "keywordsPlaceholder": "Add a keyword",
+      "add2": "Add",
+      "cpvCategories": "CPV categories",
+      "countries": "Countries",
+      "allEuCountries": "All EU countries",
+      "skRegionsOptional": "Regions (Slovakia) – optional",
+      "skRegionsHelp": "Leave empty for all of Slovakia, or choose specific regions.",
+      "allCountriesShort": "all EU countries",
+      "countriesCount": "{{count}} countries",
+      "summaryKeywords": "{{count}} keywords",
+      "summaryCpv": "{{count}} CPV",
+      "summaryRegions": "{{count}} regions",
+      "summaryEmpty": "no filters"
+    },
+    "subscription": {
+      "heading": "Subscription",
+      "loading": "Loading…",
+      "statusActiveCancelled": "Active (cancelled – running out)",
+      "statusActive": "Active",
+      "statusTrial": "Trial ({{days}} days left)",
+      "statusExpired": "Expired",
+      "confirmCancel": "Cancel subscription? You'll keep access until the end of the paid period.",
+      "cancelError": "Failed to cancel: {{message}}",
+      "cancelled": "Subscription has been cancelled.",
+      "cancelledUntil": " Access until {{date}}.",
+      "status": "Status",
+      "planPrice": "Plan / Price",
+      "planPriceValue": "Tendrik {{tier}} · {{price}} / {{period}}",
+      "perYear": "year",
+      "perMonth": "mo",
+      "aiAnalyses": "AI analyses",
+      "aiAnalysesTrial": "{{limit}} within the trial",
+      "aiAnalysesMonthly": "{{limit}} per month",
+      "aiAnalysesNone": "not included in the plan",
+      "paidUntil": "Paid until",
+      "lastPayment": "Last payment",
+      "activate": "Activate subscription",
+      "cancelling": "Cancelling…",
+      "cancel": "Cancel subscription",
+      "cancelRequestedNote": "Cancellation requested. Access remains until the end of the paid period.",
+      "paymentsNote": "Payments are processed by GoPay. Details can be found in the {{link}}.",
+      "recurringPaymentsTerms": "recurring payments terms"
+    },
+    "billing": {
+      "heading": "Billing details",
+      "loading": "Loading…",
+      "description": "Used to issue an invoice after the subscription is paid. The invoice will be sent to your billing email.",
+      "nameLabel": "Name or company name *",
+      "icoLabel": "Registration number (IČO)",
+      "icDphLabel": "VAT ID",
+      "streetLabel": "Street and number",
+      "cityLabel": "City",
+      "zipLabel": "ZIP code",
+      "countryLabel": "Country",
+      "emailLabel": "Billing email *",
+      "saving": "Saving…",
+      "save": "Save billing details",
+      "nameRequired": "Please enter a name or company name.",
+      "emailInvalid": "Please enter a valid email.",
+      "saveError": "Failed to save: {{message}}",
+      "saved": "Billing details saved."
+    },
+    "invoices": {
+      "heading": "Invoice history",
+      "loading": "Loading…",
+      "empty": "No invoices yet.",
+      "date": "Date",
+      "number": "Number",
+      "amount": "Amount",
+      "status": "Status",
+      "statusSent": "Sent",
+      "statusPaidMarked": "Issued (paid)",
+      "statusIssued": "Issued",
+      "statusFailed": "Error",
+      "statusPending": "Pending",
+      "download": "Download PDF",
+      "downloadError": "Failed to load the PDF."
+    }
+  },
+  "onboarding": {
+    "title": "Set up your filters",
+    "description": "A tender will show up if its title/description contains a keyword <b>or</b> matches a CPV code, <b>and</b> the region matches.",
+    "keywordsRequired": "Enter at least one keyword or CPV category.",
+    "countryRequired": "Select at least one country.",
+    "saved": "Radar saved",
+    "step1": {
+      "heading": "1. Keywords",
+      "example": "E.g. \"roof\", \"server\", \"bus\".",
+      "placeholder": "Add a keyword",
+      "add": "Add"
+    },
+    "step2": {
+      "heading": "2. CPV categories",
+      "description": "Select the main divisions you're interested in."
+    },
+    "step3": {
+      "heading": "3. Countries",
+      "description": "Which EU countries to track? Slovakia is selected by default.",
+      "allEuCountries": "All EU countries"
+    },
+    "step4": {
+      "heading": "4. Regions (Slovakia) – optional",
+      "description": "Leave empty for all of Slovakia, or choose specific regions."
+    },
+    "saving": "Saving...",
+    "saveAndContinue": "Save and continue"
+  },
+  "firma": {
+    "title": "Company profile",
+    "description": "AI compares this information with tender requirements during \"Analyze tender\".",
+    "loading": "Loading…",
+    "invalidIco": "Enter a valid registration number",
+    "registriesErrorPrefix": "Registries: ",
+    "registriesLoaded": "Registry data loaded",
+    "registriesFetchError": "Error loading data from registries",
+    "profileSaved": "Company profile saved",
+    "saveError": "Error while saving",
+    "identification": {
+      "heading": "Identification",
+      "description": "Enter your registration number and load data from RPO + registeruz.sk.",
+      "icoLabel": "Registration number",
+      "icoPlaceholder": "12345678",
+      "fetchButton": "Load from registries",
+      "nameLabel": "Name",
+      "dicLabel": "Tax ID",
+      "addressLabel": "Address",
+      "cityLabel": "City",
+      "zipLabel": "ZIP code",
+      "legalFormLabel": "Legal form",
+      "naceCodeLabel": "NACE code",
+      "naceNameLabel": "NACE name",
+      "sizeCategoryLabel": "Size category"
+    },
+    "financials": {
+      "heading": "Turnover and employees by year",
+      "description": "AI compares this with the \"average annual turnover for the last 3 years\" requirement.",
+      "addYear": "Add year",
+      "empty": "No years yet.",
+      "yearLabel": "Year",
+      "turnoverLabel": "Turnover (EUR)",
+      "employeesLabel": "Employees"
+    },
+    "references": {
+      "heading": "References",
+      "description": "A list of significant contracts – AI compares the count and value.",
+      "add": "Add",
+      "empty": "No references yet.",
+      "nameLabel": "Contract name",
+      "contractingAuthorityLabel": "Contracting authority",
+      "valueLabel": "Value (EUR)",
+      "yearLabel": "Year"
+    },
+    "certificates": {
+      "heading": "Certificates",
+      "description": "E.g. ISO 9001, ISO 14001, ISO 27001…",
+      "placeholder": "ISO 9001"
+    },
+    "other": {
+      "technicalEquipmentLabel": "Technical equipment",
+      "technicalEquipmentPlaceholder": "Machinery, vehicles, laboratories, software…",
+      "keyExpertsLabel": "Key experts",
+      "keyExpertsPlaceholder": "Expertise, experience, qualifications…",
+      "additionalInfoLabel": "Additional information"
+    },
+    "save": "Save profile",
+    "backToSettings": "Back to settings"
+  },
+  "push": {
+    "heading": "In-app notifications",
+    "toggleLabel": "Push notifications on this device",
+    "description": "New tenders matching your radars, deadline reminders for saved tenders, and completed AI analyses. Respects your settings above.",
+    "enabled": "Push notifications are enabled.",
+    "denied": "Permission denied. Enable it in your phone's settings.",
+    "enableFailed": "Failed to enable notifications.",
+    "disabled": "Push notifications are disabled.",
+    "deniedNote": "Notification permission is denied – it can only be changed in your phone's system settings."
+  },
+  "grantRadars": {
+    "heading": "Grant radars",
+    "description": "Monitoring of grant calls from ITMS21+. A new match arrives by email; deadline reminders only for one-shot calls. Available in both Basic and Premium.",
+    "add": "Add grant radar",
+    "empty": "You don't have any grant radar yet. Add your first one.",
+    "autoFillCategory": "We will automatically pre-fill the applicant type based on your profile: <b>{{category}}</b>.",
+    "confirmDelete": "Really delete this grant radar?",
+    "deleted": "Radar deleted",
+    "defaultName": "Grant radar {{n}}",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "deleteTitle": "Delete",
+    "keywords": {
+      "heading": "Keywords (name / focus)",
+      "placeholder": "e.g. digitaliz, innovat, energy",
+      "add": "Add"
+    },
+    "applicantType": {
+      "heading": "Applicant type",
+      "hint": "If you don't select any type, all will be included."
+    },
+    "programs": {
+      "heading": "Program",
+      "hint": "Empty = all programs. Available: {{count}}."
+    },
+    "regions": {
+      "heading": "Regions",
+      "hint": "Nationwide calls are always included automatically."
+    },
+    "allocation": {
+      "heading": "EU allocation (€)",
+      "fromLabel": "From",
+      "fromPlaceholder": "e.g. 100000",
+      "toLabel": "To",
+      "toPlaceholder": "e.g. 5000000"
+    },
+    "format": {
+      "heading": "Call format",
+      "hint": "Unselected = both. \"Rolling\" = no deadline, \"One-shot\" = fixed deadline.",
+      "rolling": "Rolling",
+      "oneshot": "One-shot"
+    },
+    "summary": {
+      "keywords": "{{count}} kw.",
+      "type": "{{count}} type",
+      "programs": "{{count}} programs",
+      "regions": "{{count}} regions",
+      "wholeSk": "whole SK",
+      "rolling": "rolling",
+      "oneshot": "one-shot",
+      "empty": "no filters"
+    }
+  }
+}

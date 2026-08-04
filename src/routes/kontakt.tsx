@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { LegalFooter } from "@/components/LegalFooter";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { trackConversion } from "@/lib/analytics";
+import { useTranslation, Trans } from "react-i18next";
 
 export const Route = createFileRoute("/kontakt")({
   head: () => ({
@@ -21,21 +22,24 @@ export const Route = createFileRoute("/kontakt")({
   component: KontaktPage,
 });
 
-const schema = z.object({
-  name: z.string().trim().min(1, "Zadajte meno").max(100),
-  email: z.string().trim().email("Neplatný e-mail").max(255),
-  message: z.string().trim().min(5, "Napíšte správu").max(2000),
-});
+function buildSchema(t: (key: string) => string) {
+  return z.object({
+    name: z.string().trim().min(1, t("kontakt.errorName")).max(100),
+    email: z.string().trim().email(t("kontakt.errorEmail")).max(255),
+    message: z.string().trim().min(5, t("kontakt.errorMessage")).max(2000),
+  });
+}
 
 function KontaktPage() {
+  const { t } = useTranslation("public");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sending, setSending] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    const parsed = schema.safeParse(form);
+    const parsed = buildSchema(t).safeParse(form);
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Formulár obsahuje chyby");
+      toast.error(parsed.error.issues[0]?.message ?? t("kontakt.errorGeneric"));
       return;
     }
     setSending(true);
@@ -46,7 +50,7 @@ function KontaktPage() {
       );
       window.location.href = `mailto:info@tendrik.sk?subject=${subject}&body=${body}`;
       trackConversion("contact_submit");
-      toast.success("Otváram e-mailového klienta…");
+      toast.success(t("kontakt.toastOpeningMail"));
     } finally {
       setSending(false);
     }
@@ -60,33 +64,29 @@ function KontaktPage() {
             <span className="inline-flex h-8 w-8 items-center justify-center bg-primary text-primary-foreground font-display font-bold">T</span>
             Tendrik
           </Link>
-          <Link to="/" className="eyebrow text-muted-foreground hover:text-foreground">← Späť na úvod</Link>
+          <Link to="/" className="eyebrow text-muted-foreground hover:text-foreground">{t("kontakt.backToHome")}</Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-12">
-        <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Kontakt</h1>
+        <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{t("kontakt.heading")}</h1>
         <p className="mt-3 text-muted-foreground">
-          Radi vám pomôžeme. Píšte, volajte, alebo vyplňte formulár nižšie.
+          {t("kontakt.subheading")}
         </p>
 
         <div className="mt-10 grid gap-10 md:grid-cols-[1fr_1.2fr]">
           <div className="space-y-6">
             <div>
-              <div className="eyebrow text-foreground">Prevádzkovateľ</div>
-              <p className="mt-2 font-semibold">Tobify s. r. o.</p>
+              <div className="eyebrow text-foreground">{t("kontakt.operatorEyebrow")}</div>
+              <p className="mt-2 font-semibold">{t("kontakt.operatorName")}</p>
               <p className="text-sm text-muted-foreground">
-                IČO: 56607016<br />
-                DIČ: 2122358579<br />
-                Neplatiteľ DPH
+                <Trans i18nKey="kontakt.operatorDetails" ns="public" />
               </p>
             </div>
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-primary mt-0.5" />
               <div className="text-sm">
-                Športová 707/43<br />
-                919 26 Zavar<br />
-                Slovenská republika
+                <Trans i18nKey="kontakt.address" ns="public" />
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -100,24 +100,24 @@ function KontaktPage() {
           </div>
 
           <form onSubmit={submit} className="space-y-4 rounded-lg border border-border bg-card p-6">
-            <h2 className="font-display text-xl font-bold">Napíšte nám</h2>
+            <h2 className="font-display text-xl font-bold">{t("kontakt.formTitle")}</h2>
             <div>
-              <Label htmlFor="name">Meno</Label>
+              <Label htmlFor="name">{t("kontakt.nameLabel")}</Label>
               <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required maxLength={100} />
             </div>
             <div>
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="email">{t("kontakt.emailLabel")}</Label>
               <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required maxLength={255} />
             </div>
             <div>
-              <Label htmlFor="message">Správa</Label>
+              <Label htmlFor="message">{t("kontakt.messageLabel")}</Label>
               <Textarea id="message" rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} required maxLength={2000} />
             </div>
             <Button type="submit" className="w-full" disabled={sending}>
-              {sending ? "Odosielam…" : "Odoslať správu"}
+              {sending ? t("kontakt.submitSending") : t("kontakt.submit")}
             </Button>
             <p className="text-xs text-muted-foreground">
-              Odoslaním súhlasíte so spracovaním údajov podľa <Link to="/pravne/gdpr" className="underline">GDPR</Link>.
+              <Trans i18nKey="kontakt.gdprNote" ns="public" components={{ gdpr: <Link to="/pravne/gdpr" className="underline" /> }} />
             </p>
           </form>
         </div>

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useTranslation, Trans } from "react-i18next";
 import { useIsNative } from "@/lib/native";
 
 import { Button } from "@/components/ui/button";
@@ -35,95 +36,105 @@ export const Route = createFileRoute("/cennik")({
 
 type PlanDef = {
   tier: SubscriptionTier;
-  subtitle: string;
+  subtitleKey: string;
   highlight?: boolean;
-  badge?: string;
-  features: { text: string; ok: boolean; ai?: boolean }[];
+  badgeKey?: string;
+  features: { key: string; text?: string; ok: boolean; ai?: boolean }[];
 };
 
 const PLANS: PlanDef[] = [
   {
     tier: "basic",
-    subtitle: "Monitoring zákaziek",
+    subtitleKey: "cennik.planSubtitle.basic",
     features: [
-      { text: "Neobmedzené radary a filtre pre zákazky", ok: true },
-      { text: "Denné e-mailové digesty", ok: true },
-      { text: "Pripomienky pred deadline", ok: true },
-      { text: "TED, ÚVO, EKS a JOSEPHINE v jednom", ok: true },
-      { text: "Bez AI analýzy", ok: false },
-      { text: "Bez grantových výziev", ok: false },
+      { key: "unlimitedRadars", ok: true },
+      { key: "dailyDigests", ok: true },
+      { key: "deadlineReminders", ok: true },
+      { key: "sourcesCombined", ok: true },
+      { key: "noAi", ok: false },
+      { key: "noGrants", ok: false },
     ],
   },
   {
     tier: "premium",
-    subtitle: "Zákazky + AI analýza",
+    subtitleKey: "cennik.planSubtitle.premium",
     highlight: true,
-    badge: "Najobľúbenejšie",
+    badgeKey: "cennik.planBadge.premium",
     features: [
-      { text: "Všetko zo Základu", ok: true },
-      { text: `${AI_MONTHLY_LIMIT.premium} AI analýz mesačne`, ok: true, ai: true },
-      { text: "AI analýza zákazky a spôsobilosti", ok: true, ai: true },
-      { text: "AI návrh subdodávok a oslovení", ok: true, ai: true },
-      { text: "TED podmienky štruktúrovane", ok: true },
-      { text: "Bez grantových výziev", ok: false },
+      { key: "everythingBasic", ok: true },
+      { key: "aiAnalysesMonthly", ok: true, ai: true },
+      { key: "aiTenderAnalysis", ok: true, ai: true },
+      { key: "aiSubcontracting", ok: true, ai: true },
+      { key: "tedStructured", ok: true },
+      { key: "noGrants", ok: false },
     ],
   },
   {
     tier: "komplet",
-    subtitle: "Zákazky + granty + AI",
-    badge: "Zákazky aj granty",
+    subtitleKey: "cennik.planSubtitle.komplet",
+    badgeKey: "cennik.planBadge.komplet",
     features: [
-      { text: "Všetko z Prémia", ok: true },
-      { text: "Grantové výzvy (eurofondy, Program Slovensko)", ok: true },
-      { text: "Radary a notifikácie pre granty", ok: true },
-      { text: "AI analýza grantových výziev", ok: true, ai: true },
-      { text: `${AI_MONTHLY_LIMIT.komplet} AI analýz mesačne`, ok: true, ai: true },
-      { text: "Prioritná podpora", ok: true },
+      { key: "everythingPremium", ok: true },
+      { key: "grantCalls", ok: true },
+      { key: "grantRadars", ok: true },
+      { key: "aiGrantAnalysis", ok: true, ai: true },
+      { key: "aiAnalysesMonthly", ok: true, ai: true },
+      { key: "prioritySupport", ok: true },
     ],
   },
 ];
 
-const COMPARISON: { label: string; values: Record<SubscriptionTier, string> }[] = [
-  {
-    label: "Monitoring verejných zákaziek",
-    values: { basic: "Áno", premium: "Áno", komplet: "Áno" },
-  },
-  {
-    label: "Grantové výzvy a dotácie",
-    values: { basic: "—", premium: "—", komplet: "Áno" },
-  },
-  {
-    label: "AI analýzy mesačne",
-    values: {
-      basic: "—",
-      premium: String(AI_MONTHLY_LIMIT.premium),
-      komplet: String(AI_MONTHLY_LIMIT.komplet),
-    },
-  },
-  {
-    label: "AI subdodávky a oslovenia",
-    values: { basic: "—", premium: "Áno", komplet: "Áno" },
-  },
-  {
-    label: "E-mailové digesty a pripomienky",
-    values: { basic: "Áno", premium: "Áno", komplet: "Áno" },
-  },
-  {
-    label: "Podpora",
-    values: { basic: "Štandardná", premium: "Štandardná", komplet: "Prioritná" },
-  },
-];
+const COMPARISON_KEYS = [
+  "publicMonitoring",
+  "grantCalls",
+  "aiAnalysesMonthly",
+  "aiSubcontracting",
+  "digestsReminders",
+  "support",
+] as const;
 
 function CennikPage() {
+  const { t } = useTranslation("public");
   const [period, setPeriod] = useState<BillingPeriod>("monthly");
   const yearly = period === "yearly";
   const native = useIsNative();
 
+  const COMPARISON: { label: string; values: Record<SubscriptionTier, string> }[] = [
+    {
+      label: t("cennik.comparisonRows.publicMonitoring"),
+      values: { basic: t("cennik.yes"), premium: t("cennik.yes"), komplet: t("cennik.yes") },
+    },
+    {
+      label: t("cennik.comparisonRows.grantCalls"),
+      values: { basic: t("cennik.no"), premium: t("cennik.no"), komplet: t("cennik.yes") },
+    },
+    {
+      label: t("cennik.comparisonRows.aiAnalysesMonthly"),
+      values: {
+        basic: t("cennik.no"),
+        premium: String(AI_MONTHLY_LIMIT.premium),
+        komplet: String(AI_MONTHLY_LIMIT.komplet),
+      },
+    },
+    {
+      label: t("cennik.comparisonRows.aiSubcontracting"),
+      values: { basic: t("cennik.no"), premium: t("cennik.yes"), komplet: t("cennik.yes") },
+    },
+    {
+      label: t("cennik.comparisonRows.digestsReminders"),
+      values: { basic: t("cennik.yes"), premium: t("cennik.yes"), komplet: t("cennik.yes") },
+    },
+    {
+      label: t("cennik.comparisonRows.support"),
+      values: { basic: t("cennik.supportStandard"), premium: t("cennik.supportStandard"), komplet: t("cennik.supportPriority") },
+    },
+  ];
+
   if (native) {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center safe-top">
-        <h1 className="font-display text-2xl font-bold tracking-tight">Predplatné</h1>
-        <p className="mt-4 text-sm text-muted-foreground">Predplatné spravuješ na tendrik.sk</p>
+        <h1 className="font-display text-2xl font-bold tracking-tight">{t("cennik.nativeTitle")}</h1>
+        <p className="mt-4 text-sm text-muted-foreground">{t("cennik.nativeNote")}</p>
       </div>
     );
   }
@@ -137,19 +148,19 @@ function CennikPage() {
             <span className="inline-flex h-8 w-8 items-center justify-center bg-primary text-primary-foreground font-display font-bold">T</span>
             Tendrik
           </Link>
-          <Link to="/" className="eyebrow text-muted-foreground hover:text-foreground">← Späť na úvod</Link>
+          <Link to="/" className="eyebrow text-muted-foreground hover:text-foreground">{t("cennik.backToHome")}</Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-14">
         <div className="eyebrow flex items-center text-foreground">
-          <span className="red-square" aria-hidden="true" /> Cenník
+          <span className="red-square" aria-hidden="true" /> {t("cennik.eyebrow")}
         </div>
         <h1 className="mt-4 font-display text-4xl md:text-5xl font-bold tracking-tight">
-          Tri plány. <span className="hero-underline">Vy si vyberáte.</span>
+          <Trans i18nKey="cennik.heading" ns="public" components={{ underline: <span className="hero-underline" /> }} />
         </h1>
         <p className="mt-4 text-lg text-foreground/80">
-          {TRIAL_DAYS} dní zdarma na vyskúšanie. Potom si vyberiete Základ, Prémium alebo Komplet.
+          {t("cennik.subheading", { days: TRIAL_DAYS })}
         </p>
 
         {/* Prepínač obdobia */}
@@ -159,14 +170,14 @@ function CennikPage() {
             onClick={() => setPeriod("monthly")}
             className={`px-4 py-2 text-sm font-semibold ${!yearly ? "bg-foreground text-background" : "text-foreground"}`}
           >
-            Mesačne
+            {t("cennik.periodMonthly")}
           </button>
           <button
             type="button"
             onClick={() => setPeriod("yearly")}
             className={`px-4 py-2 text-sm font-semibold ${yearly ? "bg-foreground text-background" : "text-foreground"}`}
           >
-            Ročne <span className="text-primary">−2 mesiace</span>
+            {t("cennik.periodYearly")} <span className="text-primary">{t("cennik.periodYearlyDiscount")}</span>
           </button>
         </div>
 
@@ -180,31 +191,33 @@ function CennikPage() {
                   plan.highlight ? "border-2 border-primary" : "border border-border"
                 }`}
               >
-                {plan.badge && (
+                {plan.badgeKey && (
                   <span className="absolute -top-3 left-4 bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-wider px-2 py-0.5">
-                    {plan.badge}
+                    {t(plan.badgeKey)}
                   </span>
                 )}
                 <div className={`eyebrow ${plan.highlight ? "text-primary" : ""}`}>{tierLabel(plan.tier)}</div>
-                <h2 className="mt-2 font-display text-2xl font-bold">{plan.subtitle}</h2>
+                <h2 className="mt-2 font-display text-2xl font-bold">{t(plan.subtitleKey)}</h2>
                 <p className="mt-4 num text-4xl font-bold">
                   {formatEur(price)}{" "}
-                  <span className="text-base font-medium text-muted-foreground">/ mes</span>
+                  <span className="text-base font-medium text-muted-foreground">{t("cennik.priceSuffixMonth")}</span>
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {yearly
-                    ? `Konečná cena · ${formatEur(priceEur(plan.tier, "yearly"))} ročne, jednorazovo`
-                    : "Konečná cena · fakturované mesačne"}
+                    ? t("cennik.finalPriceYearly", { price: formatEur(priceEur(plan.tier, "yearly")) })
+                    : t("cennik.finalPriceMonthly")}
                 </p>
                 <ul className="mt-6 space-y-2 text-sm flex-1">
                   {plan.features.map((f) => (
-                    <li key={f.text} className={`flex gap-2 ${f.ok ? "" : "text-muted-foreground"}`}>
+                    <li key={f.key} className={`flex gap-2 ${f.ok ? "" : "text-muted-foreground"}`}>
                       {f.ok
                         ? f.ai
                           ? <Sparkles className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                           : <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                         : <X className="h-4 w-4 mt-0.5 shrink-0" />}
-                      {f.text}
+                      {f.key === "aiAnalysesMonthly"
+                        ? t(`cennik.features.${f.key}`, { count: AI_MONTHLY_LIMIT[plan.tier as "premium" | "komplet"] })
+                        : t(`cennik.features.${f.key}`)}
                     </li>
                   ))}
                 </ul>
@@ -214,7 +227,7 @@ function CennikPage() {
                   className="mt-6 block"
                 >
                   <Button variant={plan.highlight ? "default" : "outline"} className="w-full">
-                    Vybrať {tierLabel(plan.tier)}
+                    {t("cennik.selectPlan", { tier: tierLabel(plan.tier) })}
                   </Button>
                 </Link>
               </div>
@@ -226,15 +239,15 @@ function CennikPage() {
 
 
         {/* Porovnanie */}
-        <h2 className="mt-14 font-display text-2xl font-bold">Porovnanie plánov</h2>
+        <h2 className="mt-14 font-display text-2xl font-bold">{t("cennik.comparisonTitle")}</h2>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b-2 border-foreground text-left">
-                <th className="py-3 pr-4 font-semibold">Funkcia</th>
-                <th className="py-3 px-4 font-semibold">Základ</th>
-                <th className="py-3 px-4 font-semibold text-primary">Prémium</th>
-                <th className="py-3 px-4 font-semibold">Komplet</th>
+                <th className="py-3 pr-4 font-semibold">{t("cennik.comparisonHeaders.feature")}</th>
+                <th className="py-3 px-4 font-semibold">{t("cennik.comparisonHeaders.basic")}</th>
+                <th className="py-3 px-4 font-semibold text-primary">{t("cennik.comparisonHeaders.premium")}</th>
+                <th className="py-3 px-4 font-semibold">{t("cennik.comparisonHeaders.komplet")}</th>
               </tr>
             </thead>
             <tbody>
@@ -247,13 +260,13 @@ function CennikPage() {
                 </tr>
               ))}
               <tr className="border-b border-border">
-                <td className="py-3 pr-4 font-semibold">Cena mesačne</td>
+                <td className="py-3 pr-4 font-semibold">{t("cennik.priceMonthlyLabel")}</td>
                 <td className="py-3 px-4 num">{formatEur(priceEur("basic", "monthly"))}</td>
                 <td className="py-3 px-4 num">{formatEur(priceEur("premium", "monthly"))}</td>
                 <td className="py-3 px-4 num">{formatEur(priceEur("komplet", "monthly"))}</td>
               </tr>
               <tr>
-                <td className="py-3 pr-4 font-semibold">Cena ročne</td>
+                <td className="py-3 pr-4 font-semibold">{t("cennik.priceYearlyLabel")}</td>
                 <td className="py-3 px-4 num">{formatEur(priceEur("basic", "yearly"))}</td>
                 <td className="py-3 px-4 num">{formatEur(priceEur("premium", "yearly"))}</td>
                 <td className="py-3 px-4 num">{formatEur(priceEur("komplet", "yearly"))}</td>
@@ -263,23 +276,28 @@ function CennikPage() {
         </div>
 
         <div className="mt-10 rounded-lg border-2 border-primary bg-primary/5 p-4 text-sm">
-          <b className="text-primary">{TRIAL_DAYS} dní zdarma:</b> Vyskúšajte monitoring zákaziek,
-          grantov, radary a e-maily neobmedzene a AI analýzu ({TRIAL_AI_ANALYSES} analýz zdarma).
-          Po skončení trialu si vyberiete plán.
+          <b className="text-primary">{t("cennik.trialBoxTitle", { days: TRIAL_DAYS })}</b>{" "}
+          {t("cennik.trialBoxText", { count: TRIAL_AI_ANALYSES })}
         </div>
 
         <div className="mt-6 rounded-lg border-2 border-foreground/20 bg-background p-4 text-sm">
-          <b>Platby:</b> Mesačné predplatné sa môže <b>automaticky obnovovať</b> cez platobnú bránu
-          GoPay. Ročné predplatné je <b>jednorazová platba na 12 mesiacov</b>. Zrušenie kedykoľvek
-          v nastaveniach účtu. Podrobnosti v{" "}
-          <Link to="/pravne/opakovane-platby" className="underline">Opakované platby</Link>.
+          <b>{t("cennik.paymentsBoxTitle")}</b>{" "}
+          <Trans
+            i18nKey="cennik.paymentsBoxText"
+            ns="public"
+            components={{ b: <b />, b2: <b />, link: <Link to="/pravne/opakovane-platby" className="underline" /> }}
+          />
         </div>
 
         <p className="mt-8 text-xs text-muted-foreground">
-          Prevádzkovateľ: Tobify s. r. o., IČO 56607016 (neplatca DPH). Platby spracúva
-          GoPay s. r. o. Podmienky:{" "}
-          <Link to="/pravne/obchodne-podmienky" className="underline">Obchodné podmienky</Link> ·{" "}
-          <Link to="/pravne/opakovane-platby" className="underline">Opakované platby</Link>.
+          <Trans
+            i18nKey="cennik.operatorNote"
+            ns="public"
+            components={{
+              terms: <Link to="/pravne/obchodne-podmienky" className="underline" />,
+              recurring: <Link to="/pravne/opakovane-platby" className="underline" />,
+            }}
+          />
         </p>
       </main>
 
