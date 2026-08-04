@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
@@ -990,13 +991,14 @@ function EmptyState({
   tab: "foryou" | "saved" | "hidden";
   query: string;
 }) {
+  const { t } = useTranslation("app");
   if (query.trim()) {
     return (
       <div className="mt-12 rounded-xl border bg-card p-12 text-center">
         <Search className="mx-auto h-10 w-10 text-muted-foreground/60" />
         <p className="mt-4 text-muted-foreground">
-          Nič sme nenašli pre{" "}
-          <b className="text-foreground">„{query}"</b> – skúste iné slovo.
+          {t("dashboard.emptyState.noQueryResultsPrefix")}{" "}
+          <b className="text-foreground">„{query}"</b> {t("dashboard.emptyState.noQueryResultsSuffix")}
         </p>
       </div>
     );
@@ -1007,8 +1009,7 @@ function EmptyState({
       <div className="mt-12 rounded-xl border bg-card p-12 text-center">
         <Star className="mx-auto h-10 w-10 text-muted-foreground/60" />
         <p className="mt-4 text-muted-foreground">
-          Zatiaľ nemáte uložené zákazky – kliknite na hviezdičku pri zákazke,
-          ktorá vás zaujme.
+          {t("dashboard.emptyState.savedEmpty")}
         </p>
       </div>
     );
@@ -1019,7 +1020,7 @@ function EmptyState({
       <div className="mt-12 rounded-xl border bg-card p-12 text-center">
         <X className="mx-auto h-10 w-10 text-muted-foreground/60" />
         <p className="mt-4 text-muted-foreground">
-          Nemáte žiadne skryté zákazky.
+          {t("dashboard.emptyState.hiddenEmpty")}
         </p>
       </div>
     );
@@ -1030,17 +1031,17 @@ function EmptyState({
     <div className="mt-12 rounded-xl border bg-card p-12 text-center">
       <Radar className="mx-auto h-12 w-12 text-primary/70" />
       <h2 className="mt-4 font-display text-xl font-semibold">
-        Váš radar zatiaľ nič nezachytil
+        {t("dashboard.emptyState.forYouTitle")}
       </h2>
       <p className="mt-2 text-muted-foreground">
-        Skúste upraviť filtre alebo si pozrite všetky zákazky.
+        {t("dashboard.emptyState.forYouDesc")}
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         <Link to="/settings">
-          <Button>Upraviť filtre</Button>
+          <Button>{t("dashboard.emptyState.editFilters")}</Button>
         </Link>
         <Link to="/dashboard" search={{ tab: "foryou", sort: "newest", q: "" }}>
-          <Button variant="outline">Zobraziť všetky zákazky</Button>
+          <Button variant="outline">{t("dashboard.emptyState.showAll")}</Button>
         </Link>
       </div>
     </div>

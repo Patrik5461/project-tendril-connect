@@ -1,1 +1,300 @@
-{}
+{
+  "cookies": {
+    "title": "Cookie Policy",
+    "intro": "Cookies are small text files that we store in your browser so that Tendrik.sk works and so that we can understand it.",
+    "whatWeUse": {
+      "heading": "Which cookies we use",
+      "necessaryTitle": "1. Necessary (without consent)",
+      "session": "<0>Session cookie</0> – keeps you logged in.",
+      "csrf": "<0>CSRF token</0> – protection against request forgery.",
+      "consent": "<0>Cookie consent</0> – remembers your choice from this banner.",
+      "analyticsTitle": "2. Analytical (with consent)",
+      "analyticsItem": "Anonymized visit statistics (Plausible / GA4) – only if you allow them.",
+      "noMarketing": "We do not use marketing or advertising cookies."
+    },
+    "howToDisable": {
+      "heading": "How to disable cookies",
+      "intro": "You can change your choice at any time:",
+      "viaButton": "Via the <0>Cookie settings</0> button in the page footer or here:",
+      "openSettingsButton": "Open cookie settings",
+      "viaBrowser": "In your browser settings (Chrome, Firefox, Safari, Edge…).",
+      "cannotDisable": "Necessary cookies cannot be disabled – without them logging in would not be possible."
+    },
+    "retention": {
+      "heading": "Retention period",
+      "session": "Session cookie: until the browser is closed.",
+      "consentAnalytics": "Consent and analytical cookies: max. 24 months."
+    }
+  },
+  "gdpr": {
+    "title": "Personal Data Protection (GDPR)",
+    "intro": "Information on the processing of personal data pursuant to Regulation (EU) 2016/679 (GDPR) and Act No. 18/2018 Coll.",
+    "s1": {
+      "heading": "1. Controller",
+      "company": "<0>Tobify s. r. o.</0>, Športová 707/43, 919 26 Zavar, Slovak Republic",
+      "ico": "Company ID: 56607016, Tax ID: 2122358579 (not a VAT payer)",
+      "email": "E-mail: <0>info@tendrik.sk</0>",
+      "phone": "Phone: <0>+421 907 702 422</0>"
+    },
+    "s2": {
+      "heading": "2. What data we process",
+      "reg": "<0>Registration data:</0> e-mail address, password (stored in hashed form).",
+      "optional": "<0>Optional data:</0> name, company name, company ID, phone number.",
+      "billing": "<0>Billing data</0> (for paid subscriptions): billing address, company ID/tax ID.",
+      "payment": "<0>Payment metadata</0> from GoPay: transaction ID, time, amount – not the card number.",
+      "prefs": "<0>Preferences:</0> keywords, CPV codes, monitored regions, notification settings.",
+      "technical": "<0>Technical data:</0> IP address, login log, cookies (see <1>Cookies</1>)."
+    },
+    "s3": {
+      "heading": "3. Purpose and legal basis",
+      "contract": "<0>Performance of the contract (Art. 6(1)(b) GDPR):</0> provision of the service, e-mail notifications, invoicing, customer support.",
+      "legalObligation": "<0>Legal obligation (Art. 6(1)(c)):</0> retention of accounting documents for 10 years.",
+      "legitimateInterest": "<0>Legitimate interest (Art. 6(1)(f)):</0> security and prevention of misuse of the service.",
+      "consent": "<0>Consent (Art. 6(1)(a)):</0> analytical cookies, marketing communication."
+    },
+    "s4": {
+      "heading": "4. Retention period",
+      "account": "Account: for the duration of the account's existence + 3 years after its cancellation.",
+      "invoices": "Invoicing documents: 10 years (legal obligation).",
+      "analytics": "Analytical cookies: max. 24 months."
+    },
+    "s5": {
+      "heading": "5. Recipients (processors)",
+      "supabase": "<0>Supabase / Lovable Cloud</0> – database hosting and authentication (EU).",
+      "gopay": "<0>GoPay s. r. o.</0> – payment processing (Czech Republic/EU).",
+      "resend": "<0>Resend</0> – sending transactional e-mails (EU).",
+      "accounting": "Accounting firm – billing data only.",
+      "noTransfer": "We do not transfer data outside the EEA."
+    },
+    "s6": {
+      "heading": "6. Your rights",
+      "intro": "As a data subject you have the right to:",
+      "access": "access your data and receive a copy,",
+      "correction": "correct inaccurate data,",
+      "erasure": "erasure („right to be forgotten\"),",
+      "restriction": "restrict processing,",
+      "portability": "data portability,",
+      "object": "object to processing based on legitimate interest,",
+      "withdraw": "withdraw consent,",
+      "complaint": "lodge a complaint with the supervisory authority – <0>Office for Personal Data Protection of the Slovak Republic</0>, <1>dataprotection.gov.sk</1>.",
+      "exercise": "To exercise your rights: <0>info@tendrik.sk</0>. We respond within 30 days."
+    },
+    "s7": {
+      "heading": "7. Data Protection Officer (DPO)",
+      "text": "The Controller does not meet the conditions under Art. 37 GDPR and is not obliged to appoint a Data Protection Officer (DPO). For data protection matters, contact <0>info@tendrik.sk</0>."
+    },
+    "s8": {
+      "heading": "8. Security",
+      "text": "Data is transmitted via HTTPS/TLS, passwords are hashed, and access is logged. The database is protected by row-level security policies."
+    }
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "intro": "Effective from 1 January 2026. These terms govern the use of the Tendrik.sk service.",
+    "s1": {
+      "heading": "1. Operator",
+      "p": "The operator of the Tendrik.sk service (hereinafter the „Service\") is the company:",
+      "company": "<0>Tobify s. r. o.</0>",
+      "seat": "Registered office: Športová 707/43, 919 26 Zavar, Slovak Republic",
+      "ico": "Company ID: 56607016",
+      "dic": "Tax ID: 2122358579",
+      "vat": "Not a VAT payer",
+      "email": "E-mail: <0>info@tendrik.sk</0>",
+      "phone": "Phone: <0>+421 907 702 422</0>",
+      "vatNote": "The company <0>is not a VAT payer</0>; the prices listed on Tendrik.sk are final."
+    },
+    "s2": {
+      "heading": "2. Description of the service",
+      "p": "Tendrik.sk is an online SaaS platform that automatically monitors public procurement notices published in the Official Journal of the EU (TED) and in the bulletin of the Slovak Public Procurement Office (ÚVO). It allows users to:",
+      "item1": "filter contracts by keywords, CPV codes, countries and regions,",
+      "item2": "receive e-mail notifications about new contracts and upcoming deadlines,",
+      "item3": "view contract details with a link to the source (TED / ÚVO / EKS / JOSEPHINE)."
+    },
+    "s3": {
+      "heading": "3. Price and payment terms",
+      "p": "Use of the Service is subject to a flat monthly fee according to the selected tier:",
+      "basic": "Basic: <0>€4.99 / month</0>",
+      "premium": "Premium (with AI): <0>€14.99 / month</0>",
+      "vatNote": "The supplier <0>Tobify s. r. o.</0> is not a VAT payer – the amounts listed are final.",
+      "payment": "Payment is made via the <0>GoPay</0> payment gateway by payment card (Visa, Mastercard) secured with 3D Secure. The subscription automatically renews every month; more information in the <1>Recurring Payments</1> document."
+    },
+    "s4": {
+      "heading": "4. Trial period",
+      "text": "A new user receives <0>30 days free</0> from registration, without needing to enter a payment card. The trial includes unlimited monitoring, radars and e-mails, and<1> 5 complete AI contract analyses</1> during the trial. After the trial period expires, access to paid features is locked until the user activates a paid subscription."
+    },
+    "s5": {
+      "heading": "5. Conclusion of the contract",
+      "text": "The contract between the Operator and the user arises at the moment the order is confirmed (payment activation) in the user interface. The user confirms that they have read and agree to these terms."
+    },
+    "s6": {
+      "heading": "6. Withdrawal from the contract (14 days)",
+      "text": "The consumer has the right to withdraw from a distance contract within <0>14 days</0> without giving a reason, pursuant to § 7 of Act No. 102/2014 Coll. Withdrawal must be sent to the e-mail <1>info@tendrik.sk</1>. If the Service has already been provided within this period with the consumer's consent, a proportional part of the price will be refunded."
+    },
+    "s7": {
+      "heading": "7. Cancellation and termination of the subscription",
+      "text": "The subscription can be cancelled <0>at any time</0> in the account settings or by e-mail to <1>info@tendrik.sk</1>. After cancellation, the subscription will not be automatically renewed. <2>The balance of the already paid period is not refunded</2> (except in the case under point 6 or a successful complaint)."
+    },
+    "s8": {
+      "heading": "8. Complaints procedure",
+      "text": "We accept complaints by e-mail at <0>info@tendrik.sk</0> or by post to the registered office address. We will handle the complaint no later than <1>30 days</1> from its receipt. Details can be found in the <2>Complaints Procedure</2>."
+    },
+    "s9": {
+      "heading": "9. Responsibility for content",
+      "text": "Contract data comes from public sources TED, ÚVO, EKS and JOSEPHINE. The Operator is not responsible for the accuracy, completeness or timeliness of this source data. Use of the results is at the user's own risk."
+    },
+    "s10": {
+      "heading": "10. Personal data protection",
+      "text": "The processing of personal data is governed by a separate document, <0>GDPR – Personal Data Protection</0>."
+    },
+    "s11": {
+      "heading": "11. Dispute resolution",
+      "text": "Any disputes are resolved primarily by agreement. The consumer has the right to contact the Slovak Trade Inspection (<0>soi.sk</0>) or use the ODR platform: <1>ec.europa.eu/consumers/odr</1>."
+    },
+    "s12": {
+      "heading": "12. Final provisions",
+      "text": "The Operator reserves the right to change these terms. Users will be informed of material changes by e-mail at least 15 days in advance. Relationships not governed by these terms are governed by the laws of the Slovak Republic."
+    }
+  },
+  "recurringPayments": {
+    "title": "Recurring Payments",
+    "intro": "The Tendrik subscription is paid via automatic monthly payments through the GoPay payment gateway.",
+    "summary": {
+      "eyebrow": "Summary",
+      "amount": "💳 Amount: <0>€4.99 / month</0> (Basic) or <1>€14.99 / month</1> (Premium) – final price",
+      "frequency": "🔁 Frequency: <0>every month</0>, automatically",
+      "trial": "🎁 <0>30 days free</0> to try (trial period, including 5 AI analyses)",
+      "cancel": "❌ Cancel anytime in the account settings"
+    },
+    "s1": {
+      "heading": "What are recurring payments",
+      "text": "A recurring payment is an automatic card payment that is charged at regular intervals without you having to confirm the payment each time. You authorize the first payment when activating the subscription; subsequent payments are made automatically based on a token from the secure <0>GoPay</0> payment gateway."
+    },
+    "s2": {
+      "heading": "Payment amount",
+      "basic": "Basic: <0>€4.99 / month</0>",
+      "premium": "Premium: <0>€14.99 / month</0>",
+      "vatNote": "The supplier (Tobify s. r. o.) is not a VAT payer – the amounts listed are final.",
+      "changeNotice": "We will inform you of any price change by e-mail at least 15 days in advance."
+    },
+    "s3": {
+      "heading": "When the payment is charged",
+      "first": "<0>First payment:</0> after the end of the 2-month trial period, or upon activation of the subscription.",
+      "next": "<0>Subsequent payments:</0> every month on the day corresponding to the activation date.",
+      "invoice": "We will send you an e-mail with a tax document before each payment."
+    },
+    "s4": {
+      "heading": "How to cancel payments",
+      "intro": "You can cancel recurring payments at any time in two ways:",
+      "way1": "In <0>account settings</0> on Tendrik.sk by clicking „Cancel subscription\".",
+      "way2": "By e-mail to <0>info@tendrik.sk</0> from the e-mail address the account is registered under.",
+      "afterCancel": "After cancellation, no further payment will be charged to your card. Access to paid features remains available until the end of the current billing period."
+    },
+    "s5": {
+      "heading": "Payment security",
+      "text": "Payment card data is processed exclusively by the payment gateway <0>GoPay s. r. o.</0> in accordance with <1>PCI-DSS Level 1</1>. Tendrik never has access to your card number or CVV code; only an anonymized token needed for recurring charges is stored. Payments are protected by <2>3D Secure</2> authentication."
+    },
+    "s6": {
+      "heading": "Contact",
+      "text": "Payment questions: <0>info@tendrik.sk</0>, <1>+421 907 702 422</1>."
+    }
+  },
+  "complaints": {
+    "title": "Complaints Procedure",
+    "intro": "Procedure for filing a complaint about the Tendrik.sk service (public procurement monitoring SaaS platform).",
+    "s1": {
+      "heading": "1. Operator",
+      "text": "<0>Tobify s. r. o.</0>, Športová 707/43, 919 26 Zavar, Company ID: 56607016, <1>info@tendrik.sk</1>, <2>+421 907 702 422</2>."
+    },
+    "s2": {
+      "heading": "2. Subject of the complaint",
+      "intro": "You may complain in particular about:",
+      "item1": "unavailability of the Service for more than 24 hours caused by the Operator,",
+      "item2": "malfunction of paid features,",
+      "item3": "incorrectly billed payment,",
+      "item4": "failure to send ordered e-mail notifications."
+    },
+    "s3": {
+      "heading": "3. How to file a complaint",
+      "intro": "You can file a complaint:",
+      "email": "<0>By e-mail:</0> <1>info@tendrik.sk</1> (recommended),",
+      "post": "<0>By post:</0> Tobify s. r. o., Športová 707/43, 919 26 Zavar,",
+      "phone": "<0>By phone:</0> <1>+421 907 702 422</1> (please confirm subsequently by e-mail).",
+      "note": "In your complaint, please state: registration e-mail, description of the defect, date it occurred, and screenshots if applicable."
+    },
+    "s4": {
+      "heading": "4. Deadlines",
+      "confirm": "We will confirm receipt of the complaint within <0>3 business days</0>.",
+      "resolve": "We will handle the complaint no later than <0>30 days</0> from its receipt.",
+      "notify": "We will inform you of the outcome by e-mail."
+    },
+    "s5": {
+      "heading": "5. Methods of resolution",
+      "item1": "removal of the defect,",
+      "item2": "extension of the subscription by the period of unavailability,",
+      "item3": "refund of a proportional part of the price,",
+      "item4": "reasoned rejection of the complaint."
+    },
+    "s6": {
+      "heading": "6. Alternative dispute resolution",
+      "text": "If you disagree with the resolution of the complaint, you can contact the Slovak Trade Inspection (<0>soi.sk</0>) or the ODR platform: <1>ec.europa.eu/consumers/odr</1>."
+    }
+  },
+  "privacy": {
+    "backHome": "← Back to home",
+    "title": "Personal Data Protection",
+    "intro": "Tendrik is a service for entrepreneurs (30 days free, then from €4.99/month). We process personal data only to the extent necessary for the service to function.",
+    "dataSection": {
+      "heading": "What data we process",
+      "text": "Upon registration, we store your e-mail address and notification settings (radars, e-mail frequency, saved contracts). We use the data exclusively to deliver the service."
+    },
+    "cookiesSection": {
+      "heading": "Cookies",
+      "intro": "We use two categories of cookies:",
+      "necessary": "<0>Necessary</0> – required for login, session and basic settings. Without them the site cannot function.",
+      "analytics": "<0>Analytical</0> – optional. They are loaded only if you give consent. They help us measure the use of the service.",
+      "openSettingsButton": "Open cookie settings"
+    },
+    "rightsSection": {
+      "heading": "Your rights",
+      "text": "You have the right to access, correct and delete your data. If you have any questions, contact us at the e-mail address stated in the application."
+    }
+  },
+  "legalPage": {
+    "backHome": "← Back to home"
+  },
+  "footer": {
+    "paymentBadgesAria": "Supported payment methods",
+    "brandDescription": "Public procurement monitoring from TED, ÚVO, EKS and JOSEPHINE.",
+    "operator": "Operator:",
+    "vatFree": "Not a VAT payer",
+    "contact": "Contact",
+    "contactForm": "Contact form",
+    "legal": "Legal",
+    "terms": "Terms of Service",
+    "recurringPayments": "Recurring Payments",
+    "gdpr": "GDPR",
+    "complaints": "Complaints Procedure",
+    "cookies": "Cookies",
+    "payments": "Payments",
+    "paymentsNote": "Payments are processed by GoPay s.r.o. via a secure payment gateway with 3D Secure support.",
+    "copyright": "© {{year}} Tobify s. r. o. All rights reserved.",
+    "tagline": "Tendrik.sk – public procurement monitoring"
+  },
+  "cookieBanner": {
+    "ariaLabel": "Consent to the use of cookies",
+    "title": "We use cookies",
+    "text": "Tendrik uses necessary cookies for the site to function (login, settings). If you allow it, we will also use analytical cookies to better understand how the service is used.",
+    "privacyLink": "Personal Data Protection",
+    "rejectOptional": "Reject optional",
+    "settings": "Settings",
+    "acceptAll": "Accept all",
+    "dialogTitle": "Cookie settings",
+    "dialogDescription": "Choose which categories of cookies you want to allow. You can change your choice at any time via the link in the page footer.",
+    "necessaryLabel": "Necessary",
+    "necessaryDesc": "Required for login, session and basic settings. Cannot be turned off.",
+    "necessaryAria": "Necessary cookies always on",
+    "analyticsLabel": "Analytical",
+    "analyticsDesc": "They help us measure the use of the service (e.g. Google Analytics, pixels). They are loaded only after your consent.",
+    "saveSelection": "Save selection"
+  }
+}
