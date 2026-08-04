@@ -128,6 +128,7 @@ function parseCountryParam(v: string): string[] {
 }
 
 function Dashboard() {
+  const { t } = useTranslation("app");
   const {
     tab,
     sort,
