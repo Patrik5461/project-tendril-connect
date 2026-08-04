@@ -66,8 +66,8 @@ export function isLang(v: string | null | undefined): v is Lang {
   return !!v && (SUPPORTED_LANGS as readonly string[]).includes(v);
 }
 
-export function detectClientLang(): Lang {
-  if (typeof window === "undefined") return DEFAULT_LANG;
+export function detectClientLang(fallback: Lang = DEFAULT_LANG): Lang {
+  if (typeof window === "undefined") return fallback;
   try {
     const stored = window.localStorage.getItem("tendrik-lang");
     if (isLang(stored)) return stored;
@@ -78,7 +78,7 @@ export function detectClientLang(): Lang {
   } catch {
     /* ignore */
   }
-  return DEFAULT_LANG;
+  return fallback;
 }
 
 export function persistLang(lang: Lang) {
