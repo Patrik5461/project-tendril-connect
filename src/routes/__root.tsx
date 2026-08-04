@@ -121,11 +121,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
     ],
   }),
+  loader: async () => {
+    if (typeof window !== "undefined") return { lang: undefined };
+    const { getInitialLang } = await import("@/lib/lang.functions");
+    try {
+      return { lang: await getInitialLang() };
+    } catch {
+      return { lang: undefined };
+    }
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
+
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
