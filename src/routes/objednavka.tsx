@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LegalFooter, PaymentBadges } from "@/components/LegalFooter";
 import { Check, Info } from "lucide-react";
+import { useTranslation, Trans } from "react-i18next";
 
 export const Route = createFileRoute("/objednavka")({
   head: () => ({
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/objednavka")({
 });
 
 function ObjednavkaPage() {
+  const { t } = useTranslation("public");
   const [plan, setPlan] = useState<"trial" | "premium">("premium");
 
   return (
@@ -26,19 +28,19 @@ function ObjednavkaPage() {
             <span className="inline-flex h-8 w-8 items-center justify-center bg-primary text-primary-foreground font-display font-bold">T</span>
             Tendrik
           </Link>
-          <Link to="/" className="eyebrow text-muted-foreground hover:text-foreground">← Späť</Link>
+          <Link to="/" className="eyebrow text-muted-foreground hover:text-foreground">{t("objednavka.backToHome")}</Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-4xl px-4 py-12">
         <div className="eyebrow flex items-center text-foreground">
-          <span className="red-square" aria-hidden="true" /> Objednávka
+          <span className="red-square" aria-hidden="true" /> {t("objednavka.eyebrow")}
         </div>
         <h1 className="mt-4 font-display text-3xl md:text-5xl font-bold tracking-tight">
-          Vyberte si plán
+          {t("objednavka.heading")}
         </h1>
         <p className="mt-3 text-muted-foreground">
-          30 dní zdarma na vyskúšanie, potom 4,99 € / mes (Základ) alebo 14,99 € / mes (Prémium). Konečná cena, bez záväzku.
+          {t("objednavka.subheading")}
         </p>
 
         <div className="mt-8 grid gap-6 md:grid-cols-2">
@@ -49,13 +51,13 @@ function ObjednavkaPage() {
           >
             <div className="flex items-start justify-between">
               <div>
-                <div className="eyebrow">Free trial</div>
-                <div className="mt-1 font-display text-2xl font-bold">30 dní zdarma</div>
+                <div className="eyebrow">{t("objednavka.trialEyebrow")}</div>
+                <div className="mt-1 font-display text-2xl font-bold">{t("objednavka.trialTitle")}</div>
               </div>
               <div className={`h-5 w-5 rounded-full border-2 ${plan === "trial" ? "border-primary bg-primary" : "border-muted-foreground"}`} />
             </div>
-            <p className="mt-2 num text-3xl font-bold">0 €</p>
-            <p className="text-sm text-muted-foreground">Bez platobnej karty. Ideálne na vyskúšanie.</p>
+            <p className="mt-2 num text-3xl font-bold">{t("objednavka.trialPrice")}</p>
+            <p className="text-sm text-muted-foreground">{t("objednavka.trialNote")}</p>
           </button>
 
           <button
@@ -65,13 +67,13 @@ function ObjednavkaPage() {
           >
             <div className="flex items-start justify-between">
               <div>
-                <div className="eyebrow text-primary">Premium</div>
-                <div className="mt-1 font-display text-2xl font-bold">Mesačné predplatné</div>
+                <div className="eyebrow text-primary">{t("objednavka.premiumEyebrow")}</div>
+                <div className="mt-1 font-display text-2xl font-bold">{t("objednavka.premiumTitle")}</div>
               </div>
               <div className={`h-5 w-5 rounded-full border-2 ${plan === "premium" ? "border-primary bg-primary" : "border-muted-foreground"}`} />
             </div>
-            <p className="mt-2 num text-3xl font-bold">14,99 € <span className="text-base font-medium text-muted-foreground">/ mes</span></p>
-            <p className="text-sm text-muted-foreground">Konečná cena (neplatca DPH). Automatické obnovenie každý mesiac.</p>
+            <p className="mt-2 num text-3xl font-bold">14,99 € <span className="text-base font-medium text-muted-foreground">{t("objednavka.premiumPriceSuffix")}</span></p>
+            <p className="text-sm text-muted-foreground">{t("objednavka.premiumNote")}</p>
           </button>
         </div>
 
@@ -79,12 +81,16 @@ function ObjednavkaPage() {
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div className="text-sm">
-              <b className="text-primary">Ide o opakovanú platbu.</b> Po skončení 30-dňového
-              skúšobného obdobia sa z vašej karty automaticky strhne <b>14,99 €</b> každý
-              mesiac. Predplatné môžete kedykoľvek zrušiť v nastaveniach účtu alebo e-mailom na{" "}
-              <a href="mailto:info@tendrik.sk" className="underline">info@tendrik.sk</a>.
-              Podrobnosti nájdete v dokumente{" "}
-              <Link to="/pravne/opakovane-platby" className="underline">Opakované platby</Link>.
+              <b className="text-primary">{t("objednavka.recurringNoticeTitle")}</b>{" "}
+              <Trans
+                i18nKey="objednavka.recurringNoticeText"
+                ns="public"
+                components={{
+                  b: <b />,
+                  mail: <a href="mailto:info@tendrik.sk" className="underline" />,
+                  recurring: <Link to="/pravne/opakovane-platby" className="underline" />,
+                }}
+              />
             </div>
           </div>
         </div>
@@ -92,39 +98,43 @@ function ObjednavkaPage() {
         <div className="mt-8 rounded-lg border border-border bg-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <div className="eyebrow">Súhrn</div>
+              <div className="eyebrow">{t("objednavka.summaryEyebrow")}</div>
               <p className="mt-1 text-sm text-muted-foreground">
-                {plan === "trial" ? "Free trial – 30 dní zdarma" : "Tendrik Premium – mesačné predplatné"}
+                {plan === "trial" ? t("objednavka.summaryTrial") : t("objednavka.summaryPremium")}
               </p>
             </div>
             <p className="num text-2xl font-bold">
-              {plan === "trial" ? "0,00 €" : "14,99 € / mes"}
+              {plan === "trial" ? t("objednavka.summaryTrialPrice") : t("objednavka.summaryPremiumPrice")}
             </p>
           </div>
           {plan === "premium" && (
             <ul className="mt-4 space-y-1 text-sm text-muted-foreground">
-              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Konečná cena: 14,99 € / mesiac</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Dodávateľ nie je platiteľom DPH</li>
-              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />Platba cez GoPay (Visa / Mastercard, 3D&nbsp;Secure)</li>
+              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />{t("objednavka.featureFinalPrice")}</li>
+              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />{t("objednavka.featureNoVat")}</li>
+              <li className="flex gap-2"><Check className="h-4 w-4 text-primary" />{t("objednavka.featureGopay")}</li>
             </ul>
           )}
           <PaymentBadges className="mt-4" />
           <Link to="/auth" search={{ mode: "signup" }} className="mt-6 block">
             <Button className="w-full" size="lg">
-              {plan === "trial" ? "Začať zdarma" : "Pokračovať na platbu"}
+              {plan === "trial" ? t("objednavka.ctaTrial") : t("objednavka.ctaPremium")}
             </Button>
           </Link>
           <p className="mt-3 text-xs text-muted-foreground">
-            Kliknutím súhlasíte s{" "}
-            <Link to="/pravne/obchodne-podmienky" className="underline">obchodnými podmienkami</Link>,{" "}
-            <Link to="/pravne/opakovane-platby" className="underline">podmienkami opakovaných platieb</Link> a{" "}
-            <Link to="/pravne/gdpr" className="underline">spracovaním osobných údajov</Link>.
+            <Trans
+              i18nKey="objednavka.agreementNote"
+              ns="public"
+              components={{
+                terms: <Link to="/pravne/obchodne-podmienky" className="underline" />,
+                recurring: <Link to="/pravne/opakovane-platby" className="underline" />,
+                gdpr: <Link to="/pravne/gdpr" className="underline" />,
+              }}
+            />
           </p>
         </div>
 
         <p className="mt-6 text-xs text-muted-foreground">
-          Predávajúci: <b>Tobify s. r. o.</b>, Športová 707/43, 919 26 Zavar, IČO 56607016
-          (neplatca DPH). Platby spracúva GoPay s. r. o.
+          <Trans i18nKey="objednavka.sellerNote" ns="public" components={{ b: <b /> }} />
         </p>
       </main>
 

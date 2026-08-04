@@ -1,1 +1,352 @@
-{}
+{
+  "nav": {
+    "tenders": "Zákazky",
+    "grants": "Granty",
+    "settings": "Nastavenia",
+    "pricing": "Cenník",
+    "admin": "Admin",
+    "signOut": "Odhlásiť",
+    "brand": "Tendrik"
+  },
+  "mobileNav": {
+    "tenders": "Zákazky",
+    "grants": "Granty",
+    "company": "Firma",
+    "settings": "Nastavenia",
+    "ariaLabel": "Hlavná navigácia"
+  },
+  "common": {
+    "loading": "Načítavam...",
+    "loadingEllipsis": "Načítavam…"
+  },
+  "dashboard": {
+    "title": "Vaše zákazky",
+    "subtitle": "Aktuálne verejné zákazky z TED, ÚVO, EKS a JOSEPHINE podľa vašich radarov.",
+    "noRadar": {
+      "title": "Ešte ste nenastavili radar",
+      "description": "Aby sme vám ukázali relevantné zákazky, potrebujeme vaše kľúčové slová, CPV kategórie a kraje.",
+      "cta": "Nastaviť radar"
+    },
+    "trialBanner": {
+      "label": "Skúšobné obdobie:",
+      "remaining_one": "zostáva {{count}} deň",
+      "remaining_few": "zostáva {{count}} dni",
+      "remaining_many": "zostáva {{count}} dní",
+      "remaining_other": "zostáva {{count}} dní",
+      "endingSoon": " – potom Tendrik prejde na predplatné.",
+      "cta": "Aktivovať predplatné za {{price}}/mes"
+    },
+    "expiredBanner": {
+      "title": "Vaše skúšobné obdobie skončilo.",
+      "text": "Pokračujte za {{price}}/mesiac.",
+      "cta": "Aktivovať predplatné"
+    },
+    "lockedOverlay": {
+      "title": "Skúšobné obdobie skončilo",
+      "description": "Ak chcete ďalej dostávať upozornenia a vidieť denné zákazky, aktivujte si predplatné za {{price}}/mesiac. Bez záväzkov, kedykoľvek zrušíte.",
+      "cta": "Aktivovať predplatné"
+    },
+    "resultsCount": {
+      "none": "Žiadne zákazky pre aktuálne filtre.",
+      "showing": "z {{total}} {{tabWord}} zákaziek"
+    },
+    "tabWord": {
+      "foryou": "aktívnych",
+      "saved": "uložených",
+      "hidden": "skrytých"
+    },
+    "tabs": {
+      "foryou": "Pre vás",
+      "saved": "Uložené",
+      "hidden": "Skryté"
+    },
+    "perPageAriaLabel": "Počet na stránku",
+    "perPageOption": "{{count}} / str.",
+    "view": {
+      "ariaLabel": "Zobrazenie zákaziek",
+      "listAria": "Zobraziť ako zoznam",
+      "listTitle": "Zoznam",
+      "gridAria": "Zobraziť ako mriežku",
+      "gridTitle": "Mriežka"
+    },
+    "filters": {
+      "allRadars": "Všetky radary",
+      "inactiveSuffix": " (vypnutý)",
+      "searchPlaceholder": "Hľadať v zákazkach...",
+      "sourceAriaLabel": "Zdroj",
+      "allSources": "Všetky zdroje"
+    },
+    "sort": {
+      "deadline": "Najbližší deadline",
+      "newest": "Najnovšie",
+      "value": "Najvyššia hodnota",
+      "valueAsc": "Najnižšia hodnota"
+    },
+    "country": {
+      "all": "Všetky krajiny",
+      "count": "{{count}} krajín",
+      "ariaLabel": "Filter krajín",
+      "title": "Krajiny",
+      "clear": "Vymazať výber",
+      "empty": "Žiadne krajiny v aktuálnych výsledkoch",
+      "unknown": "neznáma krajina"
+    },
+    "emptyState": {
+      "noQueryResultsPrefix": "Nič sme nenašli pre",
+      "noQueryResultsSuffix": "– skúste iné slovo.",
+      "savedEmpty": "Zatiaľ nemáte uložené zákazky – kliknite na hviezdičku pri zákazke, ktorá vás zaujme.",
+      "hiddenEmpty": "Nemáte žiadne skryté zákazky.",
+      "forYouTitle": "Váš radar zatiaľ nič nezachytil",
+      "forYouDesc": "Skúste upraviť filtre alebo si pozrite všetky zákazky.",
+      "editFilters": "Upraviť filtre",
+      "showAll": "Zobraziť všetky zákazky"
+    },
+    "card": {
+      "authority": "Obstarávateľ",
+      "deadline": "Deadline",
+      "region": "Región",
+      "value": "Hodnota",
+      "detail": "Detail",
+      "restoreAria": "Obnoviť zákazku",
+      "restoreTitle": "Obnoviť",
+      "saveAria": "Uložiť zákazku",
+      "saveTitle": "Uložiť",
+      "unsaveAria": "Zrušiť uloženie",
+      "unsaveTitle": "Zrušiť uloženie",
+      "hideAria": "Skryť zákazku",
+      "hideTitle": "Skryť",
+      "matchedByRadar": "Zachytené radarom",
+      "cpv": "CPV",
+      "noDeadline": "Neurčené",
+      "none": "—"
+    },
+    "deadlineBadge": {
+      "overdue": "Po termíne",
+      "lastDay": "Posledný deň",
+      "daysLeft_one": "{{count}} deň",
+      "daysLeft_few": "{{count}} dni",
+      "daysLeft_many": "{{count}} dní",
+      "daysLeft_other": "{{count}} dní"
+    },
+    "sourceBadge": {
+      "titleJosephine": "JOSEPHINE (proEBIZ)",
+      "titleEks": "Elektronický kontraktačný systém (EKS)",
+      "titleUvo": "Vestník verejného obstarávania ÚVO",
+      "titleTed": "Tenders Electronic Daily (EÚ)"
+    },
+    "pagination": {
+      "shown": "Zobrazené",
+      "of": "z",
+      "firstAria": "Prvá stránka",
+      "prevAria": "Predchádzajúca stránka",
+      "prevTitle": "Predchádzajúca",
+      "nextAria": "Nasledujúca stránka",
+      "nextTitle": "Nasledujúca",
+      "lastAria": "Posledná stránka",
+      "navAriaLabel": "Stránkovanie",
+      "pageAria": "Stránka {{page}}"
+    }
+  },
+  "granty": {
+    "title": "Granty a dotácie",
+    "subtitle": "Aktuálne grantové výzvy z Programu Slovensko a fondov EÚ (ITMS21+).",
+    "count_one": "otvorená výzva",
+    "count_few": "otvorené výzvy",
+    "count_many": "otvorenej výzvy",
+    "count_other": "otvorených výziev",
+    "countAll_one": "nájdená výzva",
+    "countAll_few": "nájdené výzvy",
+    "countAll_many": "nájdenej výzvy",
+    "countAll_other": "nájdených výziev",
+    "locked": {
+      "badge": "Granty sú súčasťou balíka Komplet",
+      "description": "Monitoring grantových výziev (Program Slovensko, fondy EÚ), radary, notifikácie a AI analýza oprávnenosti sú v balíku Komplet za {{price}} / mes ({{limit}} AI analýz mesačne).",
+      "cta": "Aktivovať Komplet",
+      "compare": "Porovnať plány"
+    },
+    "applicantType": {
+      "label": "Typ žiadateľa",
+      "autoHint": "· predvolené podľa vášho firemného profilu ({{category}})",
+      "businesses": "Podnikatelia",
+      "businessesHint": "s.r.o., a.s., živnostník",
+      "public": "Verejný sektor",
+      "publicHint": "obce, VÚC, ministerstvá",
+      "nonprofits": "Neziskovky a školy",
+      "nonprofitsHint": "n.o., nadácie, združenia",
+      "all": "Všetky",
+      "allHint": "bez ohľadu na žiadateľa",
+      "tip": "Tip: vyplňte si {{link}} a Tendrik vám automaticky predvyberie relevantné výzvy.",
+      "tipLink": "firemný profil"
+    },
+    "filters": {
+      "searchPlaceholder": "Hľadať podľa názvu, kódu alebo poskytovateľa…",
+      "statusPlaceholder": "Stav",
+      "statusOpen": "Otvorené",
+      "statusClosed": "Uzavreté",
+      "statusCancelled": "Zrušené",
+      "statusAll": "Všetky",
+      "typePlaceholder": "Formát výzvy",
+      "typeAll": "Formát: všetky",
+      "typeRolling": "Priebežné (rolling)",
+      "typeOneShot": "One-shot (uzatvárajúce sa)",
+      "programPlaceholder": "Program",
+      "programAll": "Všetky programy",
+      "regionPlaceholder": "Miesto realizácie",
+      "regionAll": "Všetky kraje ({{count}})",
+      "regionSummary": "({{whole}} celoslov. + {{regional}} reg.)",
+      "sortPlaceholder": "Zoradiť",
+      "sortDeadline": "Podľa deadlinu",
+      "sortNewest": "Najnovšie vyhlásené",
+      "sortSumDesc": "Najvyššia suma EÚ",
+      "sortSumAsc": "Najnižšia suma EÚ",
+      "reset": "Vyčistiť filtre"
+    },
+    "list": {
+      "loading": "Načítavam…"
+    },
+    "emptyState": {
+      "allNoMatch": "Žiadne výzvy nezodpovedajú filtrom.",
+      "categoryNoMatch": "Pre kategóriu „{{category}}\" nie sú momentálne otvorené výzvy zodpovedajúce filtrom.",
+      "categoryHint": "Eurofondové výzvy z Programu Slovensko sú z veľkej časti určené verejnému sektoru (ministerstvám, VÚC, obciam a štátnym organizáciám). Skúste rozšíriť výber alebo upraviť ostatné filtre.",
+      "showAll": "Zobraziť všetky výzvy"
+    },
+    "pagination": {
+      "prev": "Predchádzajúca",
+      "next": "Ďalšia",
+      "page": "Strana {{page}} z {{total}}"
+    },
+    "card": {
+      "rolling": "Priebežná",
+      "oneShot": "One-shot",
+      "lastDay": "Posledný deň",
+      "daysLeft": "{{count}} dní",
+      "allocation": "Alokácia EÚ+ŠR",
+      "provider": "Poskytovateľ",
+      "deadline": "Deadline",
+      "rollingCall": "priebežná výzva",
+      "region": "Región",
+      "documents": "Dokumenty",
+      "none": "—"
+    },
+    "regionLabel": {
+      "wholeCountry": "Celé Slovensko",
+      "manyRegions": "{{count}} krajov",
+      "none": "—"
+    }
+  },
+  "tenderDetail": {
+    "meta": {
+      "title": "Detail zákazky – Tendrik"
+    },
+    "loadError": {
+      "title": "Nepodarilo sa načítať zákazku",
+      "retry": "Skúsiť znova"
+    },
+    "notFound": {
+      "title": "Zákazka neexistuje",
+      "description": "Túto zákazku sa nám nepodarilo nájsť.",
+      "back": "Späť na zákazky"
+    },
+    "back": "Späť",
+    "backToTenders": "Späť na zákazky",
+    "overdue": "Po termíne",
+    "lastDay": "Posledný deň",
+    "daysLeft_one": "{{count}} deň",
+    "daysLeft_few": "{{count}} dni",
+    "daysLeft_many": "{{count}} dní",
+    "daysLeft_other": "{{count}} dní",
+    "estimatedValue": "Predpokladaná hodnota",
+    "fields": {
+      "deadline": "Deadline",
+      "deadlineOverdue": "po termíne",
+      "deadlineLastDay": "posledný deň",
+      "deadlineRemaining": "zostáva {{count}} dní",
+      "published": "Zverejnené",
+      "country": "Krajina",
+      "cpv": "CPV",
+      "none": "—",
+      "noDeadline": "Neurčené"
+    },
+    "aiSummary": {
+      "label": "Zhrnutie",
+      "disclaimer": "Vygenerované AI – overte si detaily v oficiálnom zdroji."
+    },
+    "description": "Popis zákazky",
+    "openSource": "Otvoriť oficiálny zdroj",
+    "sourceTitle": {
+      "josephine": "JOSEPHINE (proEBIZ)",
+      "eks": "Elektronický kontraktačný systém (EKS)",
+      "uvo": "Vestník verejného obstarávania ÚVO",
+      "ted": "Tenders Electronic Daily (EÚ)"
+    },
+    "cta": {
+      "badge": "Bezplatná služba",
+      "title": "Zaregistruj sa a dostávaj takéto zákazky e-mailom",
+      "description": "Nastav si kľúčové slová, CPV kategórie a kraje.",
+      "button": "Začať zadarmo"
+    }
+  },
+  "grantDetail": {
+    "meta": {
+      "title": "Detail grantovej výzvy – Tendrik",
+      "description": "Detail grantovej výzvy z ITMS21+ vrátane podmienok, oprávnených výdavkov a AI posúdenia oprávnenosti."
+    },
+    "loadError": {
+      "title": "Nepodarilo sa načítať výzvu",
+      "retry": "Skúsiť znova"
+    },
+    "notFound": {
+      "title": "Výzva neexistuje",
+      "back": "Späť na granty"
+    },
+    "loading": "Načítavam…",
+    "back": "Späť",
+    "backToGrants": "Späť na granty",
+    "rollingCall": "Priebežná výzva",
+    "oneShotCall": "One-shot výzva",
+    "overdue": "Po termíne",
+    "lastDay": "Posledný deň",
+    "daysLeft": "Zostáva {{count}} dní",
+    "stats": {
+      "allocation": "Alokácia (EÚ + ŠR)",
+      "eu": "EÚ",
+      "sr": "ŠR",
+      "deadline": "Deadline",
+      "deadlineOverdue": "po termíne",
+      "deadlineLastDay": "posledný deň",
+      "deadlineRemaining": "zostáva {{count}} dní",
+      "rollingCall": "Priebežná výzva",
+      "announced": "vyhlásená {{date}}",
+      "coFinancing": "Miera spolufinancovania"
+    },
+    "sections": {
+      "whoFor": "Pre koho je výzva",
+      "eligibleApplicant": "Oprávnený žiadateľ",
+      "implementationPlace": "Miesto realizácie",
+      "wholeCountry": "Celé Slovensko",
+      "targetGroup": "Cieľová skupina",
+      "interventionAreas": "Oblasti intervencie",
+      "supportForm": "Forma podpory a zaradenie",
+      "supportFormLabel": "Forma podpory",
+      "regionCategory": "Kategória regiónov",
+      "specificGoal": "Špecifický cieľ",
+      "priority": "Priorita",
+      "coFinancing": "Miera spolufinancovania",
+      "conditions": "Podmienky poskytnutia príspevku",
+      "condition": "Podmienka {{n}}",
+      "attachments": "Prílohy",
+      "eligibleExpensesAndIndicators": "Oprávnené výdavky a indikátory",
+      "eligibleExpenses": "Oprávnené výdavky",
+      "outputIndicators": "Výstupové ukazovatele",
+      "resultIndicators": "Výsledkové ukazovatele",
+      "documents": "Dokumenty ({{count}})",
+      "documentsFull": "Kompletné dokumenty aj s prílohami nájdete v {{link}}.",
+      "contact": "Kontakt"
+    },
+    "document": "Dokument {{n}}",
+    "openInItms": "Otvoriť v ITMS21+",
+    "showLess": "Zobraziť menej",
+    "showMore": "Zobraziť celé",
+    "showMoreCount": "+ ďalších {{count}}"
+  }
+}

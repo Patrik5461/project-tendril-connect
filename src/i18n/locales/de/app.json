@@ -1,1 +1,352 @@
-{}
+{
+  "nav": {
+    "tenders": "Ausschreibungen",
+    "grants": "Förderungen",
+    "settings": "Einstellungen",
+    "pricing": "Preise",
+    "admin": "Admin",
+    "signOut": "Abmelden",
+    "brand": "Tendrik"
+  },
+  "mobileNav": {
+    "tenders": "Ausschreibungen",
+    "grants": "Förderungen",
+    "company": "Unternehmen",
+    "settings": "Einstellungen",
+    "ariaLabel": "Hauptnavigation"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "loadingEllipsis": "Wird geladen…"
+  },
+  "dashboard": {
+    "title": "Ihre Ausschreibungen",
+    "subtitle": "Aktuelle öffentliche Ausschreibungen von TED, ÚVO, EKS und JOSEPHINE gemäß Ihrer Radare.",
+    "noRadar": {
+      "title": "Sie haben noch keinen Radar eingerichtet",
+      "description": "Um Ihnen relevante Ausschreibungen anzuzeigen, benötigen wir Ihre Schlüsselwörter, CPV-Kategorien und Regionen.",
+      "cta": "Radar einrichten"
+    },
+    "trialBanner": {
+      "label": "Testzeitraum:",
+      "remaining_one": "noch {{count}} Tag",
+      "remaining_few": "noch {{count}} Tage",
+      "remaining_many": "noch {{count}} Tage",
+      "remaining_other": "noch {{count}} Tage",
+      "endingSoon": " – danach wechselt Tendrik zu einem Abonnement.",
+      "cta": "Abonnement für {{price}}/Monat aktivieren"
+    },
+    "expiredBanner": {
+      "title": "Ihr Testzeitraum ist abgelaufen.",
+      "text": "Fahren Sie für {{price}}/Monat fort.",
+      "cta": "Abonnement aktivieren"
+    },
+    "lockedOverlay": {
+      "title": "Testzeitraum abgelaufen",
+      "description": "Um weiterhin Benachrichtigungen zu erhalten und tägliche Ausschreibungen zu sehen, aktivieren Sie Ihr Abonnement für {{price}}/Monat. Unverbindlich, jederzeit kündbar.",
+      "cta": "Abonnement aktivieren"
+    },
+    "resultsCount": {
+      "none": "Keine Ausschreibungen für die aktuellen Filter.",
+      "showing": "von {{total}} {{tabWord}} Ausschreibungen"
+    },
+    "tabWord": {
+      "foryou": "aktiven",
+      "saved": "gespeicherten",
+      "hidden": "ausgeblendeten"
+    },
+    "tabs": {
+      "foryou": "Für Sie",
+      "saved": "Gespeichert",
+      "hidden": "Ausgeblendet"
+    },
+    "perPageAriaLabel": "Einträge pro Seite",
+    "perPageOption": "{{count}} / Seite",
+    "view": {
+      "ariaLabel": "Anzeige der Ausschreibungen",
+      "listAria": "Als Liste anzeigen",
+      "listTitle": "Liste",
+      "gridAria": "Als Raster anzeigen",
+      "gridTitle": "Raster"
+    },
+    "filters": {
+      "allRadars": "Alle Radare",
+      "inactiveSuffix": " (inaktiv)",
+      "searchPlaceholder": "Ausschreibungen durchsuchen...",
+      "sourceAriaLabel": "Quelle",
+      "allSources": "Alle Quellen"
+    },
+    "sort": {
+      "deadline": "Nächste Frist",
+      "newest": "Neueste",
+      "value": "Höchster Wert",
+      "valueAsc": "Niedrigster Wert"
+    },
+    "country": {
+      "all": "Alle Länder",
+      "count": "{{count}} Länder",
+      "ariaLabel": "Länderfilter",
+      "title": "Länder",
+      "clear": "Auswahl löschen",
+      "empty": "Keine Länder in den aktuellen Ergebnissen",
+      "unknown": "unbekanntes Land"
+    },
+    "emptyState": {
+      "noQueryResultsPrefix": "Wir haben nichts gefunden für",
+      "noQueryResultsSuffix": "– versuchen Sie ein anderes Wort.",
+      "savedEmpty": "Sie haben noch keine Ausschreibungen gespeichert – klicken Sie auf den Stern bei einer interessanten Ausschreibung.",
+      "hiddenEmpty": "Sie haben keine ausgeblendeten Ausschreibungen.",
+      "forYouTitle": "Ihr Radar hat noch nichts erfasst",
+      "forYouDesc": "Passen Sie die Filter an oder sehen Sie sich alle Ausschreibungen an.",
+      "editFilters": "Filter bearbeiten",
+      "showAll": "Alle Ausschreibungen anzeigen"
+    },
+    "card": {
+      "authority": "Auftraggeber",
+      "deadline": "Frist",
+      "region": "Region",
+      "value": "Wert",
+      "detail": "Details",
+      "restoreAria": "Ausschreibung wiederherstellen",
+      "restoreTitle": "Wiederherstellen",
+      "saveAria": "Ausschreibung speichern",
+      "saveTitle": "Speichern",
+      "unsaveAria": "Speicherung aufheben",
+      "unsaveTitle": "Speicherung aufheben",
+      "hideAria": "Ausschreibung ausblenden",
+      "hideTitle": "Ausblenden",
+      "matchedByRadar": "Vom Radar erfasst",
+      "cpv": "CPV",
+      "noDeadline": "Nicht angegeben",
+      "none": "—"
+    },
+    "deadlineBadge": {
+      "overdue": "Frist abgelaufen",
+      "lastDay": "Letzter Tag",
+      "daysLeft_one": "{{count}} Tag",
+      "daysLeft_few": "{{count}} Tage",
+      "daysLeft_many": "{{count}} Tage",
+      "daysLeft_other": "{{count}} Tage"
+    },
+    "sourceBadge": {
+      "titleJosephine": "JOSEPHINE (proEBIZ)",
+      "titleEks": "Elektronisches Vertragssystem (EKS)",
+      "titleUvo": "ÚVO-Amtsblatt für öffentliche Aufträge",
+      "titleTed": "Tenders Electronic Daily (EU)"
+    },
+    "pagination": {
+      "shown": "Angezeigt",
+      "of": "von",
+      "firstAria": "Erste Seite",
+      "prevAria": "Vorherige Seite",
+      "prevTitle": "Zurück",
+      "nextAria": "Nächste Seite",
+      "nextTitle": "Weiter",
+      "lastAria": "Letzte Seite",
+      "navAriaLabel": "Seitennummerierung",
+      "pageAria": "Seite {{page}}"
+    }
+  },
+  "granty": {
+    "title": "Förderungen und Zuschüsse",
+    "subtitle": "Aktuelle Förderaufrufe aus dem Programm Slovensko und EU-Fonds (ITMS21+).",
+    "count_one": "offener Aufruf",
+    "count_few": "offene Aufrufe",
+    "count_many": "offene Aufrufe",
+    "count_other": "offene Aufrufe",
+    "countAll_one": "gefundener Aufruf",
+    "countAll_few": "gefundene Aufrufe",
+    "countAll_many": "gefundene Aufrufe",
+    "countAll_other": "gefundene Aufrufe",
+    "locked": {
+      "badge": "Förderungen sind Teil des Komplet-Pakets",
+      "description": "Die Überwachung von Förderaufrufen (Programm Slovensko, EU-Fonds), Radare, Benachrichtigungen und KI-Förderfähigkeitsanalyse sind im Komplet-Paket für {{price}} / Monat enthalten ({{limit}} KI-Analysen pro Monat).",
+      "cta": "Komplet aktivieren",
+      "compare": "Pläne vergleichen"
+    },
+    "applicantType": {
+      "label": "Antragstellertyp",
+      "autoHint": "· voreingestellt basierend auf Ihrem Unternehmensprofil ({{category}})",
+      "businesses": "Unternehmer",
+      "businessesHint": "GmbH, AG, Einzelunternehmer",
+      "public": "Öffentlicher Sektor",
+      "publicHint": "Gemeinden, Regionen, Ministerien",
+      "nonprofits": "Non-Profit-Organisationen und Schulen",
+      "nonprofitsHint": "gemeinnützige Org., Stiftungen, Vereine",
+      "all": "Alle",
+      "allHint": "unabhängig vom Antragsteller",
+      "tip": "Tipp: Füllen Sie Ihr {{link}} aus und Tendrik wählt automatisch relevante Aufrufe für Sie vor.",
+      "tipLink": "Unternehmensprofil"
+    },
+    "filters": {
+      "searchPlaceholder": "Suche nach Name, Code oder Anbieter…",
+      "statusPlaceholder": "Status",
+      "statusOpen": "Offen",
+      "statusClosed": "Geschlossen",
+      "statusCancelled": "Storniert",
+      "statusAll": "Alle",
+      "typePlaceholder": "Aufrufformat",
+      "typeAll": "Format: alle",
+      "typeRolling": "Laufend (rollierend)",
+      "typeOneShot": "Einmalig (mit Enddatum)",
+      "programPlaceholder": "Programm",
+      "programAll": "Alle Programme",
+      "regionPlaceholder": "Umsetzungsort",
+      "regionAll": "Alle Regionen ({{count}})",
+      "regionSummary": "({{whole}} landesweit + {{regional}} regional)",
+      "sortPlaceholder": "Sortieren",
+      "sortDeadline": "Nach Frist",
+      "sortNewest": "Zuletzt veröffentlicht",
+      "sortSumDesc": "Höchster EU-Betrag",
+      "sortSumAsc": "Niedrigster EU-Betrag",
+      "reset": "Filter zurücksetzen"
+    },
+    "list": {
+      "loading": "Wird geladen…"
+    },
+    "emptyState": {
+      "allNoMatch": "Keine Aufrufe entsprechen den Filtern.",
+      "categoryNoMatch": "Für die Kategorie „{{category}}\" gibt es derzeit keine offenen Aufrufe, die den Filtern entsprechen.",
+      "categoryHint": "EU-Fonds-Aufrufe aus dem Programm Slovensko richten sich größtenteils an den öffentlichen Sektor (Ministerien, Regionen, Gemeinden und staatliche Organisationen). Erweitern Sie die Auswahl oder passen Sie andere Filter an.",
+      "showAll": "Alle Aufrufe anzeigen"
+    },
+    "pagination": {
+      "prev": "Zurück",
+      "next": "Weiter",
+      "page": "Seite {{page}} von {{total}}"
+    },
+    "card": {
+      "rolling": "Laufend",
+      "oneShot": "Einmalig",
+      "lastDay": "Letzter Tag",
+      "daysLeft": "{{count}} Tage",
+      "allocation": "Zuteilung EU+SR",
+      "provider": "Anbieter",
+      "deadline": "Frist",
+      "rollingCall": "laufender Aufruf",
+      "region": "Region",
+      "documents": "Dokumente",
+      "none": "—"
+    },
+    "regionLabel": {
+      "wholeCountry": "Ganz Slowakei",
+      "manyRegions": "{{count}} Regionen",
+      "none": "—"
+    }
+  },
+  "tenderDetail": {
+    "meta": {
+      "title": "Ausschreibungsdetails – Tendrik"
+    },
+    "loadError": {
+      "title": "Die Ausschreibung konnte nicht geladen werden",
+      "retry": "Erneut versuchen"
+    },
+    "notFound": {
+      "title": "Die Ausschreibung existiert nicht",
+      "description": "Diese Ausschreibung konnten wir nicht finden.",
+      "back": "Zurück zu den Ausschreibungen"
+    },
+    "back": "Zurück",
+    "backToTenders": "Zurück zu den Ausschreibungen",
+    "overdue": "Frist abgelaufen",
+    "lastDay": "Letzter Tag",
+    "daysLeft_one": "{{count}} Tag",
+    "daysLeft_few": "{{count}} Tage",
+    "daysLeft_many": "{{count}} Tage",
+    "daysLeft_other": "{{count}} Tage",
+    "estimatedValue": "Geschätzter Wert",
+    "fields": {
+      "deadline": "Frist",
+      "deadlineOverdue": "nach Ablauf",
+      "deadlineLastDay": "letzter Tag",
+      "deadlineRemaining": "noch {{count}} Tage",
+      "published": "Veröffentlicht",
+      "country": "Land",
+      "cpv": "CPV",
+      "none": "—",
+      "noDeadline": "Nicht angegeben"
+    },
+    "aiSummary": {
+      "label": "Zusammenfassung",
+      "disclaimer": "Von KI generiert – überprüfen Sie die Details in der offiziellen Quelle."
+    },
+    "description": "Ausschreibungsbeschreibung",
+    "openSource": "Offizielle Quelle öffnen",
+    "sourceTitle": {
+      "josephine": "JOSEPHINE (proEBIZ)",
+      "eks": "Elektronisches Vertragssystem (EKS)",
+      "uvo": "ÚVO-Amtsblatt für öffentliche Aufträge",
+      "ted": "Tenders Electronic Daily (EU)"
+    },
+    "cta": {
+      "badge": "Kostenloser Service",
+      "title": "Registrieren Sie sich und erhalten Sie solche Ausschreibungen per E-Mail",
+      "description": "Legen Sie Ihre Schlüsselwörter, CPV-Kategorien und Regionen fest.",
+      "button": "Kostenlos starten"
+    }
+  },
+  "grantDetail": {
+    "meta": {
+      "title": "Förderaufruf-Details – Tendrik",
+      "description": "Förderaufruf-Details aus ITMS21+ einschließlich Bedingungen, förderfähiger Ausgaben und KI-Förderfähigkeitsbewertung."
+    },
+    "loadError": {
+      "title": "Der Aufruf konnte nicht geladen werden",
+      "retry": "Erneut versuchen"
+    },
+    "notFound": {
+      "title": "Der Aufruf existiert nicht",
+      "back": "Zurück zu den Förderungen"
+    },
+    "loading": "Wird geladen…",
+    "back": "Zurück",
+    "backToGrants": "Zurück zu den Förderungen",
+    "rollingCall": "Laufender Aufruf",
+    "oneShotCall": "Einmaliger Aufruf",
+    "overdue": "Frist abgelaufen",
+    "lastDay": "Letzter Tag",
+    "daysLeft": "noch {{count}} Tage",
+    "stats": {
+      "allocation": "Zuteilung (EU + SR)",
+      "eu": "EU",
+      "sr": "SR",
+      "deadline": "Frist",
+      "deadlineOverdue": "nach Ablauf",
+      "deadlineLastDay": "letzter Tag",
+      "deadlineRemaining": "noch {{count}} Tage",
+      "rollingCall": "Laufender Aufruf",
+      "announced": "veröffentlicht am {{date}}",
+      "coFinancing": "Kofinanzierungssatz"
+    },
+    "sections": {
+      "whoFor": "Für wen ist der Aufruf",
+      "eligibleApplicant": "Förderfähiger Antragsteller",
+      "implementationPlace": "Umsetzungsort",
+      "wholeCountry": "Ganz Slowakei",
+      "targetGroup": "Zielgruppe",
+      "interventionAreas": "Interventionsbereiche",
+      "supportForm": "Förderform und Einordnung",
+      "supportFormLabel": "Förderform",
+      "regionCategory": "Regionenkategorie",
+      "specificGoal": "Spezifisches Ziel",
+      "priority": "Priorität",
+      "coFinancing": "Kofinanzierungssatz",
+      "conditions": "Bedingungen für die Gewährung des Zuschusses",
+      "condition": "Bedingung {{n}}",
+      "attachments": "Anhänge",
+      "eligibleExpensesAndIndicators": "Förderfähige Ausgaben und Indikatoren",
+      "eligibleExpenses": "Förderfähige Ausgaben",
+      "outputIndicators": "Outputindikatoren",
+      "resultIndicators": "Ergebnisindikatoren",
+      "documents": "Dokumente ({{count}})",
+      "documentsFull": "Vollständige Dokumente inklusive Anhängen finden Sie in {{link}}.",
+      "contact": "Kontakt"
+    },
+    "document": "Dokument {{n}}",
+    "openInItms": "In ITMS21+ öffnen",
+    "showLess": "Weniger anzeigen",
+    "showMore": "Vollständig anzeigen",
+    "showMoreCount": "+ {{count}} weitere"
+  }
+}
