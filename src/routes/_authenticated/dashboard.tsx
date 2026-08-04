@@ -1388,7 +1388,7 @@ function TenderGridCard({
           <span className="truncate">
             {tender.country && tender.country !== "SK"
               ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}`
-              : (tender.region ?? "—")}
+              : (tender.region ?? t("dashboard.card.none"))}
           </span>
         </div>
       </div>
@@ -1460,14 +1460,15 @@ function CountryFilter({
   selected: string[];
   onChange: (codes: string[]) => void;
 }) {
+  const { t } = useTranslation("app");
   const [open, setOpen] = useState(false);
   const selectedSet = new Set(selected);
   const label =
     selected.length === 0
-      ? "Všetky krajiny"
+      ? t("dashboard.country.all")
       : selected.length === 1
         ? `${flagEmoji(selected[0])} ${countryName(selected[0]) ?? selected[0]}`
-        : `${selected.length} krajín`;
+        : t("dashboard.country.count", { count: selected.length });
 
   function toggle(code: string) {
     const next = new Set(selectedSet);
@@ -1483,7 +1484,7 @@ function CountryFilter({
           variant="outline"
           size="default"
           className="w-full justify-between h-9 font-normal"
-          aria-label="Filter krajín"
+          aria-label={t("dashboard.country.ariaLabel")}
         >
           <span className="flex items-center gap-2 truncate">
             <Globe className="h-4 w-4 shrink-0" />
@@ -1493,21 +1494,21 @@ function CountryFilter({
       </PopoverTrigger>
       <PopoverContent className="w-72 p-0" align="end">
         <div className="flex items-center justify-between p-3 border-b">
-          <span className="text-sm font-medium">Krajiny</span>
+          <span className="text-sm font-medium">{t("dashboard.country.title")}</span>
           {selected.length > 0 && (
             <button
               type="button"
               onClick={() => onChange([])}
               className="text-xs text-muted-foreground hover:text-foreground"
             >
-              Vymazať výber
+              {t("dashboard.country.clear")}
             </button>
           )}
         </div>
         <div className="max-h-80 overflow-y-auto p-1">
           {facets.length === 0 ? (
             <div className="px-3 py-6 text-center text-sm text-muted-foreground">
-              Žiadne krajiny v aktuálnych výsledkoch
+              {t("dashboard.country.empty")}
             </div>
           ) : (
             facets.map((f) => (
