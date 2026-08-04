@@ -81,6 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "google-site-verification", content: "IvZRHK1kYPlVHJUjpFyrslOTyhE5VmShJBp3wy8McQI" },
       { title: "Tendrik – Zákazky si ťa nájdu samy" },
       {
         name: "description",
