@@ -1199,7 +1199,7 @@ function TenderCard({
         <div className="min-w-0 flex items-end">
           <Link to="/zakazka/$id" params={{ id: tender.id }}>
             <Button size="sm" variant="outline">
-              Detail
+              {t("dashboard.card.detail")}
             </Button>
           </Link>
         </div>
@@ -1339,6 +1339,7 @@ function TenderGridCard({
   onToggle: (id: string, action: Action) => void;
   radarLabels?: string[];
 }) {
+  const { t } = useTranslation("app");
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
   const expired = daysLeft !== null && daysLeft < 0;
@@ -1399,7 +1400,7 @@ function TenderGridCard({
       <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-2">
         <Link to="/zakazka/$id" params={{ id: tender.id }}>
           <Button size="sm" variant="outline">
-            Detail
+            {t("dashboard.card.detail")}
           </Button>
         </Link>
         <div className="flex items-center gap-1">
