@@ -153,10 +153,12 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { lang } = Route.useLoaderData();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <I18nProvider>
+      <I18nProvider initialLang={lang}>
+
         <Outlet />
         <Toaster richColors position="top-right" />
         <CookieBanner />
