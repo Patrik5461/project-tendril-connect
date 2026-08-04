@@ -1216,11 +1216,12 @@ function DeadlineBadge({
   daysLeft: number | null;
   expired: boolean;
 }) {
+  const { t } = useTranslation("app");
   if (daysLeft === null) return null;
   if (expired) {
     return (
       <span className="eyebrow inline-flex items-center border border-border bg-secondary px-2 py-0.5 text-muted-foreground">
-        Po termíne
+        {t("dashboard.deadlineBadge.overdue")}
       </span>
     );
   }
@@ -1229,7 +1230,7 @@ function DeadlineBadge({
     ? "border border-primary bg-primary text-primary-foreground"
     : "border border-foreground bg-transparent text-foreground";
   const label =
-    daysLeft === 0 ? "Posledný deň" : `${daysLeft} ${daysLeft === 1 ? "deň" : daysLeft < 5 ? "dni" : "dní"}`;
+    daysLeft === 0 ? t("dashboard.deadlineBadge.lastDay") : t("dashboard.deadlineBadge.daysLeft", { count: daysLeft });
   return (
     <span className={`eyebrow inline-flex items-center rounded-sm px-2 py-0.5 ${cls}`}>
       {label}
@@ -1238,6 +1239,7 @@ function DeadlineBadge({
 }
 
 function SourceBadge({ source }: { source: string }) {
+  const { t } = useTranslation("app");
   const isUvo = source === "UVO";
   const isEks = source === "EKS";
   const isJos = source === "JOSEPHINE";
@@ -1250,12 +1252,12 @@ function SourceBadge({ source }: { source: string }) {
         ? "border border-primary text-primary"
         : "border border-accent text-accent";
   const title = isJos
-    ? "JOSEPHINE (proEBIZ)"
+    ? t("dashboard.sourceBadge.titleJosephine")
     : isEks
-      ? "Elektronický kontraktačný systém (EKS)"
+      ? t("dashboard.sourceBadge.titleEks")
       : isUvo
-        ? "Vestník verejného obstarávania ÚVO"
-        : "Tenders Electronic Daily (EÚ)";
+        ? t("dashboard.sourceBadge.titleUvo")
+        : t("dashboard.sourceBadge.titleTed");
   return (
     <span
       className={`eyebrow inline-flex items-center rounded-sm bg-transparent px-2 py-0.5 ${cls}`}
@@ -1278,13 +1280,14 @@ function ViewToggle({
   const active = "border-foreground text-foreground bg-secondary";
   const inactive =
     "border-border text-muted-foreground hover:text-foreground hover:border-foreground";
+  const { t } = useTranslation("app");
   return (
-    <div className="flex" role="group" aria-label="Zobrazenie zákaziek">
+    <div className="flex" role="group" aria-label={t("dashboard.view.ariaLabel")}>
       <button
         type="button"
-        aria-label="Zobraziť ako zoznam"
+        aria-label={t("dashboard.view.listAria")}
         aria-pressed={view === "list"}
-        title="Zoznam"
+        title={t("dashboard.view.listTitle")}
         onClick={() => onChange("list")}
         className={`${base} ${view === "list" ? active : inactive} relative`}
       >
@@ -1298,9 +1301,9 @@ function ViewToggle({
       </button>
       <button
         type="button"
-        aria-label="Zobraziť ako mriežku"
+        aria-label={t("dashboard.view.gridAria")}
         aria-pressed={view === "grid"}
-        title="Mriežka"
+        title={t("dashboard.view.gridTitle")}
         onClick={() => onChange("grid")}
         className={`${base} ${view === "grid" ? active : inactive} relative -ml-px`}
       >
