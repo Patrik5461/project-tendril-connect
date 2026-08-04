@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation, Trans } from "react-i18next";
 import { LegalPage } from "@/components/LegalPage";
 
 export const Route = createFileRoute("/pravne/reklamacny-poriadok")({
@@ -13,68 +14,72 @@ export const Route = createFileRoute("/pravne/reklamacny-poriadok")({
 });
 
 function Page() {
+  const { t } = useTranslation("legal");
   return (
-    <LegalPage
-      title="Reklamačný poriadok"
-      intro="Postup pri uplatnení reklamácie služby Tendrik.sk (SaaS platforma monitoringu verejného obstarávania)."
-    >
+    <LegalPage title={t("complaints.title")} intro={t("complaints.intro")}>
       <section>
-        <h2>1. Prevádzkovateľ</h2>
+        <h2>{t("complaints.s1.heading")}</h2>
         <p>
-          <b>Tobify s. r. o.</b>, Športová 707/43, 919 26 Zavar, IČO: 56607016,{" "}
-          <a href="mailto:info@tendrik.sk">info@tendrik.sk</a>,{" "}
-          <a href="tel:+421907702422">+421 907 702 422</a>.
+          <Trans
+            t={t}
+            i18nKey="complaints.s1.text"
+            components={[<b />, <a href="mailto:info@tendrik.sk" />, <a href="tel:+421907702422" />]}
+          />
         </p>
       </section>
 
       <section>
-        <h2>2. Predmet reklamácie</h2>
-        <p>Reklamovať možno najmä:</p>
+        <h2>{t("complaints.s2.heading")}</h2>
+        <p>{t("complaints.s2.intro")}</p>
         <ul>
-          <li>nedostupnosť Služby dlhšiu než 24 hodín zavinenú Prevádzkovateľom,</li>
-          <li>nefunkčnosť platených funkcií,</li>
-          <li>chybne vyúčtovanú platbu,</li>
-          <li>nezaslanie objednaných e-mailových notifikácií.</li>
+          <li>{t("complaints.s2.item1")}</li>
+          <li>{t("complaints.s2.item2")}</li>
+          <li>{t("complaints.s2.item3")}</li>
+          <li>{t("complaints.s2.item4")}</li>
         </ul>
       </section>
 
       <section>
-        <h2>3. Ako reklamáciu podať</h2>
-        <p>Reklamáciu môžete uplatniť:</p>
+        <h2>{t("complaints.s3.heading")}</h2>
+        <p>{t("complaints.s3.intro")}</p>
         <ul>
-          <li><b>E-mailom:</b> <a href="mailto:info@tendrik.sk">info@tendrik.sk</a> (odporúčame),</li>
-          <li><b>Poštou:</b> Tobify s. r. o., Športová 707/43, 919 26 Zavar,</li>
-          <li><b>Telefonicky:</b> <a href="tel:+421907702422">+421 907 702 422</a> (následne potvrďte e-mailom).</li>
+          <li><Trans t={t} i18nKey="complaints.s3.email" components={[<b />, <a href="mailto:info@tendrik.sk" />]} /></li>
+          <li><Trans t={t} i18nKey="complaints.s3.post" components={[<b />]} /></li>
+          <li><Trans t={t} i18nKey="complaints.s3.phone" components={[<b />, <a href="tel:+421907702422" />]} /></li>
         </ul>
-        <p>V reklamácii uveďte: registračný e-mail, popis vady, dátum vzniku, prípadne screenshoty.</p>
+        <p>{t("complaints.s3.note")}</p>
       </section>
 
       <section>
-        <h2>4. Lehoty</h2>
+        <h2>{t("complaints.s4.heading")}</h2>
         <ul>
-          <li>Prijatie reklamácie potvrdíme do <b>3 pracovných dní</b>.</li>
-          <li>Reklamáciu vybavíme najneskôr do <b>30 dní</b> od jej doručenia.</li>
-          <li>O výsledku informujeme e-mailom.</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>5. Spôsoby vybavenia</h2>
-        <ul>
-          <li>odstránenie vady,</li>
-          <li>predĺženie predplatného o čas nedostupnosti,</li>
-          <li>vrátenie alikvotnej časti ceny,</li>
-          <li>odôvodnené zamietnutie reklamácie.</li>
+          <li><Trans t={t} i18nKey="complaints.s4.confirm" components={[<b />]} /></li>
+          <li><Trans t={t} i18nKey="complaints.s4.resolve" components={[<b />]} /></li>
+          <li>{t("complaints.s4.notify")}</li>
         </ul>
       </section>
 
       <section>
-        <h2>6. Alternatívne riešenie sporov</h2>
+        <h2>{t("complaints.s5.heading")}</h2>
+        <ul>
+          <li>{t("complaints.s5.item1")}</li>
+          <li>{t("complaints.s5.item2")}</li>
+          <li>{t("complaints.s5.item3")}</li>
+          <li>{t("complaints.s5.item4")}</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>{t("complaints.s6.heading")}</h2>
         <p>
-          Ak nesúhlasíte s vybavením reklamácie, môžete sa obrátiť na Slovenskú obchodnú
-          inšpekciu (<a href="https://www.soi.sk" target="_blank" rel="noreferrer">soi.sk</a>)
-          alebo na platformu ODR:{" "}
-          <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noreferrer">ec.europa.eu/consumers/odr</a>.
+          <Trans
+            t={t}
+            i18nKey="complaints.s6.text"
+            components={[
+              <a href="https://www.soi.sk" target="_blank" rel="noreferrer" />,
+              <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noreferrer" />,
+            ]}
+          />
         </p>
       </section>
     </LegalPage>
