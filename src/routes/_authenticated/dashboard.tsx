@@ -972,7 +972,7 @@ function LockedOverlay() {
         </p>
         <WebOnlyPurchase className="mt-6 block">
           <Link to="/predplatne" className="mt-6 inline-block">
-            <Button size="lg">Aktivovať predplatné</Button>
+            <Button size="lg">{t("dashboard.lockedOverlay.cta")}</Button>
           </Link>
         </WebOnlyPurchase>
 
