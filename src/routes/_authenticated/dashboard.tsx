@@ -1064,6 +1064,7 @@ function TenderCard({
   onToggle: (id: string, action: Action) => void;
   radarLabels?: string[];
 }) {
+  const { t } = useTranslation("app");
   const deadlineDate = tender.deadline ? parseISO(tender.deadline) : null;
   const daysLeft = deadlineDate ? differenceInDays(deadlineDate, new Date()) : null;
   const expired = daysLeft !== null && daysLeft < 0;
@@ -1094,7 +1095,7 @@ function TenderCard({
             <span
               key={n}
               className="eyebrow inline-flex items-center gap-1 border border-primary/40 text-primary px-2 py-0.5"
-              title="Zachytené radarom"
+              title={t("dashboard.card.matchedByRadar")}
             >
               <Radar className="h-3 w-3" /> {n}
             </span>
@@ -1104,7 +1105,7 @@ function TenderCard({
         <div className="flex items-start gap-4">
           {tender.estimated_value != null && (
             <div className="text-right">
-              <div className="eyebrow text-muted-foreground">Hodnota</div>
+              <div className="eyebrow text-muted-foreground">{t("dashboard.card.value")}</div>
               <div className="num font-bold text-primary text-lg leading-tight">
                 {new Intl.NumberFormat("sk-SK", { maximumFractionDigits: 0 })
                   .format(Number(tender.estimated_value))
@@ -1117,8 +1118,8 @@ function TenderCard({
             {tab === "hidden" ? (
               <button
                 type="button"
-                aria-label="Obnoviť zákazku"
-                title="Obnoviť"
+                aria-label={t("dashboard.card.restoreAria")}
+                title={t("dashboard.card.restoreTitle")}
                 onClick={() => onToggle(tender.id, "hidden")}
                 className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -1128,8 +1129,8 @@ function TenderCard({
               <>
                 <button
                   type="button"
-                  aria-label={saved ? "Zrušiť uloženie" : "Uložiť zákazku"}
-                  title={saved ? "Zrušiť uloženie" : "Uložiť"}
+                  aria-label={saved ? t("dashboard.card.unsaveAria") : t("dashboard.card.saveAria")}
+                  title={saved ? t("dashboard.card.unsaveTitle") : t("dashboard.card.saveTitle")}
                   onClick={() => onToggle(tender.id, "saved")}
                   className="p-1.5 hover:bg-secondary transition-colors"
                 >
@@ -1141,8 +1142,8 @@ function TenderCard({
                 </button>
                 <button
                   type="button"
-                  aria-label="Skryť zákazku"
-                  title="Skryť"
+                  aria-label={t("dashboard.card.hideAria")}
+                  title={t("dashboard.card.hideTitle")}
                   onClick={() => onToggle(tender.id, "hidden")}
                   className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -1173,26 +1174,26 @@ function TenderCard({
       <dl className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm">
         <div className="min-w-0">
           <dt className="text-xs text-muted-foreground flex items-center gap-1">
-            <Building2 className="h-3 w-3" /> Obstarávateľ
+            <Building2 className="h-3 w-3" /> {t("dashboard.card.authority")}
           </dt>
-          <dd className="mt-0.5 line-clamp-2">{tender.contracting_authority ?? "—"}</dd>
+          <dd className="mt-0.5 line-clamp-2">{tender.contracting_authority ?? t("dashboard.card.none")}</dd>
         </div>
         <div className="min-w-0">
           <dt className="text-xs text-muted-foreground flex items-center gap-1">
-            <Calendar className="h-3 w-3" /> Deadline
+            <Calendar className="h-3 w-3" /> {t("dashboard.card.deadline")}
           </dt>
           <dd className="mt-0.5 num">
-            {deadlineDate ? format(deadlineDate, "d.M.yyyy") : "Neurčené"}
+            {deadlineDate ? format(deadlineDate, "d.M.yyyy") : t("dashboard.card.noDeadline")}
           </dd>
         </div>
         <div className="min-w-0">
           <dt className="text-xs text-muted-foreground flex items-center gap-1">
-            <MapPin className="h-3 w-3" /> Región
+            <MapPin className="h-3 w-3" /> {t("dashboard.card.region")}
           </dt>
           <dd className="mt-0.5 text-xs">
             {tender.country && tender.country !== "SK"
               ? `${flagEmoji(tender.country)} ${tender.country_name ?? countryName(tender.country)}`
-              : (tender.region ?? "—")}
+              : (tender.region ?? t("dashboard.card.none"))}
           </dd>
         </div>
         <div className="min-w-0 flex items-end">
@@ -1355,7 +1356,7 @@ function TenderGridCard({
           <span
             key={n}
             className="inline-flex items-center gap-1 rounded-sm border border-primary/40 text-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
-            title="Zachytené radarom"
+            title={t("dashboard.card.matchedByRadar")}
           >
             <Radar className="h-3 w-3" /> {n}
           </span>
@@ -1389,7 +1390,7 @@ function TenderGridCard({
       </div>
       {tender.estimated_value != null && (
         <div className="mt-4 pt-3 border-t border-border">
-          <div className="eyebrow text-muted-foreground">Hodnota</div>
+          <div className="eyebrow text-muted-foreground">{t("dashboard.card.value")}</div>
           <div className="num text-lg font-semibold text-foreground">
             {formatEur(Number(tender.estimated_value))}
           </div>
@@ -1405,8 +1406,8 @@ function TenderGridCard({
           {tab === "hidden" ? (
             <button
               type="button"
-              aria-label="Obnoviť zákazku"
-              title="Obnoviť"
+              aria-label={t("dashboard.card.restoreAria")}
+              title={t("dashboard.card.restoreTitle")}
               onClick={() => onToggle(tender.id, "hidden")}
               className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -1416,8 +1417,8 @@ function TenderGridCard({
             <>
               <button
                 type="button"
-                aria-label={saved ? "Zrušiť uloženie" : "Uložiť zákazku"}
-                title={saved ? "Zrušiť uloženie" : "Uložiť"}
+                aria-label={saved ? t("dashboard.card.unsaveAria") : t("dashboard.card.saveAria")}
+                title={saved ? t("dashboard.card.unsaveTitle") : t("dashboard.card.saveTitle")}
                 onClick={() => onToggle(tender.id, "saved")}
                 className="p-1.5 hover:bg-secondary transition-colors"
               >
@@ -1429,8 +1430,8 @@ function TenderGridCard({
               </button>
               <button
                 type="button"
-                aria-label="Skryť zákazku"
-                title="Skryť"
+                aria-label={t("dashboard.card.hideAria")}
+                title={t("dashboard.card.hideTitle")}
                 onClick={() => onToggle(tender.id, "hidden")}
                 className="p-1.5 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
               >

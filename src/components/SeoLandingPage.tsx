@@ -78,7 +78,7 @@ export function SeoLandingPage({ page, tenders }: { page: SeoPageRow; tenders: S
             <Bell className="h-4 w-4 text-primary" /> {t("seoLanding.ctaTitle")}
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            t("seoLanding.ctaText")
+            {t("seoLanding.ctaText")}
           </p>
         </div>
         <Link to="/auth" search={{ mode: "signup" }}>
@@ -95,29 +95,29 @@ export function SeoLandingPage({ page, tenders }: { page: SeoPageRow; tenders: S
           </div>
         ) : (
           <ul className="divide-y border">
-            {tenders.map((t) => (
-              <li key={t.id} className="p-4 hover:bg-muted/40">
-                <Link to="/zakazka/$id" params={{ id: t.id }} className="block">
+            {tenders.map((tender) => (
+              <li key={tender.id} className="p-4 hover:bg-muted/40">
+                <Link to="/zakazka/$id" params={{ id: tender.id }} className="block">
                   <div className="font-medium text-foreground hover:text-primary line-clamp-2">
-                    {t.title}
+                    {tender.title}
                   </div>
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    {t.contracting_authority && (
-                      <span className="inline-flex items-center gap-1"><Building2 className="h-3 w-3" />{t.contracting_authority}</span>
+                    {tender.contracting_authority && (
+                      <span className="inline-flex items-center gap-1"><Building2 className="h-3 w-3" />{tender.contracting_authority}</span>
                     )}
-                    {t.region && (
-                      <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{t.region}</span>
+                    {tender.region && (
+                      <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{tender.region}</span>
                     )}
-                    {t.cpv_code && (
-                      <span className="inline-flex items-center gap-1"><Tag className="h-3 w-3" />{t2("seoLanding.cpvPrefix")} {t.cpv_code}</span>
+                    {tender.cpv_code && (
+                      <span className="inline-flex items-center gap-1"><Tag className="h-3 w-3" />{t("seoLanding.cpvPrefix")} {tender.cpv_code}</span>
                     )}
-                    {t.deadline && (
-                      <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" />{t2("seoLanding.deadlinePrefix")} {fmtDate(t.deadline)}</span>
+                    {tender.deadline && (
+                      <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" />{t("seoLanding.deadlinePrefix")} {fmtDate(tender.deadline)}</span>
                     )}
-                    {fmtValue(t.estimated_value, t.currency) && (
-                      <span className="font-medium text-foreground">{fmtValue(t.estimated_value, t.currency)}</span>
+                    {fmtValue(tender.estimated_value, tender.currency) && (
+                      <span className="font-medium text-foreground">{fmtValue(tender.estimated_value, tender.currency)}</span>
                     )}
-                    {t.source && <span className="uppercase">{t.source}</span>}
+                    {tender.source && <span className="uppercase">{tender.source}</span>}
                   </div>
                 </Link>
               </li>
