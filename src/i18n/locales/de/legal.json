@@ -1,1 +1,300 @@
-{}
+{
+  "cookies": {
+    "title": "Cookie-Richtlinie",
+    "intro": "Cookies sind kleine Textdateien, die wir in Ihrem Browser speichern, damit Tendrik.sk funktioniert und wir es besser verstehen.",
+    "whatWeUse": {
+      "heading": "Welche Cookies wir verwenden",
+      "necessaryTitle": "1. Notwendige (ohne Zustimmung)",
+      "session": "<0>Session-Cookie</0> – hält Sie angemeldet.",
+      "csrf": "<0>CSRF-Token</0> – Schutz vor Anfragefälschung.",
+      "consent": "<0>Cookie-Zustimmung</0> – merkt sich Ihre Auswahl aus diesem Banner.",
+      "analyticsTitle": "2. Analytische (mit Zustimmung)",
+      "analyticsItem": "Anonymisierte Besucherstatistiken (Plausible / GA4) – nur wenn Sie diese zulassen.",
+      "noMarketing": "Wir verwenden keine Marketing- oder Werbe-Cookies."
+    },
+    "howToDisable": {
+      "heading": "Wie Sie Cookies deaktivieren",
+      "intro": "Sie können Ihre Auswahl jederzeit ändern:",
+      "viaButton": "Über die Schaltfläche <0>Cookie-Einstellungen</0> in der Fußzeile der Seite oder hier:",
+      "openSettingsButton": "Cookie-Einstellungen öffnen",
+      "viaBrowser": "In den Einstellungen Ihres Browsers (Chrome, Firefox, Safari, Edge…).",
+      "cannotDisable": "Notwendige Cookies können nicht deaktiviert werden – ohne sie wäre eine Anmeldung nicht möglich."
+    },
+    "retention": {
+      "heading": "Speicherdauer",
+      "session": "Session-Cookie: bis zum Schließen des Browsers.",
+      "consentAnalytics": "Zustimmungs- und Analyse-Cookies: max. 24 Monate."
+    }
+  },
+  "gdpr": {
+    "title": "Schutz personenbezogener Daten (DSGVO)",
+    "intro": "Informationen zur Verarbeitung personenbezogener Daten gemäß Verordnung (EU) 2016/679 (DSGVO) und Gesetz Nr. 18/2018 Z. z.",
+    "s1": {
+      "heading": "1. Verantwortlicher",
+      "company": "<0>Tobify s. r. o.</0>, Športová 707/43, 919 26 Zavar, Slowakei",
+      "ico": "Handelsregisternummer: 56607016, Steuer-ID: 2122358579 (nicht umsatzsteuerpflichtig)",
+      "email": "E-Mail: <0>info@tendrik.sk</0>",
+      "phone": "Telefon: <0>+421 907 702 422</0>"
+    },
+    "s2": {
+      "heading": "2. Welche Daten wir verarbeiten",
+      "reg": "<0>Registrierungsdaten:</0> E-Mail-Adresse, Passwort (in gehashter Form gespeichert).",
+      "optional": "<0>Optionale Daten:</0> Name, Firmenname, Handelsregisternummer, Telefonnummer.",
+      "billing": "<0>Rechnungsdaten</0> (bei kostenpflichtigem Abonnement): Rechnungsadresse, Handelsregister-/Steuernummer.",
+      "payment": "<0>Zahlungsmetadaten</0> von GoPay: Transaktions-ID, Zeitpunkt, Betrag – nicht die Kartennummer.",
+      "prefs": "<0>Präferenzen:</0> Schlüsselwörter, CPV-Codes, überwachte Regionen, Benachrichtigungseinstellungen.",
+      "technical": "<0>Technische Daten:</0> IP-Adresse, Anmeldeprotokoll, Cookies (siehe <1>Cookies</1>)."
+    },
+    "s3": {
+      "heading": "3. Zweck und Rechtsgrundlage",
+      "contract": "<0>Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO):</0> Bereitstellung des Dienstes, E-Mail-Benachrichtigungen, Rechnungsstellung, Kundensupport.",
+      "legalObligation": "<0>Rechtliche Verpflichtung (Art. 6 Abs. 1 lit. c):</0> Aufbewahrung von Buchhaltungsunterlagen für 10 Jahre.",
+      "legitimateInterest": "<0>Berechtigtes Interesse (Art. 6 Abs. 1 lit. f):</0> Sicherheit und Verhinderung des Missbrauchs des Dienstes.",
+      "consent": "<0>Einwilligung (Art. 6 Abs. 1 lit. a):</0> analytische Cookies, Marketingkommunikation."
+    },
+    "s4": {
+      "heading": "4. Speicherdauer",
+      "account": "Konto: für die Dauer des Bestehens des Kontos + 3 Jahre nach dessen Kündigung.",
+      "invoices": "Rechnungsunterlagen: 10 Jahre (gesetzliche Verpflichtung).",
+      "analytics": "Analytische Cookies: max. 24 Monate."
+    },
+    "s5": {
+      "heading": "5. Empfänger (Auftragsverarbeiter)",
+      "supabase": "<0>Supabase / Lovable Cloud</0> – Datenbank-Hosting und Authentifizierung (EU).",
+      "gopay": "<0>GoPay s. r. o.</0> – Zahlungsabwicklung (Tschechien/EU).",
+      "resend": "<0>Resend</0> – Versand transaktionsbezogener E-Mails (EU).",
+      "accounting": "Buchhaltungsfirma – nur Rechnungsdaten.",
+      "noTransfer": "Wir übermitteln keine Daten außerhalb des EWR."
+    },
+    "s6": {
+      "heading": "6. Ihre Rechte",
+      "intro": "Als betroffene Person haben Sie das Recht auf:",
+      "access": "Zugang zu Ihren Daten und eine Kopie davon,",
+      "correction": "Berichtigung fehlerhafter Daten,",
+      "erasure": "Löschung („Recht auf Vergessenwerden\"),",
+      "restriction": "Einschränkung der Verarbeitung,",
+      "portability": "Datenübertragbarkeit,",
+      "object": "Widerspruch gegen die Verarbeitung aufgrund berechtigten Interesses,",
+      "withdraw": "Widerruf der Einwilligung,",
+      "complaint": "Beschwerde bei der Aufsichtsbehörde – <0>Amt für Datenschutz der Slowakischen Republik</0>, <1>dataprotection.gov.sk</1>.",
+      "exercise": "Ausübung der Rechte: <0>info@tendrik.sk</0>. Wir antworten innerhalb von 30 Tagen."
+    },
+    "s7": {
+      "heading": "7. Datenschutzbeauftragter (DSB)",
+      "text": "Der Verantwortliche erfüllt nicht die Voraussetzungen gemäß Art. 37 DSGVO und ist nicht verpflichtet, einen Datenschutzbeauftragten (DSB) zu bestellen. In Datenschutzangelegenheiten wenden Sie sich bitte an <0>info@tendrik.sk</0>."
+    },
+    "s8": {
+      "heading": "8. Sicherheit",
+      "text": "Daten werden über HTTPS/TLS übertragen, Passwörter werden gehasht, Zugriffe werden protokolliert. Die Datenbank ist durch Row-Level-Security-Richtlinien geschützt."
+    }
+  },
+  "terms": {
+    "title": "Allgemeine Geschäftsbedingungen",
+    "intro": "Gültig ab 1. 1. 2026. Diese Bedingungen regeln die Nutzung des Dienstes Tendrik.sk.",
+    "s1": {
+      "heading": "1. Betreiber",
+      "p": "Betreiber des Dienstes Tendrik.sk (im Folgenden „Dienst\") ist die Gesellschaft:",
+      "company": "<0>Tobify s. r. o.</0>",
+      "seat": "Sitz: Športová 707/43, 919 26 Zavar, Slowakische Republik",
+      "ico": "Handelsregisternummer: 56607016",
+      "dic": "Steuer-ID: 2122358579",
+      "vat": "Nicht umsatzsteuerpflichtig",
+      "email": "E-Mail: <0>info@tendrik.sk</0>",
+      "phone": "Telefon: <0>+421 907 702 422</0>",
+      "vatNote": "Die Gesellschaft <0>ist nicht umsatzsteuerpflichtig</0>; die auf Tendrik.sk angegebenen Preise sind Endpreise."
+    },
+    "s2": {
+      "heading": "2. Beschreibung des Dienstes",
+      "p": "Tendrik.sk ist eine Online-SaaS-Plattform, die automatisch öffentliche Ausschreibungen überwacht, die im Amtsblatt der EU (TED) und im Bulletin des slowakischen Amtes für öffentliche Beschaffung (ÚVO) veröffentlicht werden. Nutzern ermöglicht sie:",
+      "item1": "Ausschreibungen nach Schlüsselwörtern, CPV-Codes, Ländern und Regionen zu filtern,",
+      "item2": "E-Mail-Benachrichtigungen über neue Ausschreibungen und bevorstehende Fristen zu erhalten,",
+      "item3": "Ausschreibungsdetails mit Link zur Quelle (TED / ÚVO / EKS / JOSEPHINE) anzuzeigen."
+    },
+    "s3": {
+      "heading": "3. Preis und Zahlungsbedingungen",
+      "p": "Die Nutzung des Dienstes ist kostenpflichtig und wird als Pauschalbetrag pro Monat je nach gewähltem Tarif berechnet:",
+      "basic": "Basic: <0>4,99 € / Monat</0>",
+      "premium": "Premium (mit KI): <0>14,99 € / Monat</0>",
+      "vatNote": "Der Anbieter <0>Tobify s. r. o.</0> ist nicht umsatzsteuerpflichtig – die angegebenen Beträge sind Endpreise.",
+      "payment": "Die Zahlung erfolgt über das Zahlungsgateway <0>GoPay</0> per Zahlungskarte (Visa, Mastercard) mit 3D-Secure-Absicherung. Das Abonnement verlängert sich automatisch jeden Monat, weitere Informationen im Dokument <1>Wiederkehrende Zahlungen</1>."
+    },
+    "s4": {
+      "heading": "4. Testzeitraum (Trial)",
+      "text": "Ein neuer Nutzer erhält <0>30 Tage kostenlos</0> ab der Registrierung, ohne eine Zahlungskarte angeben zu müssen. Der Trial umfasst unbegrenztes Monitoring, Radare und E-Mails sowie<1> 5 vollständige KI-Analysen von Ausschreibungen</1> während der Testphase. Nach Ablauf der Testphase wird der Zugang zu kostenpflichtigen Funktionen gesperrt, bis der Nutzer ein kostenpflichtiges Abonnement aktiviert."
+    },
+    "s5": {
+      "heading": "5. Vertragsabschluss",
+      "text": "Der Vertrag zwischen dem Betreiber und dem Nutzer kommt mit der Bestätigung der Bestellung (Zahlungsaktivierung) in der Benutzeroberfläche zustande. Der Nutzer bestätigt, dass er diese Bedingungen zur Kenntnis genommen hat und ihnen zustimmt."
+    },
+    "s6": {
+      "heading": "6. Widerruf des Vertrags (14 Tage)",
+      "text": "Der Verbraucher hat das Recht, innerhalb von <0>14 Tagen</0> ohne Angabe von Gründen gemäß § 7 des Gesetzes Nr. 102/2014 Z. z. von einem Fernabsatzvertrag zurückzutreten. Der Widerruf ist an die E-Mail-Adresse <1>info@tendrik.sk</1> zu senden. Wurde der Dienst innerhalb dieser Frist bereits mit Zustimmung des Verbrauchers erbracht, wird der anteilige Preis erstattet."
+    },
+    "s7": {
+      "heading": "7. Kündigung des Abonnements",
+      "text": "Das Abonnement kann <0>jederzeit</0> in den Kontoeinstellungen oder per E-Mail an <1>info@tendrik.sk</1> gekündigt werden. Nach der Kündigung wird das Abonnement nicht mehr automatisch verlängert. <2>Das Restguthaben des bereits bezahlten Zeitraums wird nicht erstattet</2> (außer im Fall gemäß Punkt 6 oder einer erfolgreichen Reklamation)."
+    },
+    "s8": {
+      "heading": "8. Reklamationsverfahren",
+      "text": "Reklamationen nehmen wir per E-Mail an <0>info@tendrik.sk</0> oder per Post an die Sitzadresse entgegen. Die Reklamation wird spätestens innerhalb von <1>30 Tagen</1> nach Eingang bearbeitet. Details finden Sie im <2>Reklamationsverfahren</2>."
+    },
+    "s9": {
+      "heading": "9. Verantwortung für Inhalte",
+      "text": "Die Daten zu Ausschreibungen stammen aus den öffentlichen Quellen TED, ÚVO, EKS und JOSEPHINE. Der Betreiber übernimmt keine Verantwortung für die Richtigkeit, Vollständigkeit oder Aktualität dieser Quelldaten. Die Nutzung der Ergebnisse erfolgt auf eigenes Risiko des Nutzers."
+    },
+    "s10": {
+      "heading": "10. Schutz personenbezogener Daten",
+      "text": "Die Verarbeitung personenbezogener Daten wird in einem separaten Dokument geregelt: <0>DSGVO – Schutz personenbezogener Daten</0>."
+    },
+    "s11": {
+      "heading": "11. Streitbeilegung",
+      "text": "Etwaige Streitigkeiten werden primär durch Einigung gelöst. Der Verbraucher hat das Recht, sich an die slowakische Handelsaufsicht (<0>soi.sk</0>) zu wenden oder die ODR-Plattform zu nutzen: <1>ec.europa.eu/consumers/odr</1>."
+    },
+    "s12": {
+      "heading": "12. Schlussbestimmungen",
+      "text": "Der Betreiber behält sich das Recht vor, diese Bedingungen zu ändern. Über wesentliche Änderungen wird der Nutzer mindestens 15 Tage im Voraus per E-Mail informiert. Für nicht durch diese Bedingungen geregelte Beziehungen gilt das Recht der Slowakischen Republik."
+    }
+  },
+  "recurringPayments": {
+    "title": "Wiederkehrende Zahlungen",
+    "intro": "Das Tendrik-Abonnement wird durch automatische monatliche Zahlungen über das Zahlungsgateway GoPay beglichen.",
+    "summary": {
+      "eyebrow": "Zusammenfassung",
+      "amount": "💳 Betrag: <0>4,99 € / Monat</0> (Basic) oder <1>14,99 € / Monat</1> (Premium) – Endpreis",
+      "frequency": "🔁 Häufigkeit: <0>jeden Monat</0>, automatisch",
+      "trial": "🎁 <0>30 Tage kostenlos</0> zum Testen (Testzeitraum, inklusive 5 KI-Analysen)",
+      "cancel": "❌ Jederzeit kündbar in den Kontoeinstellungen"
+    },
+    "s1": {
+      "heading": "Was sind wiederkehrende Zahlungen",
+      "text": "Eine wiederkehrende Zahlung ist eine automatische Kartenzahlung, die in regelmäßigen Abständen abgebucht wird, ohne dass Sie die Zahlung jedes Mal erneut bestätigen müssen. Die erste Zahlung autorisieren Sie bei der Aktivierung des Abonnements, weitere Zahlungen erfolgen automatisch anhand eines Tokens des sicheren Zahlungsgateways <0>GoPay</0>."
+    },
+    "s2": {
+      "heading": "Höhe der Zahlung",
+      "basic": "Basic: <0>4,99 € / Monat</0>",
+      "premium": "Premium: <0>14,99 € / Monat</0>",
+      "vatNote": "Der Anbieter (Tobify s. r. o.) ist nicht umsatzsteuerpflichtig – die angegebenen Beträge sind Endpreise.",
+      "changeNotice": "Über eine etwaige Preisänderung informieren wir Sie mindestens 15 Tage im Voraus per E-Mail."
+    },
+    "s3": {
+      "heading": "Wann die Zahlung abgebucht wird",
+      "first": "<0>Erste Zahlung:</0> nach Ablauf der 2-monatigen Testphase bzw. nach Aktivierung des Abonnements.",
+      "next": "<0>Weitere Zahlungen:</0> jeden Monat am Tag, der dem Aktivierungsdatum entspricht.",
+      "invoice": "Vor jeder Zahlung senden wir Ihnen eine E-Mail mit dem Steuerbeleg."
+    },
+    "s4": {
+      "heading": "Wie Sie Zahlungen kündigen",
+      "intro": "Sie können wiederkehrende Zahlungen jederzeit auf zwei Arten kündigen:",
+      "way1": "In den <0>Kontoeinstellungen</0> auf Tendrik.sk durch Klicken auf „Abonnement kündigen\".",
+      "way2": "Per E-Mail an <0>info@tendrik.sk</0> von der E-Mail-Adresse, unter der das Konto registriert ist.",
+      "afterCancel": "Nach der Kündigung wird keine weitere Zahlung von Ihrer Karte abgebucht. Der Zugang zu kostenpflichtigen Funktionen bleibt bis zum Ende des aktuellen Abrechnungszeitraums erhalten."
+    },
+    "s5": {
+      "heading": "Zahlungssicherheit",
+      "text": "Zahlungskartendaten werden ausschließlich vom Zahlungsgateway <0>GoPay s. r. o.</0> gemäß dem Standard <1>PCI-DSS Level 1</1> verarbeitet. Tendrik hat niemals Zugriff auf Ihre Kartennummer oder den CVV-Code; es wird nur ein anonymisiertes Token gespeichert, das für wiederkehrende Abbuchungen erforderlich ist. Zahlungen sind durch <2>3D Secure</2>-Authentifizierung geschützt."
+    },
+    "s6": {
+      "heading": "Kontakt",
+      "text": "Fragen zu Zahlungen: <0>info@tendrik.sk</0>, <1>+421 907 702 422</1>."
+    }
+  },
+  "complaints": {
+    "title": "Reklamationsverfahren",
+    "intro": "Vorgehensweise bei der Geltendmachung einer Reklamation für den Dienst Tendrik.sk (SaaS-Plattform zur Überwachung öffentlicher Beschaffung).",
+    "s1": {
+      "heading": "1. Betreiber",
+      "text": "<0>Tobify s. r. o.</0>, Športová 707/43, 919 26 Zavar, Handelsregisternummer: 56607016, <1>info@tendrik.sk</1>, <2>+421 907 702 422</2>."
+    },
+    "s2": {
+      "heading": "2. Gegenstand der Reklamation",
+      "intro": "Reklamiert werden können insbesondere:",
+      "item1": "eine vom Betreiber verschuldete Nichtverfügbarkeit des Dienstes von mehr als 24 Stunden,",
+      "item2": "die Fehlfunktion kostenpflichtiger Funktionen,",
+      "item3": "eine fehlerhaft abgerechnete Zahlung,",
+      "item4": "das Nichtzustellen bestellter E-Mail-Benachrichtigungen."
+    },
+    "s3": {
+      "heading": "3. Wie Sie eine Reklamation einreichen",
+      "intro": "Sie können eine Reklamation einreichen:",
+      "email": "<0>Per E-Mail:</0> <1>info@tendrik.sk</1> (empfohlen),",
+      "post": "<0>Per Post:</0> Tobify s. r. o., Športová 707/43, 919 26 Zavar,",
+      "phone": "<0>Telefonisch:</0> <1>+421 907 702 422</1> (bitte anschließend per E-Mail bestätigen).",
+      "note": "Geben Sie in der Reklamation bitte an: Registrierungs-E-Mail, Beschreibung des Mangels, Datum des Auftretens, gegebenenfalls Screenshots."
+    },
+    "s4": {
+      "heading": "4. Fristen",
+      "confirm": "Den Eingang der Reklamation bestätigen wir innerhalb von <0>3 Werktagen</0>.",
+      "resolve": "Die Reklamation wird spätestens innerhalb von <0>30 Tagen</0> nach Eingang bearbeitet.",
+      "notify": "Über das Ergebnis informieren wir per E-Mail."
+    },
+    "s5": {
+      "heading": "5. Erledigungsarten",
+      "item1": "Behebung des Mangels,",
+      "item2": "Verlängerung des Abonnements um die Dauer der Nichtverfügbarkeit,",
+      "item3": "Rückerstattung eines anteiligen Preises,",
+      "item4": "begründete Ablehnung der Reklamation."
+    },
+    "s6": {
+      "heading": "6. Alternative Streitbeilegung",
+      "text": "Wenn Sie mit der Erledigung der Reklamation nicht einverstanden sind, können Sie sich an die slowakische Handelsaufsicht (<0>soi.sk</0>) oder an die ODR-Plattform wenden: <1>ec.europa.eu/consumers/odr</1>."
+    }
+  },
+  "privacy": {
+    "backHome": "← Zurück zur Startseite",
+    "title": "Schutz personenbezogener Daten",
+    "intro": "Tendrik ist ein Dienst für Unternehmer (30 Tage kostenlos, danach ab 4,99 €/Monat). Wir verarbeiten personenbezogene Daten nur in dem Umfang, der für den Betrieb des Dienstes erforderlich ist.",
+    "dataSection": {
+      "heading": "Welche Daten wir verarbeiten",
+      "text": "Bei der Registrierung speichern wir Ihre E-Mail-Adresse und Ihre Benachrichtigungseinstellungen (Radare, E-Mail-Häufigkeit, gespeicherte Ausschreibungen). Die Daten verwenden wir ausschließlich zur Bereitstellung des Dienstes."
+    },
+    "cookiesSection": {
+      "heading": "Cookies",
+      "intro": "Wir verwenden zwei Kategorien von Cookies:",
+      "necessary": "<0>Notwendige</0> – erforderlich für Anmeldung, Sitzung und Grundeinstellungen. Ohne sie kann die Website nicht funktionieren.",
+      "analytics": "<0>Analytische</0> – optional. Sie werden nur geladen, wenn Sie zustimmen. Sie helfen uns, die Nutzung des Dienstes zu messen.",
+      "openSettingsButton": "Cookie-Einstellungen öffnen"
+    },
+    "rightsSection": {
+      "heading": "Ihre Rechte",
+      "text": "Sie haben das Recht auf Zugang zu Ihren Daten, deren Berichtigung und Löschung. Bei Fragen kontaktieren Sie uns bitte über die in der Anwendung angegebene E-Mail-Adresse."
+    }
+  },
+  "legalPage": {
+    "backHome": "← Zurück zur Startseite"
+  },
+  "footer": {
+    "paymentBadgesAria": "Unterstützte Zahlungsmethoden",
+    "brandDescription": "Überwachung öffentlicher Beschaffung von TED, ÚVO, EKS und JOSEPHINE.",
+    "operator": "Betreiber:",
+    "vatFree": "Nicht umsatzsteuerpflichtig",
+    "contact": "Kontakt",
+    "contactForm": "Kontaktformular",
+    "legal": "Rechtliches",
+    "terms": "Allgemeine Geschäftsbedingungen",
+    "recurringPayments": "Wiederkehrende Zahlungen",
+    "gdpr": "DSGVO",
+    "complaints": "Reklamationsverfahren",
+    "cookies": "Cookies",
+    "payments": "Zahlungen",
+    "paymentsNote": "Zahlungen werden von GoPay s.r.o. über ein gesichertes Zahlungsgateway mit 3D-Secure-Unterstützung verarbeitet.",
+    "copyright": "© {{year}} Tobify s. r. o. Alle Rechte vorbehalten.",
+    "tagline": "Tendrik.sk – Überwachung öffentlicher Beschaffung"
+  },
+  "cookieBanner": {
+    "ariaLabel": "Zustimmung zur Verwendung von Cookies",
+    "title": "Wir verwenden Cookies",
+    "text": "Tendrik verwendet notwendige Cookies für die Funktion der Website (Anmeldung, Einstellungen). Wenn Sie zustimmen, verwenden wir auch analytische Cookies, um die Nutzung des Dienstes besser zu verstehen.",
+    "privacyLink": "Schutz personenbezogener Daten",
+    "rejectOptional": "Optionale ablehnen",
+    "settings": "Einstellungen",
+    "acceptAll": "Alle akzeptieren",
+    "dialogTitle": "Cookie-Einstellungen",
+    "dialogDescription": "Wählen Sie, welche Kategorien von Cookies Sie zulassen möchten. Sie können Ihre Auswahl jederzeit über den Link in der Fußzeile der Seite ändern.",
+    "necessaryLabel": "Notwendige",
+    "necessaryDesc": "Erforderlich für Anmeldung, Sitzung und Grundeinstellungen. Können nicht deaktiviert werden.",
+    "necessaryAria": "Notwendige Cookies immer aktiviert",
+    "analyticsLabel": "Analytische",
+    "analyticsDesc": "Sie helfen uns, die Nutzung des Dienstes zu messen (z. B. Google Analytics, Pixel). Sie werden erst nach Ihrer Zustimmung geladen.",
+    "saveSelection": "Auswahl speichern"
+  }
+}
