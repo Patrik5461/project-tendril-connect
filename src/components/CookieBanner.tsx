@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import {
   EVENT_OPEN_SETTINGS,
   getConsent,
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 
 export function CookieBanner() {
+  const { t } = useTranslation("legal");
   const [mounted, setMounted] = useState(false);
   const [record, setRecord] = useState<ConsentRecord | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -61,21 +63,19 @@ export function CookieBanner() {
         <div
           role="dialog"
           aria-live="polite"
-          aria-label="Súhlas s používaním cookies"
+          aria-label={t("cookieBanner.ariaLabel")}
           className="fixed inset-x-0 bottom-0 z-[60] border-t-2 border-foreground bg-white text-black shadow-[0_-4px_0_0_rgba(0,0,0,0.06)]"
         >
           <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between md:py-5">
             <div className="text-sm leading-relaxed md:pr-6">
-              <p className="font-display font-semibold">Používame cookies</p>
+              <p className="font-display font-semibold">{t("cookieBanner.title")}</p>
               <p className="mt-1 text-black/80">
-                Tendrik používa nevyhnutné cookies na fungovanie stránky (prihlásenie,
-                nastavenia). Ak povolíte, budeme používať aj analytické cookies, aby sme
-                lepšie rozumeli používaniu služby.{" "}
+                {t("cookieBanner.text")}{" "}
                 <Link
                   to="/ochrana-osobnych-udajov"
                   className="underline underline-offset-2 hover:text-primary"
                 >
-                  Ochrana osobných údajov
+                  {t("cookieBanner.privacyLink")}
                 </Link>
               </p>
             </div>
@@ -85,21 +85,21 @@ export function CookieBanner() {
                 onClick={rejectOptional}
                 className="rounded-md border-2 border-foreground bg-white px-3 py-2 text-sm font-medium text-black hover:bg-black/5"
               >
-                Odmietnuť nepovinné
+                {t("cookieBanner.rejectOptional")}
               </button>
               <button
                 type="button"
                 onClick={openSettings}
                 className="rounded-md border-2 border-foreground bg-white px-3 py-2 text-sm font-medium text-black hover:bg-black/5"
               >
-                Nastavenia
+                {t("cookieBanner.settings")}
               </button>
               <button
                 type="button"
                 onClick={acceptAll}
                 className="rounded-md border-2 border-foreground bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:brightness-95"
               >
-                Prijať všetky
+                {t("cookieBanner.acceptAll")}
               </button>
             </div>
           </div>
@@ -109,33 +109,30 @@ export function CookieBanner() {
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Nastavenia cookies</DialogTitle>
+            <DialogTitle>{t("cookieBanner.dialogTitle")}</DialogTitle>
             <DialogDescription>
-              Vyberte, ktoré kategórie cookies chcete povoliť. Voľbu môžete kedykoľvek
-              zmeniť cez odkaz v päte stránky.
+              {t("cookieBanner.dialogDescription")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="mt-2 space-y-4">
             <div className="flex items-start justify-between gap-4 border border-foreground/15 p-3">
               <div>
-                <Label className="font-semibold">Nevyhnutné</Label>
+                <Label className="font-semibold">{t("cookieBanner.necessaryLabel")}</Label>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Potrebné pre prihlásenie, session a základné nastavenia. Nedajú sa
-                  vypnúť.
+                  {t("cookieBanner.necessaryDesc")}
                 </p>
               </div>
-              <Switch checked disabled aria-label="Nevyhnutné cookies vždy zapnuté" />
+              <Switch checked disabled aria-label={t("cookieBanner.necessaryAria")} />
             </div>
 
             <div className="flex items-start justify-between gap-4 border border-foreground/15 p-3">
               <div>
                 <Label htmlFor="analytics-switch" className="font-semibold">
-                  Analytické
+                  {t("cookieBanner.analyticsLabel")}
                 </Label>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Pomáhajú nám merať používanie služby (napr. Google Analytics, pixely).
-                  Načítajú sa iba po vašom súhlase.
+                  {t("cookieBanner.analyticsDesc")}
                 </p>
               </div>
               <Switch
@@ -155,11 +152,11 @@ export function CookieBanner() {
                 setSettingsOpen(false);
               }}
             >
-              Odmietnuť nepovinné
+              {t("cookieBanner.rejectOptional")}
             </Button>
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={saveSettings}>
-                Uložiť výber
+                {t("cookieBanner.saveSelection")}
               </Button>
               <Button
                 type="button"
@@ -168,7 +165,7 @@ export function CookieBanner() {
                   setSettingsOpen(false);
                 }}
               >
-                Prijať všetky
+                {t("cookieBanner.acceptAll")}
               </Button>
             </div>
           </DialogFooter>

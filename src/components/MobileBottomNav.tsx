@@ -1,16 +1,18 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Coins, Settings, Building2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useIsNative } from "@/lib/native";
 
 const ITEMS = [
-  { to: "/dashboard", label: "Zákazky", icon: LayoutDashboard },
-  { to: "/granty", label: "Granty", icon: Coins },
-  { to: "/firma", label: "Firma", icon: Building2 },
-  { to: "/settings", label: "Nastavenia", icon: Settings },
+  { to: "/dashboard", labelKey: "mobileNav.tenders", icon: LayoutDashboard },
+  { to: "/granty", labelKey: "mobileNav.grants", icon: Coins },
+  { to: "/firma", labelKey: "mobileNav.company", icon: Building2 },
+  { to: "/settings", labelKey: "mobileNav.settings", icon: Settings },
 ] as const;
 
 /** Spodná navigácia – iba v natívnej aplikácii. */
 export function MobileBottomNav() {
+  const { t } = useTranslation("app");
   const native = useIsNative();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   if (!native) return null;
@@ -18,7 +20,7 @@ export function MobileBottomNav() {
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-40 border-t-2 border-foreground bg-background pb-[env(safe-area-inset-bottom)]"
-      aria-label="Hlavná navigácia"
+      aria-label={t("mobileNav.ariaLabel")}
     >
       <ul className="mx-auto flex max-w-2xl">
         {ITEMS.map((item) => {
@@ -47,7 +49,7 @@ export function MobileBottomNav() {
                 }`}
               >
                 <Icon className="h-5 w-5" aria-hidden="true" />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             </li>
           );
