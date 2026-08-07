@@ -102,12 +102,20 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
   if (checking || authed === null) return null;
   if (!authed) return null;
 
-  // Granty sú súčasťou balíka Komplet (trial má prístup ku všetkému).
-  const hasAiAccess = status === "trial" || (status === "active" && tier === "komplet");
-  const needsUpgrade = status === "active" && tier !== "komplet";
+  // Jediný zdroj pravdy: get_entitlements() → can_grants / can_ai / ai_remaining.
+  const canGrants = entitlements ? !!entitlements.can_grants : true;
+  const canAi = entitlements ? !!entitlements.can_ai : true;
+  const hasAiAccess = canGrants && canAi;
+  const needsUpgrade = !hasAiAccess;
+  const status = entitlements?.status ?? "trial";
   const isExpired = status === "expired";
   const isTrial = status === "trial";
-  const trialExhausted = credit != null && !credit.unlimited && credit.remaining <= 0;
+  const remaining = credit
+    ? credit.remaining
+    : entitlements
+      ? entitlements.ai_remaining
+      : 1;
+  const trialExhausted = !(credit?.unlimited) && remaining <= 0;
 
 
   return (
