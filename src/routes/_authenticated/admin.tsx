@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { RefreshCw, Play, Mail, Send, Sparkles, CreditCard, Users as UsersIcon, ShieldCheck, Settings2, AlertTriangle } from "lucide-react";
+import { RefreshCw, Play, Mail, Send, Sparkles, CreditCard, Users as UsersIcon, ShieldCheck, Settings2, AlertTriangle, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import { adminAnalyzeTender, adminListTendersForTest } from "@/lib/tender-analys
 import { adminSuggestSubcontracting, adminFindSubcontractorCandidates, adminGenerateOutreach } from "@/lib/subcontracting.functions";
 import { adminAnalyzeGrant } from "@/lib/grant-analysis.functions";
 import { GoogleAnalyticsTab } from "@/components/admin/GoogleAnalyticsTab";
+import DeleteUserDialog from "@/components/admin/DeleteUserDialog";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin – Tendrik" }] }),
@@ -693,6 +694,12 @@ function UsersTab() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [editing, setEditing] = useState<UserRow | null>(null);
+  const [deleting, setDeleting] = useState<UserRow | null>(null);
+  const [meId, setMeId] = useState<string | null>(null);
+
+  useEffect(() => {
+    void supabase.auth.getUser().then(({ data }) => setMeId(data.user?.id ?? null));
+  }, []);
 
   async function load() {
     setLoading(true);
@@ -788,9 +795,22 @@ function UsersTab() {
                 <td className="py-2 pr-3">{fmtDate(r.created_at)}</td>
                 <td className="py-2 pr-3 text-right num">{r.radars_count}</td>
                 <td className="py-2 pr-3 text-right">
-                  <Button size="sm" variant="outline" onClick={() => setEditing(r)}>
-                    <Settings2 className="h-3.5 w-3.5 mr-1" /> Spravovať
-                  </Button>
+                  <div className="inline-flex items-center gap-1">
+                    <Button size="sm" variant="outline" onClick={() => setEditing(r)}>
+                      <Settings2 className="h-3.5 w-3.5 mr-1" /> Spravovať
+                    </Button>
+                    {r.user_id !== meId && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive hover:text-destructive"
+                        title="Zmazať účet"
+                        onClick={() => setDeleting(r)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -805,6 +825,13 @@ function UsersTab() {
           user={editing}
           onClose={() => setEditing(null)}
           onSaved={() => { setEditing(null); void load(); }}
+        />
+      )}
+      {deleting && (
+        <DeleteUserDialog
+          userId={deleting.user_id}
+          onClose={() => setDeleting(null)}
+          onDeleted={() => { setDeleting(null); void load(); }}
         />
       )}
     </Card>
