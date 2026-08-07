@@ -46,14 +46,13 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) { setAuthed(false); setChecking(false); return; }
       setAuthed(true);
-      const [{ data: prefs }, profile, existing, creditRes] = await Promise.all([
-        supabase.from("user_preferences").select("subscription_status,subscription_tier").eq("user_id", u.user.id).maybeSingle(),
+      const [ent, profile, existing, creditRes] = await Promise.all([
+        fetchEntitlements(),
         getP().catch(() => null),
         getA({ data: { grant_id: grantId } }).catch(() => null),
         getCredit().catch(() => null),
       ]);
-      setStatus(prefs?.subscription_status ?? "trial");
-      setTier(((prefs as any)?.subscription_tier as string) ?? "basic");
+      setEntitlements(ent);
       setHasProfile(!!(profile && profile.ico));
       if (existing) {
         setAnalysis(existing as AnalysisRow);
