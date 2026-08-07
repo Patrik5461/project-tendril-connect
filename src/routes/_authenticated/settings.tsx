@@ -395,6 +395,8 @@ function SettingsPage() {
           <InvoicesHistorySection userId={userId} />
         </TabsContent>
       </Tabs>
+
+      <DangerZoneSection email={email} />
     </div>
   );
 }
