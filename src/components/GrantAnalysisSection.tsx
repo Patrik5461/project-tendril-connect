@@ -26,8 +26,7 @@ type AnalysisRow = {
 export function GrantAnalysisSection({ grantId }: { grantId: string }) {
   const { t } = useTranslation("analysis");
   const [authed, setAuthed] = useState<boolean | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
-  const [tier, setTier] = useState<string>("basic");
+  const [entitlements, setEntitlements] = useState<Entitlements | null>(null);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisRow | null>(null);
   const [checking, setChecking] = useState(true);
