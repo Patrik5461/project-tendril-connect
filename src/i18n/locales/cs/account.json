@@ -285,5 +285,63 @@
       "oneshot": "one-shot",
       "empty": "bez filtrů"
     }
+  },
+  "adminDelete": {
+    "loading": "Načítám…",
+    "title": "Smazat účet {{email}}?",
+    "description": "Tato akce je nevratná.",
+    "isAdmin": "Administrátorský účet nelze smazat.",
+    "willDelete": "Nevratně se smaže:",
+    "items": {
+      "radars": "Radary",
+      "grantRadars": "Grantové radary",
+      "tenderAnalyses": "AI analýzy zakázek",
+      "grantAnalyses": "AI analýzy grantů",
+      "savedTenders": "Uložené zakázky",
+      "paymentEvents": "Záznamy o platbách",
+      "settings": "Nastavení a notifikace",
+      "billingDetails": "Fakturační údaje"
+    },
+    "invoicesWarning": "Účet má {{count}} vystavených faktur. Faktury zůstanou v systému kvůli účetnictví, ale účet a všechna ostatní data se smažou.",
+    "forceCheckbox": "Chci účet smazat navzdory fakturám",
+    "understandCheckbox": "Rozumím, že tato akce je nevratná",
+    "retypeEmail": "Pro potvrzení přepište e-mail: {{email}}",
+    "cancel": "Zrušit",
+    "confirm": "Nevratně smazat účet",
+    "deleting": "Mažu…",
+    "deleted": "Účet {{email}} byl smazán"
+  },
+  "dangerZone": {
+    "heading": "Nebezpečná zóna",
+    "description": "Smazání účtu je nevratné. Přijdete o všechny radary, uložené zakázky, AI analýzy a nastavení.",
+    "deleteButton": "Smazat účet",
+    "cancel": "Zrušit",
+    "continue": "Pokračovat",
+    "deleting": "Mažu…",
+    "deleted": "Váš účet byl smazán",
+    "step1": {
+      "title": "Opravdu chcete smazat svůj účet?",
+      "intro": "Nevratně se smaže:",
+      "items": {
+        "radars": "všechny radary (zakázky i granty)",
+        "savedTenders": "uložené zakázky",
+        "analyses": "AI analýzy",
+        "notifications": "nastavení notifikací",
+        "billingDetails": "fakturační údaje"
+      },
+      "invoicesNote": "Vystavené faktury zůstávají v systému kvůli zákonné archivaci."
+    },
+    "step2": {
+      "title": "Poslední varování",
+      "warning": "Toto je poslední varování. Účet a všechna data budou nevratně smazána.",
+      "emailLabel": "Pro potvrzení napište svůj e-mail: {{email}}",
+      "checkbox": "Rozumím, že účet a všechna data budou nevratně smazána",
+      "confirm": "Nevratně smazat účet"
+    },
+    "errors": {
+      "emailMismatch": "Zadaný e-mail se neshoduje.",
+      "cancelSubscriptionFirst": "Nejprve zrušte opakované předplatné v sekci Předplatné a fakturace, poté můžete účet smazat.",
+      "adminAccount": "Administrátorský účet nelze smazat přes samoobsluhu, kontaktujte podporu."
+    }
   }
 }

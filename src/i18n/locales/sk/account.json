@@ -285,5 +285,63 @@
       "oneshot": "one-shot",
       "empty": "bez filtrov"
     }
+  },
+  "adminDelete": {
+    "loading": "Načítavam…",
+    "title": "Zmazať účet {{email}}?",
+    "description": "Táto akcia je nenávratná.",
+    "isAdmin": "Administrátorský účet nie je možné zmazať.",
+    "willDelete": "Nenávratne sa zmaže:",
+    "items": {
+      "radars": "Radare",
+      "grantRadars": "Grantové radare",
+      "tenderAnalyses": "AI analýzy zákaziek",
+      "grantAnalyses": "AI analýzy grantov",
+      "savedTenders": "Uložené zákazky",
+      "paymentEvents": "Záznamy o platbách",
+      "settings": "Nastavenia a notifikácie",
+      "billingDetails": "Fakturačné údaje"
+    },
+    "invoicesWarning": "Účet má {{count}} vystavených faktúr. Faktúry zostanú v systéme kvôli účtovníctvu, ale účet a všetky ostatné dáta sa zmažú.",
+    "forceCheckbox": "Chcem účet zmazať napriek faktúram",
+    "understandCheckbox": "Rozumiem, že táto akcia je nenávratná",
+    "retypeEmail": "Pre potvrdenie prepíšte e-mail: {{email}}",
+    "cancel": "Zrušiť",
+    "confirm": "Nenávratne zmazať účet",
+    "deleting": "Mažem…",
+    "deleted": "Účet {{email}} bol zmazaný"
+  },
+  "dangerZone": {
+    "heading": "Nebezpečná zóna",
+    "description": "Zmazanie účtu je nenávratné. Prídete o všetky radare, uložené zákazky, AI analýzy a nastavenia.",
+    "deleteButton": "Zmazať účet",
+    "cancel": "Zrušiť",
+    "continue": "Pokračovať",
+    "deleting": "Mažem…",
+    "deleted": "Váš účet bol zmazaný",
+    "step1": {
+      "title": "Naozaj chcete zmazať svoj účet?",
+      "intro": "Nenávratne sa zmažú:",
+      "items": {
+        "radars": "všetky radare (zákazky aj granty)",
+        "savedTenders": "uložené zákazky",
+        "analyses": "AI analýzy",
+        "notifications": "nastavenia notifikácií",
+        "billingDetails": "fakturačné údaje"
+      },
+      "invoicesNote": "Vystavené faktúry zostávajú v systéme kvôli zákonnej archivácii."
+    },
+    "step2": {
+      "title": "Posledné varovanie",
+      "warning": "Toto je posledné varovanie. Účet a všetky dáta budú nenávratne zmazané.",
+      "emailLabel": "Pre potvrdenie napíšte svoj e-mail: {{email}}",
+      "checkbox": "Rozumiem, že účet a všetky dáta budú nenávratne zmazané",
+      "confirm": "Nenávratne zmazať účet"
+    },
+    "errors": {
+      "emailMismatch": "Zadaný e-mail sa nezhoduje.",
+      "cancelSubscriptionFirst": "Najprv zrušte opakované predplatné v sekcii Predplatné a fakturácia, potom môžete účet zmazať.",
+      "adminAccount": "Administrátorský účet nie je možné zmazať cez samoobsluhu, kontaktujte podporu."
+    }
   }
 }
