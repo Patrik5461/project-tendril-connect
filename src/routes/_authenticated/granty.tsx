@@ -14,7 +14,8 @@ import {
   ApplicantCategory, CATEGORY_LABEL, CATEGORY_SHORT,
   categoriesForGrant, defaultCategoryFromLegalForm,
 } from "@/lib/grant-applicant-categories";
-import { AI_MONTHLY_LIMIT, computeSubscription, formatEur, priceEur } from "@/lib/subscription";
+import { AI_MONTHLY_LIMIT, formatEur, priceEur } from "@/lib/subscription";
+import { fetchEntitlements } from "@/hooks/use-entitlements";
 import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
 import { useTranslation } from "react-i18next";
 
