@@ -179,7 +179,7 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
       )}
 
       {hasAiAccess && hasProfile && !analysis && !running && trialExhausted && (
-        <TrialExhaustedNotice limit={credit!.limit} isTrial={isTrial} />
+        <TrialExhaustedNotice limit={credit?.limit ?? entitlements?.ai_limit ?? 5} isTrial={isTrial} />
       )}
 
       {running && (
