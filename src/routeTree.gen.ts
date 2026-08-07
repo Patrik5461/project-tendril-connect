@@ -37,6 +37,7 @@ import { Route as ZakazkyKategoriaKategoriaRouteImport } from './routes/zakazky.
 import { Route as ApiPublicStatsRouteImport } from './routes/api/public/stats'
 import { Route as ApiPublicAnalyticsConfigRouteImport } from './routes/api/public/analytics-config'
 import { Route as ZakazkyKategoriaKategoriaKrajRouteImport } from './routes/zakazky.kategoria.$kategoria.$kraj'
+import { Route as ApiPublicHooksSyncPpaRouteImport } from './routes/api/public/hooks/sync-ppa'
 import { Route as ApiPublicHooksSyncPooRouteImport } from './routes/api/public/hooks/sync-poo'
 import { Route as ApiPublicGrantDocUuidRouteImport } from './routes/api/public/grant-doc.$uuid'
 
@@ -183,6 +184,11 @@ const ZakazkyKategoriaKategoriaKrajRoute =
     path: '/$kraj',
     getParentRoute: () => ZakazkyKategoriaKategoriaRoute,
   } as any)
+const ApiPublicHooksSyncPpaRoute = ApiPublicHooksSyncPpaRouteImport.update({
+  id: '/api/public/hooks/sync-ppa',
+  path: '/api/public/hooks/sync-ppa',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksSyncPooRoute = ApiPublicHooksSyncPooRouteImport.update({
   id: '/api/public/hooks/sync-poo',
   path: '/api/public/hooks/sync-poo',
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
   '/api/public/hooks/sync-poo': typeof ApiPublicHooksSyncPooRoute
+  '/api/public/hooks/sync-ppa': typeof ApiPublicHooksSyncPpaRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRoutesByTo {
@@ -254,6 +261,7 @@ export interface FileRoutesByTo {
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
   '/api/public/hooks/sync-poo': typeof ApiPublicHooksSyncPooRoute
+  '/api/public/hooks/sync-ppa': typeof ApiPublicHooksSyncPpaRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRoutesById {
@@ -287,6 +295,7 @@ export interface FileRoutesById {
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
   '/api/public/hooks/sync-poo': typeof ApiPublicHooksSyncPooRoute
+  '/api/public/hooks/sync-ppa': typeof ApiPublicHooksSyncPpaRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRouteTypes {
@@ -320,6 +329,7 @@ export interface FileRouteTypes {
     | '/zakazky/kraj/$kraj'
     | '/api/public/grant-doc/$uuid'
     | '/api/public/hooks/sync-poo'
+    | '/api/public/hooks/sync-ppa'
     | '/zakazky/kategoria/$kategoria/$kraj'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -351,6 +361,7 @@ export interface FileRouteTypes {
     | '/zakazky/kraj/$kraj'
     | '/api/public/grant-doc/$uuid'
     | '/api/public/hooks/sync-poo'
+    | '/api/public/hooks/sync-ppa'
     | '/zakazky/kategoria/$kategoria/$kraj'
   id:
     | '__root__'
@@ -383,6 +394,7 @@ export interface FileRouteTypes {
     | '/zakazky/kraj/$kraj'
     | '/api/public/grant-doc/$uuid'
     | '/api/public/hooks/sync-poo'
+    | '/api/public/hooks/sync-ppa'
     | '/zakazky/kategoria/$kategoria/$kraj'
   fileRoutesById: FileRoutesById
 }
@@ -410,6 +422,7 @@ export interface RootRouteChildren {
   ZakazkyKrajKrajRoute: typeof ZakazkyKrajKrajRoute
   ApiPublicGrantDocUuidRoute: typeof ApiPublicGrantDocUuidRoute
   ApiPublicHooksSyncPooRoute: typeof ApiPublicHooksSyncPooRoute
+  ApiPublicHooksSyncPpaRoute: typeof ApiPublicHooksSyncPpaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -610,6 +623,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ZakazkyKategoriaKategoriaKrajRouteImport
       parentRoute: typeof ZakazkyKategoriaKategoriaRoute
     }
+    '/api/public/hooks/sync-ppa': {
+      id: '/api/public/hooks/sync-ppa'
+      path: '/api/public/hooks/sync-ppa'
+      fullPath: '/api/public/hooks/sync-ppa'
+      preLoaderRoute: typeof ApiPublicHooksSyncPpaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/sync-poo': {
       id: '/api/public/hooks/sync-poo'
       path: '/api/public/hooks/sync-poo'
@@ -686,6 +706,7 @@ const rootRouteChildren: RootRouteChildren = {
   ZakazkyKrajKrajRoute: ZakazkyKrajKrajRoute,
   ApiPublicGrantDocUuidRoute: ApiPublicGrantDocUuidRoute,
   ApiPublicHooksSyncPooRoute: ApiPublicHooksSyncPooRoute,
+  ApiPublicHooksSyncPpaRoute: ApiPublicHooksSyncPpaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
