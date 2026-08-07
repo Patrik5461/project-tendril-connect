@@ -20,6 +20,7 @@ import GrantRadarsSection from "@/components/GrantRadarsSection";
 import { trackConversion } from "@/lib/analytics";
 import { PushNotificationsCard } from "@/components/PushNotificationsCard";
 import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+import DangerZoneSection from "@/components/DangerZoneSection";
 
 
 export const Route = createFileRoute("/_authenticated/settings")({
