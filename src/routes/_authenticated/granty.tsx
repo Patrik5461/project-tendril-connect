@@ -14,7 +14,8 @@ import {
   ApplicantCategory, CATEGORY_LABEL, CATEGORY_SHORT,
   categoriesForGrant, defaultCategoryFromLegalForm,
 } from "@/lib/grant-applicant-categories";
-import { AI_MONTHLY_LIMIT, computeSubscription, formatEur, priceEur } from "@/lib/subscription";
+import { AI_MONTHLY_LIMIT, formatEur, priceEur } from "@/lib/subscription";
+import { fetchEntitlements } from "@/hooks/use-entitlements";
 import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
 import { useTranslation } from "react-i18next";
 
@@ -137,12 +138,9 @@ function GrantyList() {
         .maybeSingle();
       setProfileCategory(defaultCategoryFromLegalForm(data?.pravna_forma));
       setProfileLoaded(true);
-      const { data: pref } = await supabase
-        .from("user_preferences")
-        .select("trial_started_at,subscription_status,subscription_tier,billing_period")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      setGrantAccess(computeSubscription(pref as any).hasGrantAccess);
+      // Jediný zdroj pravdy pre prístup ku grantom: RPC get_entitlements().can_grants
+      const ent = await fetchEntitlements();
+      setGrantAccess(ent ? !!ent.can_grants : true);
     })();
   }, []);
 

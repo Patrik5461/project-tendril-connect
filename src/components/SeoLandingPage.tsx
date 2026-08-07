@@ -20,7 +20,7 @@ export type SeoTender = {
 
 export type SeoPageRow = {
   id: string;
-  page_type: "category" | "region" | "category_region";
+  page_type: "category" | "region" | "category_region" | (string & {});
   category_slug: string | null;
   region_slug: string | null;
   region_name: string | null;

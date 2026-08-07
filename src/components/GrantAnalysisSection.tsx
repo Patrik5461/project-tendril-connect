@@ -13,6 +13,7 @@ import { getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.func
 import { trackConversion } from "@/lib/analytics";
 import { AI_MONTHLY_LIMIT, formatEur, priceEur } from "@/lib/subscription";
 import { useTranslation } from "react-i18next";
+import { fetchEntitlements, type Entitlements } from "@/hooks/use-entitlements";
 
 
 type AnalysisRow = {
@@ -26,8 +27,7 @@ type AnalysisRow = {
 export function GrantAnalysisSection({ grantId }: { grantId: string }) {
   const { t } = useTranslation("analysis");
   const [authed, setAuthed] = useState<boolean | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
-  const [tier, setTier] = useState<string>("basic");
+  const [entitlements, setEntitlements] = useState<Entitlements | null>(null);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisRow | null>(null);
   const [checking, setChecking] = useState(true);
@@ -46,14 +46,13 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) { setAuthed(false); setChecking(false); return; }
       setAuthed(true);
-      const [{ data: prefs }, profile, existing, creditRes] = await Promise.all([
-        supabase.from("user_preferences").select("subscription_status,subscription_tier").eq("user_id", u.user.id).maybeSingle(),
+      const [ent, profile, existing, creditRes] = await Promise.all([
+        fetchEntitlements(),
         getP().catch(() => null),
         getA({ data: { grant_id: grantId } }).catch(() => null),
         getCredit().catch(() => null),
       ]);
-      setStatus(prefs?.subscription_status ?? "trial");
-      setTier(((prefs as any)?.subscription_tier as string) ?? "basic");
+      setEntitlements(ent);
       setHasProfile(!!(profile && profile.ico));
       if (existing) {
         setAnalysis(existing as AnalysisRow);
@@ -104,12 +103,20 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
   if (checking || authed === null) return null;
   if (!authed) return null;
 
-  // Granty sú súčasťou balíka Komplet (trial má prístup ku všetkému).
-  const hasAiAccess = status === "trial" || (status === "active" && tier === "komplet");
-  const needsUpgrade = status === "active" && tier !== "komplet";
+  // Jediný zdroj pravdy: get_entitlements() → can_grants / can_ai / ai_remaining.
+  const canGrants = entitlements ? !!entitlements.can_grants : true;
+  const canAi = entitlements ? !!entitlements.can_ai : true;
+  const hasAiAccess = canGrants && canAi;
+  const needsUpgrade = !hasAiAccess;
+  const status = entitlements?.status ?? "trial";
   const isExpired = status === "expired";
   const isTrial = status === "trial";
-  const trialExhausted = credit != null && !credit.unlimited && credit.remaining <= 0;
+  const remaining = credit
+    ? credit.remaining
+    : entitlements
+      ? entitlements.ai_remaining
+      : 1;
+  const trialExhausted = !(credit?.unlimited) && remaining <= 0;
 
 
   return (
@@ -172,7 +179,7 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
       )}
 
       {hasAiAccess && hasProfile && !analysis && !running && trialExhausted && (
-        <TrialExhaustedNotice limit={credit!.limit} isTrial={isTrial} />
+        <TrialExhaustedNotice limit={credit?.limit ?? entitlements?.ai_limit ?? 5} isTrial={isTrial} />
       )}
 
       {running && (

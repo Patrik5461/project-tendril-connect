@@ -1125,6 +1125,7 @@ export type Database = {
       }
       get_ai_credit_status: { Args: never; Returns: Json }
       get_analytics_config: { Args: never; Returns: Json }
+      get_entitlements: { Args: never; Returns: Json }
       get_gopay_recurring_enabled: { Args: never; Returns: boolean }
       get_open_grants_stats: {
         Args: never
