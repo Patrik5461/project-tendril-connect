@@ -1894,7 +1894,30 @@ function GrantsTestTab() {
     } finally { setBusy(null); }
   }
 
+  async function runPooSync(opts: { force?: boolean; limit?: number }) {
+    setBusy("poo");
+    setOutput(null);
+    try {
+      const res = await fetch("/api/public/hooks/sync-poo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] as string,
+        },
+        body: JSON.stringify(opts),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? `HTTP ${res.status}`);
+      setOutput(data);
+      await refreshStats();
+      toast.success(`POO sync: +${data.created} nových, ${data.updated} aktualizovaných`);
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally { setBusy(null); }
+  }
+
   async function runCleanup() {
+
     setBusy("cleanup");
     try {
       const { data, error } = await (supabase.rpc as any)("cleanup_grant_calls");
@@ -1966,6 +1989,26 @@ function GrantsTestTab() {
           </Button>
         </div>
       </Card>
+
+      <Card title="5) Plán obnovy (POO) – sync">
+        <div className="text-sm text-muted-foreground mb-2">
+          API: <code>https://public-api.planobnovy.sk</code> · endpoint:{" "}
+          <code>/api/public/hooks/sync-poo</code> · cron denne 02:45 UTC.
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={() => runPooSync({ limit: 5 })} disabled={busy !== null} variant="outline">
+            Test (5 výziev)
+          </Button>
+          <Button onClick={() => runPooSync({})} disabled={busy !== null} variant="secondary">
+            <Play className={`h-4 w-4 mr-2 ${busy === "poo" ? "animate-spin" : ""}`} />
+            Inkrementálny sync
+          </Button>
+          <Button onClick={() => runPooSync({ force: true })} disabled={busy !== null} variant="outline">
+            Full sync (force)
+          </Button>
+        </div>
+      </Card>
+
 
       {output && (
         <Card title="Výstup">

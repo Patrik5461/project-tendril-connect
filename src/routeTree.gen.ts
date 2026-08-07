@@ -37,6 +37,7 @@ import { Route as ZakazkyKategoriaKategoriaRouteImport } from './routes/zakazky.
 import { Route as ApiPublicStatsRouteImport } from './routes/api/public/stats'
 import { Route as ApiPublicAnalyticsConfigRouteImport } from './routes/api/public/analytics-config'
 import { Route as ZakazkyKategoriaKategoriaKrajRouteImport } from './routes/zakazky.kategoria.$kategoria.$kraj'
+import { Route as ApiPublicHooksSyncPooRouteImport } from './routes/api/public/hooks/sync-poo'
 import { Route as ApiPublicGrantDocUuidRouteImport } from './routes/api/public/grant-doc.$uuid'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -182,6 +183,11 @@ const ZakazkyKategoriaKategoriaKrajRoute =
     path: '/$kraj',
     getParentRoute: () => ZakazkyKategoriaKategoriaRoute,
   } as any)
+const ApiPublicHooksSyncPooRoute = ApiPublicHooksSyncPooRouteImport.update({
+  id: '/api/public/hooks/sync-poo',
+  path: '/api/public/hooks/sync-poo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicGrantDocUuidRoute = ApiPublicGrantDocUuidRouteImport.update({
   id: '/api/public/grant-doc/$uuid',
   path: '/api/public/grant-doc/$uuid',
@@ -216,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
+  '/api/public/hooks/sync-poo': typeof ApiPublicHooksSyncPooRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRoutesByTo {
@@ -246,6 +253,7 @@ export interface FileRoutesByTo {
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
+  '/api/public/hooks/sync-poo': typeof ApiPublicHooksSyncPooRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRoutesById {
@@ -278,6 +286,7 @@ export interface FileRoutesById {
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
+  '/api/public/hooks/sync-poo': typeof ApiPublicHooksSyncPooRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
 }
 export interface FileRouteTypes {
@@ -310,6 +319,7 @@ export interface FileRouteTypes {
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
     | '/api/public/grant-doc/$uuid'
+    | '/api/public/hooks/sync-poo'
     | '/zakazky/kategoria/$kategoria/$kraj'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -340,6 +350,7 @@ export interface FileRouteTypes {
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
     | '/api/public/grant-doc/$uuid'
+    | '/api/public/hooks/sync-poo'
     | '/zakazky/kategoria/$kategoria/$kraj'
   id:
     | '__root__'
@@ -371,6 +382,7 @@ export interface FileRouteTypes {
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
     | '/api/public/grant-doc/$uuid'
+    | '/api/public/hooks/sync-poo'
     | '/zakazky/kategoria/$kategoria/$kraj'
   fileRoutesById: FileRoutesById
 }
@@ -397,6 +409,7 @@ export interface RootRouteChildren {
   ZakazkyKategoriaKategoriaRoute: typeof ZakazkyKategoriaKategoriaRouteWithChildren
   ZakazkyKrajKrajRoute: typeof ZakazkyKrajKrajRoute
   ApiPublicGrantDocUuidRoute: typeof ApiPublicGrantDocUuidRoute
+  ApiPublicHooksSyncPooRoute: typeof ApiPublicHooksSyncPooRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -597,6 +610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ZakazkyKategoriaKategoriaKrajRouteImport
       parentRoute: typeof ZakazkyKategoriaKategoriaRoute
     }
+    '/api/public/hooks/sync-poo': {
+      id: '/api/public/hooks/sync-poo'
+      path: '/api/public/hooks/sync-poo'
+      fullPath: '/api/public/hooks/sync-poo'
+      preLoaderRoute: typeof ApiPublicHooksSyncPooRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/grant-doc/$uuid': {
       id: '/api/public/grant-doc/$uuid'
       path: '/api/public/grant-doc/$uuid'
@@ -665,17 +685,8 @@ const rootRouteChildren: RootRouteChildren = {
   ZakazkyKategoriaKategoriaRoute: ZakazkyKategoriaKategoriaRouteWithChildren,
   ZakazkyKrajKrajRoute: ZakazkyKrajKrajRoute,
   ApiPublicGrantDocUuidRoute: ApiPublicGrantDocUuidRoute,
+  ApiPublicHooksSyncPooRoute: ApiPublicHooksSyncPooRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
