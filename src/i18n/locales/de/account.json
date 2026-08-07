@@ -285,5 +285,63 @@
       "oneshot": "one-shot",
       "empty": "keine Filter"
     }
+  },
+  "adminDelete": {
+    "loading": "Wird geladen…",
+    "title": "Konto {{email}} löschen?",
+    "description": "Diese Aktion ist unwiderruflich.",
+    "isAdmin": "Ein Administratorkonto kann nicht gelöscht werden.",
+    "willDelete": "Unwiderruflich gelöscht wird:",
+    "items": {
+      "radars": "Radare",
+      "grantRadars": "Förder-Radare",
+      "tenderAnalyses": "KI-Analysen von Ausschreibungen",
+      "grantAnalyses": "KI-Analysen von Förderungen",
+      "savedTenders": "Gespeicherte Ausschreibungen",
+      "paymentEvents": "Zahlungsdatensätze",
+      "settings": "Einstellungen und Benachrichtigungen",
+      "billingDetails": "Rechnungsdaten"
+    },
+    "invoicesWarning": "Das Konto hat {{count}} ausgestellte Rechnungen. Rechnungen bleiben aus buchhalterischen Gründen im System, das Konto und alle übrigen Daten werden gelöscht.",
+    "forceCheckbox": "Konto trotz Rechnungen löschen",
+    "understandCheckbox": "Ich verstehe, dass diese Aktion unwiderruflich ist",
+    "retypeEmail": "Zur Bestätigung die E-Mail eingeben: {{email}}",
+    "cancel": "Abbrechen",
+    "confirm": "Konto unwiderruflich löschen",
+    "deleting": "Wird gelöscht…",
+    "deleted": "Konto {{email}} wurde gelöscht"
+  },
+  "dangerZone": {
+    "heading": "Gefahrenzone",
+    "description": "Das Löschen des Kontos ist unwiderruflich. Sie verlieren alle Radare, gespeicherten Ausschreibungen, KI-Analysen und Einstellungen.",
+    "deleteButton": "Konto löschen",
+    "cancel": "Abbrechen",
+    "continue": "Fortfahren",
+    "deleting": "Wird gelöscht…",
+    "deleted": "Ihr Konto wurde gelöscht",
+    "step1": {
+      "title": "Möchten Sie Ihr Konto wirklich löschen?",
+      "intro": "Unwiderruflich gelöscht wird:",
+      "items": {
+        "radars": "alle Radare (Ausschreibungen und Förderungen)",
+        "savedTenders": "gespeicherte Ausschreibungen",
+        "analyses": "KI-Analysen",
+        "notifications": "Benachrichtigungseinstellungen",
+        "billingDetails": "Rechnungsdaten"
+      },
+      "invoicesNote": "Ausgestellte Rechnungen bleiben aufgrund der gesetzlichen Archivierungspflicht im System."
+    },
+    "step2": {
+      "title": "Letzte Warnung",
+      "warning": "Dies ist die letzte Warnung. Ihr Konto und alle Daten werden unwiderruflich gelöscht.",
+      "emailLabel": "Zur Bestätigung geben Sie Ihre E-Mail ein: {{email}}",
+      "checkbox": "Ich verstehe, dass mein Konto und alle Daten unwiderruflich gelöscht werden",
+      "confirm": "Konto unwiderruflich löschen"
+    },
+    "errors": {
+      "emailMismatch": "Die eingegebene E-Mail stimmt nicht überein.",
+      "cancelSubscriptionFirst": "Kündigen Sie zuerst Ihr wiederkehrendes Abonnement im Bereich Abonnement & Abrechnung, danach können Sie das Konto löschen.",
+      "adminAccount": "Ein Administratorkonto kann nicht per Selbstbedienung gelöscht werden, bitte kontaktieren Sie den Support."
+    }
   }
 }

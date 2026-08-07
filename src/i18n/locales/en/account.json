@@ -285,5 +285,63 @@
       "oneshot": "one-shot",
       "empty": "no filters"
     }
+  },
+  "adminDelete": {
+    "loading": "Loading…",
+    "title": "Delete account {{email}}?",
+    "description": "This action is irreversible.",
+    "isAdmin": "An admin account cannot be deleted.",
+    "willDelete": "The following will be permanently deleted:",
+    "items": {
+      "radars": "Radars",
+      "grantRadars": "Grant radars",
+      "tenderAnalyses": "AI tender analyses",
+      "grantAnalyses": "AI grant analyses",
+      "savedTenders": "Saved tenders",
+      "paymentEvents": "Payment records",
+      "settings": "Settings and notifications",
+      "billingDetails": "Billing details"
+    },
+    "invoicesWarning": "This account has {{count}} issued invoices. Invoices stay in the system for accounting purposes, but the account and all other data will be deleted.",
+    "forceCheckbox": "Delete the account despite the invoices",
+    "understandCheckbox": "I understand this action is irreversible",
+    "retypeEmail": "To confirm, retype the e-mail: {{email}}",
+    "cancel": "Cancel",
+    "confirm": "Permanently delete account",
+    "deleting": "Deleting…",
+    "deleted": "Account {{email}} was deleted"
+  },
+  "dangerZone": {
+    "heading": "Danger zone",
+    "description": "Deleting your account is irreversible. You will lose all radars, saved tenders, AI analyses and settings.",
+    "deleteButton": "Delete account",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "deleting": "Deleting…",
+    "deleted": "Your account was deleted",
+    "step1": {
+      "title": "Do you really want to delete your account?",
+      "intro": "The following will be permanently deleted:",
+      "items": {
+        "radars": "all radars (tenders and grants)",
+        "savedTenders": "saved tenders",
+        "analyses": "AI analyses",
+        "notifications": "notification settings",
+        "billingDetails": "billing details"
+      },
+      "invoicesNote": "Issued invoices remain in the system due to legal archiving requirements."
+    },
+    "step2": {
+      "title": "Final warning",
+      "warning": "This is the final warning. Your account and all data will be permanently deleted.",
+      "emailLabel": "To confirm, type your e-mail: {{email}}",
+      "checkbox": "I understand that my account and all data will be permanently deleted",
+      "confirm": "Permanently delete account"
+    },
+    "errors": {
+      "emailMismatch": "The e-mail you entered does not match.",
+      "cancelSubscriptionFirst": "Cancel your recurring subscription in the Subscription & billing section first, then you can delete the account.",
+      "adminAccount": "An admin account cannot be deleted via self-service, please contact support."
+    }
   }
 }
