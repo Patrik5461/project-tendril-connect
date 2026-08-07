@@ -13,6 +13,7 @@ import { getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.func
 import { trackConversion } from "@/lib/analytics";
 import { AI_MONTHLY_LIMIT, formatEur, priceEur } from "@/lib/subscription";
 import { useTranslation } from "react-i18next";
+import { fetchEntitlements, type Entitlements } from "@/hooks/use-entitlements";
 
 
 type AnalysisRow = {
