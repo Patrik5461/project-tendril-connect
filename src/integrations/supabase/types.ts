@@ -278,12 +278,14 @@ export type Database = {
           itms_updated_at: string | null
           kod: string | null
           kontakt: Json | null
+          last_change_at: string | null
           miesto_realizacie: Json
           oblasti: Json
           opravneny_ziadatel: Json
           poskytovatel: string | null
           program: string | null
           raw: Json | null
+          search_text: string | null
           source: string
           source_id: string
           stav: string
@@ -308,12 +310,14 @@ export type Database = {
           itms_updated_at?: string | null
           kod?: string | null
           kontakt?: Json | null
+          last_change_at?: string | null
           miesto_realizacie?: Json
           oblasti?: Json
           opravneny_ziadatel?: Json
           poskytovatel?: string | null
           program?: string | null
           raw?: Json | null
+          search_text?: string | null
           source?: string
           source_id: string
           stav?: string
@@ -338,12 +342,14 @@ export type Database = {
           itms_updated_at?: string | null
           kod?: string | null
           kontakt?: Json | null
+          last_change_at?: string | null
           miesto_realizacie?: Json
           oblasti?: Json
           opravneny_ziadatel?: Json
           poskytovatel?: string | null
           program?: string | null
           raw?: Json | null
+          search_text?: string | null
           source?: string
           source_id?: string
           stav?: string
@@ -1206,12 +1212,14 @@ export type Database = {
           itms_updated_at: string | null
           kod: string | null
           kontakt: Json | null
+          last_change_at: string | null
           miesto_realizacie: Json
           oblasti: Json
           opravneny_ziadatel: Json
           poskytovatel: string | null
           program: string | null
           raw: Json | null
+          search_text: string | null
           source: string
           source_id: string
           stav: string
