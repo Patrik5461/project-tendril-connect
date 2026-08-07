@@ -1967,6 +1967,26 @@ function GrantsTestTab() {
         </div>
       </Card>
 
+      <Card title="5) Plán obnovy (POO) – sync">
+        <div className="text-sm text-muted-foreground mb-2">
+          API: <code>https://public-api.planobnovy.sk</code> · endpoint:{" "}
+          <code>/api/public/hooks/sync-poo</code> · cron denne 02:45 UTC.
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={() => runPooSync({ limit: 5 })} disabled={busy !== null} variant="outline">
+            Test (5 výziev)
+          </Button>
+          <Button onClick={() => runPooSync({})} disabled={busy !== null} variant="secondary">
+            <Play className={`h-4 w-4 mr-2 ${busy === "poo" ? "animate-spin" : ""}`} />
+            Inkrementálny sync
+          </Button>
+          <Button onClick={() => runPooSync({ force: true })} disabled={busy !== null} variant="outline">
+            Full sync (force)
+          </Button>
+        </div>
+      </Card>
+
+
       {output && (
         <Card title="Výstup">
           <pre className="whitespace-pre-wrap text-xs bg-muted p-3 rounded max-h-[70vh] overflow-auto">
