@@ -108,6 +108,7 @@ export function computeSubscription(row: {
   const isLocked = status === "expired";
   const isEndingSoon = status === "trial" && daysLeft <= 7;
   const hasAiAccess = status === "trial" || (status === "active" && aiMonthlyLimit(tier) > 0);
+  // DEPRECATED: prístup ku grantom sa rozhoduje výhradne cez RPC get_entitlements().can_grants.
   const hasGrantAccess = status === "trial" || (status === "active" && tier === "komplet");
   const aiLimit = status === "trial" ? TRIAL_AI_ANALYSES : aiMonthlyLimit(tier);
   return {
