@@ -1040,6 +1040,10 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      admin_delete_user: {
+        Args: { _force?: boolean; _user_id: string }
+        Returns: Json
+      }
       admin_get_analytics_config: { Args: never; Returns: Json }
       admin_get_gopay_mode: { Args: never; Returns: string }
       admin_list_users: {
@@ -1106,6 +1110,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_user_delete_preview: { Args: { _user_id: string }; Returns: Json }
       ai_monthly_limit: { Args: { _tier: string }; Returns: number }
       cleanup_grant_calls: { Args: never; Returns: number }
       consume_ai_credit: { Args: { _tender_id: string }; Returns: Json }
@@ -1114,6 +1119,7 @@ export type Database = {
         Args: { _cpv_prefix: string; _region_name: string }
         Returns: number
       }
+      delete_my_account: { Args: { _confirm_email: string }; Returns: Json }
       expire_trials: { Args: never; Returns: number }
       get_active_tenders_count: { Args: never; Returns: number }
       get_active_tenders_stats: {
