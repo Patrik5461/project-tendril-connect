@@ -2031,6 +2031,24 @@ function GrantsTestTab() {
         </div>
       </Card>
 
+      <Card title="6) PPA – sync">
+        <div className="text-sm text-muted-foreground mb-2">
+          API: <code>https://apa.sk</code> · endpoint: <code>/api/public/hooks/sync-ppa</code> · cron denne 03:15 UTC.
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={() => runPpaSync({ limit: 5 })} disabled={busy !== null} variant="outline">
+            Test (5 výziev)
+          </Button>
+          <Button onClick={() => runPpaSync({})} disabled={busy !== null} variant="secondary">
+            <Play className={`h-4 w-4 mr-2 ${busy === "ppa" ? "animate-spin" : ""}`} />
+            Inkrementálny sync
+          </Button>
+          <Button onClick={() => runPpaSync({ force: true })} disabled={busy !== null} variant="outline">
+            Full sync (force)
+          </Button>
+        </div>
+      </Card>
+
 
       {output && (
         <Card title="Výstup">
