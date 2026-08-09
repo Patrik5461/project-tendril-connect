@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { LegalFooter } from "@/components/LegalFooter";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { trackConversion } from "@/lib/analytics";
+import { sendContactMessage } from "@/lib/contact.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { useTranslation, Trans } from "react-i18next";
 
 export const Route = createFileRoute("/kontakt")({
