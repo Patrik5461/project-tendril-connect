@@ -110,7 +110,8 @@
     "errorEmail": "Neplatný e-mail",
     "errorMessage": "Napište zprávu",
     "errorGeneric": "Formulář obsahuje chyby",
-    "toastOpeningMail": "Otevírám e-mailového klienta…"
+    "toastOpeningMail": "Zpráva byla odeslána. Ozveme se vám co nejdříve.",
+    "toastSendFailed": "Zprávu se nepodařilo odeslat. Zkuste to prosím znovu nebo napište na info@tendrik.sk."
   },
   "objednavka": {
     "backToHome": "← Zpět",
@@ -169,9 +170,27 @@
       "komplet": "Zakázky + granty + AI"
     },
     "tierFeatures": {
-      "basic": ["Radary a filtry", "Denní e-mailové souhrny", "Připomínky před termínem", "TED, ÚVO, EKS a JOSEPHINE", "Bez AI a bez grantů"],
-      "premium": ["Vše ze Základu", "{{count}} AI analýz měsíčně", "AI analýza způsobilosti", "AI návrh subdodávek a oslovení", "TED podmínky strukturovaně"],
-      "komplet": ["Vše z Prémia", "Grantové výzvy a radary", "AI analýza grantových výzev", "{{count}} AI analýz měsíčně", "Prioritní podpora"]
+      "basic": [
+        "Radary a filtry",
+        "Denní e-mailové souhrny",
+        "Připomínky před termínem",
+        "TED, ÚVO, EKS a JOSEPHINE",
+        "Bez AI a bez grantů"
+      ],
+      "premium": [
+        "Vše ze Základu",
+        "{{count}} AI analýz měsíčně",
+        "AI analýza způsobilosti",
+        "AI návrh subdodávek a oslovení",
+        "TED podmínky strukturovaně"
+      ],
+      "komplet": [
+        "Vše z Prémia",
+        "Grantové výzvy a radary",
+        "AI analýza grantových výzev",
+        "{{count}} AI analýz měsíčně",
+        "Prioritní podpora"
+      ]
     },
     "aiBadge": "Obsahuje AI",
     "yearlyEurNote": "{{price}} ročně",
