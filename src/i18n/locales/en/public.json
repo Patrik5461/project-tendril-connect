@@ -110,7 +110,8 @@
     "errorEmail": "Invalid email",
     "errorMessage": "Write a message",
     "errorGeneric": "The form contains errors",
-    "toastOpeningMail": "Opening your email client…"
+    "toastOpeningMail": "Message sent. We'll get back to you shortly.",
+    "toastSendFailed": "We couldn't send your message. Please try again or email info@tendrik.sk."
   },
   "objednavka": {
     "backToHome": "← Back",
@@ -169,9 +170,27 @@
       "komplet": "Tenders + grants + AI"
     },
     "tierFeatures": {
-      "basic": ["Radars and filters", "Daily email digests", "Reminders before deadlines", "TED, ÚVO, EKS, and JOSEPHINE", "No AI, no grants"],
-      "premium": ["Everything in Basic", "{{count}} AI analyses per month", "AI eligibility analysis", "AI suggestions for subcontracting and outreach", "TED conditions structured"],
-      "komplet": ["Everything in Premium", "Grant calls and radars", "AI analysis of grant calls", "{{count}} AI analyses per month", "Priority support"]
+      "basic": [
+        "Radars and filters",
+        "Daily email digests",
+        "Reminders before deadlines",
+        "TED, ÚVO, EKS, and JOSEPHINE",
+        "No AI, no grants"
+      ],
+      "premium": [
+        "Everything in Basic",
+        "{{count}} AI analyses per month",
+        "AI eligibility analysis",
+        "AI suggestions for subcontracting and outreach",
+        "TED conditions structured"
+      ],
+      "komplet": [
+        "Everything in Premium",
+        "Grant calls and radars",
+        "AI analysis of grant calls",
+        "{{count}} AI analyses per month",
+        "Priority support"
+      ]
     },
     "aiBadge": "Includes AI",
     "yearlyEurNote": "{{price}} per year",

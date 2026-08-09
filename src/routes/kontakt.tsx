@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { LegalFooter } from "@/components/LegalFooter";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { trackConversion } from "@/lib/analytics";
+import { sendContactMessage } from "@/lib/contact.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { useTranslation, Trans } from "react-i18next";
 
 export const Route = createFileRoute("/kontakt")({
@@ -34,6 +36,7 @@ function KontaktPage() {
   const { t } = useTranslation("public");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sending, setSending] = useState(false);
+  const sendContact = useServerFn(sendContactMessage);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,13 +47,12 @@ function KontaktPage() {
     }
     setSending(true);
     try {
-      const subject = encodeURIComponent(`Kontakt z tendrik.sk – ${parsed.data.name}`);
-      const body = encodeURIComponent(
-        `Od: ${parsed.data.name} <${parsed.data.email}>\n\n${parsed.data.message}`
-      );
-      window.location.href = `mailto:info@tendrik.sk?subject=${subject}&body=${body}`;
+      await sendContact({ data: parsed.data });
       trackConversion("contact_submit");
       toast.success(t("kontakt.toastOpeningMail"));
+      setForm({ name: "", email: "", message: "" });
+    } catch {
+      toast.error(t("kontakt.toastSendFailed"));
     } finally {
       setSending(false);
     }

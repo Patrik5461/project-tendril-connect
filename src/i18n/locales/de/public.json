@@ -110,7 +110,8 @@
     "errorEmail": "Ungültige E-Mail",
     "errorMessage": "Schreiben Sie eine Nachricht",
     "errorGeneric": "Das Formular enthält Fehler",
-    "toastOpeningMail": "E-Mail-Programm wird geöffnet…"
+    "toastOpeningMail": "Nachricht gesendet. Wir melden uns in Kürze.",
+    "toastSendFailed": "Die Nachricht konnte nicht gesendet werden. Bitte erneut versuchen oder an info@tendrik.sk schreiben."
   },
   "objednavka": {
     "backToHome": "← Zurück",
@@ -169,9 +170,27 @@
       "komplet": "Ausschreibungen + Fördermittel + KI"
     },
     "tierFeatures": {
-      "basic": ["Radare und Filter", "Tägliche E-Mail-Zusammenfassungen", "Erinnerungen vor Fristablauf", "TED, ÚVO, EKS und JOSEPHINE", "Ohne KI und Fördermittel"],
-      "premium": ["Alles aus Basis", "{{count}} KI-Analysen pro Monat", "KI-Eignungsanalyse", "KI-Vorschläge für Subunternehmer und Ansprache", "TED-Bedingungen strukturiert"],
-      "komplet": ["Alles aus Premium", "Fördermittel-Ausschreibungen und Radare", "KI-Analyse von Fördermittel-Ausschreibungen", "{{count}} KI-Analysen pro Monat", "Priority-Support"]
+      "basic": [
+        "Radare und Filter",
+        "Tägliche E-Mail-Zusammenfassungen",
+        "Erinnerungen vor Fristablauf",
+        "TED, ÚVO, EKS und JOSEPHINE",
+        "Ohne KI und Fördermittel"
+      ],
+      "premium": [
+        "Alles aus Basis",
+        "{{count}} KI-Analysen pro Monat",
+        "KI-Eignungsanalyse",
+        "KI-Vorschläge für Subunternehmer und Ansprache",
+        "TED-Bedingungen strukturiert"
+      ],
+      "komplet": [
+        "Alles aus Premium",
+        "Fördermittel-Ausschreibungen und Radare",
+        "KI-Analyse von Fördermittel-Ausschreibungen",
+        "{{count}} KI-Analysen pro Monat",
+        "Priority-Support"
+      ]
     },
     "aiBadge": "Enthält KI",
     "yearlyEurNote": "{{price}} jährlich",
