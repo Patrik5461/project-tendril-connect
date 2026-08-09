@@ -44,13 +44,12 @@ function KontaktPage() {
     }
     setSending(true);
     try {
-      const subject = encodeURIComponent(`Kontakt z tendrik.sk – ${parsed.data.name}`);
-      const body = encodeURIComponent(
-        `Od: ${parsed.data.name} <${parsed.data.email}>\n\n${parsed.data.message}`
-      );
-      window.location.href = `mailto:info@tendrik.sk?subject=${subject}&body=${body}`;
+      await sendContact({ data: parsed.data });
       trackConversion("contact_submit");
       toast.success(t("kontakt.toastOpeningMail"));
+      setForm({ name: "", email: "", message: "" });
+    } catch {
+      toast.error(t("kontakt.toastSendFailed"));
     } finally {
       setSending(false);
     }
