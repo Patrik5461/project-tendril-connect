@@ -80,7 +80,7 @@ function Page() {
           <Trans
             t={t}
             i18nKey="recurringPayments.s6.text"
-            components={[<a href="mailto:info@tendrik.sk" />, <a href="tel:+421907702422" />]}
+            components={[<a href="mailto:info@tendrik.sk" />, <a href="tel:+421902067956" />]}
           />
         </p>
       </section>

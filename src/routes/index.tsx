@@ -537,7 +537,7 @@ function Landing() {
             <div className="eyebrow text-foreground">{t("footer.contact")}</div>
             <ul className="mt-3 space-y-1.5 text-muted-foreground">
               <li><a href="mailto:info@tendrik.sk" className="hover:text-foreground">info@tendrik.sk</a></li>
-              <li><a href="tel:+421907702422" className="hover:text-foreground">+421 907 702 422</a></li>
+              <li><a href="tel:+421902067956" className="hover:text-foreground">+421 902 067 956</a></li>
               <li><Link to="/kontakt" className="hover:text-foreground">{t("footer.contactForm")}</Link></li>
               <li><Link to="/cennik" className="hover:text-foreground">{t("footer.pricing")}</Link></li>
             </ul>

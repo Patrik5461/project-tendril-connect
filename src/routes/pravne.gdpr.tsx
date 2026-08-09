@@ -23,7 +23,7 @@ function Page() {
           <li><Trans t={t} i18nKey="gdpr.s1.company" components={[<b />]} /></li>
           <li>{t("gdpr.s1.ico")}</li>
           <li><Trans t={t} i18nKey="gdpr.s1.email" components={[<a href="mailto:info@tendrik.sk" />]} /></li>
-          <li><Trans t={t} i18nKey="gdpr.s1.phone" components={[<a href="tel:+421907702422" />]} /></li>
+          <li><Trans t={t} i18nKey="gdpr.s1.phone" components={[<a href="tel:+421902067956" />]} /></li>
         </ul>
       </section>
 

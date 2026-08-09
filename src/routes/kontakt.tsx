@@ -15,7 +15,7 @@ export const Route = createFileRoute("/kontakt")({
   head: () => ({
     meta: [
       { title: "Kontakt – Tendrik" },
-      { name: "description", content: "Kontaktujte Tobify s. r. o., prevádzkovateľa služby Tendrik.sk. E-mail info@tendrik.sk, tel. +421 907 702 422." },
+      { name: "description", content: "Kontaktujte Tobify s. r. o., prevádzkovateľa služby Tendrik.sk. E-mail info@tendrik.sk, tel. +421 902 067 956." },
     ],
     links: [{ rel: "canonical", href: "https://www.tendrik.sk/kontakt" }],
   }),
@@ -95,7 +95,7 @@ function KontaktPage() {
             </div>
             <div className="flex items-start gap-3">
               <Phone className="h-5 w-5 text-primary mt-0.5" />
-              <a href="tel:+421907702422" className="text-sm hover:text-primary">+421 907 702 422</a>
+              <a href="tel:+421902067956" className="text-sm hover:text-primary">+421 902 067 956</a>
             </div>
           </div>
 

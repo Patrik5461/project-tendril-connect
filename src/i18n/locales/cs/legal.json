@@ -34,7 +34,7 @@
       "company": "<0>Tobify s. r. o.</0>, Športová 707/43, 919 26 Zavar, SR",
       "ico": "IČO: 56607016, DIČ: 2122358579 (neplátce DPH)",
       "email": "E-mail: <0>info@tendrik.sk</0>",
-      "phone": "Telefon: <0>+421 907 702 422</0>"
+      "phone": "Telefon: <0>+421 902 067 956</0>"
     },
     "s2": {
       "heading": "2. Jaké údaje zpracováváme",
@@ -100,7 +100,7 @@
       "dic": "DIČ: 2122358579",
       "vat": "Neplátce DPH",
       "email": "E-mail: <0>info@tendrik.sk</0>",
-      "phone": "Telefon: <0>+421 907 702 422</0>",
+      "phone": "Telefon: <0>+421 902 067 956</0>",
       "vatNote": "Společnost <0>není plátcem DPH</0>; ceny uvedené na Tendrik.sk jsou konečné."
     },
     "s2": {
@@ -195,7 +195,7 @@
     },
     "s6": {
       "heading": "Kontakt",
-      "text": "Dotazy k platbám: <0>info@tendrik.sk</0>, <1>+421 907 702 422</1>."
+      "text": "Dotazy k platbám: <0>info@tendrik.sk</0>, <1>+421 902 067 956</1>."
     }
   },
   "complaints": {
@@ -203,7 +203,7 @@
     "intro": "Postup při uplatnění reklamace služby Tendrik.sk (SaaS platforma monitoringu veřejných zakázek).",
     "s1": {
       "heading": "1. Provozovatel",
-      "text": "<0>Tobify s. r. o.</0>, Športová 707/43, 919 26 Zavar, IČO: 56607016, <1>info@tendrik.sk</1>, <2>+421 907 702 422</2>."
+      "text": "<0>Tobify s. r. o.</0>, Športová 707/43, 919 26 Zavar, IČO: 56607016, <1>info@tendrik.sk</1>, <2>+421 902 067 956</2>."
     },
     "s2": {
       "heading": "2. Předmět reklamace",
@@ -218,7 +218,7 @@
       "intro": "Reklamaci můžete uplatnit:",
       "email": "<0>E-mailem:</0> <1>info@tendrik.sk</1> (doporučujeme),",
       "post": "<0>Poštou:</0> Tobify s. r. o., Športová 707/43, 919 26 Zavar,",
-      "phone": "<0>Telefonicky:</0> <1>+421 907 702 422</1> (následně potvrďte e-mailem).",
+      "phone": "<0>Telefonicky:</0> <1>+421 902 067 956</1> (následně potvrďte e-mailem).",
       "note": "V reklamaci uveďte: registrační e-mail, popis závady, datum vzniku, případně screenshoty."
     },
     "s4": {
