@@ -36,6 +36,7 @@ function KontaktPage() {
   const { t } = useTranslation("public");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sending, setSending] = useState(false);
+  const sendContact = useServerFn(sendContactMessage);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
