@@ -23,7 +23,7 @@ function Page() {
           <Trans
             t={t}
             i18nKey="complaints.s1.text"
-            components={[<b />, <a href="mailto:info@tendrik.sk" />, <a href="tel:+421907702422" />]}
+            components={[<b />, <a href="mailto:info@tendrik.sk" />, <a href="tel:+421902067956" />]}
           />
         </p>
       </section>
@@ -45,7 +45,7 @@ function Page() {
         <ul>
           <li><Trans t={t} i18nKey="complaints.s3.email" components={[<b />, <a href="mailto:info@tendrik.sk" />]} /></li>
           <li><Trans t={t} i18nKey="complaints.s3.post" components={[<b />]} /></li>
-          <li><Trans t={t} i18nKey="complaints.s3.phone" components={[<b />, <a href="tel:+421907702422" />]} /></li>
+          <li><Trans t={t} i18nKey="complaints.s3.phone" components={[<b />, <a href="tel:+421902067956" />]} /></li>
         </ul>
         <p>{t("complaints.s3.note")}</p>
       </section>

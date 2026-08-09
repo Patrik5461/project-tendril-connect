@@ -27,7 +27,7 @@ function Page() {
           <li>{t("terms.s1.dic")}</li>
           <li>{t("terms.s1.vat")}</li>
           <li><Trans t={t} i18nKey="terms.s1.email" components={[<a href="mailto:info@tendrik.sk" />]} /></li>
-          <li><Trans t={t} i18nKey="terms.s1.phone" components={[<a href="tel:+421907702422" />]} /></li>
+          <li><Trans t={t} i18nKey="terms.s1.phone" components={[<a href="tel:+421902067956" />]} /></li>
         </ul>
         <p><Trans t={t} i18nKey="terms.s1.vatNote" components={[<b />]} /></p>
       </section>
