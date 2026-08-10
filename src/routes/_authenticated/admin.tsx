@@ -115,12 +115,12 @@ function AdminPage() {
   if (!allowed) return null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="flex items-center gap-3">
-        <ShieldCheck className="h-6 w-6 text-primary" />
-        <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Admin</h1>
+    <div className="mx-auto max-w-6xl px-3 sm:px-4 py-6 sm:py-8">
+      <div className="flex min-w-0 items-center gap-3">
+        <ShieldCheck className="h-6 w-6 shrink-0 text-primary" />
+        <h1 className="truncate font-display text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Admin</h1>
       </div>
-      <p className="mt-1 text-muted-foreground">
+      <p className="mt-1 text-sm sm:text-base text-muted-foreground">
         Interné rozhranie – všetky manuálne akcie a prehľady.
       </p>
 
@@ -128,18 +128,20 @@ function AdminPage() {
 
 
       <Tabs defaultValue="overview" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="overview">Prehľad</TabsTrigger>
-          <TabsTrigger value="actions">Akcie</TabsTrigger>
-          <TabsTrigger value="gopay">GoPay</TabsTrigger>
-          <TabsTrigger value="invoices">Faktero fakturácia</TabsTrigger>
-          <TabsTrigger value="users">Používatelia</TabsTrigger>
-          <TabsTrigger value="seo">SEO</TabsTrigger>
-          <TabsTrigger value="ai-test">AI test</TabsTrigger>
-          <TabsTrigger value="grants-test">Granty (ITMS)</TabsTrigger>
-          <TabsTrigger value="grants-ai">Granty (AI test)</TabsTrigger>
-          <TabsTrigger value="marketing">Google / Analytics</TabsTrigger>
-        </TabsList>
+        <div className="-mx-3 overflow-x-auto px-3 sm:mx-0 sm:px-0">
+          <TabsList className="w-max justify-start">
+            <TabsTrigger value="overview">Prehľad</TabsTrigger>
+            <TabsTrigger value="actions">Akcie</TabsTrigger>
+            <TabsTrigger value="gopay">GoPay</TabsTrigger>
+            <TabsTrigger value="invoices">Faktero fakturácia</TabsTrigger>
+            <TabsTrigger value="users">Používatelia</TabsTrigger>
+            <TabsTrigger value="seo">SEO</TabsTrigger>
+            <TabsTrigger value="ai-test">AI test</TabsTrigger>
+            <TabsTrigger value="grants-test">Granty (ITMS)</TabsTrigger>
+            <TabsTrigger value="grants-ai">Granty (AI test)</TabsTrigger>
+            <TabsTrigger value="marketing">Google / Analytics</TabsTrigger>
+          </TabsList>
+        </div>
         <TabsContent value="overview" className="mt-4"><OverviewTab /></TabsContent>
         <TabsContent value="actions" className="mt-4"><ActionsTab /></TabsContent>
         <TabsContent value="gopay" className="mt-4"><GopayTab /></TabsContent>
@@ -380,7 +382,7 @@ function ActionsTab() {
       </Card>
 
       <Card title="AI zhrnutia">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground max-w-lg">
             Prepínač riadi cron, ktorý dopĺňa AI zhrnutia k novým zákazkám. Existujúce zhrnutia zostávajú.
           </div>
@@ -450,7 +452,7 @@ function StuckPaymentsCard() {
 
   return (
     <Card title="Zaplatené platby bez aktivovaného predplatného">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           Platby v stave <b>PAID</b>, kde používateľ nemá aktívne (alebo má expirované) predplatné.
         </p>
@@ -466,7 +468,7 @@ function StuckPaymentsCard() {
         <p className="mt-4 text-sm text-muted-foreground">Žiadne nevybavené platby. ✓</p>
       ) : (
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[720px] text-sm">
             <thead className="text-left text-xs text-muted-foreground">
               <tr>
                 <th className="py-2 pr-3">Dátum</th>
@@ -622,7 +624,7 @@ function GopayTab() {
       </Card>
 
       <Card title="Opakované platby (recurring)">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             Ak je vypnuté, platby sa vytvárajú ako <b>jednorazové na 1 mesiac</b>. Zapnite až keď má
             GoPay účet povolené opakované platby (inak GoPay vráti chybu 344).
@@ -764,19 +766,19 @@ function UsersTab() {
         <span className="rounded bg-muted px-2 py-0.5">Trial: <b>{counts.trial}</b></span>
         <span className="rounded bg-destructive/10 text-destructive px-2 py-0.5">Exspirovaní: <b>{counts.expired}</b></span>
       </div>
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex flex-wrap items-center gap-2 mb-3">
         <UsersIcon className="h-4 w-4 text-muted-foreground" />
         <input
           value={q} onChange={(e) => setQ(e.target.value)}
           placeholder="Hľadať e-mail, IČO, firmu…"
-          className="rounded border px-2 py-1.5 text-sm bg-background max-w-xs"
+          className="min-w-0 flex-1 rounded border px-2 py-1.5 text-sm bg-background sm:max-w-xs sm:flex-none"
         />
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="ml-auto">
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} /> Obnoviť
         </Button>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[720px] text-sm">
           <thead className="text-left text-xs text-muted-foreground border-b border-primary/10">
             <tr>
               <th className="py-2 pr-3">E-mail</th>
@@ -1164,7 +1166,7 @@ function SeoTab() {
           <p className="text-sm text-muted-foreground">Načítavam…</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase text-muted-foreground border-b">
                   <th className="py-2 pr-3">Typ</th>
@@ -1494,7 +1496,7 @@ function InvoicesTab() {
 
 
       <section className="rounded-lg border border-primary/15 bg-card p-5">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-display font-semibold">Faktúry</h3>
           <div className="flex gap-1">
             {(["failed", "sent", "all"] as const).map((f) => (
@@ -1509,7 +1511,7 @@ function InvoicesTab() {
           <p className="mt-3 text-sm text-muted-foreground">Žiadne záznamy.</p>
         ) : (
           <div className="mt-3 overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[720px] text-sm">
               <thead className="text-left text-muted-foreground">
                 <tr className="border-b border-primary/10">
                   <th className="py-2 pr-3">Vytvorené</th>
@@ -1724,7 +1726,7 @@ function AiTestTab() {
           <PartBlock title="3. Spôsobilosť firmy" part={result.parts?.eligibility} />
 
           <div className="pt-2 border-t">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <div className="font-medium">Fáza 3 — Subdodávky a partneri</div>
                 <div className="text-xs text-muted-foreground">Testovacie spustenie (nič sa neukladá do tender_subcontracting).</div>
@@ -1843,7 +1845,7 @@ function PartBlock({ title, part }: { title: string; part: any | null }) {
   );
   return (
     <div className="rounded border p-3 space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="font-medium">{title}</div>
         <div className="text-xs text-muted-foreground">
           {part.model} · {(part.elapsedMs / 1000).toFixed(1)} s
@@ -2014,7 +2016,7 @@ function GrantsTestTab() {
       </Card>
 
       <Card title="2) Test detail podľa kódu">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Input value={kod} onChange={(e) => setKod(e.target.value)} placeholder="napr. PSK-MIRRI-977-2026-TP-KF" />
           <Button onClick={testDetail} disabled={busy !== null} variant="secondary">
             <Play className={`h-4 w-4 mr-2 ${busy === "detail" ? "animate-spin" : ""}`} />
