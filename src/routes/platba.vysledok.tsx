@@ -1,12 +1,17 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, AlertCircle, ArrowRight, Loader2 } from "lucide-react";
+import { CheckCircle2, XCircle, AlertCircle, ArrowRight, Loader2, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { trackConversion } from "@/lib/analytics";
 import { useTranslation } from "react-i18next";
 
 type Search = { id?: string; payment_id?: string };
+type Status = "checking" | "success" | "pending" | "failed";
+
+const MAX_ATTEMPTS = 6;
+const RETRY_MS = 2000;
 
 export const Route = createFileRoute("/platba/vysledok")({
   head: () => ({
@@ -24,75 +29,80 @@ export const Route = createFileRoute("/platba/vysledok")({
 
 function PlatbaVysledok() {
   const { t } = useTranslation("public");
+  const queryClient = useQueryClient();
   const search = useSearch({ from: "/platba/vysledok" }) as Search;
   const paymentId = search.id ?? search.payment_id;
-  const [status, setStatus] = useState<"loading" | "active" | "trial" | "expired" | "unknown">("loading");
+  const [status, setStatus] = useState<Status>("checking");
+  const cancelled = useRef(false);
+
+  const run = useCallback(async () => {
+    cancelled.current = false;
+    if (!paymentId) { setStatus("pending"); return; }
+    setStatus("checking");
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      if (cancelled.current) return;
+      let state: string | null = null;
+      try {
+        const { data, error } = await supabase.functions.invoke("gopay-webhook", {
+          body: { reprocess: true, payment_id: paymentId },
+        });
+        if (!error) state = String((data as { state?: string } | null)?.state ?? "").toUpperCase();
+      } catch { /* retry */ }
+
+      if (cancelled.current) return;
+
+      if (state === "PAID") {
+        trackConversion("subscription_purchase", { transaction_id: paymentId, currency: "EUR" });
+        queryClient.invalidateQueries({ queryKey: ["user_preferences"] });
+        queryClient.invalidateQueries({ queryKey: ["entitlements"] });
+        queryClient.invalidateQueries({ queryKey: ["get_entitlements"] });
+        setStatus("success");
+        return;
+      }
+      if (state === "CANCELED" || state === "TIMEOUTED") { setStatus("failed"); return; }
+
+      await new Promise((r) => setTimeout(r, RETRY_MS));
+    }
+    if (!cancelled.current) setStatus("pending");
+  }, [paymentId, queryClient]);
 
   useEffect(() => {
-    let cancelled = false;
-    async function poll(attempt = 0) {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) { setStatus("unknown"); return; }
-      const { data } = await supabase
-        .from("user_preferences")
-        .select("subscription_status")
-        .eq("user_id", u.user.id)
-        .maybeSingle();
-      const s = (data?.subscription_status ?? "trial") as string;
-      if (cancelled) return;
-      if (s === "active" || attempt >= 6) {
-        if (s === "active") {
-          trackConversion("subscription_purchase", {
-            transaction_id: paymentId,
-            currency: "EUR",
-          });
-        }
-        setStatus(s as "active" | "trial" | "expired");
-      } else {
-        setTimeout(() => poll(attempt + 1), 1500);
-      }
-    }
-    poll();
-    return () => { cancelled = true; };
-  }, [paymentId]);
-
-  const isSuccess = status === "active";
-  const isLoading = status === "loading";
+    void run();
+    return () => { cancelled.current = true; };
+  }, [run]);
 
   return (
     <div className="mx-auto max-w-xl px-4 py-16 text-center">
-      {isLoading ? (
+      {status === "checking" ? (
         <>
           <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
           <h1 className="mt-6 font-display text-2xl font-bold">{t("platbaVysledok.verifying")}</h1>
-          <p className="mt-3 text-muted-foreground">
-            {t("platbaVysledok.verifyingText")}
-          </p>
+          <p className="mt-3 text-muted-foreground">{t("platbaVysledok.verifyingText")}</p>
         </>
-      ) : isSuccess ? (
+      ) : status === "success" ? (
         <>
           <CheckCircle2 className="mx-auto h-12 w-12 text-primary" />
           <h1 className="mt-6 font-display text-3xl font-bold">{t("platbaVysledok.successTitle")}</h1>
-          <p className="mt-3 text-muted-foreground">
-            {t("platbaVysledok.successText")}
-          </p>
+          <p className="mt-3 text-muted-foreground">{t("platbaVysledok.successText")}</p>
           <Link to="/dashboard" search={{ tab: "foryou", sort: "deadline", q: "", view: "list", radar: "all", country: "", page: 1, pageSize: 20 } as never}>
             <Button className="mt-8" size="lg">
-              {t("platbaVysledok.continueToDashboard")} <ArrowRight className="h-4 w-4 ml-2" />
+              {t("platbaVysledok.continueToApp")} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
         </>
-      ) : status === "trial" ? (
+      ) : status === "pending" ? (
         <>
           <AlertCircle className="mx-auto h-12 w-12 text-amber-500" />
-          <h1 className="mt-6 font-display text-3xl font-bold">{t("platbaVysledok.pendingTitle")}</h1>
-          <p className="mt-3 text-muted-foreground">
-            {t("platbaVysledok.pendingText")}
-          </p>
+          <h1 className="mt-6 font-display text-3xl font-bold">{t("platbaVysledok.processingTitle")}</h1>
+          <p className="mt-3 text-muted-foreground">{t("platbaVysledok.processingText")}</p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/predplatne"><Button>{t("platbaVysledok.tryAgain")}</Button></Link>
+            <Button onClick={() => void run()}>
+              <RefreshCw className="h-4 w-4 mr-2" /> {t("platbaVysledok.refreshStatus")}
+            </Button>
+            <Link to="/kontakt"><Button variant="outline">{t("platbaVysledok.contactSupport")}</Button></Link>
             <Link to="/dashboard" search={{ tab: "foryou", sort: "deadline", q: "", view: "list", radar: "all", country: "", page: 1, pageSize: 20 } as never}>
-              <Button variant="outline">{t("platbaVysledok.backToDashboard")}</Button>
+              <Button variant="ghost">{t("platbaVysledok.backToDashboard")}</Button>
             </Link>
           </div>
         </>
