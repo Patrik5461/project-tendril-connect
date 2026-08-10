@@ -249,5 +249,12 @@
   },
   "webOnlyPurchase": {
     "defaultNote": "Manage your subscription at tendrik.sk"
+  },
+  "whatsapp": {
+    "label": "Message us on WhatsApp",
+    "message": "Hello, I have a question about Tendrik and need some help.",
+    "contactTitle": "WhatsApp support",
+    "contactNote": "We're happy to help – message us on WhatsApp and we'll get back to you shortly.",
+    "contactCta": "Message on WhatsApp"
   }
 }

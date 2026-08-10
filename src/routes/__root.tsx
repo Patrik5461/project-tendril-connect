@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieBanner } from "@/components/CookieBanner";
 import { AnalyticsScripts } from "@/components/AnalyticsScripts";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { I18nProvider } from "@/i18n/I18nProvider";
 
 function NotFoundComponent() {
@@ -158,10 +159,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider initialLang={lang}>
-
         <Outlet />
         <Toaster richColors position="top-right" />
         <CookieBanner />
+        <WhatsAppButton />
         <AnalyticsScripts />
       </I18nProvider>
     </QueryClientProvider>

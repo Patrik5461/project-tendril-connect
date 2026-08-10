@@ -249,5 +249,12 @@
   },
   "webOnlyPurchase": {
     "defaultNote": "Predplatné spravuješ na tendrik.sk"
+  },
+  "whatsapp": {
+    "label": "Napíšte nám na WhatsApp",
+    "message": "Dobrý deň, mám otázku k Tendriku a potrebujem pomoc.",
+    "contactTitle": "WhatsApp podpora",
+    "contactNote": "Radi vám pomôžeme – napíšte nám na WhatsApp a ozveme sa čo najskôr.",
+    "contactCta": "Napísať na WhatsApp"
   }
 }

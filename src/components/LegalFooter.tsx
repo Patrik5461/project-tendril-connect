@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { getWhatsAppUrl } from "@/lib/whatsapp";
 
 export function PaymentBadges({ className = "" }: { className?: string }) {
   const { t } = useTranslation("legal");
@@ -22,7 +23,7 @@ export function PaymentBadges({ className = "" }: { className?: string }) {
 }
 
 export function LegalFooter() {
-  const { t } = useTranslation("legal");
+  const { t } = useTranslation(["legal", "public"]);
   return (
     <footer className="mt-16 border-t-2 border-foreground bg-background">
       <div className="mx-auto max-w-6xl px-4 py-10 grid gap-8 md:grid-cols-4 text-sm">
@@ -48,6 +49,16 @@ export function LegalFooter() {
             </li>
             <li>
               <a href="tel:+421902067956" className="hover:text-foreground">+421 902 067 956</a>
+            </li>
+            <li>
+              <a
+                href={getWhatsAppUrl(t("public:whatsapp.message"))}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground"
+              >
+                {t("footer.whatsapp")}
+              </a>
             </li>
             <li>
               <Link to="/kontakt" className="hover:text-foreground">{t("footer.contactForm")}</Link>

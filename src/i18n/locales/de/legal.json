@@ -278,7 +278,8 @@
     "payments": "Zahlungen",
     "paymentsNote": "Zahlungen werden von GoPay s.r.o. über ein gesichertes Zahlungsgateway mit 3D-Secure-Unterstützung verarbeitet.",
     "copyright": "© {{year}} Tobify s. r. o. Alle Rechte vorbehalten.",
-    "tagline": "Tendrik.sk – Überwachung öffentlicher Beschaffung"
+    "tagline": "Tendrik.sk – Überwachung öffentlicher Beschaffung",
+    "whatsapp": "WhatsApp-Support"
   },
   "cookieBanner": {
     "ariaLabel": "Zustimmung zur Verwendung von Cookies",

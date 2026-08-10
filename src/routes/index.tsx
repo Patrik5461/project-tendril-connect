@@ -4,6 +4,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Search, Bell, Filter } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { getWhatsAppUrl } from "@/lib/whatsapp";
 
 function formatSk(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
@@ -538,6 +539,17 @@ function Landing() {
             <ul className="mt-3 space-y-1.5 text-muted-foreground">
               <li><a href="mailto:info@tendrik.sk" className="hover:text-foreground">info@tendrik.sk</a></li>
               <li><a href="tel:+421902067956" className="hover:text-foreground">+421 902 067 956</a></li>
+              <li>
+                <a
+                  href={getWhatsAppUrl(t("public:whatsapp.message"))}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground inline-flex items-center gap-1.5"
+                >
+                  <span className="inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: "#25D366" }} />
+                  {t("footer.whatsapp")}
+                </a>
+              </li>
               <li><Link to="/kontakt" className="hover:text-foreground">{t("footer.contactForm")}</Link></li>
               <li><Link to="/cennik" className="hover:text-foreground">{t("footer.pricing")}</Link></li>
             </ul>

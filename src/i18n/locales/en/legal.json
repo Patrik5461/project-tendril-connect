@@ -278,7 +278,8 @@
     "payments": "Payments",
     "paymentsNote": "Payments are processed by GoPay s.r.o. via a secure payment gateway with 3D Secure support.",
     "copyright": "© {{year}} Tobify s. r. o. All rights reserved.",
-    "tagline": "Tendrik.sk – public procurement monitoring"
+    "tagline": "Tendrik.sk – public procurement monitoring",
+    "whatsapp": "WhatsApp support"
   },
   "cookieBanner": {
     "ariaLabel": "Consent to the use of cookies",
