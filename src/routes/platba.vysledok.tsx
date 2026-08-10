@@ -33,44 +33,75 @@ function PlatbaVysledok() {
   const search = useSearch({ from: "/platba/vysledok" }) as Search;
   const paymentId = search.id ?? search.payment_id;
   const [status, setStatus] = useState<Status>("checking");
+  const [busy, setBusy] = useState(false);
   const cancelled = useRef(false);
+  const running = useRef(false);
 
   const run = useCallback(async () => {
+    if (running.current) return;
+    running.current = true;
     cancelled.current = false;
-    if (!paymentId) { setStatus("pending"); return; }
-    setStatus("checking");
+    setBusy(true);
+    const busyTimer = setTimeout(() => setBusy(false), 2000);
 
-    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-      if (cancelled.current) return;
-      let state: string | null = null;
-      try {
-        const { data, error } = await supabase.functions.invoke("gopay-webhook", {
-          body: { reprocess: true, payment_id: paymentId },
-        });
-        if (!error) state = String((data as { state?: string } | null)?.state ?? "").toUpperCase();
-      } catch { /* retry */ }
+    try {
+      if (!paymentId) { setStatus("pending"); return; }
+      setStatus("checking");
 
-      if (cancelled.current) return;
+      let reprocessFired = false;
+      const started = Date.now();
 
-      if (state === "PAID") {
-        trackConversion("subscription_purchase", { transaction_id: paymentId, currency: "EUR" });
-        queryClient.invalidateQueries({ queryKey: ["user_preferences"] });
-        queryClient.invalidateQueries({ queryKey: ["entitlements"] });
-        queryClient.invalidateQueries({ queryKey: ["get_entitlements"] });
-        setStatus("success");
-        return;
+      while (Date.now() - started < POLL_TIMEOUT_MS) {
+        if (cancelled.current) return;
+
+        let state: string | null = null;
+        try {
+          const { data } = await supabase
+            .from("gopay_payment_events")
+            .select("state")
+            .eq("gopay_payment_id", paymentId)
+            .order("received_at", { ascending: false })
+            .limit(1);
+          const row = (data as { state: string | null }[] | null)?.[0];
+          state = row?.state ? String(row.state).toUpperCase() : null;
+        } catch { /* pokračuj v pollovaní */ }
+
+        if (cancelled.current) return;
+
+        if (state === "PAID") {
+          trackConversion("subscription_purchase", { transaction_id: paymentId, currency: "EUR" });
+          queryClient.invalidateQueries({ queryKey: ["user_preferences"] });
+          queryClient.invalidateQueries({ queryKey: ["entitlements"] });
+          queryClient.invalidateQueries({ queryKey: ["get_entitlements"] });
+          setStatus("success");
+          return;
+        }
+        if (state === "CANCELED" || state === "TIMEOUTED") { setStatus("failed"); return; }
+
+        // Fallback: po 3 s bez záznamu jedenkrát pošli reprocess (fire-and-forget).
+        if (!reprocessFired && !state && Date.now() - started >= REPROCESS_AFTER_MS) {
+          reprocessFired = true;
+          void supabase.functions
+            .invoke("gopay-webhook", { body: { reprocess: true, payment_id: paymentId } })
+            .catch(() => {});
+        }
+
+        await new Promise((r) => setTimeout(r, POLL_MS));
       }
-      if (state === "CANCELED" || state === "TIMEOUTED") { setStatus("failed"); return; }
 
-      await new Promise((r) => setTimeout(r, RETRY_MS));
+      if (!cancelled.current) setStatus("pending");
+    } finally {
+      clearTimeout(busyTimer);
+      setBusy(false);
+      running.current = false;
     }
-    if (!cancelled.current) setStatus("pending");
   }, [paymentId, queryClient]);
 
   useEffect(() => {
     void run();
-    return () => { cancelled.current = true; };
+    return () => { cancelled.current = true; running.current = false; };
   }, [run]);
+
 
   return (
     <div className="mx-auto max-w-xl px-4 py-16 text-center">
