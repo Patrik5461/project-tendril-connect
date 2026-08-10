@@ -10,8 +10,10 @@ import { useTranslation } from "react-i18next";
 type Search = { id?: string; payment_id?: string };
 type Status = "checking" | "success" | "pending" | "failed";
 
-const MAX_ATTEMPTS = 6;
-const RETRY_MS = 2000;
+const POLL_MS = 500;
+const POLL_TIMEOUT_MS = 20000;
+const REPROCESS_AFTER_MS = 3000;
+
 
 export const Route = createFileRoute("/platba/vysledok")({
   head: () => ({
