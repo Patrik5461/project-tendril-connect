@@ -10,7 +10,7 @@ export function WhatsAppIcon({ className, style }: { className?: string; style?:
       style={style}
       aria-hidden="true"
     >
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.702h-.004c-3.969 0-7.201 3.232-7.201 7.201 0 1.42.415 2.747 1.127 3.87l-1.41 4.102 4.198-1.109A7.18 7.18 0 0 0 12 21.38c3.97 0 7.201-3.232 7.201-7.201 0-3.968-3.231-7.2-7.201-7.2M12 22.551a8.31 8.31 0 0 1-4.209-1.145l-3.023.795.805-2.335A8.305 8.305 0 0 1 3.7 12.35c0-4.578 3.721-8.301 8.301-8.301 4.578 0 8.3 3.723 8.3 8.301 0 4.579-3.722 8.3-8.3 8.3" />
+      <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.08L2 22l5.04-1.36C8.49 21.46 10.2 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm4.64 14.3c-.18.5-.93.97-1.29 1.03-.34.06-.66.18-2.23-.46-1.88-.75-3.07-2.72-3.16-2.85-.09-.12-.75-.99-.75-1.89s.48-1.34.65-1.52c.18-.18.39-.22.52-.22l.37.01c.12 0 .28-.04.44.34.16.37.56 1.28.61 1.38.05.09.08.2 0 .31-.09.12-.12.18-.25.29-.12.12-.26.25-.37.34-.12.09-.25.19-.11.37.14.18.51.84 1.09 1.36.75.67 1.38.88 1.58.98.2.09.32.08.44-.05.12-.12.51-.59.65-.79.14-.2.28-.17.46-.1.18.09 1.14.54 1.34.64.2.09.33.14.38.22.05.08.05.46-.13.96z" />
     </svg>
   );
 }
@@ -20,15 +20,19 @@ export function WhatsAppButton() {
   const url = getWhatsAppUrl(t("whatsapp.message"));
 
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={t("whatsapp.label")}
-      className="fixed bottom-5 left-5 z-40 h-14 w-14 rounded-md border-2 border-white shadow-[4px_4px_0_0_hsl(var(--foreground))] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0_0_hsl(var(--foreground))] flex items-center justify-center"
-      style={{ backgroundColor: "#25D366", color: "#ffffff" }}
-    >
-      <WhatsAppIcon className="h-7 w-7" />
-    </a>
+    <div className="fixed bottom-5 right-5 z-40 group flex flex-col items-end">
+      <span className="mb-2 rounded-md bg-foreground px-2 py-1 text-xs font-medium text-background opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+        {t("whatsapp.label")}
+      </span>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={t("whatsapp.label")}
+        className="h-14 w-14 rounded-full bg-[#25D366] text-white shadow-lg flex items-center justify-center transition-transform hover:scale-110 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
+      >
+        <WhatsAppIcon className="h-7 w-7" />
+      </a>
+    </div>
   );
 }
