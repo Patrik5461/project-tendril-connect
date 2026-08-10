@@ -278,7 +278,8 @@
     "payments": "Platby",
     "paymentsNote": "Platby spracúva GoPay s.r.o. cez zabezpečenú platobnú bránu s podporou 3D Secure.",
     "copyright": "© {{year}} Tobify s. r. o. Všetky práva vyhradené.",
-    "tagline": "Tendrik.sk – monitoring verejného obstarávania"
+    "tagline": "Tendrik.sk – monitoring verejného obstarávania",
+    "whatsapp": "WhatsApp podpora"
   },
   "cookieBanner": {
     "ariaLabel": "Súhlas s používaním cookies",

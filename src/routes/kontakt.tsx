@@ -10,6 +10,8 @@ import { LegalFooter } from "@/components/LegalFooter";
 import { Mail, Phone, MapPin } from "lucide-react";
 import { trackConversion } from "@/lib/analytics";
 import { sendContactMessage } from "@/lib/contact.functions";
+import { getWhatsAppUrl } from "@/lib/whatsapp";
+import { WhatsAppIcon } from "@/components/WhatsAppButton";
 import { useServerFn } from "@tanstack/react-start";
 import { useTranslation, Trans } from "react-i18next";
 
@@ -98,6 +100,23 @@ function KontaktPage() {
             <div className="flex items-start gap-3">
               <Phone className="h-5 w-5 text-primary mt-0.5" />
               <a href="tel:+421902067956" className="text-sm hover:text-primary">+421 902 067 956</a>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-4">
+              <div className="flex items-start gap-3">
+                <WhatsAppIcon className="h-5 w-5 mt-0.5 shrink-0" style={{ color: "#25D366" }} />
+                <div className="text-sm">
+                  <div className="font-semibold text-foreground">{t("whatsapp.contactTitle")}</div>
+                  <p className="mt-1 text-muted-foreground">{t("whatsapp.contactNote")}</p>
+                  <a
+                    href={getWhatsAppUrl(t("whatsapp.message"))}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium hover:text-primary"
+                  >
+                    {t("whatsapp.contactCta")}
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
