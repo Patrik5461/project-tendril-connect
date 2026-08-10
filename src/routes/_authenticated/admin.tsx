@@ -468,7 +468,7 @@ function StuckPaymentsCard() {
         <p className="mt-4 text-sm text-muted-foreground">Žiadne nevybavené platby. ✓</p>
       ) : (
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full min-w-[720px] text-sm">
             <thead className="text-left text-xs text-muted-foreground">
               <tr>
                 <th className="py-2 pr-3">Dátum</th>
@@ -778,7 +778,7 @@ function UsersTab() {
         </Button>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full min-w-[720px] text-sm">
           <thead className="text-left text-xs text-muted-foreground border-b border-primary/10">
             <tr>
               <th className="py-2 pr-3">E-mail</th>
@@ -1166,7 +1166,7 @@ function SeoTab() {
           <p className="text-sm text-muted-foreground">Načítavam…</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[720px] text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase text-muted-foreground border-b">
                   <th className="py-2 pr-3">Typ</th>
@@ -1511,7 +1511,7 @@ function InvoicesTab() {
           <p className="mt-3 text-sm text-muted-foreground">Žiadne záznamy.</p>
         ) : (
           <div className="mt-3 overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full min-w-[720px] text-sm">
               <thead className="text-left text-muted-foreground">
                 <tr className="border-b border-primary/10">
                   <th className="py-2 pr-3">Vytvorené</th>
