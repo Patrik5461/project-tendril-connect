@@ -739,7 +739,10 @@ function UsersTab() {
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     if (!s) return rows;
-    return rows.filter((r) => (r.email ?? "").toLowerCase().includes(s));
+    return rows.filter((r) =>
+      (r.email ?? "").toLowerCase().includes(s) ||
+      (r.ico ?? "").toLowerCase().includes(s) ||
+      (r.company_name ?? "").toLowerCase().includes(s));
   }, [q, rows]);
 
   const counts = useMemo(() => {
