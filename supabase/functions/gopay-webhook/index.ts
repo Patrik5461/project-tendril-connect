@@ -156,17 +156,25 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
         ? new Date().toISOString()
         : prevStart.toISOString();
 
-      const { error: updErr } = await admin.from("user_preferences").update({
+      // Opakovaná notifikácia tej istej platby v tom istom stave nesmie
+      // znova predĺžiť platnosť predplatného.
+      const updatePayload: Record<string, unknown> = {
         subscription_status: "active",
         subscription_source: "paid",
         subscription_tier: finalTier,
         billing_period: resolvedPeriod,
-        subscription_valid_until: next.toISOString(),
-        last_payment_at: new Date().toISOString(),
-        ai_quota_period_start: quotaStart,
         gopay_recurrence_id: String(payment.parent_id ?? payment.id),
-      }).eq("user_id", userId);
+      };
+      if (!alreadyProcessed) {
+        updatePayload.subscription_valid_until = next.toISOString();
+        updatePayload.last_payment_at = new Date().toISOString();
+        updatePayload.ai_quota_period_start = quotaStart;
+      }
+
+      const { error: updErr } = await admin.from("user_preferences")
+        .update(updatePayload).eq("user_id", userId);
       if (updErr) throw new Error(`update user_preferences: ${updErr.message}`);
+
 
       // Faktero
       const amountGrossEur = Number(payment.amount ?? 0) / 100;
