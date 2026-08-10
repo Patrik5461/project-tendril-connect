@@ -144,6 +144,7 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
 
       const { error: updErr } = await admin.from("user_preferences").update({
         subscription_status: "active",
+        subscription_source: "paid",
         subscription_tier: finalTier,
         billing_period: resolvedPeriod,
         subscription_valid_until: next.toISOString(),
