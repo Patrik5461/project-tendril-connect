@@ -245,7 +245,7 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
     throw new Error(msg);
   }
 
-  return { ok: true, state: payment.state, mapped };
+  return { ok: true, state: payment.state, mapped, already_processed: alreadyProcessed };
 }
 
 
