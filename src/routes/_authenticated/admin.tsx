@@ -47,7 +47,33 @@ type UserRow = {
   trial_started_at: string | null;
   subscription_valid_until: string | null;
   radars_count: number;
+  grant_radars_count?: number;
+  ico?: string | null;
+  company_name?: string | null;
+  radars?: Array<{ name: string; active: boolean; keywords?: string[]; cpv_codes?: string[]; regions?: string[]; countries?: string[] }> | null;
+  grant_radars?: Array<{ name: string; active: boolean; keywords?: string[]; programs?: string[]; regions?: string[]; applicant_categories?: string[] }> | null;
 };
+
+function radarSummary(r: UserRow): string {
+  const parts: string[] = [];
+  for (const x of r.radars ?? []) {
+    parts.push(`Zákazky · ${x.name}${x.active ? "" : " (vyp.)"}: ${[
+      (x.keywords ?? []).length ? `kľúčové: ${(x.keywords ?? []).join(", ")}` : null,
+      (x.cpv_codes ?? []).length ? `CPV: ${(x.cpv_codes ?? []).join(", ")}` : null,
+      (x.regions ?? []).length ? `kraje: ${(x.regions ?? []).join(", ")}` : null,
+      (x.countries ?? []).length ? `krajiny: ${(x.countries ?? []).join(", ")}` : null,
+    ].filter(Boolean).join(" | ") || "bez filtrov"}`);
+  }
+  for (const x of r.grant_radars ?? []) {
+    parts.push(`Granty · ${x.name}${x.active ? "" : " (vyp.)"}: ${[
+      (x.keywords ?? []).length ? `kľúčové: ${(x.keywords ?? []).join(", ")}` : null,
+      (x.programs ?? []).length ? `programy: ${(x.programs ?? []).join(", ")}` : null,
+      (x.regions ?? []).length ? `kraje: ${(x.regions ?? []).join(", ")}` : null,
+      (x.applicant_categories ?? []).length ? `žiadateľ: ${(x.applicant_categories ?? []).join(", ")}` : null,
+    ].filter(Boolean).join(" | ") || "bez filtrov"}`);
+  }
+  return parts.join("\n") || "Žiadne radary";
+}
 
 function fmtDate(v?: string | null) {
   if (!v) return "—";
