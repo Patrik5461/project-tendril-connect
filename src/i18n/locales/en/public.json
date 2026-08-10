@@ -153,7 +153,12 @@
     "backToDashboard": "Back to dashboard",
     "failedTitle": "Payment failed",
     "failedText": "Please try again or contact us.",
-    "gopayId": "GoPay payment ID:"
+    "gopayId": "GoPay payment ID:",
+    "processingTitle": "We're processing your payment",
+    "processingText": "If the money was charged, your subscription will activate within a few minutes and we'll email the invoice.",
+    "refreshStatus": "Refresh status",
+    "contactSupport": "Contact support",
+    "continueToApp": "Continue to the app"
   },
   "predplatne": {
     "eyebrow": "Subscription",

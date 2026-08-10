@@ -153,7 +153,12 @@
     "backToDashboard": "Späť na dashboard",
     "failedTitle": "Platba neprešla",
     "failedText": "Skúste to prosím znova alebo nás kontaktujte.",
-    "gopayId": "GoPay ID platby:"
+    "gopayId": "GoPay ID platby:",
+    "processingTitle": "Platbu spracúvame",
+    "processingText": "Ak boli peniaze strhnuté, predplatné sa aktivuje do pár minút a faktúru pošleme e-mailom.",
+    "refreshStatus": "Obnoviť stav",
+    "contactSupport": "Kontaktovať podporu",
+    "continueToApp": "Pokračovať do aplikácie"
   },
   "predplatne": {
     "eyebrow": "Predplatné",

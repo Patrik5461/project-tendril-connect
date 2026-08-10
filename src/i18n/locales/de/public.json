@@ -153,7 +153,12 @@
     "backToDashboard": "Zurück zum Dashboard",
     "failedTitle": "Zahlung fehlgeschlagen",
     "failedText": "Bitte versuchen Sie es erneut oder kontaktieren Sie uns.",
-    "gopayId": "GoPay-Zahlungs-ID:"
+    "gopayId": "GoPay-Zahlungs-ID:",
+    "processingTitle": "Wir verarbeiten Ihre Zahlung",
+    "processingText": "Falls der Betrag abgebucht wurde, wird das Abonnement in wenigen Minuten aktiviert und die Rechnung per E-Mail zugestellt.",
+    "refreshStatus": "Status aktualisieren",
+    "contactSupport": "Support kontaktieren",
+    "continueToApp": "Weiter zur App"
   },
   "predplatne": {
     "eyebrow": "Abonnement",
