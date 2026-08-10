@@ -833,7 +833,12 @@ function UsersTab() {
                 <td className="py-2 pr-3">{fmtDate(r.subscription_valid_until)}</td>
                 <td className="py-2 pr-3 max-w-[16ch] truncate" title={r.subscription_note ?? ""}>{r.subscription_note ?? "—"}</td>
                 <td className="py-2 pr-3">{fmtDate(r.created_at)}</td>
-                <td className="py-2 pr-3 text-right num">{r.radars_count}</td>
+                <td className="py-2 pr-3 text-right num" title={radarSummary(r)}>
+                  {r.radars_count}
+                  {(r.grant_radars_count ?? 0) > 0 && (
+                    <span className="text-muted-foreground"> + {r.grant_radars_count}G</span>
+                  )}
+                </td>
                 <td className="py-2 pr-3 text-right">
                   <div className="inline-flex items-center gap-1">
                     <Button size="sm" variant="outline" onClick={() => setEditing(r)}>
