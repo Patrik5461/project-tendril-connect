@@ -115,12 +115,12 @@ function AdminPage() {
   if (!allowed) return null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8">
-      <div className="flex items-center gap-3">
-        <ShieldCheck className="h-6 w-6 text-primary" />
-        <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Admin</h1>
+    <div className="mx-auto max-w-6xl px-3 sm:px-4 py-6 sm:py-8">
+      <div className="flex min-w-0 items-center gap-3">
+        <ShieldCheck className="h-6 w-6 shrink-0 text-primary" />
+        <h1 className="truncate font-display text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">Admin</h1>
       </div>
-      <p className="mt-1 text-muted-foreground">
+      <p className="mt-1 text-sm sm:text-base text-muted-foreground">
         Interné rozhranie – všetky manuálne akcie a prehľady.
       </p>
 
@@ -128,18 +128,20 @@ function AdminPage() {
 
 
       <Tabs defaultValue="overview" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="overview">Prehľad</TabsTrigger>
-          <TabsTrigger value="actions">Akcie</TabsTrigger>
-          <TabsTrigger value="gopay">GoPay</TabsTrigger>
-          <TabsTrigger value="invoices">Faktero fakturácia</TabsTrigger>
-          <TabsTrigger value="users">Používatelia</TabsTrigger>
-          <TabsTrigger value="seo">SEO</TabsTrigger>
-          <TabsTrigger value="ai-test">AI test</TabsTrigger>
-          <TabsTrigger value="grants-test">Granty (ITMS)</TabsTrigger>
-          <TabsTrigger value="grants-ai">Granty (AI test)</TabsTrigger>
-          <TabsTrigger value="marketing">Google / Analytics</TabsTrigger>
-        </TabsList>
+        <div className="-mx-3 overflow-x-auto px-3 sm:mx-0 sm:px-0">
+          <TabsList className="w-max justify-start">
+            <TabsTrigger value="overview">Prehľad</TabsTrigger>
+            <TabsTrigger value="actions">Akcie</TabsTrigger>
+            <TabsTrigger value="gopay">GoPay</TabsTrigger>
+            <TabsTrigger value="invoices">Faktero fakturácia</TabsTrigger>
+            <TabsTrigger value="users">Používatelia</TabsTrigger>
+            <TabsTrigger value="seo">SEO</TabsTrigger>
+            <TabsTrigger value="ai-test">AI test</TabsTrigger>
+            <TabsTrigger value="grants-test">Granty (ITMS)</TabsTrigger>
+            <TabsTrigger value="grants-ai">Granty (AI test)</TabsTrigger>
+            <TabsTrigger value="marketing">Google / Analytics</TabsTrigger>
+          </TabsList>
+        </div>
         <TabsContent value="overview" className="mt-4"><OverviewTab /></TabsContent>
         <TabsContent value="actions" className="mt-4"><ActionsTab /></TabsContent>
         <TabsContent value="gopay" className="mt-4"><GopayTab /></TabsContent>
