@@ -768,7 +768,7 @@ function UsersTab() {
         <UsersIcon className="h-4 w-4 text-muted-foreground" />
         <input
           value={q} onChange={(e) => setQ(e.target.value)}
-          placeholder="Hľadať e-mail…"
+          placeholder="Hľadať e-mail, IČO, firmu…"
           className="rounded border px-2 py-1.5 text-sm bg-background max-w-xs"
         />
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="ml-auto">
@@ -860,7 +860,7 @@ function UsersTab() {
               </tr>
             ))}
             {filtered.length === 0 && !loading && (
-              <tr><td colSpan={9} className="py-6 text-center text-muted-foreground">Žiadne záznamy.</td></tr>
+              <tr><td colSpan={10} className="py-6 text-center text-muted-foreground">Žiadne záznamy.</td></tr>
             )}
           </tbody>
         </table>
