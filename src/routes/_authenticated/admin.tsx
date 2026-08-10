@@ -780,6 +780,7 @@ function UsersTab() {
           <thead className="text-left text-xs text-muted-foreground border-b border-primary/10">
             <tr>
               <th className="py-2 pr-3">E-mail</th>
+              <th className="py-2 pr-3">IČO / firma</th>
               <th className="py-2 pr-3">Predplatné</th>
               <th className="py-2 pr-3">Tier</th>
               <th className="py-2 pr-3">Zdroj</th>
