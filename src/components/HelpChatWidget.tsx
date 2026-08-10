@@ -70,7 +70,7 @@ export function HelpChatWidget() {
           type="button"
           onClick={() => setOpen(true)}
           aria-label={t("helpChat.openAria")}
-          className="fixed bottom-5 right-5 z-40 h-14 w-14 rounded-md bg-primary text-primary-foreground border-2 border-foreground shadow-[4px_4px_0_0_hsl(var(--foreground))] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0_0_hsl(var(--foreground))] transition-all flex items-center justify-center"
+          className="fixed bottom-5 left-5 z-40 h-14 w-14 rounded-md bg-primary text-primary-foreground border-2 border-foreground shadow-[4px_4px_0_0_hsl(var(--foreground))] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0_0_hsl(var(--foreground))] transition-all flex items-center justify-center"
         >
           <MessageSquare className="h-6 w-6" />
         </button>
