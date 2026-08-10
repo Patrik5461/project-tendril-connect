@@ -60,7 +60,7 @@
     },
     "s5": {
       "heading": "5. Empfänger (Auftragsverarbeiter)",
-      "supabase": "<0>Supabase / Lovable Cloud</0> – Datenbank-Hosting und Authentifizierung (EU).",
+      "supabase": "<0>Supabase</0> – Datenbank-Hosting und Authentifizierung (EU).",
       "gopay": "<0>GoPay s. r. o.</0> – Zahlungsabwicklung (Tschechien/EU).",
       "resend": "<0>Resend</0> – Versand transaktionsbezogener E-Mails (EU).",
       "accounting": "Buchhaltungsfirma – nur Rechnungsdaten.",

@@ -60,7 +60,7 @@
     },
     "s5": {
       "heading": "5. Příjemci (zpracovatelé)",
-      "supabase": "<0>Supabase / Lovable Cloud</0> – hosting databáze a autentizace (EU).",
+      "supabase": "<0>Supabase</0> – hosting databáze a autentizace (EU).",
       "gopay": "<0>GoPay s. r. o.</0> – zpracování plateb (ČR/EU).",
       "resend": "<0>Resend</0> – odesílání transakčních e-mailů (EU).",
       "accounting": "Účetní firma – pouze fakturační údaje.",
