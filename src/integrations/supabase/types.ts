@@ -1056,8 +1056,13 @@ export type Database = {
         Args: { _limit?: number }
         Returns: {
           billing_period: string
+          company_name: string
           created_at: string
           email: string
+          grant_radars: Json
+          grant_radars_count: number
+          ico: string
+          radars: Json
           radars_count: number
           subscription_note: string
           subscription_source: string
