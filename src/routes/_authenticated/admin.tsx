@@ -382,7 +382,7 @@ function ActionsTab() {
       </Card>
 
       <Card title="AI zhrnutia">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground max-w-lg">
             Prepínač riadi cron, ktorý dopĺňa AI zhrnutia k novým zákazkám. Existujúce zhrnutia zostávajú.
           </div>
@@ -452,7 +452,7 @@ function StuckPaymentsCard() {
 
   return (
     <Card title="Zaplatené platby bez aktivovaného predplatného">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           Platby v stave <b>PAID</b>, kde používateľ nemá aktívne (alebo má expirované) predplatné.
         </p>
@@ -624,7 +624,7 @@ function GopayTab() {
       </Card>
 
       <Card title="Opakované platby (recurring)">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             Ak je vypnuté, platby sa vytvárajú ako <b>jednorazové na 1 mesiac</b>. Zapnite až keď má
             GoPay účet povolené opakované platby (inak GoPay vráti chybu 344).
@@ -766,12 +766,12 @@ function UsersTab() {
         <span className="rounded bg-muted px-2 py-0.5">Trial: <b>{counts.trial}</b></span>
         <span className="rounded bg-destructive/10 text-destructive px-2 py-0.5">Exspirovaní: <b>{counts.expired}</b></span>
       </div>
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex flex-wrap items-center gap-2 mb-3">
         <UsersIcon className="h-4 w-4 text-muted-foreground" />
         <input
           value={q} onChange={(e) => setQ(e.target.value)}
           placeholder="Hľadať e-mail, IČO, firmu…"
-          className="rounded border px-2 py-1.5 text-sm bg-background max-w-xs"
+          className="min-w-0 flex-1 rounded border px-2 py-1.5 text-sm bg-background sm:max-w-xs sm:flex-none"
         />
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="ml-auto">
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} /> Obnoviť
@@ -1496,7 +1496,7 @@ function InvoicesTab() {
 
 
       <section className="rounded-lg border border-primary/15 bg-card p-5">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-display font-semibold">Faktúry</h3>
           <div className="flex gap-1">
             {(["failed", "sent", "all"] as const).map((f) => (
@@ -1726,7 +1726,7 @@ function AiTestTab() {
           <PartBlock title="3. Spôsobilosť firmy" part={result.parts?.eligibility} />
 
           <div className="pt-2 border-t">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <div className="font-medium">Fáza 3 — Subdodávky a partneri</div>
                 <div className="text-xs text-muted-foreground">Testovacie spustenie (nič sa neukladá do tender_subcontracting).</div>
@@ -1845,7 +1845,7 @@ function PartBlock({ title, part }: { title: string; part: any | null }) {
   );
   return (
     <div className="rounded border p-3 space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="font-medium">{title}</div>
         <div className="text-xs text-muted-foreground">
           {part.model} · {(part.elapsedMs / 1000).toFixed(1)} s
@@ -2016,7 +2016,7 @@ function GrantsTestTab() {
       </Card>
 
       <Card title="2) Test detail podľa kódu">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Input value={kod} onChange={(e) => setKod(e.target.value)} placeholder="napr. PSK-MIRRI-977-2026-TP-KF" />
           <Button onClick={testDetail} disabled={busy !== null} variant="secondary">
             <Play className={`h-4 w-4 mr-2 ${busy === "detail" ? "animate-spin" : ""}`} />
