@@ -795,6 +795,16 @@ function UsersTab() {
             {filtered.map((r) => (
               <tr key={r.user_id} className="border-b border-primary/5">
                 <td className="py-2 pr-3">{r.email ?? "—"}</td>
+                <td className="py-2 pr-3 max-w-[22ch]">
+                  {r.ico ? (
+                    <div className="leading-tight">
+                      <div className="num">{r.ico}</div>
+                      {r.company_name && (
+                        <div className="text-xs text-muted-foreground truncate" title={r.company_name}>{r.company_name}</div>
+                      )}
+                    </div>
+                  ) : "—"}
+                </td>
                 <td className="py-2 pr-3">
                   <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
                     r.subscription_status === "active" ? "bg-primary/10 text-primary" :
