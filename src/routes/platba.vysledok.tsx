@@ -130,9 +130,10 @@ function PlatbaVysledok() {
           <h1 className="mt-6 font-display text-3xl font-bold">{t("platbaVysledok.processingTitle")}</h1>
           <p className="mt-3 text-muted-foreground">{t("platbaVysledok.processingText")}</p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <Button onClick={() => void run()}>
-              <RefreshCw className="h-4 w-4 mr-2" /> {t("platbaVysledok.refreshStatus")}
+            <Button onClick={() => void run()} disabled={busy}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${busy ? "animate-spin" : ""}`} /> {t("platbaVysledok.refreshStatus")}
             </Button>
+
             <Link to="/kontakt"><Button variant="outline">{t("platbaVysledok.contactSupport")}</Button></Link>
             <Link to="/dashboard" search={{ tab: "foryou", sort: "deadline", q: "", view: "list", radar: "all", country: "", page: 1, pageSize: 20 } as never}>
               <Button variant="ghost">{t("platbaVysledok.backToDashboard")}</Button>
