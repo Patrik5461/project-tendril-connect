@@ -47,7 +47,33 @@ type UserRow = {
   trial_started_at: string | null;
   subscription_valid_until: string | null;
   radars_count: number;
+  grant_radars_count?: number;
+  ico?: string | null;
+  company_name?: string | null;
+  radars?: Array<{ name: string; active: boolean; keywords?: string[]; cpv_codes?: string[]; regions?: string[]; countries?: string[] }> | null;
+  grant_radars?: Array<{ name: string; active: boolean; keywords?: string[]; programs?: string[]; regions?: string[]; applicant_categories?: string[] }> | null;
 };
+
+function radarSummary(r: UserRow): string {
+  const parts: string[] = [];
+  for (const x of r.radars ?? []) {
+    parts.push(`Zákazky · ${x.name}${x.active ? "" : " (vyp.)"}: ${[
+      (x.keywords ?? []).length ? `kľúčové: ${(x.keywords ?? []).join(", ")}` : null,
+      (x.cpv_codes ?? []).length ? `CPV: ${(x.cpv_codes ?? []).join(", ")}` : null,
+      (x.regions ?? []).length ? `kraje: ${(x.regions ?? []).join(", ")}` : null,
+      (x.countries ?? []).length ? `krajiny: ${(x.countries ?? []).join(", ")}` : null,
+    ].filter(Boolean).join(" | ") || "bez filtrov"}`);
+  }
+  for (const x of r.grant_radars ?? []) {
+    parts.push(`Granty · ${x.name}${x.active ? "" : " (vyp.)"}: ${[
+      (x.keywords ?? []).length ? `kľúčové: ${(x.keywords ?? []).join(", ")}` : null,
+      (x.programs ?? []).length ? `programy: ${(x.programs ?? []).join(", ")}` : null,
+      (x.regions ?? []).length ? `kraje: ${(x.regions ?? []).join(", ")}` : null,
+      (x.applicant_categories ?? []).length ? `žiadateľ: ${(x.applicant_categories ?? []).join(", ")}` : null,
+    ].filter(Boolean).join(" | ") || "bez filtrov"}`);
+  }
+  return parts.join("\n") || "Žiadne radary";
+}
 
 function fmtDate(v?: string | null) {
   if (!v) return "—";
@@ -713,7 +739,10 @@ function UsersTab() {
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
     if (!s) return rows;
-    return rows.filter((r) => (r.email ?? "").toLowerCase().includes(s));
+    return rows.filter((r) =>
+      (r.email ?? "").toLowerCase().includes(s) ||
+      (r.ico ?? "").toLowerCase().includes(s) ||
+      (r.company_name ?? "").toLowerCase().includes(s));
   }, [q, rows]);
 
   const counts = useMemo(() => {
@@ -739,7 +768,7 @@ function UsersTab() {
         <UsersIcon className="h-4 w-4 text-muted-foreground" />
         <input
           value={q} onChange={(e) => setQ(e.target.value)}
-          placeholder="Hľadať e-mail…"
+          placeholder="Hľadať e-mail, IČO, firmu…"
           className="rounded border px-2 py-1.5 text-sm bg-background max-w-xs"
         />
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="ml-auto">
@@ -751,6 +780,7 @@ function UsersTab() {
           <thead className="text-left text-xs text-muted-foreground border-b border-primary/10">
             <tr>
               <th className="py-2 pr-3">E-mail</th>
+              <th className="py-2 pr-3">IČO / firma</th>
               <th className="py-2 pr-3">Predplatné</th>
               <th className="py-2 pr-3">Tier</th>
               <th className="py-2 pr-3">Zdroj</th>
@@ -765,6 +795,16 @@ function UsersTab() {
             {filtered.map((r) => (
               <tr key={r.user_id} className="border-b border-primary/5">
                 <td className="py-2 pr-3">{r.email ?? "—"}</td>
+                <td className="py-2 pr-3 max-w-[22ch]">
+                  {r.ico ? (
+                    <div className="leading-tight">
+                      <div className="num">{r.ico}</div>
+                      {r.company_name && (
+                        <div className="text-xs text-muted-foreground truncate" title={r.company_name}>{r.company_name}</div>
+                      )}
+                    </div>
+                  ) : "—"}
+                </td>
                 <td className="py-2 pr-3">
                   <span className={`inline-block rounded px-2 py-0.5 text-xs font-medium ${
                     r.subscription_status === "active" ? "bg-primary/10 text-primary" :
@@ -793,7 +833,12 @@ function UsersTab() {
                 <td className="py-2 pr-3">{fmtDate(r.subscription_valid_until)}</td>
                 <td className="py-2 pr-3 max-w-[16ch] truncate" title={r.subscription_note ?? ""}>{r.subscription_note ?? "—"}</td>
                 <td className="py-2 pr-3">{fmtDate(r.created_at)}</td>
-                <td className="py-2 pr-3 text-right num">{r.radars_count}</td>
+                <td className="py-2 pr-3 text-right num" title={radarSummary(r)}>
+                  {r.radars_count}
+                  {(r.grant_radars_count ?? 0) > 0 && (
+                    <span className="text-muted-foreground"> + {r.grant_radars_count}G</span>
+                  )}
+                </td>
                 <td className="py-2 pr-3 text-right">
                   <div className="inline-flex items-center gap-1">
                     <Button size="sm" variant="outline" onClick={() => setEditing(r)}>
@@ -815,7 +860,7 @@ function UsersTab() {
               </tr>
             ))}
             {filtered.length === 0 && !loading && (
-              <tr><td colSpan={9} className="py-6 text-center text-muted-foreground">Žiadne záznamy.</td></tr>
+              <tr><td colSpan={10} className="py-6 text-center text-muted-foreground">Žiadne záznamy.</td></tr>
             )}
           </tbody>
         </table>
