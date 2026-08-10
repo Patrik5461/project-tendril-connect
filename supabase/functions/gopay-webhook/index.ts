@@ -91,6 +91,19 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
     : (fromAmount?.period ?? "monthly");
   const hasExplicit = hasTierParam || !!fromAmount;
 
+  // Idempotencia: bola už táto platba v tomto stave spracovaná?
+  let alreadyProcessed = false;
+  try {
+    const { count: alreadyCount } = await admin
+      .from("gopay_payment_events")
+      .select("id", { count: "exact", head: true })
+      .eq("gopay_payment_id", String(payment.id))
+      .eq("state", payment.state);
+    alreadyProcessed = (alreadyCount ?? 0) > 0;
+  } catch (e) {
+    console.error("idempotency check failed", e);
+  }
+
   // Audit log – musí sa zapísať VŽDY, aj keď ďalšie kroky zlyhajú.
   let eventId: string | null = null;
   try {
@@ -107,6 +120,7 @@ async function processPayment(paymentId: string, simulate?: { state?: string; us
   } catch (e) {
     console.error("audit insert failed", e);
   }
+
 
   if (!userId) return { ok: true, note: "no user_id" };
 
