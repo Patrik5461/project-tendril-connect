@@ -46,6 +46,50 @@ async function fetchJson(url: string): Promise<any | null> {
   }
 }
 
+/**
+ * RPO vracia časť polí ako rovný reťazec a časť ako `{value, code}` — mesto
+ * dokonca ako objekt, hoci ulica je reťazec. Bez tohto skončí v poli objekt
+ * a používateľ vidí prázdno.
+ */
+function textOf(v: any): string | null {
+  if (v == null) return null;
+  if (typeof v === "string") return v.trim() || null;
+  if (typeof v === "object") return textOf(v.value);
+  return null;
+}
+
+/** PSČ chodí raz ako „902 01", raz ako „91926" — zjednotíme na formát s medzerou. */
+function normalizePsc(v: unknown): string | null {
+  const digits = String(v ?? "").replace(/\D/g, "");
+  if (digits.length !== 5) return textOf(v);
+  return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+}
+
+// Číselník právnych foriem je malý a nemenný — načítame ho raz za beh procesu.
+let pravneFormyPromise: Promise<Map<string, string>> | null = null;
+
+async function pravnaFormaNazov(kod: unknown): Promise<string | null> {
+  const key = String(kod ?? "").trim();
+  if (!key) return null;
+  // Ak by tam už bol text (napr. z RPO), nechávame ho tak.
+  if (!/^\d+$/.test(key)) return key;
+
+  pravneFormyPromise ??= (async () => {
+    const json = await fetchJson("https://www.registeruz.sk/cruz-public/api/pravne-formy");
+    const map = new Map<string, string>();
+    for (const item of json?.klasifikacie ?? []) {
+      const nazov = item?.nazov?.sk;
+      if (item?.kod && nazov) map.set(String(item.kod), String(nazov));
+    }
+    return map;
+  })();
+
+  const map = await pravneFormyPromise;
+  // Prázdna mapa = číselník sa nepodarilo stiahnuť; nekešujeme neúspech.
+  if (map.size === 0) pravneFormyPromise = null;
+  return map.get(key) ?? null;
+}
+
 async function fetchRpo(ico: string): Promise<any | null> {
   const json = await fetchJson(
     `https://api.statistics.sk/rpo/v1/search?identifier=${encodeURIComponent(ico)}`,
@@ -256,18 +300,19 @@ export async function fetchCompanyFromRegisters(
 
   return {
     ico,
-    dic: ruzDetail?.dic ?? null,
-    nazov: rpo?.fullNames?.[0]?.value ?? ruzDetail?.nazovUJ ?? null,
+    dic: textOf(ruzDetail?.dic),
+    nazov: textOf(rpo?.fullNames?.[0]) ?? textOf(ruzDetail?.nazovUJ),
     adresa:
-      [rpoAddr?.street, rpoAddr?.buildingNumber].filter(Boolean).join(" ") ||
-      ruzDetail?.ulica ||
-      null,
-    psc: rpoAddr?.postalCodes?.[0] ?? ruzDetail?.psc ?? null,
-    mesto: rpoAddr?.municipality ?? ruzDetail?.mesto ?? null,
+      [textOf(rpoAddr?.street), textOf(rpoAddr?.buildingNumber)].filter(Boolean).join(" ") ||
+      textOf(ruzDetail?.ulica),
+    psc: normalizePsc(rpoAddr?.postalCodes?.[0] ?? ruzDetail?.psc),
+    mesto: textOf(rpoAddr?.municipality) ?? textOf(ruzDetail?.mesto),
+    // registeruz dáva len číselný kód (napr. „112"), ktorý zvyšok appky
+    // porovnáva ako text — bez prekladu nesadne kategória žiadateľa grantu.
     pravna_forma:
-      rpo?.legalForms?.[0]?.value ?? ruzDetail?.pravnaForma ?? null,
-    datum_vzniku: rpo?.establishment ?? null,
-    registrovy_sud: rpo?.sourceRegister ?? null,
+      textOf(rpo?.legalForms?.[0]) ?? (await pravnaFormaNazov(ruzDetail?.pravnaForma)),
+    datum_vzniku: textOf(rpo?.establishment),
+    registrovy_sud: textOf(rpo?.sourceRegister),
     sk_nace_code: skNaceCode ? String(skNaceCode) : null,
     sk_nace_name: skNaceName,
     velkost_kategoria: ruzDetail?.velkostOrganizacie ?? null,

@@ -94,7 +94,8 @@ export function defaultCategoryFromLegalForm(pravna_forma: string | null | undef
   if (!pravna_forma) return null;
   const s = pravna_forma.toLowerCase();
   if (/(s\.?\s*r\.?\s*o\.?|spoločnosť s ručením)/i.test(pravna_forma)) return "podnikatelia";
-  if (/\ba\.?\s*s\.?\b|akciov/i.test(pravna_forma)) return "podnikatelia";
+  // „Akc. spol." je zápis z číselníka právnych foriem registeruz.
+  if (/\ba\.?\s*s\.?\b|akciov|akc\./i.test(pravna_forma)) return "podnikatelia";
   if (/živnost|szčo|fyzick[áa] osoba|podnikateľ/i.test(pravna_forma)) return "podnikatelia";
   if (/družstv|komandit|verejná obchodn|j\.?\s*s\.?\s*a\.?/i.test(pravna_forma)) return "podnikatelia";
   if (/obec|mesto|samospráv|rozpočtov|príspevkov|štátn|ministerstv|verejnoprávn/i.test(s))
