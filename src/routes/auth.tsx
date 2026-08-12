@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { useIsNative } from "@/lib/native";
 
 const searchSchema = z.object({
   mode: z.enum(["login", "signup"]).catch("login"),
@@ -33,6 +34,7 @@ function AuthPage() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreeGdpr, setAgreeGdpr] = useState(false);
   const isSignup = mode === "signup";
+  const native = useIsNative();
 
 
 
@@ -84,14 +86,17 @@ function AuthPage() {
           </span>
           Tendrik.sk
         </Link>
-        <div className="mt-2 flex justify-center">
-          <Link to="/">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Späť na úvod
-            </Button>
-          </Link>
-        </div>
+        {/* V appke nie je kam sa vracať — marketingový web tam nepatrí. */}
+        {!native && (
+          <div className="mt-2 flex justify-center">
+            <Link to="/">
+              <Button variant="ghost" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Späť na úvod
+              </Button>
+            </Link>
+          </div>
+        )}
         <div className="mt-4 rounded-lg border border-primary/15 bg-card p-6">
           <h1 className="font-display text-2xl font-bold text-center tracking-tight">
             {isSignup ? "Vytvoriť účet" : "Prihlásiť sa"}

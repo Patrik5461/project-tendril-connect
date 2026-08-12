@@ -274,7 +274,8 @@
   }
 }
 
-/* V natívnej appke necháme miesto pre spodnú navigáciu */
-html.capacitor-native body {
-  padding-bottom: calc(56px + env(safe-area-inset-bottom));
-}
+/*
+  Miesto pre spodnú navigáciu si rieši prihlásený layout sám — trieda
+  `capacitor-native` je teraz na `html` aj na prihlasovacej obrazovke,
+  kde žiadna spodná navigácia nie je a odsadenie by bolo len prázdne miesto.
+*/

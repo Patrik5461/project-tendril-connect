@@ -173,6 +173,21 @@
     "registriesFetchError": "Chyba pri načítaní z registrov",
     "profileSaved": "Firemný profil uložený",
     "saveError": "Chyba pri ukladaní",
+    "companies": {
+      "heading": "Moje firmy",
+      "description": "Môžete si pridať viac firiem a prepínať medzi nimi. Hlavná firma je tá, s ktorou pracujú AI analýzy zákaziek a grantov.",
+      "add": "Pridať firmu",
+      "newCompany": "Nová firma (neuložená)",
+      "unnamed": "Bez názvu",
+      "default": "Hlavná",
+      "makeDefault": "Nastaviť ako hlavnú",
+      "delete": "Zmazať firmu",
+      "deleteConfirm": "Naozaj zmazať firmu {{name}}? Táto akcia sa nedá vrátiť.",
+      "deleted": "Firma zmazaná",
+      "defaultSet": "Hlavná firma zmenená",
+      "unsavedConfirm": "Máte neuložené zmeny. Chcete ich zahodiť?",
+      "defaultHint": "Hlavnú firmu nie je možné zmazať. Najprv označte ako hlavnú inú firmu."
+    },
     "identification": {
       "heading": "Identifikácia",
       "description": "Zadajte IČO a načítajte údaje z RPO + registeruz.sk.",

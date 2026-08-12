@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -16,6 +17,7 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { AnalyticsScripts } from "@/components/AnalyticsScripts";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { I18nProvider } from "@/i18n/I18nProvider";
+import { applyNativeShell, applyNativeViewportFit, isNative, useIsNative } from "@/lib/native";
 
 function NotFoundComponent() {
   return (
@@ -155,15 +157,37 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const { lang } = Route.useLoaderData();
+  const router = useRouter();
+  const native = useIsNative();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+
+  useEffect(() => {
+    applyNativeViewportFit();
+    applyNativeShell();
+  }, []);
+
+  // Marketingová homepage v natívnej appke nedáva zmysel a používateľ by na
+  // nej uviazol — appka nemá „späť". Stráži sa preto každá navigácia, nielen
+  // štart, aby to platilo aj pre odkazy na logo v pätičke a podobne.
+  useEffect(() => {
+    if (isNative() && pathname === "/") {
+      router.navigate({ to: "/dashboard", replace: true });
+    }
+  }, [pathname, router]);
 
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider initialLang={lang}>
         <Outlet />
         <Toaster richColors position="top-right" />
-        <CookieBanner />
-        <WhatsAppButton />
-        <AnalyticsScripts />
+        {/*
+          Web-only prvky. V natívnej appke sa nespúšťa analytika, takže nie je
+          čo odsúhlasovať a cookie lišta by len prekryla prihlásenie.
+          WhatsApp bublina zase pôsobí v appke cudzorodo.
+        */}
+        {!native && <CookieBanner />}
+        {!native && <WhatsAppButton />}
+        {!native && <AnalyticsScripts />}
       </I18nProvider>
     </QueryClientProvider>
   );

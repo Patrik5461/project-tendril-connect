@@ -173,6 +173,21 @@
     "registriesFetchError": "Error loading data from registries",
     "profileSaved": "Company profile saved",
     "saveError": "Error while saving",
+    "companies": {
+      "heading": "My companies",
+      "description": "You can add several companies and switch between them. The main company is the one used by AI analysis of tenders and grants.",
+      "add": "Add company",
+      "newCompany": "New company (unsaved)",
+      "unnamed": "Unnamed",
+      "default": "Main",
+      "makeDefault": "Set as main",
+      "delete": "Delete company",
+      "deleteConfirm": "Really delete {{name}}? This cannot be undone.",
+      "deleted": "Company deleted",
+      "defaultSet": "Main company changed",
+      "unsavedConfirm": "You have unsaved changes. Discard them?",
+      "defaultHint": "The main company cannot be deleted. Set another company as main first."
+    },
     "identification": {
       "heading": "Identification",
       "description": "Enter your registration number and load data from RPO + registeruz.sk.",

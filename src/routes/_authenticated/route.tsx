@@ -45,13 +45,13 @@ function AuthedLayout() {
 
   useEffect(() => {
     if (!native) return;
-    document.documentElement.classList.add("capacitor-native");
+    // Triedu `capacitor-native` nastavuje __root globálne — tu ju už
+    // nepridávame, inak by ju odhlásenie (unmount) zase strhlo.
     let cleanup: (() => void) | undefined;
     attachPushNavigation((path) => navigate({ to: path as never })).then((fn) => {
       cleanup = fn;
     });
     return () => {
-      document.documentElement.classList.remove("capacitor-native");
       cleanup?.();
     };
   }, [native, navigate]);
@@ -61,7 +61,11 @@ function AuthedLayout() {
     navigate({ to: "/auth", search: { mode: "login" }, replace: true });
   }
   return (
-    <div className="min-h-screen bg-background text-foreground safe-x">
+    <div
+      className={`min-h-screen bg-background text-foreground safe-x${
+        native ? " pb-[calc(56px+env(safe-area-inset-bottom))]" : ""
+      }`}
+    >
       <header className="border-b-2 border-foreground bg-background sticky top-0 z-10 safe-top">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
 
