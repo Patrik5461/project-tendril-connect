@@ -14,7 +14,12 @@ const config: CapacitorConfig = {
   appName: "Tendrik",
   webDir: "mobile-shell",
   server: {
-    url: "https://tendrik.sk",
+    /**
+     * Zámerne /dashboard, nie koreň — natívna appka nesmie začínať na
+     * marketingovej homepage. /dashboard je za `_authenticated`, takže
+     * neprihláseného sám presmeruje na /auth. Prihlásený vidí rovno zákazky.
+     */
+    url: "https://tendrik.sk/dashboard",
     cleartext: false,
     /**
      * Len vlastné domény. Všetko ostatné Capacitor otvorí mimo webview

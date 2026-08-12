@@ -49,6 +49,15 @@ export function applyNativeViewportFit(): void {
   meta.setAttribute("content", `${content}, viewport-fit=cover`);
 }
 
+/**
+ * Značka pre natívne-only CSS. Musí byť na `html` už pri prvej obrazovke
+ * (prihlásenie), preto sa nastavuje v roote, nie až v prihlásenej časti.
+ */
+export function applyNativeShell(): void {
+  if (!isNative()) return;
+  document.documentElement.classList.add("capacitor-native");
+}
+
 /** Externý odkaz: v appke cez in-app browser, na webe klasicky nové okno. */
 export async function openExternal(url: string): Promise<void> {
   if (isNative()) {
