@@ -170,6 +170,7 @@
     "invalidIco": "Zadejte platné IČO",
     "registriesErrorPrefix": "Registry: ",
     "registriesLoaded": "Údaje z registrů načteny",
+    "registriesLoadedWithTurnover": "Údaje z rejstříků načteny, včetně obratu za {{count}} rok(y/ů)",
     "registriesFetchError": "Chyba při načítání z registrů",
     "profileSaved": "Firemní profil uložen",
     "saveError": "Chyba při ukládání",

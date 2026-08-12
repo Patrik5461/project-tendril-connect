@@ -170,6 +170,7 @@
     "invalidIco": "Geben Sie eine gültige Handelsregisternummer ein",
     "registriesErrorPrefix": "Register: ",
     "registriesLoaded": "Registerdaten geladen",
+    "registriesLoadedWithTurnover": "Registerdaten geladen, einschließlich Umsatz für {{count}} Jahr(e)",
     "registriesFetchError": "Fehler beim Laden der Registerdaten",
     "profileSaved": "Firmenprofil gespeichert",
     "saveError": "Fehler beim Speichern",

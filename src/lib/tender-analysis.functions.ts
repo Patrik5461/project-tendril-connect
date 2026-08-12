@@ -184,9 +184,8 @@ export const adminAnalyzeTender = createServerFn({ method: "POST" })
     if (!tender) throw new Error("Zákazka nenájdená");
 
     // 2) Fetch company identification from registers (no profile needed)
-    // Jediné miesto, kde treba roky závierok — testovací výstup ich vypisuje.
     const registry: RegistryCompany = await fetchCompanyFromRegisters(data.ico, context.supabase, {
-      includeZavierky: true,
+      financneRoky: 3,
     });
 
     const companyCtx: CompanyForAnalysis = {
@@ -196,7 +195,7 @@ export const adminAnalyzeTender = createServerFn({ method: "POST" })
         ? `${registry.sk_nace_code} — ${registry.sk_nace_name}`
         : registry.sk_nace_code,
       velkost: registry.velkost_kategoria,
-      financne_roky: [],
+      financne_roky: registry.financne_roky ?? [],
       referencie: [],
       certifikaty: [],
       doplnkove_info: `Testovací režim — bez firemného profilu. Roky dostupných účtovných závierok: ${(registry.roky_zavierok ?? []).join(", ") || "—"}. Právna forma: ${registry.pravna_forma ?? "—"}. Adresa: ${[registry.adresa, registry.psc, registry.mesto].filter(Boolean).join(", ")}.`,
@@ -274,7 +273,7 @@ export const fetchCompanyData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => z.object({ ico: z.string().min(6).max(12) }).parse(raw))
   .handler(async ({ data, context }) => {
-    return await fetchCompanyFromRegisters(data.ico, context.supabase);
+    return await fetchCompanyFromRegisters(data.ico, context.supabase, { financneRoky: 3 });
   });
 
 // ---------- Simple list of latest tenders for admin picker ----------

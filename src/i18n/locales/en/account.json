@@ -170,6 +170,7 @@
     "invalidIco": "Enter a valid registration number",
     "registriesErrorPrefix": "Registries: ",
     "registriesLoaded": "Registry data loaded",
+    "registriesLoadedWithTurnover": "Register data loaded, including turnover for {{count}} year(s)",
     "registriesFetchError": "Error loading data from registries",
     "profileSaved": "Company profile saved",
     "saveError": "Error while saving",

@@ -60,6 +60,19 @@ type CompanyRow = {
   [key: string]: unknown;
 };
 
+/**
+ * Obrat z registrov prepíše ten doterajší, ale počet zamestnancov ostáva —
+ * ten registre nedávajú a používateľ si ho vypĺňa ručne.
+ */
+function mergeYears(existing: YearRow[], fetched: { rok: number; obrat: number | null }[]): YearRow[] {
+  const byYear = new Map<number, YearRow>();
+  for (const r of existing) if (r.rok) byYear.set(Number(r.rok), r);
+  for (const f of fetched) {
+    byYear.set(f.rok, { ...(byYear.get(f.rok) ?? { rok: f.rok }), rok: f.rok, obrat: f.obrat });
+  }
+  return [...byYear.values()].sort((a, b) => Number(b.rok) - Number(a.rok));
+}
+
 function rowToState(row: CompanyRow): ProfileState {
   return {
     ico: (row.ico as string) ?? "",
@@ -204,11 +217,17 @@ function FirmaPage() {
         sk_nace_code: reg.sk_nace_code ?? s.sk_nace_code,
         sk_nace_name: reg.sk_nace_name ?? s.sk_nace_name,
         velkost_kategoria: reg.velkost_kategoria ?? s.velkost_kategoria,
+        financne_roky: mergeYears(s.financne_roky, reg.financne_roky ?? []),
       }));
       if (reg.errors?.length) {
         toast.warning(t("firma.registriesErrorPrefix") + reg.errors.join("; "));
       } else {
-        toast.success(t("firma.registriesLoaded"));
+        const rokov = reg.financne_roky?.length ?? 0;
+        toast.success(
+          rokov > 0
+            ? t("firma.registriesLoadedWithTurnover", { count: rokov })
+            : t("firma.registriesLoaded"),
+        );
       }
     } catch (e: any) {
       toast.error(e?.message ?? t("firma.registriesFetchError"));
