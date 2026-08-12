@@ -25,44 +25,54 @@ function normalizeIco(ico: string): string {
   return ico.replace(/\D+/g, "").padStart(8, "0").slice(-8);
 }
 
-async function fetchRpo(ico: string): Promise<any | null> {
+/**
+ * Registre sú cudzie služby a občas visia. Bez limitu by na nich čakal
+ * používateľ aj serverový request, tak radšej vrátime null a doplní sa ručne.
+ */
+const REGISTER_TIMEOUT_MS = 8000;
+
+async function fetchJson(url: string): Promise<any | null> {
   try {
-    const url = `https://api.statistics.sk/rpo/v1/search?identifier=${encodeURIComponent(ico)}`;
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(REGISTER_TIMEOUT_MS),
+    });
     if (!res.ok) return null;
-    const json: any = await res.json();
-    return json?.results?.[0] ?? null;
+    return await res.json();
   } catch {
     return null;
   }
 }
 
-async function fetchRegisteruz(ico: string): Promise<any | null> {
-  // registeruz.sk – Register účtovných závierok, verejné JSON API
-  try {
-    const idxUrl = `https://www.registeruz.sk/cruz-public/api/uctovne-jednotky?ico=${encodeURIComponent(ico)}&zmenene-od=2000-01-01`;
-    const idxRes = await fetch(idxUrl, { headers: { Accept: "application/json" } });
-    if (!idxRes.ok) return null;
-    const idxJson: any = await idxRes.json();
-    const idList: number[] = idxJson?.id ?? idxJson?.ids ?? [];
-    if (!idList.length) return null;
-    const id = idList[0];
-    const detailRes = await fetch(`https://www.registeruz.sk/cruz-public/api/uctovna-jednotka?id=${id}`, {
-      headers: { Accept: "application/json" },
-    });
-    if (!detailRes.ok) return null;
-    const detail: any = await detailRes.json();
+async function fetchRpo(ico: string): Promise<any | null> {
+  const json = await fetchJson(
+    `https://api.statistics.sk/rpo/v1/search?identifier=${encodeURIComponent(ico)}`,
+  );
+  return json?.results?.[0] ?? null;
+}
 
-    // Roky závierok (metadáta)
-    const zavRes = await fetch(
-      `https://www.registeruz.sk/cruz-public/api/uctovne-zavierky?ico=${encodeURIComponent(ico)}&zmenene-od=2000-01-01`,
-      { headers: { Accept: "application/json" } },
-    );
-    const zavJson: any = zavRes.ok ? await zavRes.json() : null;
-    return { detail, zavierky: zavJson };
-  } catch {
-    return null;
-  }
+async function fetchRegisteruz(ico: string, includeZavierky: boolean): Promise<any | null> {
+  // registeruz.sk – Register účtovných závierok, verejné JSON API
+  const idxJson = await fetchJson(
+    `https://www.registeruz.sk/cruz-public/api/uctovne-jednotky?ico=${encodeURIComponent(ico)}&zmenene-od=2000-01-01`,
+  );
+  if (!idxJson) return null;
+  const idList: number[] = idxJson?.id ?? idxJson?.ids ?? [];
+  if (!idList.length) return null;
+
+  // Zoznam závierok nezávisí od detailu, tak nech idú súčasne. Ťahá sa len
+  // na vyžiadanie — trvá rádovo 5 sekúnd, kým zvyšné volania desatiny,
+  // a roky závierok potrebuje iba admin testovací režim analýzy.
+  const [detail, zavierky] = await Promise.all([
+    fetchJson(`https://www.registeruz.sk/cruz-public/api/uctovna-jednotka?id=${idList[0]}`),
+    includeZavierky
+      ? fetchJson(
+          `https://www.registeruz.sk/cruz-public/api/uctovne-zavierky?ico=${encodeURIComponent(ico)}&zmenene-od=2000-01-01`,
+        )
+      : Promise.resolve(null),
+  ]);
+  if (!detail) return null;
+  return { detail, zavierky };
 }
 
 /** Lookup SK-NACE name for a code (e.g. "62.01" → "Počítačové programovanie…"). Prefix match on 2-digit division. */
@@ -84,11 +94,15 @@ export async function lookupSkNaceName(
 export async function fetchCompanyFromRegisters(
   icoInput: string,
   sb: any,
+  opts: { includeZavierky?: boolean } = {},
 ): Promise<RegistryCompany> {
   const ico = normalizeIco(icoInput);
   const errors: string[] = [];
 
-  const [rpo, ruz] = await Promise.all([fetchRpo(ico), fetchRegisteruz(ico)]);
+  const [rpo, ruz] = await Promise.all([
+    fetchRpo(ico),
+    fetchRegisteruz(ico, opts.includeZavierky ?? false),
+  ]);
 
   if (!rpo) errors.push("RPO: firma nenájdená alebo API nedostupné");
   if (!ruz) errors.push("registeruz: firma nenájdená alebo bez záznamov");

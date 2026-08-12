@@ -184,7 +184,10 @@ export const adminAnalyzeTender = createServerFn({ method: "POST" })
     if (!tender) throw new Error("Zákazka nenájdená");
 
     // 2) Fetch company identification from registers (no profile needed)
-    const registry: RegistryCompany = await fetchCompanyFromRegisters(data.ico, context.supabase);
+    // Jediné miesto, kde treba roky závierok — testovací výstup ich vypisuje.
+    const registry: RegistryCompany = await fetchCompanyFromRegisters(data.ico, context.supabase, {
+      includeZavierky: true,
+    });
 
     const companyCtx: CompanyForAnalysis = {
       ico: registry.ico,
