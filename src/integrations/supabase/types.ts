@@ -110,6 +110,8 @@ export type Database = {
           doplnkove_info: string | null
           financne_roky: Json
           ico: string | null
+          id: string
+          is_default: boolean
           kluc_odbornici: string | null
           kraj: string | null
           mesto: string | null
@@ -135,6 +137,8 @@ export type Database = {
           doplnkove_info?: string | null
           financne_roky?: Json
           ico?: string | null
+          id?: string
+          is_default?: boolean
           kluc_odbornici?: string | null
           kraj?: string | null
           mesto?: string | null
@@ -160,6 +164,8 @@ export type Database = {
           doplnkove_info?: string | null
           financne_roky?: Json
           ico?: string | null
+          id?: string
+          is_default?: boolean
           kluc_odbornici?: string | null
           kraj?: string | null
           mesto?: string | null
@@ -1258,6 +1264,7 @@ export type Database = {
         Returns: Json
       }
       set_ai_summaries_enabled: { Args: { enabled: boolean }; Returns: boolean }
+      set_default_company: { Args: { _company_id: string }; Returns: undefined }
       unaccent: { Args: { "": string }; Returns: string }
       user_tenders_country_facets: {
         Args: { _q: string; _radar_ids: string[]; _tab: string }

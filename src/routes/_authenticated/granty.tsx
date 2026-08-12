@@ -135,6 +135,7 @@ function GrantyList() {
         .from("company_profile")
         .select("pravna_forma")
         .eq("user_id", user.id)
+        .eq("is_default", true)
         .maybeSingle();
       setProfileCategory(defaultCategoryFromLegalForm(data?.pravna_forma));
       setProfileLoaded(true);

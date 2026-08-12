@@ -328,8 +328,25 @@ const CompanyProfileSchema = z.object({
   kluc_odbornici: z.string().nullable().optional(),
   doplnkove_info: z.string().nullable().optional(),
   auto_data: z.any().optional(),
+  /** Chýba pri zakladaní novej firmy, inak určuje, ktorú prepisujeme. */
+  id: z.string().uuid().optional(),
 });
 
+/** Všetky firmy používateľa, hlavná ako prvá. */
+export const listCompanyProfiles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("company_profile")
+      .select("*")
+      .eq("user_id", context.userId)
+      .order("is_default", { ascending: false })
+      .order("created_at", { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+  });
+
+/** Hlavná firma — to, s čím pracujú AI analýzy a predvyplnené formuláre. */
 export const getCompanyProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -337,6 +354,7 @@ export const getCompanyProfile = createServerFn({ method: "GET" })
       .from("company_profile")
       .select("*")
       .eq("user_id", context.userId)
+      .eq("is_default", true)
       .maybeSingle();
     if (error) throw error;
     return data ?? null;
@@ -346,21 +364,64 @@ export const saveCompanyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) => CompanyProfileSchema.parse(raw))
   .handler(async ({ data, context }) => {
+    const { id, ...fields } = data;
     const row: any = {
-      ...data,
+      ...fields,
       user_id: context.userId,
       financne_roky: data.financne_roky ?? [],
       referencie: data.referencie ?? [],
       certifikaty: data.certifikaty ?? [],
       updated_at: new Date().toISOString(),
     };
+
+    // Bez id ide o novú firmu. `is_default` sa tu zámerne nenastavuje —
+    // prvej firme ho pridelí trigger, ďalšie sa prepínajú cez setDefaultCompany.
+    if (!id) {
+      const { data: created, error } = await context.supabase
+        .from("company_profile")
+        .insert(row)
+        .select()
+        .single();
+      if (error) throw error;
+      return created;
+    }
+
     const { data: saved, error } = await context.supabase
       .from("company_profile")
-      .upsert(row, { onConflict: "user_id" })
+      .update(row)
+      .eq("id", id)
+      .eq("user_id", context.userId)
       .select()
       .maybeSingle();
     if (error) throw error;
+    if (!saved) throw new Error("Firma sa nenašla.");
     return saved;
+  });
+
+export const deleteCompanyProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => z.object({ id: z.string().uuid() }).parse(raw))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("company_profile")
+      .delete()
+      .eq("id", data.id)
+      .eq("user_id", context.userId);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const setDefaultCompany = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => z.object({ id: z.string().uuid() }).parse(raw))
+  .handler(async ({ data, context }) => {
+    // Cez RPC, aby sa odznačenie starej a označenie novej hlavnej firmy
+    // stihlo v jednej transakcii — inak by kolidoval unique index.
+    const { error } = await context.supabase.rpc("set_default_company", {
+      _company_id: data.id,
+    });
+    if (error) throw error;
+    return { ok: true };
   });
 
 // ---------- Tender analysis (user-facing, subscription-gated) ----------
@@ -455,11 +516,12 @@ export const analyzeTender = createServerFn({ method: "POST" })
       );
     }
 
-    // Company profile check
+    // Company profile check — analyzuje sa vždy voči hlavnej firme.
     const { data: profile } = await context.supabase
       .from("company_profile")
       .select("*")
       .eq("user_id", context.userId)
+      .eq("is_default", true)
       .maybeSingle();
     if (!profile || !profile.ico) {
       throw new Error("Najprv vyplňte firemný profil (aspoň IČO).");

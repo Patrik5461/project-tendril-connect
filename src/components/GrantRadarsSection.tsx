@@ -52,6 +52,7 @@ export default function GrantRadarsSection({ userId }: { userId: string | null }
           .from("company_profile")
           .select("pravna_forma")
           .eq("user_id", userId)
+          .eq("is_default", true)
           .maybeSingle(),
       ]);
       setList((data ?? []) as GrantRadar[]);

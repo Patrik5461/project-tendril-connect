@@ -486,6 +486,7 @@ export const analyzeGrant = createServerFn({ method: "POST" })
       .from("company_profile")
       .select("*")
       .eq("user_id", context.userId)
+      .eq("is_default", true)
       .maybeSingle();
     if (!profile || !profile.ico) {
       throw new Error("Najprv vyplňte firemný profil (aspoň IČO).");

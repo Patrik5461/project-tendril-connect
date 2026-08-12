@@ -1,16 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Trash2, Loader2, Download, X } from "lucide-react";
+import { Plus, Trash2, Loader2, Download, X, Building2, Star } from "lucide-react";
 import {
+  deleteCompanyProfile,
   fetchCompanyData,
-  getCompanyProfile,
+  listCompanyProfiles,
   saveCompanyProfile,
+  setDefaultCompany,
 } from "@/lib/tender-analysis.functions";
 import { useTranslation } from "react-i18next";
 
@@ -50,41 +52,75 @@ const empty = (): ProfileState => ({
   technicke_vybavenie: "", kluc_odbornici: "", doplnkove_info: "",
 });
 
+type CompanyRow = {
+  id: string;
+  nazov: string | null;
+  ico: string | null;
+  is_default: boolean;
+  [key: string]: unknown;
+};
+
+function rowToState(row: CompanyRow): ProfileState {
+  return {
+    ico: (row.ico as string) ?? "",
+    dic: (row.dic as string) ?? "",
+    nazov: (row.nazov as string) ?? "",
+    adresa: (row.adresa as string) ?? "",
+    psc: (row.psc as string) ?? "",
+    mesto: (row.mesto as string) ?? "",
+    pravna_forma: (row.pravna_forma as string) ?? "",
+    sk_nace_code: (row.sk_nace_code as string) ?? "",
+    sk_nace_name: (row.sk_nace_name as string) ?? "",
+    velkost_kategoria: (row.velkost_kategoria as string) ?? "",
+    financne_roky: (row.financne_roky as YearRow[]) ?? [],
+    referencie: (row.referencie as ReferenceRow[]) ?? [],
+    certifikaty: (row.certifikaty as string[]) ?? [],
+    technicke_vybavenie: (row.technicke_vybavenie as string) ?? "",
+    kluc_odbornici: (row.kluc_odbornici as string) ?? "",
+    doplnkove_info: (row.doplnkove_info as string) ?? "",
+  };
+}
+
 function FirmaPage() {
   const { t } = useTranslation("account");
-  const load = useServerFn(getCompanyProfile);
+  const loadAll = useServerFn(listCompanyProfiles);
   const fetchReg = useServerFn(fetchCompanyData);
   const save = useServerFn(saveCompanyProfile);
+  const remove = useServerFn(deleteCompanyProfile);
+  const makeDefault = useServerFn(setDefaultCompany);
 
+  const [companies, setCompanies] = useState<CompanyRow[]>([]);
+  /** null = rozpísaná nová firma, ktorá ešte nie je uložená. */
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [state, setState] = useState<ProfileState>(empty());
   const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
   const [saving, setSaving] = useState(false);
   const [certInput, setCertInput] = useState("");
 
+  // Porovnanie proti poslednému uloženému stavu — aby prepnutie firmy
+  // ticho nezahodilo rozpísané zmeny.
+  const savedSnapshot = useRef<string>(JSON.stringify(empty()));
+  function markSaved(next: ProfileState) {
+    savedSnapshot.current = JSON.stringify(next);
+  }
+  function confirmDiscard(): boolean {
+    if (JSON.stringify(state) === savedSnapshot.current) return true;
+    return window.confirm(t("firma.companies.unsavedConfirm"));
+  }
+
   useEffect(() => {
     (async () => {
       try {
-        const row = await load();
-        if (row) {
-          setState({
-            ico: row.ico ?? "",
-            dic: row.dic ?? "",
-            nazov: row.nazov ?? "",
-            adresa: row.adresa ?? "",
-            psc: row.psc ?? "",
-            mesto: row.mesto ?? "",
-            pravna_forma: row.pravna_forma ?? "",
-            sk_nace_code: row.sk_nace_code ?? "",
-            sk_nace_name: row.sk_nace_name ?? "",
-            velkost_kategoria: row.velkost_kategoria ?? "",
-            financne_roky: (row.financne_roky as YearRow[]) ?? [],
-            referencie: (row.referencie as ReferenceRow[]) ?? [],
-            certifikaty: (row.certifikaty as string[]) ?? [],
-            technicke_vybavenie: row.technicke_vybavenie ?? "",
-            kluc_odbornici: row.kluc_odbornici ?? "",
-            doplnkove_info: row.doplnkove_info ?? "",
-          });
+        const rows = (await loadAll()) as CompanyRow[];
+        setCompanies(rows);
+        // Zoznam chodí zo servera s hlavnou firmou na prvom mieste.
+        const first = rows[0];
+        if (first) {
+          const next = rowToState(first);
+          setSelectedId(first.id);
+          setState(next);
+          markSaved(next);
         }
       } catch (e) {
         console.error(e);
@@ -92,7 +128,61 @@ function FirmaPage() {
         setLoading(false);
       }
     })();
-  }, [load]);
+  }, [loadAll]);
+
+  function selectCompany(id: string) {
+    if (id === selectedId) return;
+    const row = companies.find((c) => c.id === id);
+    if (!row || !confirmDiscard()) return;
+    const next = rowToState(row);
+    setSelectedId(id);
+    setState(next);
+    markSaved(next);
+  }
+
+  function addCompany() {
+    if (!confirmDiscard()) return;
+    const next = empty();
+    setSelectedId(null);
+    setState(next);
+    markSaved(next);
+  }
+
+  async function handleMakeDefault(id: string) {
+    try {
+      await makeDefault({ data: { id } });
+      setCompanies((list) =>
+        list
+          .map((c) => ({ ...c, is_default: c.id === id }))
+          .sort((a, b) => Number(b.is_default) - Number(a.is_default)),
+      );
+      toast.success(t("firma.companies.defaultSet"));
+    } catch (e: any) {
+      toast.error(e?.message ?? t("firma.saveError"));
+    }
+  }
+
+  async function handleDelete(row: CompanyRow) {
+    const name = row.nazov || row.ico || t("firma.companies.unnamed");
+    if (!window.confirm(t("firma.companies.deleteConfirm", { name }))) return;
+    try {
+      await remove({ data: { id: row.id } });
+      // Databáza po zmazaní hlavnej firmy povýši najstaršiu zvyšnú —
+      // zoznam preto načítame odznova, nech sedí, ktorá je hlavná.
+      const rows = (await loadAll()) as CompanyRow[];
+      setCompanies(rows);
+      if (selectedId === row.id) {
+        const next = rows[0] ?? null;
+        setSelectedId(next?.id ?? null);
+        const nextState = next ? rowToState(next) : empty();
+        setState(nextState);
+        markSaved(nextState);
+      }
+      toast.success(t("firma.companies.deleted"));
+    } catch (e: any) {
+      toast.error(e?.message ?? t("firma.saveError"));
+    }
+  }
 
   async function handleFetch() {
     if (!state.ico || state.ico.replace(/\D/g, "").length < 6) {
@@ -130,9 +220,10 @@ function FirmaPage() {
   async function handleSave() {
     setSaving(true);
     try {
-      await save({
+      const saved = (await save({
         data: {
           ...state,
+          ...(selectedId ? { id: selectedId } : {}),
           financne_roky: state.financne_roky
             .filter((r) => r.rok)
             .map((r) => ({
@@ -149,7 +240,17 @@ function FirmaPage() {
               rok: r.rok != null && r.rok !== ("" as any) ? Number(r.rok) : null,
             })),
         },
+      })) as CompanyRow;
+      // Novej firme priradil id až server — bez tohto by ďalšie uloženie
+      // založilo duplikát namiesto úpravy.
+      setSelectedId(saved.id);
+      setCompanies((list) => {
+        const without = list.filter((c) => c.id !== saved.id);
+        return [...without, saved].sort(
+          (a, b) => Number(b.is_default) - Number(a.is_default),
+        );
       });
+      markSaved(state);
       toast.success(t("firma.profileSaved"));
     } catch (e: any) {
       toast.error(e?.message ?? t("firma.saveError"));
@@ -216,8 +317,92 @@ function FirmaPage() {
         {t("firma.description")}
       </p>
 
-      {/* IČO + fetch */}
+      {/* Zoznam firiem */}
       <section className="mt-8 rounded-lg border border-primary/15 bg-card p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="font-display font-semibold text-lg">{t("firma.companies.heading")}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("firma.companies.description")}
+            </p>
+          </div>
+          <Button type="button" variant="outline" size="sm" onClick={addCompany}>
+            <Plus className="h-4 w-4 mr-1" /> {t("firma.companies.add")}
+          </Button>
+        </div>
+
+        <ul className="mt-4 space-y-2">
+          {companies.map((c) => {
+            const active = c.id === selectedId;
+            return (
+              <li
+                key={c.id}
+                className={`flex items-center gap-3 rounded border p-3 ${
+                  active ? "border-primary bg-primary/5" : "border-border"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => selectCompany(c.id)}
+                  className="flex flex-1 items-center gap-2 text-left min-w-0"
+                >
+                  <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  <span className="truncate font-medium">
+                    {c.nazov || c.ico || t("firma.companies.unnamed")}
+                  </span>
+                  {c.is_default && (
+                    <span className="shrink-0 rounded bg-primary px-1.5 py-0.5 text-xs font-medium text-primary-foreground">
+                      {t("firma.companies.default")}
+                    </span>
+                  )}
+                </button>
+                {!c.is_default && (
+                  <>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleMakeDefault(c.id)}
+                      title={t("firma.companies.makeDefault")}
+                    >
+                      <Star className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(c)}
+                      title={t("firma.companies.delete")}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+              </li>
+            );
+          })}
+
+          {selectedId === null && (
+            <li className="flex items-center gap-2 rounded border border-primary bg-primary/5 p-3">
+              <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <span className="font-medium">{t("firma.companies.newCompany")}</span>
+            </li>
+          )}
+        </ul>
+
+        {/*
+          Hlavná firma sa mazať nedá — inak by používateľ mohol ostať
+          s firmami bez hlavnej. Najprv treba označiť inú ako hlavnú.
+        */}
+        {companies.length > 1 && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            {t("firma.companies.defaultHint")}
+          </p>
+        )}
+      </section>
+
+      {/* IČO + fetch */}
+      <section className="mt-6 rounded-lg border border-primary/15 bg-card p-6">
         <h2 className="font-display font-semibold text-lg">{t("firma.identification.heading")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {t("firma.identification.description")}

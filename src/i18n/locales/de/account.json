@@ -173,6 +173,21 @@
     "registriesFetchError": "Fehler beim Laden der Registerdaten",
     "profileSaved": "Firmenprofil gespeichert",
     "saveError": "Fehler beim Speichern",
+    "companies": {
+      "heading": "Meine Firmen",
+      "description": "Sie können mehrere Firmen anlegen und zwischen ihnen wechseln. Die Hauptfirma wird für die KI-Analyse von Ausschreibungen und Förderungen verwendet.",
+      "add": "Firma hinzufügen",
+      "newCompany": "Neue Firma (nicht gespeichert)",
+      "unnamed": "Ohne Namen",
+      "default": "Hauptfirma",
+      "makeDefault": "Als Hauptfirma festlegen",
+      "delete": "Firma löschen",
+      "deleteConfirm": "Firma {{name}} wirklich löschen? Das lässt sich nicht rückgängig machen.",
+      "deleted": "Firma gelöscht",
+      "defaultSet": "Hauptfirma geändert",
+      "unsavedConfirm": "Sie haben ungespeicherte Änderungen. Verwerfen?",
+      "defaultHint": "Die Hauptfirma kann nicht gelöscht werden. Legen Sie zuerst eine andere Firma als Hauptfirma fest."
+    },
     "identification": {
       "heading": "Identifikation",
       "description": "Geben Sie die Handelsregisternummer ein und laden Sie Daten aus RPO + registeruz.sk.",

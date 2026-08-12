@@ -112,7 +112,7 @@ export const suggestSubcontracting = createServerFn({ method: "POST" })
       context.supabase.from("tenders")
         .select("id,title,description,cpv_code,region,country")
         .eq("id", data.tender_id).maybeSingle(),
-      context.supabase.from("company_profile").select("*").eq("user_id", context.userId).maybeSingle(),
+      context.supabase.from("company_profile").select("*").eq("user_id", context.userId).eq("is_default", true).maybeSingle(),
     ]);
     if (!analysis) throw new Error("Najprv spustite AI analýzu zákazky.");
     if (!tender) throw new Error("Zákazka nenájdená.");
@@ -385,7 +385,7 @@ export const generateOutreach = createServerFn({ method: "POST" })
 
     const [{ data: tender }, { data: profile }] = await Promise.all([
       context.supabase.from("tenders").select("title,contracting_authority,deadline,source_url").eq("id", data.tender_id).maybeSingle(),
-      context.supabase.from("company_profile").select("nazov,ico").eq("user_id", context.userId).maybeSingle(),
+      context.supabase.from("company_profile").select("nazov,ico").eq("user_id", context.userId).eq("is_default", true).maybeSingle(),
     ]);
     if (!tender) throw new Error("Zákazka nenájdená.");
 
