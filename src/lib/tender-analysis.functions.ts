@@ -449,10 +449,20 @@ async function runAnalysisPipeline(tender: TenderRow, companyText: string) {
   let summary: Awaited<ReturnType<typeof runPart>> | null = null;
   let requirements: Awaited<ReturnType<typeof runPart>> | null = null;
   let eligibility: Awaited<ReturnType<typeof runPart>> | null = null;
-  try { summary = await runPart(GEMINI_MODELS.FLASH, PROMPT_SUMMARY, tenderText); }
-  catch (e) { errors.push("Súhrn: " + geminiUserMessage(e)); }
+
+  // Súhrn číta len text zákazky a nikto ďalší ho nepotrebuje, tak ho pustíme
+  // bokom — nesmie zdržiavať reťaz podmienky → spôsobilosť, ktorá je najdlhšia.
+  // Výsledok obaľujeme hneď, aby prípadné zlyhanie nebolo neodchytené, kým
+  // sa k nemu dole dostaneme.
+  const summaryPromise = runPart(GEMINI_MODELS.FLASH, PROMPT_SUMMARY, tenderText).then(
+    (value) => ({ ok: true as const, value }),
+    (reason) => ({ ok: false as const, reason }),
+  );
+
   try { requirements = await runPart(GEMINI_MODELS.FLASH, requirementsPromptFor(tender), tenderText, { json: true }); }
   catch (e) { errors.push("Podmienky: " + geminiUserMessage(e)); }
+
+  // Spôsobilosť už potrebuje výstup podmienok, tá musí počkať.
   if (requirements) {
     try {
       eligibility = await runPart(
@@ -463,6 +473,11 @@ async function runAnalysisPipeline(tender: TenderRow, companyText: string) {
       );
     } catch (e) { errors.push("Spôsobilosť: " + geminiUserMessage(e)); }
   }
+
+  const summaryRes = await summaryPromise;
+  if (summaryRes.ok) summary = summaryRes.value;
+  else errors.push("Súhrn: " + geminiUserMessage(summaryRes.reason));
+
   return { summary, requirements, eligibility, errors };
 }
 

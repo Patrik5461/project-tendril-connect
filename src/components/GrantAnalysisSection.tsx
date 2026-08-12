@@ -22,6 +22,7 @@ type AnalysisRow = {
   eligibility: any;
   recommendation: string | null;
   overall: string | null;
+  updated_at?: string;
 };
 
 export function GrantAnalysisSection({ grantId }: { grantId: string }) {
@@ -80,7 +81,22 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
     return () => clearInterval(iv);
   }, [running]);
 
+  /**
+   * To isté ako pri zákazkách — analýza môže bežať dlhšie, než vydrží
+   * spojenie, ale server ju dobehne a uloží. Radšej si teda chvíľu pýtame
+   * uložený výsledok, než by sme používateľovi ukázali chybu.
+   */
+  async function waitForStoredAnalysis(before: string | undefined): Promise<AnalysisRow | null> {
+    for (let i = 0; i < 8; i++) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const row = (await getA({ data: { grant_id: grantId } }).catch(() => null)) as AnalysisRow | null;
+      if (row && row.updated_at !== before) return row;
+    }
+    return null;
+  }
+
   async function run(force = false) {
+    const before = analysis?.updated_at;
     setRunning(true);
     try {
       const res = await runA({ data: { grant_id: grantId, force, intent: intent.trim() || null } });
@@ -93,6 +109,14 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
       if (!r?.cached) trackConversion("ai_analysis", { analysis_type: "grant" });
       toast.success(r?.cached ? t("grant.toastCached") : t("grant.toastDone"));
     } catch (e: any) {
+      const recovered = await waitForStoredAnalysis(before);
+      if (recovered) {
+        setAnalysis(recovered);
+        setProgress(100);
+        trackConversion("ai_analysis", { analysis_type: "grant" });
+        toast.success(t("grant.toastDone"));
+        return;
+      }
       toast.error(e?.message ?? t("grant.toastFailed"));
     } finally {
       setRunning(false);

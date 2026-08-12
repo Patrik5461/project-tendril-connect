@@ -90,7 +90,23 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
     return () => clearInterval(iv);
   }, [running]);
 
+  /**
+   * Analýza trvá cez 30 sekúnd a spojenie ju občas nestihne — server ju však
+   * dobehne a uloží aj potom, čo prehliadač request vzdal. Namiesto chyby si
+   * teda chvíľu pýtame uložený výsledok; „failed to fetch" je tu takmer vždy
+   * len prerušené spojenie, nie neúspešná analýza.
+   */
+  async function waitForStoredAnalysis(before: string | undefined): Promise<AnalysisRow | null> {
+    for (let i = 0; i < 8; i++) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const row = (await getA({ data: { tender_id: tenderId } }).catch(() => null)) as AnalysisRow | null;
+      if (row && row.updated_at !== before) return row;
+    }
+    return null;
+  }
+
   async function run(force = false) {
+    const before = analysis?.updated_at;
     setRunning(true);
     try {
       const res = await runA({ data: { tender_id: tenderId, force } });
@@ -103,6 +119,14 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
       if (!r?.cached) trackConversion("ai_analysis", { analysis_type: "tender" });
       toast.success(r?.cached ? t("tender.toastCached") : t("tender.toastDone"));
     } catch (e: any) {
+      const recovered = await waitForStoredAnalysis(before);
+      if (recovered) {
+        setAnalysis(recovered);
+        setProgress(100);
+        trackConversion("ai_analysis", { analysis_type: "tender" });
+        toast.success(t("tender.toastDone"));
+        return;
+      }
       toast.error(e?.message ?? t("tender.toastFailed"));
     } finally {
       setRunning(false);

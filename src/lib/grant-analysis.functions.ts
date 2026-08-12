@@ -411,12 +411,30 @@ async function runAnalysisPipeline(
   console.log(`[${logPrefix}] context sizes formal=${formalCtx.length} financed=${financedCtx.length} intent=${intent ? intent.length : 0}`);
 
   // A) formal (Pro — critical eligibility gate)
+  // B) what is financed (Flash) — always run; useful even when blocked
+  // C) intent match (Flash) — only if intent provided AND not blocked formally
+  //
+  // Všetky tri stavajú na kontextoch, ktoré sú známe vopred, a ani jedna
+  // nepotrebuje výstup ostatných — podmienka pri zámere sa pozerá na
+  // deterministický gate, nie na výsledok formálnej časti. Sériovo teda celý
+  // request zbytočne trval ako súčet troch volaní namiesto toho najdlhšieho.
+  const runIntent = Boolean(intent && intent.trim().length >= 10 && !gate.blocked);
+  const [formalRes, financedRes, intentRes] = await Promise.allSettled([
+    runPart(GEMINI_MODELS.PRO, PROMPT_FORMAL, formalCtx, { json: true, logLabel: `${logPrefix}:formal` }),
+    runPart(GEMINI_MODELS.FLASH, PROMPT_FINANCED, financedCtx, { logLabel: `${logPrefix}:financed` }),
+    runIntent
+      ? runPart(
+          GEMINI_MODELS.FLASH,
+          PROMPT_INTENT,
+          `VÝZVA:\n${financedCtx}\n\nZÁMER ŽIADATEĽA:\n${intent!.trim()}`,
+          { json: true, logLabel: `${logPrefix}:intent` },
+        )
+      : Promise.resolve(null),
+  ]);
+
   let formal: Awaited<ReturnType<typeof runPart>> | null = null;
-  try {
-    formal = await runPart(GEMINI_MODELS.PRO, PROMPT_FORMAL, formalCtx, { json: true, logLabel: `${logPrefix}:formal` });
-  } catch (e) {
-    errors.push("Formálna oprávnenosť: " + geminiUserMessage(e));
-  }
+  if (formalRes.status === "fulfilled") formal = formalRes.value;
+  else errors.push("Formálna oprávnenosť: " + geminiUserMessage(formalRes.reason));
   const formalParsed = formal ? safeJson<any>(formal.text) : null;
 
   // Determine early recommendation from deterministic gate + AI
@@ -424,25 +442,17 @@ async function runAnalysisPipeline(
     (formalParsed?.odporucanie as any) ?? null;
   if (gate.blocked) recommendation = "neodporucame";
 
-  // B) what is financed (Flash) — always run; useful even when blocked
   let financed: Awaited<ReturnType<typeof runPart>> | null = null;
-  try {
-    financed = await runPart(GEMINI_MODELS.FLASH, PROMPT_FINANCED, financedCtx, { logLabel: `${logPrefix}:financed` });
-  } catch (e) {
-    errors.push("Čo výzva financuje: " + geminiUserMessage(e));
-  }
+  if (financedRes.status === "fulfilled") financed = financedRes.value;
+  else errors.push("Čo výzva financuje: " + geminiUserMessage(financedRes.reason));
 
-  // C) intent match (Flash) — only if intent provided AND not blocked formally
   let intentAI: Awaited<ReturnType<typeof runPart>> | null = null;
   let intentParsed: any = null;
-  if (intent && intent.trim().length >= 10 && !gate.blocked) {
-    try {
-      const intentCtx = `VÝZVA:\n${financedCtx}\n\nZÁMER ŽIADATEĽA:\n${intent.trim()}`;
-      intentAI = await runPart(GEMINI_MODELS.FLASH, PROMPT_INTENT, intentCtx, { json: true, logLabel: `${logPrefix}:intent` });
-      intentParsed = safeJson<any>(intentAI.text);
-    } catch (e) {
-      errors.push("Súlad zámeru: " + geminiUserMessage(e));
-    }
+  if (intentRes.status === "fulfilled") {
+    intentAI = intentRes.value;
+    if (intentAI) intentParsed = safeJson<any>(intentAI.text);
+  } else {
+    errors.push("Súlad zámeru: " + geminiUserMessage(intentRes.reason));
   }
 
   return {
