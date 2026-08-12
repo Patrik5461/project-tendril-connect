@@ -34,6 +34,21 @@ export function useIsNative(): boolean {
   return native;
 }
 
+/**
+ * Bez `viewport-fit=cover` vracia iOS pre env(safe-area-inset-*) nulu,
+ * takže safe-top / safe-x / safe-bottom utility by neurobili nič a obsah
+ * by sa schoval pod výrez a domovský indikátor. Meníme to len v natívnej
+ * appke, aby sa vzhľad webu v prehliadači nezmenil.
+ */
+export function applyNativeViewportFit(): void {
+  if (!isNative()) return;
+  const meta = document.querySelector('meta[name="viewport"]');
+  if (!meta) return;
+  const content = meta.getAttribute("content") ?? "";
+  if (content.includes("viewport-fit")) return;
+  meta.setAttribute("content", `${content}, viewport-fit=cover`);
+}
+
 /** Externý odkaz: v appke cez in-app browser, na webe klasicky nové okno. */
 export async function openExternal(url: string): Promise<void> {
   if (isNative()) {

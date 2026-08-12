@@ -16,6 +16,7 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { AnalyticsScripts } from "@/components/AnalyticsScripts";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { I18nProvider } from "@/i18n/I18nProvider";
+import { applyNativeViewportFit } from "@/lib/native";
 
 function NotFoundComponent() {
   return (
@@ -155,6 +156,10 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const { lang } = Route.useLoaderData();
+
+  useEffect(() => {
+    applyNativeViewportFit();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
