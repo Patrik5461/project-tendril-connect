@@ -37,7 +37,9 @@ export function PushNotificationsCard() {
           setDenied(true);
           toast.error(t("push.denied"));
         } else {
-          toast.error(t("push.enableFailed"));
+          // Detail (napr. "no_token: timeout") je jediný záchytný bod pri ladení
+          // priamo na zariadení, bez pripojeného Web Inspectora.
+          toast.error(t("push.enableFailed"), { description: res.reason });
         }
       } else {
         await disablePush();

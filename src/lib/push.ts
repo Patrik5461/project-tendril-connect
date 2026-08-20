@@ -30,31 +30,37 @@ export async function enablePush(): Promise<{ ok: boolean; reason?: string }> {
   const perm = await PushNotifications.requestPermissions();
   if (perm.receive !== "granted") return { ok: false, reason: "denied" };
 
-  const token = await new Promise<string | null>((resolve) => {
-    let done = false;
-    const timer = setTimeout(() => {
-      if (!done) {
-        done = true;
-        resolve(null);
-      }
-    }, 15000);
+  // Staré listenery po predchádzajúcom zapnutí by inak ostali visieť
+  // a jeden `register()` by vyvolal viac zápisov naraz.
+  await PushNotifications.removeAllListeners();
 
-    PushNotifications.addListener("registration", (t) => {
+  const reg = await new Promise<{ token?: string; error?: string }>((resolve) => {
+    let done = false;
+    // Ak AppDelegate neposiela capacitorDidRegisterForRemoteNotifications,
+    // nepríde ani token ani chyba — preto timeout s vlastnou hláškou.
+    let timer: ReturnType<typeof setTimeout>;
+    const finish = (v: { token?: string; error?: string }) => {
       if (done) return;
       done = true;
       clearTimeout(timer);
-      resolve(t.value);
-    });
-    PushNotifications.addListener("registrationError", () => {
-      if (done) return;
-      done = true;
-      clearTimeout(timer);
-      resolve(null);
-    });
+      resolve(v);
+    };
+    timer = setTimeout(() => finish({ error: "timeout" }), 15000);
+
+    PushNotifications.addListener("registration", (t) => finish({ token: t.value }));
+    PushNotifications.addListener("registrationError", (e) =>
+      finish({ error: String((e as { error?: unknown }).error ?? "registration_failed") }),
+    );
     PushNotifications.register();
   });
 
-  if (!token) return { ok: false, reason: "no_token" };
+  if (!reg.token) {
+    // Dôvod ide do konzoly — v Safari Web Inspectore pripojenom na zariadenie
+    // je to jediná stopa, prečo sa registrácia nepodarila.
+    console.error("[push] registrácia zlyhala:", reg.error);
+    return { ok: false, reason: `no_token: ${reg.error ?? "unknown"}` };
+  }
+  const token = reg.token;
 
   const { data: u } = await supabase.auth.getUser();
   if (!u.user) return { ok: false, reason: "not_authenticated" };

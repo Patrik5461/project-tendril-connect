@@ -31,7 +31,13 @@ Natívne správanie je v kóde ohraničené cez `useIsNative()`:
 | iOS | APNs priamo (token-based, `.p8`) | `APNS_KEY_P8`, `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_BUNDLE_ID`, `APNS_ENV` |
 | Android | Firebase Cloud Messaging HTTP v1 | `FCM_SERVICE_ACCOUNT_JSON` |
 
-Logika je v `supabase/functions/_shared/push.ts` — tokeny sa načítajú z `push_tokens`,
+Na iOS musí device token do Capacitora poslať `AppDelegate` — plugin si ho od systému
+nepýta sám, iba počúva na `NotificationCenter`. Robia to metódy
+`didRegisterForRemoteNotificationsWithDeviceToken` a `didFailToRegisterForRemoteNotificationsWithError`
+v `ios/App/App/AppDelegate.swift`. **Keď ich odtiaľ niekto vymaže, registrácia sa
+navonok tvári ako 15-sekundový timeout** (`no_token: timeout` v hláške pri zapnutí).
+
+Logika odosielania je v `supabase/functions/_shared/push.ts` — tokeny sa načítajú z `push_tokens`,
 rozdelia podľa stĺpca `platform` a pošlú príslušným kanálom. Neplatné tokeny
 (410 Unregistered, BadDeviceToken) sa z tabuľky automaticky mažú.
 
@@ -87,7 +93,10 @@ V Xcode:
 1. Vybrať target **App** → **Signing & Capabilities**
    - **Team** → tvoj Apple Developer tím
    - **Bundle Identifier** musí byť `sk.tendrik.app`
-   - **+ Capability** → **Push Notifications** ← *bez tohto push nikdy nepríde*
+   - **Push Notifications** už kliknúť netreba — capability je v repe
+     (`ios/App/App/App.entitlements` + `CODE_SIGN_ENTITLEMENTS` v projekte).
+     Ak Xcode hlási, že profil capability nepodporuje, znamená to, že App ID
+     v portáli ešte nemá zapnuté Push Notifications (krok 1 vyššie).
 2. **General** → **Minimum Deployments** nechať na tom, čo predvyplnil Capacitor (iOS 14+)
 3. Ikona: `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png` je zatiaľ
    **default Capacitor logo**. Treba ho nahradiť **1024×1024 PNG bez priehľadnosti**

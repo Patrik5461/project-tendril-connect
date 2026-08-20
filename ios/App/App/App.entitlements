@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!--
+	  Capability "Push Notifications". Bez nej Apple pri registrácii vráti chybu
+	  a device token nikdy nepríde. Doteraz sa musela klikať ručne v Xcode
+	  (Signing & Capabilities); takto je súčasťou repa a drží sa aj po `cap sync`.
+
+	  Hodnota "development" je zámerná — Xcode ju pri archivovaní na App Store
+	  sám prepíše na "production" podľa distribučného profilu.
+	-->
+	<key>aps-environment</key>
+	<string>development</string>
+</dict>
+</plist>
