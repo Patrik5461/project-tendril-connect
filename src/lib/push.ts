@@ -38,14 +38,17 @@ export async function enablePush(): Promise<{ ok: boolean; reason?: string }> {
     let done = false;
     // Ak AppDelegate neposiela capacitorDidRegisterForRemoteNotifications,
     // nepríde ani token ani chyba — preto timeout s vlastnou hláškou.
-    let timer: ReturnType<typeof setTimeout>;
+    const timer = setTimeout(() => {
+      if (done) return;
+      done = true;
+      resolve({ error: "timeout" });
+    }, 15000);
     const finish = (v: { token?: string; error?: string }) => {
       if (done) return;
       done = true;
       clearTimeout(timer);
       resolve(v);
     };
-    timer = setTimeout(() => finish({ error: "timeout" }), 15000);
 
     PushNotifications.addListener("registration", (t) => finish({ token: t.value }));
     PushNotifications.addListener("registrationError", (e) =>

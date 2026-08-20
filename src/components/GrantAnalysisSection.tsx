@@ -8,6 +8,7 @@ import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCirc
 import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
 
 import { toast } from "sonner";
+import { successFeedback } from "@/lib/native";
 import { analyzeGrant, getGrantAnalysis } from "@/lib/grant-analysis.functions";
 import { getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
 import { trackConversion } from "@/lib/analytics";
@@ -107,6 +108,8 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
         setCredit((prev) => prev ? { ...prev, remaining: r.credit_remaining } : { unlimited: false, remaining: r.credit_remaining, limit: 5 });
       }
       if (!r?.cached) trackConversion("ai_analysis", { analysis_type: "grant" });
+      // Pri cached výsledku sa nič nečakalo, takže niet čo ohlasovať.
+      if (!r?.cached) void successFeedback();
       toast.success(r?.cached ? t("grant.toastCached") : t("grant.toastDone"));
     } catch (e: any) {
       const recovered = await waitForStoredAnalysis(before);
@@ -114,6 +117,7 @@ export function GrantAnalysisSection({ grantId }: { grantId: string }) {
         setAnalysis(recovered);
         setProgress(100);
         trackConversion("ai_analysis", { analysis_type: "grant" });
+        void successFeedback();
         toast.success(t("grant.toastDone"));
         return;
       }

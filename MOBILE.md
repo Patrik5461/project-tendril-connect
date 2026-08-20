@@ -23,6 +23,20 @@ Natívne správanie je v kóde ohraničené cez `useIsNative()`:
 | `src/components/PushNotificationsCard.tsx` | prepínač v nastaveniach (len v appke) |
 | `src/components/WebOnlyPurchase.tsx` | skrytie nákupu predplatného (App Store 3.1.1) |
 | `src/components/MobileBottomNav.tsx` | spodná navigácia (len v appke) |
+| `src/components/NativeAppLifecycle.tsx` | návrat do appky zneplatní React Query cache |
+
+Natívne správanie, ktoré nie je vidieť v kóde webu:
+
+| Kde | Čo |
+| --- | --- |
+| `AppDelegate.swift` | device token pre push; vynulovanie odznaku pri otvorení appky |
+| `SceneDelegate.swift` | gesto „späť“ ťahom od ľavého okraja |
+| `capacitor.config.ts` → `errorPath` | offline hláška z `mobile-shell/index.html` |
+| `App.entitlements` | capability Push Notifications |
+
+Odznak na ikone sa nastavuje z APNs payloadu — `send-push` prijíma voliteľné
+pole `badge`. Appka si ho vynuluje sama pri otvorení, takže netreba posielať
+žiadnu „mazaciu“ notifikáciu.
 
 ## Push notifikácie
 
@@ -98,9 +112,9 @@ V Xcode:
      Ak Xcode hlási, že profil capability nepodporuje, znamená to, že App ID
      v portáli ešte nemá zapnuté Push Notifications (krok 1 vyššie).
 2. **General** → **Minimum Deployments** nechať na tom, čo predvyplnil Capacitor (iOS 14+)
-3. Ikona: `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png` je zatiaľ
-   **default Capacitor logo**. Treba ho nahradiť **1024×1024 PNG bez priehľadnosti**
-   (`public/favicon.png` má len 512×512 a je to v skutočnosti JPEG, takže sa nedá použiť).
+3. Ikona a splash sú vygenerované skriptom (červená plocha + biele „T“, rovnaká
+   značka ako v hlavičke webu). Ak príde od grafika skutočné logo, stačí prepísať
+   `AppIcon-512@2x.png` — musí byť **1024×1024 PNG bez priehľadnosti**.
 4. Spustiť na fyzickom zariadení (simulátor push notifikácie z APNs nedostane).
 
 ### 4. Test push notifikácií

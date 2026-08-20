@@ -17,7 +17,14 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { AnalyticsScripts } from "@/components/AnalyticsScripts";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { I18nProvider } from "@/i18n/I18nProvider";
-import { applyNativeShell, applyNativeViewportFit, isNative, useIsNative } from "@/lib/native";
+import {
+  applyNativeShell,
+  applyNativeStatusBar,
+  applyNativeViewportFit,
+  isNative,
+  useIsNative,
+} from "@/lib/native";
+import { NativeAppLifecycle } from "@/components/NativeAppLifecycle";
 
 function NotFoundComponent() {
   return (
@@ -164,6 +171,7 @@ function RootComponent() {
   useEffect(() => {
     applyNativeViewportFit();
     applyNativeShell();
+    applyNativeStatusBar();
   }, []);
 
   // Marketingová homepage v natívnej appke nedáva zmysel a používateľ by na
@@ -178,6 +186,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider initialLang={lang}>
+        <NativeAppLifecycle />
         <Outlet />
         <Toaster richColors position="top-right" />
         {/*

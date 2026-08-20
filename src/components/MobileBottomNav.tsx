@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Coins, Settings, Building2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useIsNative } from "@/lib/native";
+import { tapFeedback, useIsNative } from "@/lib/native";
 
 const ITEMS = [
   { to: "/dashboard", labelKey: "mobileNav.tenders", icon: LayoutDashboard },
@@ -44,6 +44,9 @@ export function MobileBottomNav() {
                       } as never,
                     }
                   : {})}
+                onClick={() => {
+                  void tapFeedback();
+                }}
                 className={`flex min-h-[56px] flex-col items-center justify-center gap-1 px-2 py-2 text-[11px] font-semibold ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}

@@ -7,6 +7,7 @@ import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCirc
 import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
 
 import { toast } from "sonner";
+import { successFeedback } from "@/lib/native";
 import { analyzeTender, getTenderAnalysis, getCompanyProfile, getAiCreditStatus } from "@/lib/tender-analysis.functions";
 import { SubcontractingSection } from "@/components/SubcontractingSection";
 import { trackConversion } from "@/lib/analytics";
@@ -117,6 +118,8 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
         setCredit((prev) => prev ? { ...prev, remaining: r.credit_remaining } : { unlimited: false, remaining: r.credit_remaining, limit: 5 });
       }
       if (!r?.cached) trackConversion("ai_analysis", { analysis_type: "tender" });
+      // Pri cached výsledku sa nič nečakalo, takže niet čo ohlasovať.
+      if (!r?.cached) void successFeedback();
       toast.success(r?.cached ? t("tender.toastCached") : t("tender.toastDone"));
     } catch (e: any) {
       const recovered = await waitForStoredAnalysis(before);
@@ -124,6 +127,7 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
         setAnalysis(recovered);
         setProgress(100);
         trackConversion("ai_analysis", { analysis_type: "tender" });
+        void successFeedback();
         toast.success(t("tender.toastDone"));
         return;
       }

@@ -58,6 +58,51 @@ export function applyNativeShell(): void {
   document.documentElement.classList.add("capacitor-native");
 }
 
+/**
+ * Bez explicitného nastavenia použije iOS systémový štýl, ktorý pri svetlom
+ * pozadí appky môže vykresliť biely čas a signál na bielej hlavičke. Tendrik
+ * tmavý režim neprepína, takže natrvalo fixujeme tmavý text.
+ */
+export async function applyNativeStatusBar(): Promise<void> {
+  if (!isNative()) return;
+  try {
+    const { StatusBar, Style } = await import("@capacitor/status-bar");
+    // Style.Light = tmavý text pre svetlé pozadie (nie naopak).
+    await StatusBar.setStyle({ style: Style.Light });
+  } catch {
+    /* plugin nemusí byť v starom builde — appka funguje aj bez toho */
+  }
+}
+
+/**
+ * Krátky hmatový impulz pri dotyku (prepnutie záložky a podobne).
+ * Na webe a pri chýbajúcom plugine nerobí nič, takže volajúci sa nemusí
+ * strážiť, či beží v appke.
+ */
+export async function tapFeedback(): Promise<void> {
+  if (!isNative()) return;
+  try {
+    const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
+    await Haptics.impact({ style: ImpactStyle.Light });
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Hmatové potvrdenie dokončenia. AI analýza beží desiatky sekúnd a používateľ
+ * medzitým typicky odloží telefón — toto mu dá vedieť aj bez pozerania.
+ */
+export async function successFeedback(): Promise<void> {
+  if (!isNative()) return;
+  try {
+    const { Haptics, NotificationType } = await import("@capacitor/haptics");
+    await Haptics.notification({ type: NotificationType.Success });
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Externý odkaz: v appke cez in-app browser, na webe klasicky nové okno. */
 export async function openExternal(url: string): Promise<void> {
   if (isNative()) {

@@ -8,8 +8,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
 
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = CAPBridgeViewController()
+        let bridgeViewController = CAPBridgeViewController()
+        window?.rootViewController = bridgeViewController
         window?.makeKeyAndVisible()
+
+        // Ťahanie od ľavého okraja = späť, ako to iOS má všade inde. Appka je
+        // obal nad webom, takže bez tohto sa používateľ z detailu zákazky
+        // dostane naspäť iba cez spodnú navigáciu. WKWebView vznikne až v
+        // `viewDidLoad`, ktorý spustí až `makeKeyAndVisible` vyššie.
+        bridgeViewController.webView?.allowsBackForwardNavigationGestures = true
 
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
     }

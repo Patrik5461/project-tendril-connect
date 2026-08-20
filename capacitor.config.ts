@@ -28,6 +28,12 @@ const config: CapacitorConfig = {
      * skrytý (WebOnlyPurchase), inak by to bolo porušenie App Store 3.1.1.
      */
     allowNavigation: ["tendrik.sk", "www.tendrik.sk"],
+    /**
+     * Keď sa server nedá načítať, WKWebView by ukázal svoju vlastnú anglickú
+     * chybovú stránku. Namiesto nej sa zobrazí mobile-shell/index.html —
+     * slovenská hláška s tlačidlom „Skúsiť znova".
+     */
+    errorPath: "index.html",
   },
   ios: {
     /**

@@ -20,6 +20,11 @@ type PushRequest = {
   body: string;
   /** In-app cesta, ktorá sa otvorí po kliknutí (napr. /zakazka/<uuid>). */
   path?: string;
+  /**
+   * Číslo na odznaku ikony (iOS). Posiela sa spolu s notifikáciou; appka ho
+   * vynuluje sama, keď ju používateľ otvorí (AppDelegate). 0 odznak skryje.
+   */
+  badge?: number;
   data?: Record<string, string>;
 };
 
@@ -154,6 +159,7 @@ async function sendApns(
     aps: {
       alert: { title: req.title, body: req.body },
       sound: "default",
+      ...(typeof req.badge === "number" ? { badge: req.badge } : {}),
     },
   });
 
