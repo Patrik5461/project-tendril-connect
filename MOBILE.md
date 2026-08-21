@@ -111,7 +111,9 @@ V Xcode:
      (`ios/App/App/App.entitlements` + `CODE_SIGN_ENTITLEMENTS` v projekte).
      Ak Xcode hlási, že profil capability nepodporuje, znamená to, že App ID
      v portáli ešte nemá zapnuté Push Notifications (krok 1 vyššie).
-2. **General** → **Minimum Deployments** nechať na tom, čo predvyplnil Capacitor (iOS 14+)
+2. **General** → **Minimum Deployments** nechať na tom, čo predvyplnil Capacitor (iOS 15+).
+   Appka je zámerne **iba pre iPhone** (`TARGETED_DEVICE_FAMILY = "1"`) — web je
+   ladený na telefón a iPad by len rozširoval plochu, ktorú testuje App Review.
 3. Ikona a splash sú vygenerované skriptom (červená plocha + biele „T“, rovnaká
    značka ako v hlavičke webu). Ak príde od grafika skutočné logo, stačí prepísať
    `AppIcon-512@2x.png` — musí byť **1024×1024 PNG bez priehľadnosti**.
