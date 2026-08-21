@@ -137,9 +137,33 @@ V Xcode:
 
 ### 5. TestFlight / App Store
 
-1. Xcode → **Product → Archive** → **Distribute App** → **App Store Connect**
-2. V App Store Connect vytvoriť appku s bundle ID `sk.tendrik.app`
-3. Vyplniť privacy policy URL (`https://tendrik.sk/ochrana-osobnych-udajov`)
+1. V App Store Connect vytvoriť appku s bundle ID `sk.tendrik.app`
+2. Vyplniť privacy policy URL (`https://tendrik.sk/ochrana-osobnych-udajov`)
+3. Build nahrať cez Xcode Cloud (nižšie) alebo ručne:
+   Xcode → **Product → Archive** → **Distribute App** → **App Store Connect**
+
+Interné testovanie (do 100 ľudí z tímu) ide bez App Review. Externé testovanie
+prechádza cez Beta App Review, kde je hlavné riziko pravidlo 4.2 (prebalený web) —
+preto má zmysel púšťať externých testerov až vtedy, keď fungujú push notifikácie.
+
+### 6. Xcode Cloud
+
+Repozitár je pripravený, workflow stačí vytvoriť v Xcode (Product → Xcode Cloud).
+Projekt: `ios/App/App.xcodeproj`, schéma **App**, archive konfigurácia Release.
+
+Dve veci, bez ktorých by CI build spadol, sú už v repe:
+
+| Súbor | Načo |
+| --- | --- |
+| `ios/App/App.xcodeproj/xcshareddata/xcschemes/App.xcscheme` | Xcode Cloud vidí iba **zdieľané** schémy. Predtým tu žiadna nebola, workflow by nemal čo buildovať. |
+| `ios/App/ci_scripts/ci_post_clone.sh` | Doinštaluje bun, spustí `bun install` a `cap sync ios`. |
+| `ios/App/ci_scripts/ci_pre_xcodebuild.sh` | Prepíše `CURRENT_PROJECT_VERSION` na `CI_BUILD_NUMBER`, aby sa čísla buildov neopakovali. |
+
+Prečo ten `ci_post_clone.sh` musí byť: `App/App/public` a
+`App/App/capacitor.config.json` sú v `ios/.gitignore`, lebo ich generuje
+`cap sync`. V čerstvom klone teda neexistujú. Rovnako `CapApp-SPM/Package.swift`
+odkazuje na pluginy cestami do `node_modules`, ktoré CI tiež nemá.
+Je to tá istá príčina, pre ktorú spadne build aj na Macu po `git clone` bez syncu.
 
 ---
 
