@@ -215,6 +215,9 @@ async function resolveRecipients(
   return Array.from(out);
 }
 
+/** Posledná odpoveď Resendu pri chybe — aby sa dôvod dostal až do admina. */
+let lastResendError = "";
+
 /** Vráti adresy, ktoré sa nepodarilo odoslať. */
 async function sendBatch(
   emails: string[],
@@ -239,7 +242,8 @@ async function sendBatch(
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
-    console.error(`Resend batch ${res.status}: ${await res.text()}`);
+    lastResendError = `Resend ${res.status}: ${(await res.text()).slice(0, 300)}`;
+    console.error(lastResendError);
     return emails;
   }
   return [];
@@ -269,7 +273,9 @@ Deno.serve(async (req) => {
       const to = parseEmails(body.test_to);
       if (to.length === 0) throw new Error("Zadaj platnú adresu na testovací mail.");
       const failed = await sendBatch(to.slice(0, 1), `[TEST] ${subject}`, html, kind, apiKey);
-      if (failed.length > 0) throw new Error("Testovací mail sa nepodarilo odoslať.");
+      if (failed.length > 0) {
+        throw new Error(lastResendError || "Testovací mail sa nepodarilo odoslať.");
+      }
       return new Response(JSON.stringify({ sent: 1 }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -340,6 +346,7 @@ Deno.serve(async (req) => {
     );
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
+    console.error("[send-broadcast]", msg);
     const status = msg === "forbidden" ? 403 : msg === "not authenticated" ? 401 : 400;
     return new Response(JSON.stringify({ error: msg }), {
       status,

@@ -2364,7 +2364,18 @@ function MailTab() {
       const { data, error } = await supabase.functions.invoke("send-broadcast", {
         body: { mode, kind, audience, subject, body, manual_emails: manualEmails, test_to: testTo },
       });
-      if (error) throw error;
+      if (error) {
+        // Pri non-2xx dá supabase-js len "non-2xx status code". Skutočný dôvod
+        // je v tele odpovede, ktoré si drží v error.context — bez neho sa
+        // nedá rozlíšiť chýbajúci predmet od odmietnutého kľúča.
+        let detail = "";
+        try {
+          detail = ((await (error as any)?.context?.json()) as any)?.error ?? "";
+        } catch {
+          /* telo nemuselo byť JSON */
+        }
+        throw new Error(detail || error.message);
+      }
       if ((data as any)?.error) throw new Error((data as any).error);
       return data as any;
     } finally {
