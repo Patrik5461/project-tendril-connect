@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchEntitlements, type Entitlements } from "@/hooks/use-entitlements";
 import { Loader2, Lock, Sparkles, CheckCircle2, AlertTriangle, XCircle, HelpCircle, RefreshCw, Scale, ShieldAlert, FileText } from "lucide-react";
 import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
 
@@ -42,7 +43,7 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
   const { t } = useTranslation("analysis");
   const [authed, setAuthed] = useState<boolean | null>(null);
   const [status, setStatus] = useState<string | null>(null);
-  const [tier, setTier] = useState<string>("basic");
+  const [ent, setEnt] = useState<Entitlements | null>(null);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [analysis, setAnalysis] = useState<AnalysisRow | null>(null);
   const [checking, setChecking] = useState(true);
@@ -60,14 +61,15 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) { setAuthed(false); setChecking(false); return; }
       setAuthed(true);
-      const [{ data: prefs }, profile, existing, creditRes] = await Promise.all([
-        supabase.from("user_preferences").select("subscription_status,subscription_tier").eq("user_id", u.user.id).maybeSingle(),
+      const [{ data: prefs }, profile, existing, creditRes, entRes] = await Promise.all([
+        supabase.from("user_preferences").select("subscription_status").eq("user_id", u.user.id).maybeSingle(),
         getP().catch(() => null),
         getA({ data: { tender_id: tenderId } }).catch(() => null),
         getCredit().catch(() => null),
+        fetchEntitlements().catch(() => null),
       ]);
+      setEnt(entRes);
       setStatus(prefs?.subscription_status ?? "trial");
-      setTier(((prefs as any)?.subscription_tier as string) ?? "basic");
       setHasProfile(!!(profile && profile.ico));
       if (existing) setAnalysis(existing as AnalysisRow);
       if (creditRes) setCredit({
@@ -141,8 +143,11 @@ export function TenderAnalysisSection({ tenderId, defaultCity, source, structure
   if (checking || authed === null) return null;
   if (!authed) return null;
 
-  const hasAiAccess = status === "trial" || (status === "active" && (tier === "premium" || tier === "komplet"));
-  const needsUpgrade = status === "active" && tier !== "premium" && tier !== "komplet";
+  // Jediný zdroj pravdy: get_entitlements().can_ai — rovnako ako pri grantoch
+  // a na serveri. Zoznam tierov sa tu vypisovať nesmie, inak pri pridaní
+  // ďalšieho balíka ostane táto kópia pozadu.
+  const hasAiAccess = ent ? !!ent.can_ai : true;
+  const needsUpgrade = !hasAiAccess && status !== "expired";
   const isExpired = status === "expired";
   const isTrial = status === "trial";
   // Vyčerpaná kvóta blokuje len NOVÉ analýzy; uložené sa dajú prezerať.

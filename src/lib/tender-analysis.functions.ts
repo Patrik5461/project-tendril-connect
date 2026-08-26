@@ -4,6 +4,7 @@ import { encodeQuotaError } from "./ai-quota";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 import { z } from "zod";
+import { requireAiAccess } from "./entitlements.server";
 import { GEMINI_MODELS, geminiGenerate, geminiUserMessage, type GeminiModel } from "./gemini.server";
 import { fetchCompanyFromRegisters, type RegistryCompany } from "./registers.server";
 import type { StructuredCriteria } from "./ted-criteria";
@@ -516,22 +517,7 @@ export const analyzeTender = createServerFn({ method: "POST" })
     force: z.boolean().optional().default(false),
   }).parse(raw))
   .handler(async ({ data, context }) => {
-    // Subscription check — AI dostupné pre trial alebo aktívny tier s limitom > 0.
-    const { data: prefs } = await context.supabase
-      .from("user_preferences")
-      .select("subscription_status,subscription_tier,trial_started_at")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    const status = prefs?.subscription_status ?? "trial";
-    const tier = (prefs as any)?.subscription_tier ?? "basic";
-    const hasAi = status === "trial" || (status === "active" && (tier === "premium" || tier === "komplet"));
-    if (!hasAi) {
-      throw new Error(
-        status === "expired"
-          ? "AI analýza je dostupná len s aktívnym predplatným."
-          : "AI analýza je súčasťou balíkov Prémium a Komplet. Upgradnite predplatné na /cennik a odomknite ju.",
-      );
-    }
+    const { status, tier } = await requireAiAccess(context, "tender");
 
     // Company profile check — analyzuje sa vždy voči hlavnej firme.
     const { data: profile } = await context.supabase

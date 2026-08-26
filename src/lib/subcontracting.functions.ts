@@ -2,6 +2,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { requireAiAccess } from "./entitlements.server";
 import { GEMINI_MODELS, geminiGenerate, geminiUserMessage } from "./gemini.server";
 import { fetchCompanyFromRegisters } from "./registers.server";
 
@@ -17,21 +18,8 @@ type SuggestedItem = {
 };
 
 async function requireActive(context: any) {
-  const { data: prefs } = await context.supabase
-    .from("user_preferences")
-    .select("subscription_status,subscription_tier")
-    .eq("user_id", context.userId)
-    .maybeSingle();
-  const status = prefs?.subscription_status ?? "trial";
-  const tier = (prefs as any)?.subscription_tier ?? "basic";
-  const hasAi = status === "trial" || (status === "active" && tier === "premium");
-  if (!hasAi) {
-    throw new Error(
-      status === "expired"
-        ? "Funkcia je dostupná len s aktívnym predplatným."
-        : "AI funkcie sú v balíku Prémium (14,99 €/mes). Upgradnite predplatné.",
-    );
-  }
+  // Subdodávky sú nadstavba nad analýzou zákazky, preto rovnaká brána.
+  await requireAiAccess(context, "tender");
 }
 
 function safeJson<T = any>(text: string): T | null {

@@ -4,6 +4,7 @@ import { encodeQuotaError } from "./ai-quota";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 import { z } from "zod";
+import { requireAiAccess } from "./entitlements.server";
 import { GEMINI_MODELS, geminiGenerate, geminiUserMessage, type GeminiModel } from "./gemini.server";
 import { categoriesForGrant, defaultCategoryFromLegalForm, type ApplicantCategory } from "./grant-applicant-categories";
 
@@ -476,21 +477,7 @@ export const analyzeGrant = createServerFn({ method: "POST" })
     intent: z.string().max(1500).optional().nullable(),
   }).parse(raw))
   .handler(async ({ data, context }) => {
-    const { data: prefs } = await context.supabase
-      .from("user_preferences")
-      .select("subscription_status,subscription_tier")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    const status = prefs?.subscription_status ?? "trial";
-    const tier = (prefs as any)?.subscription_tier ?? "basic";
-    const hasAi = status === "trial" || (status === "active" && tier === "premium");
-    if (!hasAi) {
-      throw new Error(
-        status === "expired"
-          ? "AI analýza je dostupná len s aktívnym predplatným."
-          : "AI analýza je súčasťou balíka Prémium (14,99 €/mes). Upgradnite predplatné a odomknite ju.",
-      );
-    }
+    await requireAiAccess(context, "grant");
 
     const { data: profile } = await context.supabase
       .from("company_profile")
