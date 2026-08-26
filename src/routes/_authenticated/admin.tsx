@@ -15,6 +15,7 @@ import { listSeoPages, generateSeoPages, regenerateSeoPage, updateSeoPage } from
 import { adminAnalyzeTender, adminListTendersForTest } from "@/lib/tender-analysis.functions";
 import { adminSuggestSubcontracting, adminFindSubcontractorCandidates, adminGenerateOutreach } from "@/lib/subcontracting.functions";
 import { adminAnalyzeGrant } from "@/lib/grant-analysis.functions";
+import { geminiPing } from "@/lib/gemini-ping.functions";
 import { GoogleAnalyticsTab } from "@/components/admin/GoogleAnalyticsTab";
 import DeleteUserDialog from "@/components/admin/DeleteUserDialog";
 
@@ -1553,8 +1554,14 @@ function InvoicesTab() {
 }
 
 // ---------- AI test tab: run Gemini analysis on ad-hoc tender + IČO ----------
+type GeminiPing = {
+  models: Record<string, { ok: boolean; ms: number; text?: string; error?: string }>;
+  keyPresent: boolean;
+};
+
 function AiTestTab() {
   const listFn = useServerFn(adminListTendersForTest);
+  const pingFn = useServerFn(geminiPing);
   const analyzeFn = useServerFn(adminAnalyzeTender);
   const suggestFn = useServerFn(adminSuggestSubcontracting);
   const findFn = useServerFn(adminFindSubcontractorCandidates);
@@ -1571,11 +1578,29 @@ function AiTestTab() {
   const [candidates, setCandidates] = useState<Record<number, any>>({});
   const [outreachLoading, setOutreachLoading] = useState<string | null>(null);
   const [outreach, setOutreach] = useState<Record<string, any>>({});
+  const [ping, setPing] = useState<GeminiPing | null>(null);
+  const [pingLoading, setPingLoading] = useState(false);
 
 
   useEffect(() => {
     listFn().then((rows) => setTenders(rows as any)).catch((e) => toast.error("Nepodarilo sa načítať zákazky: " + (e?.message ?? e)));
   }, [listFn]);
+
+  async function runPing() {
+    setPingLoading(true);
+    setPing(null);
+    try {
+      const r = (await pingFn()) as GeminiPing;
+      setPing(r);
+      const zle = Object.values(r.models).filter((m) => !m.ok).length;
+      if (zle === 0) toast.success("Všetky modely odpovedajú");
+      else toast.error(`${zle} z ${Object.keys(r.models).length} modelov neodpovedá`);
+    } catch (e: any) {
+      toast.error("Test zlyhal: " + (e?.message ?? String(e)));
+    } finally {
+      setPingLoading(false);
+    }
+  }
 
   async function run() {
     if (!tenderId) return toast.error("Vyber alebo vlož tender_id");
@@ -1658,6 +1683,44 @@ function AiTestTab() {
 
   return (
     <div className="space-y-4">
+      <section className="rounded-xl border p-4 space-y-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="font-medium">Stav Gemini API</h3>
+            <p className="text-sm text-muted-foreground">
+              Pošle každému modelu krátky prompt. Povie, či je chyba v AI alebo u nás.
+            </p>
+          </div>
+          <Button variant="outline" onClick={runPing} disabled={pingLoading}>
+            {pingLoading ? "Testujem…" : "Otestovať modely"}
+          </Button>
+        </div>
+
+        {ping && (
+          <div className="space-y-2">
+            {!ping.keyPresent && (
+              <div className="text-sm text-destructive">
+                GEMINI_API_KEY nie je na serveri nastavený.
+              </div>
+            )}
+            {Object.entries(ping.models).map(([key, m]) => (
+              <div key={key} className="rounded-md border border-primary/10 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <code className="text-xs">{key}</code>
+                  <span className="flex items-center gap-2 text-xs">
+                    <span className="text-muted-foreground">{(m.ms / 1000).toFixed(1)} s</span>
+                    <span className={`font-medium ${m.ok ? "text-primary" : "text-destructive"}`}>
+                      {m.ok ? "✓ odpovedá" : "zlyhalo"}
+                    </span>
+                  </span>
+                </div>
+                {!m.ok && <div className="mt-1 text-xs text-destructive">{m.error}</div>}
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
       <section className="rounded-xl border p-4 space-y-3">
         <h3 className="font-medium">AI test – analýza zákazky</h3>
         <p className="text-sm text-muted-foreground">
