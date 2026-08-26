@@ -140,6 +140,7 @@ function AdminPage() {
             <TabsTrigger value="ai-test">AI test</TabsTrigger>
             <TabsTrigger value="grants-test">Granty (ITMS)</TabsTrigger>
             <TabsTrigger value="grants-ai">Granty (AI test)</TabsTrigger>
+            <TabsTrigger value="mail">Maily</TabsTrigger>
             <TabsTrigger value="marketing">Google / Analytics</TabsTrigger>
           </TabsList>
         </div>
@@ -152,6 +153,7 @@ function AdminPage() {
         <TabsContent value="ai-test" className="mt-4"><AiTestTab /></TabsContent>
         <TabsContent value="grants-test" className="mt-4"><GrantsTestTab /></TabsContent>
         <TabsContent value="grants-ai" className="mt-4"><GrantsAiTestTab /></TabsContent>
+        <TabsContent value="mail" className="mt-4"><MailTab /></TabsContent>
         <TabsContent value="marketing" className="mt-4"><GoogleAnalyticsTab /></TabsContent>
 
       </Tabs>
@@ -2300,6 +2302,312 @@ function GrantsAiTestTab() {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+// ---------------- Maily ----------------
+
+const MAIL_AUDIENCES: Array<{ value: string; label: string }> = [
+  { value: "all", label: "Všetci registrovaní" },
+  { value: "trial", label: "V skúšobnej dobe" },
+  { value: "active", label: "Aktívne predplatné" },
+  { value: "expired", label: "Expirovaní" },
+  { value: "basic", label: "Balík Základ" },
+  { value: "premium", label: "Balík Prémium" },
+  { value: "komplet", label: "Balík Komplet" },
+  { value: "manual", label: "Ručne zadané adresy" },
+];
+
+type Broadcast = {
+  id: string;
+  created_at: string;
+  kind: string;
+  audience: string;
+  subject: string;
+  recipients_total: number;
+  sent_count: number;
+  failed_count: number;
+  failed_emails: string[] | null;
+  status: string;
+};
+
+function MailTab() {
+  const [kind, setKind] = useState<"news" | "ops">("news");
+  const [audience, setAudience] = useState("all");
+  const [manualEmails, setManualEmails] = useState("");
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+  const [testTo, setTestTo] = useState("");
+  const [preview, setPreview] = useState<{ html: string; recipients_total: number; sample: string[] } | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [history, setHistory] = useState<Broadcast[]>([]);
+
+  const loadHistory = useCallback(async () => {
+    const { data } = await (supabase as any)
+      .from("email_broadcasts")
+      .select("id,created_at,kind,audience,subject,recipients_total,sent_count,failed_count,failed_emails,status")
+      .order("created_at", { ascending: false })
+      .limit(20);
+    setHistory((data ?? []) as Broadcast[]);
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setTestTo(data.user?.email ?? ""));
+    void loadHistory();
+  }, [loadHistory]);
+
+  async function call(mode: "preview" | "test" | "send") {
+    setBusy(mode);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-broadcast", {
+        body: { mode, kind, audience, subject, body, manual_emails: manualEmails, test_to: testTo },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      return data as any;
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function runPreview() {
+    try {
+      const d = await call("preview");
+      setPreview(d);
+      if (d.recipients_total === 0) toast.warning("Výber neobsahuje žiadneho príjemcu.");
+    } catch (e: any) {
+      toast.error("Náhľad zlyhal: " + (e?.message ?? String(e)));
+    }
+  }
+
+  async function runTest() {
+    try {
+      await call("test");
+      toast.success(`Testovací mail odoslaný na ${testTo}`);
+    } catch (e: any) {
+      toast.error("Test zlyhal: " + (e?.message ?? String(e)));
+    }
+  }
+
+  async function runSend() {
+    setConfirmOpen(false);
+    try {
+      const d = await call("send");
+      if (d.failed_count > 0) {
+        toast.warning(`Odoslané ${d.sent_count} z ${d.recipients_total}, zlyhalo ${d.failed_count}`);
+      } else {
+        toast.success(`Odoslané všetkým ${d.sent_count} príjemcom`);
+      }
+      setPreview(null);
+      setSubject("");
+      setBody("");
+      await loadHistory();
+    } catch (e: any) {
+      toast.error("Rozposlanie zlyhalo: " + (e?.message ?? String(e)));
+    }
+  }
+
+  const audienceLabel = MAIL_AUDIENCES.find((a) => a.value === audience)?.label ?? audience;
+  const canSend = subject.trim() !== "" && body.trim() !== "" && preview !== null && preview.recipients_total > 0;
+
+  return (
+    <div className="space-y-4">
+      <section className="rounded-xl border p-4 space-y-4">
+        <div>
+          <h3 className="font-medium">Rozposlanie mailu</h3>
+          <p className="text-sm text-muted-foreground">
+            Odosiela sa z adresy <code className="text-xs">novinky@tendrik.sk</code> cez Resend.
+            Pred rozposlaním treba spraviť náhľad — bez neho tlačidlo nepustí.
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <Label htmlFor="mail-kind">Typ</Label>
+            <select
+              id="mail-kind"
+              value={kind}
+              onChange={(e) => { setKind(e.target.value as "news" | "ops"); setPreview(null); }}
+              className="w-full h-9 rounded-md border bg-background px-2 text-sm"
+            >
+              <option value="news">Novinka</option>
+              <option value="ops">Prevádzkový oznam</option>
+            </select>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {kind === "news"
+                ? "Preskočí odhlásených z mailov, v pätičke bude odkaz na odhlásenie."
+                : "Ide všetkým bez ohľadu na nastavenia. Použi len na výpadky a odstávky."}
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="mail-audience">Komu</Label>
+            <select
+              id="mail-audience"
+              value={audience}
+              onChange={(e) => { setAudience(e.target.value); setPreview(null); }}
+              className="w-full h-9 rounded-md border bg-background px-2 text-sm"
+            >
+              {MAIL_AUDIENCES.map((a) => (
+                <option key={a.value} value={a.value}>{a.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {audience === "manual" && (
+          <div>
+            <Label htmlFor="mail-manual">Adresy (oddelené čiarkou alebo riadkom)</Label>
+            <Textarea
+              id="mail-manual"
+              rows={3}
+              value={manualEmails}
+              onChange={(e) => { setManualEmails(e.target.value); setPreview(null); }}
+              placeholder="jan@firma.sk, peter@firma.sk"
+            />
+          </div>
+        )}
+
+        <div>
+          <Label htmlFor="mail-subject">Predmet</Label>
+          <Input
+            id="mail-subject"
+            value={subject}
+            onChange={(e) => { setSubject(e.target.value); setPreview(null); }}
+            placeholder={kind === "ops" ? "Krátky výpadok služby dnes večer" : "Čo je v Tendriku nové"}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="mail-body">Text</Label>
+          <Textarea
+            id="mail-body"
+            rows={10}
+            value={body}
+            onChange={(e) => { setBody(e.target.value); setPreview(null); }}
+            placeholder={"Dobrý deň,\n\nprázdny riadok začína nový odsek. Odkazy sa spravia samy."}
+          />
+        </div>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <Button variant="outline" onClick={runPreview} disabled={busy !== null}>
+            {busy === "preview" ? "Načítavam…" : "Náhľad"}
+          </Button>
+
+          <div className="flex items-end gap-2">
+            <div>
+              <Label htmlFor="mail-test">Testovacia adresa</Label>
+              <Input id="mail-test" className="w-64" value={testTo} onChange={(e) => setTestTo(e.target.value)} />
+            </div>
+            <Button variant="outline" onClick={runTest} disabled={busy !== null}>
+              {busy === "test" ? "Posielam…" : "Poslať test"}
+            </Button>
+          </div>
+
+          <Button className="ml-auto" onClick={() => setConfirmOpen(true)} disabled={busy !== null || !canSend}>
+            <Send className="h-4 w-4 mr-2" />
+            {busy === "send" ? "Rozposielam…" : "Rozposlať"}
+          </Button>
+        </div>
+      </section>
+
+      {preview && (
+        <section className="rounded-xl border p-4 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-medium">
+              Náhľad · {preview.recipients_total} {preview.recipients_total === 1 ? "príjemca" : "príjemcov"}
+            </h3>
+            <span className="text-xs text-muted-foreground">{audienceLabel}</span>
+          </div>
+
+          {preview.sample.length > 0 && (
+            <details className="rounded border p-3 text-xs">
+              <summary className="cursor-pointer">Prvých {preview.sample.length} adries</summary>
+              <div className="mt-2 break-all">{preview.sample.join(", ")}</div>
+            </details>
+          )}
+
+          <iframe
+            title="Náhľad mailu"
+            srcDoc={preview.html}
+            sandbox=""
+            className="w-full h-[520px] rounded border bg-white"
+          />
+        </section>
+      )}
+
+      <section className="rounded-xl border p-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-medium">Posledné rozposlania</h3>
+          <Button variant="ghost" size="sm" onClick={() => void loadHistory()}>
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {history.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">Zatiaľ sa nič nerozposielalo.</p>
+        ) : (
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead className="text-left text-xs text-muted-foreground">
+                <tr>
+                  <th className="py-2 pr-3">Kedy</th>
+                  <th className="py-2 pr-3">Typ</th>
+                  <th className="py-2 pr-3">Komu</th>
+                  <th className="py-2 pr-3">Predmet</th>
+                  <th className="py-2 pr-3">Odoslané</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((b) => (
+                  <tr key={b.id} className="border-t">
+                    <td className="py-2 pr-3 whitespace-nowrap">
+                      {new Date(b.created_at).toLocaleString("sk-SK")}
+                    </td>
+                    <td className="py-2 pr-3">{b.kind === "ops" ? "Oznam" : "Novinka"}</td>
+                    <td className="py-2 pr-3">
+                      {MAIL_AUDIENCES.find((a) => a.value === b.audience)?.label ?? b.audience}
+                    </td>
+                    <td className="py-2 pr-3">{b.subject}</td>
+                    <td className="py-2 pr-3">
+                      <span className={b.failed_count > 0 ? "text-destructive" : ""}>
+                        {b.sent_count} / {b.recipients_total}
+                      </span>
+                      {b.status === "sending" && (
+                        <span className="ml-2 text-xs text-muted-foreground">prebieha…</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rozposlať mail?</DialogTitle>
+            <DialogDescription>
+              Odíde {preview?.recipients_total ?? 0} mailov na výber „{audienceLabel}".
+              Odoslaný mail sa nedá vziať späť.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="rounded border p-3 text-sm">
+            <div className="font-medium">{subject}</div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              {kind === "ops" ? "Prevádzkový oznam — ide aj odhláseným" : "Novinka — odhlásení sa preskočia"}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>Zrušiť</Button>
+            <Button onClick={runSend}>Áno, rozposlať</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
