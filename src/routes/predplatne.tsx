@@ -378,21 +378,25 @@ function PredplatnePage() {
             <Trans i18nKey="predplatne.sandboxNote" ns="public" components={{ b: <b /> }} />
           </p>
         )}
-        <p className="mt-3 text-xs text-muted-foreground text-center">
-          <Trans
-            i18nKey="predplatne.agreementNote"
-            ns="public"
-            components={{ terms: <Link to="/pravne/obchodne-podmienky" className="underline" /> }}
-          />
-          {canAutorenew && autorenew ? (
+        {!loggedOut && (
+          // Odhlásenému sa neukazuje – tlačidlo pod ním ho len prihlási,
+          // s obchodnými podmienkami ani opakovanými platbami tým nesúhlasí.
+          <p className="mt-3 text-xs text-muted-foreground text-center">
             <Trans
-              i18nKey="predplatne.agreementNoteRecurring"
+              i18nKey="predplatne.agreementNote"
               ns="public"
-              components={{ recurring: <Link to="/pravne/opakovane-platby" className="underline" /> }}
+              components={{ terms: <Link to="/pravne/obchodne-podmienky" className="underline" /> }}
             />
-          ) : null}
-          .
-        </p>
+            {canAutorenew && autorenew ? (
+              <Trans
+                i18nKey="predplatne.agreementNoteRecurring"
+                ns="public"
+                components={{ recurring: <Link to="/pravne/opakovane-platby" className="underline" /> }}
+              />
+            ) : null}
+            .
+          </p>
+        )}
       </div>
 
       <div className="mt-8 text-center">
