@@ -219,7 +219,23 @@
     "toastInvokeError": "Nepodařilo se spustit platbu. {{message}}",
     "toastNotConfigured": "Klíče GoPay zatím nejsou vyplněny (režim: {{env}}).",
     "toastNoUrl": "GoPay nevrátil URL brány.",
-    "toastGenericError": "Chyba: {{message}}"
+    "toastGenericError": "Chyba: {{message}}",
+    "billing": {
+      "heading": "Fakturační údaje",
+      "note": "Použijeme je na fakturu, kterou vám pošleme e-mailem hned po zaplacení.",
+      "loading": "Načítám…",
+      "name": "Název firmy / jméno",
+      "ico": "IČO",
+      "icDph": "DIČ",
+      "street": "Ulice a číslo",
+      "city": "Město",
+      "zip": "PSČ",
+      "country": "Země",
+      "email": "E-mail na fakturu",
+      "incomplete": "Vyplňte fakturační údaje označené hvězdičkou – bez nich vám nemůžeme vystavit fakturu.",
+      "loginRequired": "Nejprve se přihlaste.",
+      "saveError": "Fakturační údaje se nepodařilo uložit. {{message}}"
+    }
   },
   "seoLanding": {
     "breadcrumbHome": "Tendrik",

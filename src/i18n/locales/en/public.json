@@ -219,7 +219,23 @@
     "toastInvokeError": "Failed to start payment. {{message}}",
     "toastNotConfigured": "GoPay keys are not yet set up (mode: {{env}}).",
     "toastNoUrl": "GoPay did not return a gateway URL.",
-    "toastGenericError": "Error: {{message}}"
+    "toastGenericError": "Error: {{message}}",
+    "billing": {
+      "heading": "Billing details",
+      "note": "We use them for the invoice we email you right after the payment.",
+      "loading": "Loading…",
+      "name": "Company / full name",
+      "ico": "Company ID",
+      "icDph": "VAT ID",
+      "street": "Street and number",
+      "city": "City",
+      "zip": "Postcode",
+      "country": "Country",
+      "email": "Invoice e-mail",
+      "incomplete": "Fill in the billing fields marked with an asterisk – without them we cannot issue your invoice.",
+      "loginRequired": "Please sign in first.",
+      "saveError": "Could not save the billing details. {{message}}"
+    }
   },
   "seoLanding": {
     "breadcrumbHome": "Tendrik",

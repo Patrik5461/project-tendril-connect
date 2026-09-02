@@ -28,6 +28,23 @@ Deno.serve(async (req) => {
     }
     const user = userRes.user;
 
+    // Faktúru vystavuje gopay-webhook hneď po zaplatení a údaje si berie
+    // z billing_details. Keď tam riadok nie je, platba prejde, ale faktúra
+    // skončí na billing_details_missing – a ak si medzitým zákazník zmaže
+    // konto, nedá sa dobehnúť vôbec. Preto sa kontroluje tu, pred bránou,
+    // nie až vo webhooku.
+    const { data: billing } = await supabase
+      .from("billing_details")
+      .select("name, email")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (!billing?.name || !billing?.email) {
+      return new Response(JSON.stringify({
+        error: "BILLING_DETAILS_MISSING",
+        message: "Pred platbou treba vyplniť fakturačné údaje.",
+      }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     const body = await req.json().catch(() => ({}));
     const tier = normalizeTier(body?.tier);
     const period = normalizePeriod(body?.period);

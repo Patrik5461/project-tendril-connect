@@ -219,7 +219,23 @@
     "toastInvokeError": "Zahlung konnte nicht gestartet werden. {{message}}",
     "toastNotConfigured": "GoPay-Schlüssel sind noch nicht hinterlegt (Modus: {{env}}).",
     "toastNoUrl": "GoPay hat keine Gateway-URL zurückgegeben.",
-    "toastGenericError": "Fehler: {{message}}"
+    "toastGenericError": "Fehler: {{message}}",
+    "billing": {
+      "heading": "Rechnungsdaten",
+      "note": "Wir verwenden sie für die Rechnung, die wir Ihnen direkt nach der Zahlung per E-Mail senden.",
+      "loading": "Wird geladen…",
+      "name": "Firma / Name",
+      "ico": "Firmennummer",
+      "icDph": "USt-IdNr.",
+      "street": "Straße und Hausnummer",
+      "city": "Stadt",
+      "zip": "PLZ",
+      "country": "Land",
+      "email": "E-Mail für die Rechnung",
+      "incomplete": "Bitte füllen Sie die mit Sternchen markierten Rechnungsfelder aus – ohne sie können wir keine Rechnung ausstellen.",
+      "loginRequired": "Bitte melden Sie sich zuerst an.",
+      "saveError": "Die Rechnungsdaten konnten nicht gespeichert werden. {{message}}"
+    }
   },
   "seoLanding": {
     "breadcrumbHome": "Tendrik",

@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CreditCard, Loader2, Check, Sparkles } from "lucide-react";
+import { ArrowLeft, CreditCard, Loader2, Check, Sparkles, ReceiptText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AI_MONTHLY_LIMIT,
@@ -15,6 +15,8 @@ import {
 } from "@/lib/subscription";
 import { PaymentBadges } from "@/components/LegalFooter";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useIsNative } from "@/lib/native";
 import { useTranslation, Trans } from "react-i18next";
@@ -37,6 +39,19 @@ export const Route = createFileRoute("/predplatne")({
   }),
   component: PredplatnePage,
 });
+
+// Fakturačné údaje sa vypĺňajú priamo v checkoute. Predtým sa dali zadať iba
+// v Nastaveniach, takže kto zaplatil bez nich, dostal platbu bez faktúry —
+// gopay-webhook ju zahodil na billing_details_missing a keď si potom zmazal
+// konto, nedala sa vystaviť už vôbec.
+type BillingForm = {
+  name: string; ico: string; ic_dph: string;
+  street: string; city: string; zip: string; country: string; email: string;
+};
+
+const EMPTY_BILLING: BillingForm = {
+  name: "", ico: "", ic_dph: "", street: "", city: "", zip: "", country: "SK", email: "",
+};
 
 function PredplatnePage() {
   const { t } = useTranslation("public");
@@ -64,12 +79,54 @@ function PredplatnePage() {
   const [env, setEnv] = useState<string | null>(null);
   const [recurringEnabled, setRecurringEnabled] = useState<boolean | null>(null);
   const [autorenew, setAutorenew] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [billing, setBilling] = useState<BillingForm>(EMPTY_BILLING);
+  const [billingLoading, setBillingLoading] = useState(true);
 
 
   useEffect(() => {
     (async () => {
       const { data } = await (supabase.rpc as any)("get_gopay_recurring_enabled");
       setRecurringEnabled(data === true);
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id ?? null;
+      setUserId(uid);
+      if (!uid) { setBillingLoading(false); return; }
+
+      const { data: bd } = await (supabase.from("billing_details" as never) as any)
+        .select("name, ico, ic_dph, street, city, zip, country, email")
+        .eq("user_id", uid).maybeSingle();
+      if (bd) {
+        setBilling({
+          name: bd.name ?? "", ico: bd.ico ?? "", ic_dph: bd.ic_dph ?? "",
+          street: bd.street ?? "", city: bd.city ?? "", zip: bd.zip ?? "",
+          country: bd.country ?? "SK", email: bd.email ?? u.user?.email ?? "",
+        });
+        setBillingLoading(false);
+        return;
+      }
+
+      // Nový platiaci: predvyplň z firemného profilu, nech neprepisuje to,
+      // čo už raz zadal pri onboardingu.
+      const { data: cp } = await (supabase.from("company_profile" as never) as any)
+        .select("nazov, ico, adresa, mesto, psc")
+        .eq("user_id", uid).order("is_default", { ascending: false })
+        .limit(1).maybeSingle();
+      setBilling((b) => ({
+        ...b,
+        name: cp?.nazov ?? "",
+        ico: cp?.ico ?? "",
+        street: cp?.adresa ?? "",
+        city: cp?.mesto ?? "",
+        zip: cp?.psc ?? "",
+        email: u.user?.email ?? "",
+      }));
+      setBillingLoading(false);
     })();
   }, []);
   const navigate = useNavigate();
@@ -90,13 +147,44 @@ function PredplatnePage() {
 
 
   async function activate() {
+    if (!userId) {
+      toast.error(t("predplatne.billing.loginRequired"));
+      return;
+    }
+    if (!billingComplete) {
+      toast.error(t("predplatne.billing.incomplete"));
+      return;
+    }
     setLoading(true);
     try {
+      // Uložiť treba ešte pred presmerovaním na bránu — faktúru vystavuje
+      // webhook hneď po zaplatení a číta si ju z tejto tabuľky.
+      const { error: billingErr } = await (supabase.from("billing_details" as never) as any)
+        .upsert({
+          user_id: userId,
+          name: billing.name.trim(),
+          ico: billing.ico.trim() || null,
+          ic_dph: billing.ic_dph.trim() || null,
+          street: billing.street.trim() || null,
+          city: billing.city.trim() || null,
+          zip: billing.zip.trim() || null,
+          country: (billing.country || "SK").trim().toUpperCase(),
+          email: billing.email.trim(),
+        }, { onConflict: "user_id" });
+      if (billingErr) {
+        toast.error(t("predplatne.billing.saveError", { message: billingErr.message }));
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke("gopay-create-subscription", {
         body: { tier, period, autorenew: canAutorenew && autorenew },
       });
       if (error || !data) {
         toast.error(t("predplatne.toastInvokeError", { message: error?.message ?? "" }));
+        return;
+      }
+      if (data.error === "BILLING_DETAILS_MISSING") {
+        toast.error(t("predplatne.billing.incomplete"));
         return;
       }
       if (data.error === "GOPAY_NOT_CONFIGURED") {
@@ -117,6 +205,13 @@ function PredplatnePage() {
   }
 
   const chargedEur = tierPrice(tier, period);
+  const billingComplete = billing.name.trim().length > 1
+    && billing.email.includes("@")
+    && billing.street.trim().length > 1
+    && billing.city.trim().length > 1
+    && billing.zip.trim().length > 3;
+  const setB = (k: keyof BillingForm) => (e: ChangeEvent<HTMLInputElement>) =>
+    setBilling((b) => ({ ...b, [k]: e.target.value }));
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-16">
@@ -203,11 +298,65 @@ function PredplatnePage() {
           </label>
         )}
 
+        <div className="mt-6 border-t border-border pt-4">
+          <div className="flex items-center gap-3">
+            <ReceiptText className="h-5 w-5 text-primary" />
+            <div className="text-sm">
+              <b>{t("predplatne.billing.heading")}</b>
+              <p className="text-muted-foreground">{t("predplatne.billing.note")}</p>
+            </div>
+          </div>
+
+          {billingLoading ? (
+            <p className="mt-4 text-sm text-muted-foreground">{t("predplatne.billing.loading")}</p>
+          ) : (
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="sm:col-span-2">
+                <Label>{t("predplatne.billing.name")} *</Label>
+                <Input value={billing.name} onChange={setB("name")} />
+              </div>
+              <div>
+                <Label>{t("predplatne.billing.ico")}</Label>
+                <Input value={billing.ico} onChange={setB("ico")} />
+              </div>
+              <div>
+                <Label>{t("predplatne.billing.icDph")}</Label>
+                <Input value={billing.ic_dph} onChange={setB("ic_dph")} />
+              </div>
+              <div className="sm:col-span-2">
+                <Label>{t("predplatne.billing.street")} *</Label>
+                <Input value={billing.street} onChange={setB("street")} />
+              </div>
+              <div>
+                <Label>{t("predplatne.billing.city")} *</Label>
+                <Input value={billing.city} onChange={setB("city")} />
+              </div>
+              <div>
+                <Label>{t("predplatne.billing.zip")} *</Label>
+                <Input value={billing.zip} onChange={setB("zip")} />
+              </div>
+              <div>
+                <Label>{t("predplatne.billing.country")}</Label>
+                <Input value={billing.country} onChange={setB("country")} />
+              </div>
+              <div>
+                <Label>{t("predplatne.billing.email")} *</Label>
+                <Input value={billing.email} onChange={setB("email")} />
+              </div>
+            </div>
+          )}
+        </div>
+
         <PaymentBadges className="mt-4" />
-        <Button className="mt-6 w-full" size="lg" onClick={activate} disabled={loading}>
+        <Button className="mt-6 w-full" size="lg" onClick={activate} disabled={loading || billingLoading || !billingComplete}>
           {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
           {t("predplatne.submit")}
         </Button>
+        {!billingLoading && !billingComplete && (
+          <p className="mt-3 text-xs text-destructive text-center">
+            {t("predplatne.billing.incomplete")}
+          </p>
+        )}
         {env === "sandbox" && (
           <p className="mt-3 text-xs text-muted-foreground text-center">
             <Trans i18nKey="predplatne.sandboxNote" ns="public" components={{ b: <b /> }} />
