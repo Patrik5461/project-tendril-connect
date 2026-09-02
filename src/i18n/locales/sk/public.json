@@ -234,7 +234,11 @@
       "email": "E-mail na faktúru",
       "incomplete": "Vyplňte fakturačné údaje označené hviezdičkou – bez nich vám nevieme vystaviť faktúru.",
       "loginRequired": "Najprv sa prihláste.",
-      "saveError": "Fakturačné údaje sa nepodarilo uložiť. {{message}}"
+      "saveError": "Fakturačné údaje sa nepodarilo uložiť. {{message}}",
+      "loginTitle": "Na zaplatenie sa treba prihlásiť",
+      "loginNote": "Predplatné sa viaže na konto. Prihláste sa alebo si vytvorte účet – fakturačné údaje vypĺňate až potom.",
+      "loginCta": "Prihlásiť sa",
+      "signupCta": "Vytvoriť účet"
     }
   },
   "seoLanding": {

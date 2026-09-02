@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CreditCard, Loader2, Check, Sparkles, ReceiptText } from "lucide-react";
+import { ArrowLeft, CreditCard, Loader2, Check, Sparkles, ReceiptText, LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AI_MONTHLY_LIMIT,
@@ -205,6 +205,9 @@ function PredplatnePage() {
   }
 
   const chargedEur = tierPrice(tier, period);
+  // Odhlásenému nemá zmysel pýtať fakturačné údaje – aj tak by uložením
+  // neprešiel, RLS ich viaže na auth.uid(). Dostane rovno prihlásenie.
+  const loggedOut = !billingLoading && !userId;
   const billingComplete = billing.name.trim().length > 1
     && billing.email.includes("@")
     && billing.street.trim().length > 1
@@ -300,16 +303,18 @@ function PredplatnePage() {
 
         <div className="mt-6 border-t border-border pt-4">
           <div className="flex items-center gap-3">
-            <ReceiptText className="h-5 w-5 text-primary" />
+            {loggedOut ? <LogIn className="h-5 w-5 text-primary" /> : <ReceiptText className="h-5 w-5 text-primary" />}
             <div className="text-sm">
-              <b>{t("predplatne.billing.heading")}</b>
-              <p className="text-muted-foreground">{t("predplatne.billing.note")}</p>
+              <b>{loggedOut ? t("predplatne.billing.loginTitle") : t("predplatne.billing.heading")}</b>
+              <p className="text-muted-foreground">
+                {loggedOut ? t("predplatne.billing.loginNote") : t("predplatne.billing.note")}
+              </p>
             </div>
           </div>
 
           {billingLoading ? (
             <p className="mt-4 text-sm text-muted-foreground">{t("predplatne.billing.loading")}</p>
-          ) : (
+          ) : loggedOut ? null : (
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2">
                 <Label>{t("predplatne.billing.name")} *</Label>
@@ -348,11 +353,22 @@ function PredplatnePage() {
         </div>
 
         <PaymentBadges className="mt-4" />
-        <Button className="mt-6 w-full" size="lg" onClick={activate} disabled={loading || billingLoading || !billingComplete}>
-          {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
-          {t("predplatne.submit")}
-        </Button>
-        {!billingLoading && !billingComplete && (
+        {loggedOut ? (
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+            <Link to="/auth" search={{ mode: "login" } as never} className="flex-1">
+              <Button className="w-full" size="lg">{t("predplatne.billing.loginCta")}</Button>
+            </Link>
+            <Link to="/auth" search={{ mode: "signup" } as never} className="flex-1">
+              <Button className="w-full" size="lg" variant="outline">{t("predplatne.billing.signupCta")}</Button>
+            </Link>
+          </div>
+        ) : (
+          <Button className="mt-6 w-full" size="lg" onClick={activate} disabled={loading || billingLoading || !billingComplete}>
+            {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+            {t("predplatne.submit")}
+          </Button>
+        )}
+        {!billingLoading && !loggedOut && !billingComplete && (
           <p className="mt-3 text-xs text-destructive text-center">
             {t("predplatne.billing.incomplete")}
           </p>

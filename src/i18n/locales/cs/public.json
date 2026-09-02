@@ -234,7 +234,11 @@
       "email": "E-mail na fakturu",
       "incomplete": "Vyplňte fakturační údaje označené hvězdičkou – bez nich vám nemůžeme vystavit fakturu.",
       "loginRequired": "Nejprve se přihlaste.",
-      "saveError": "Fakturační údaje se nepodařilo uložit. {{message}}"
+      "saveError": "Fakturační údaje se nepodařilo uložit. {{message}}",
+      "loginTitle": "K zaplacení je potřeba se přihlásit",
+      "loginNote": "Předplatné se váže na účet. Přihlaste se nebo si vytvořte účet – fakturační údaje vyplníte až potom.",
+      "loginCta": "Přihlásit se",
+      "signupCta": "Vytvořit účet"
     }
   },
   "seoLanding": {

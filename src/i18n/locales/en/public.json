@@ -234,7 +234,11 @@
       "email": "Invoice e-mail",
       "incomplete": "Fill in the billing fields marked with an asterisk – without them we cannot issue your invoice.",
       "loginRequired": "Please sign in first.",
-      "saveError": "Could not save the billing details. {{message}}"
+      "saveError": "Could not save the billing details. {{message}}",
+      "loginTitle": "Sign in to pay",
+      "loginNote": "A subscription belongs to an account. Sign in or create one – you fill in the billing details afterwards.",
+      "loginCta": "Sign in",
+      "signupCta": "Create account"
     }
   },
   "seoLanding": {

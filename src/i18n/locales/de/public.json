@@ -234,7 +234,11 @@
       "email": "E-Mail für die Rechnung",
       "incomplete": "Bitte füllen Sie die mit Sternchen markierten Rechnungsfelder aus – ohne sie können wir keine Rechnung ausstellen.",
       "loginRequired": "Bitte melden Sie sich zuerst an.",
-      "saveError": "Die Rechnungsdaten konnten nicht gespeichert werden. {{message}}"
+      "saveError": "Die Rechnungsdaten konnten nicht gespeichert werden. {{message}}",
+      "loginTitle": "Zum Bezahlen bitte anmelden",
+      "loginNote": "Ein Abo gehört zu einem Konto. Melden Sie sich an oder erstellen Sie eines – die Rechnungsdaten folgen danach.",
+      "loginCta": "Anmelden",
+      "signupCta": "Konto erstellen"
     }
   },
   "seoLanding": {
