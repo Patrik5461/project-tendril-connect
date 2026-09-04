@@ -172,7 +172,7 @@ export function SpfFoliosBrowser() {
             value={ku}
             onChange={setKu}
             allowEmpty
-            placeholder="všetky k.ú. – píš názov alebo kód"
+            placeholder="všetky k.ú. – píš obec, k.ú. alebo kód"
           />
         </div>
         <div>

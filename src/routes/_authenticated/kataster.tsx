@@ -304,7 +304,7 @@ function KatasterBrowser() {
         <a href="/admin" className="underline underline-offset-2">
           admin paneli
         </a>{" "}
-        (karta 7).
+        (záložka Kataster).
       </p>
 
       <section className="rounded-lg border border-primary/15 bg-card p-4">
@@ -318,7 +318,7 @@ function KatasterBrowser() {
                 setFilters((f) => ({ ...f, kuCode: ku?.ku_code ?? "" }));
               }}
               allowEmpty
-              placeholder="všetky k.ú. – píš názov alebo kód"
+              placeholder="všetky k.ú. – píš obec, k.ú. alebo kód"
             />
           </div>
 
