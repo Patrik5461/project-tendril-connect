@@ -28,6 +28,7 @@ import { Route as PlatbaVysledokRouteImport } from './routes/platba.vysledok'
 import { Route as GrantIdRouteImport } from './routes/grant.$id'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedKatasterRouteImport } from './routes/_authenticated/kataster'
 import { Route as AuthenticatedGrantyRouteImport } from './routes/_authenticated/granty'
 import { Route as AuthenticatedFirmaRouteImport } from './routes/_authenticated/firma'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -39,6 +40,7 @@ import { Route as ApiPublicAnalyticsConfigRouteImport } from './routes/api/publi
 import { Route as ZakazkyKategoriaKategoriaKrajRouteImport } from './routes/zakazky.kategoria.$kategoria.$kraj'
 import { Route as ApiPublicHooksSyncPpaRouteImport } from './routes/api/public/hooks/sync-ppa'
 import { Route as ApiPublicHooksSyncPooRouteImport } from './routes/api/public/hooks/sync-poo'
+import { Route as ApiPublicHooksSyncKatasterRouteImport } from './routes/api/public/hooks/sync-kataster'
 import { Route as ApiPublicGrantDocUuidRouteImport } from './routes/api/public/grant-doc.$uuid'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -136,6 +138,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedKatasterRoute = AuthenticatedKatasterRouteImport.update({
+  id: '/kataster',
+  path: '/kataster',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedGrantyRoute = AuthenticatedGrantyRouteImport.update({
   id: '/granty',
   path: '/granty',
@@ -194,6 +201,12 @@ const ApiPublicHooksSyncPooRoute = ApiPublicHooksSyncPooRouteImport.update({
   path: '/api/public/hooks/sync-poo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksSyncKatasterRoute =
+  ApiPublicHooksSyncKatasterRouteImport.update({
+    id: '/api/public/hooks/sync-kataster',
+    path: '/api/public/hooks/sync-kataster',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicGrantDocUuidRoute = ApiPublicGrantDocUuidRouteImport.update({
   id: '/api/public/grant-doc/$uuid',
   path: '/api/public/grant-doc/$uuid',
@@ -213,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/firma': typeof AuthenticatedFirmaRoute
   '/granty': typeof AuthenticatedGrantyRoute
+  '/kataster': typeof AuthenticatedKatasterRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/grant/$id': typeof GrantIdRoute
@@ -228,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
+  '/api/public/hooks/sync-kataster': typeof ApiPublicHooksSyncKatasterRoute
   '/api/public/hooks/sync-poo': typeof ApiPublicHooksSyncPooRoute
   '/api/public/hooks/sync-ppa': typeof ApiPublicHooksSyncPpaRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
@@ -245,6 +260,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/firma': typeof AuthenticatedFirmaRoute
   '/granty': typeof AuthenticatedGrantyRoute
+  '/kataster': typeof AuthenticatedKatasterRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/grant/$id': typeof GrantIdRoute
@@ -260,6 +276,7 @@ export interface FileRoutesByTo {
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
+  '/api/public/hooks/sync-kataster': typeof ApiPublicHooksSyncKatasterRoute
   '/api/public/hooks/sync-poo': typeof ApiPublicHooksSyncPooRoute
   '/api/public/hooks/sync-ppa': typeof ApiPublicHooksSyncPpaRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
@@ -279,6 +296,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/firma': typeof AuthenticatedFirmaRoute
   '/_authenticated/granty': typeof AuthenticatedGrantyRoute
+  '/_authenticated/kataster': typeof AuthenticatedKatasterRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/grant/$id': typeof GrantIdRoute
@@ -294,6 +312,7 @@ export interface FileRoutesById {
   '/zakazky/kategoria/$kategoria': typeof ZakazkyKategoriaKategoriaRouteWithChildren
   '/zakazky/kraj/$kraj': typeof ZakazkyKrajKrajRoute
   '/api/public/grant-doc/$uuid': typeof ApiPublicGrantDocUuidRoute
+  '/api/public/hooks/sync-kataster': typeof ApiPublicHooksSyncKatasterRoute
   '/api/public/hooks/sync-poo': typeof ApiPublicHooksSyncPooRoute
   '/api/public/hooks/sync-ppa': typeof ApiPublicHooksSyncPpaRoute
   '/zakazky/kategoria/$kategoria/$kraj': typeof ZakazkyKategoriaKategoriaKrajRoute
@@ -313,6 +332,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/firma'
     | '/granty'
+    | '/kataster'
     | '/onboarding'
     | '/settings'
     | '/grant/$id'
@@ -328,6 +348,7 @@ export interface FileRouteTypes {
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
     | '/api/public/grant-doc/$uuid'
+    | '/api/public/hooks/sync-kataster'
     | '/api/public/hooks/sync-poo'
     | '/api/public/hooks/sync-ppa'
     | '/zakazky/kategoria/$kategoria/$kraj'
@@ -345,6 +366,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/firma'
     | '/granty'
+    | '/kataster'
     | '/onboarding'
     | '/settings'
     | '/grant/$id'
@@ -360,6 +382,7 @@ export interface FileRouteTypes {
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
     | '/api/public/grant-doc/$uuid'
+    | '/api/public/hooks/sync-kataster'
     | '/api/public/hooks/sync-poo'
     | '/api/public/hooks/sync-ppa'
     | '/zakazky/kategoria/$kategoria/$kraj'
@@ -378,6 +401,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/firma'
     | '/_authenticated/granty'
+    | '/_authenticated/kataster'
     | '/_authenticated/onboarding'
     | '/_authenticated/settings'
     | '/grant/$id'
@@ -393,6 +417,7 @@ export interface FileRouteTypes {
     | '/zakazky/kategoria/$kategoria'
     | '/zakazky/kraj/$kraj'
     | '/api/public/grant-doc/$uuid'
+    | '/api/public/hooks/sync-kataster'
     | '/api/public/hooks/sync-poo'
     | '/api/public/hooks/sync-ppa'
     | '/zakazky/kategoria/$kategoria/$kraj'
@@ -421,6 +446,7 @@ export interface RootRouteChildren {
   ZakazkyKategoriaKategoriaRoute: typeof ZakazkyKategoriaKategoriaRouteWithChildren
   ZakazkyKrajKrajRoute: typeof ZakazkyKrajKrajRoute
   ApiPublicGrantDocUuidRoute: typeof ApiPublicGrantDocUuidRoute
+  ApiPublicHooksSyncKatasterRoute: typeof ApiPublicHooksSyncKatasterRoute
   ApiPublicHooksSyncPooRoute: typeof ApiPublicHooksSyncPooRoute
   ApiPublicHooksSyncPpaRoute: typeof ApiPublicHooksSyncPpaRoute
 }
@@ -560,6 +586,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/kataster': {
+      id: '/_authenticated/kataster'
+      path: '/kataster'
+      fullPath: '/kataster'
+      preLoaderRoute: typeof AuthenticatedKatasterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/granty': {
       id: '/_authenticated/granty'
       path: '/granty'
@@ -637,6 +670,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksSyncPooRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/sync-kataster': {
+      id: '/api/public/hooks/sync-kataster'
+      path: '/api/public/hooks/sync-kataster'
+      fullPath: '/api/public/hooks/sync-kataster'
+      preLoaderRoute: typeof ApiPublicHooksSyncKatasterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/grant-doc/$uuid': {
       id: '/api/public/grant-doc/$uuid'
       path: '/api/public/grant-doc/$uuid'
@@ -652,6 +692,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFirmaRoute: typeof AuthenticatedFirmaRoute
   AuthenticatedGrantyRoute: typeof AuthenticatedGrantyRoute
+  AuthenticatedKatasterRoute: typeof AuthenticatedKatasterRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
 }
@@ -661,6 +702,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFirmaRoute: AuthenticatedFirmaRoute,
   AuthenticatedGrantyRoute: AuthenticatedGrantyRoute,
+  AuthenticatedKatasterRoute: AuthenticatedKatasterRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
 }
@@ -705,9 +747,20 @@ const rootRouteChildren: RootRouteChildren = {
   ZakazkyKategoriaKategoriaRoute: ZakazkyKategoriaKategoriaRouteWithChildren,
   ZakazkyKrajKrajRoute: ZakazkyKrajKrajRoute,
   ApiPublicGrantDocUuidRoute: ApiPublicGrantDocUuidRoute,
+  ApiPublicHooksSyncKatasterRoute: ApiPublicHooksSyncKatasterRoute,
   ApiPublicHooksSyncPooRoute: ApiPublicHooksSyncPooRoute,
   ApiPublicHooksSyncPpaRoute: ApiPublicHooksSyncPpaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

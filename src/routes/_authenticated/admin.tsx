@@ -18,6 +18,7 @@ import { adminAnalyzeGrant } from "@/lib/grant-analysis.functions";
 import { geminiPing } from "@/lib/gemini-ping.functions";
 import { GoogleAnalyticsTab } from "@/components/admin/GoogleAnalyticsTab";
 import DeleteUserDialog from "@/components/admin/DeleteUserDialog";
+import { KatasterSyncCard } from "@/components/admin/KatasterSyncCard";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin – Tendrik" }] }),
@@ -2161,6 +2162,7 @@ function GrantsTestTab() {
         </div>
       </Card>
 
+      <KatasterSyncCard />
 
       {output && (
         <Card title="Výstup">
