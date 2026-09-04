@@ -1,4 +1,4 @@
-// Admin karta "7) Kataster – sync": ručné ťahanie parciel zo ZBGIS.
+// Admin tab "Kataster": ručné ťahanie parciel zo ZBGIS.
 // Zámerne bez cronu – beh sa spúšťa len tlačidlom a progres sa číta
 // pollovaním cadastral_sync_runs.
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -138,7 +138,7 @@ export function KatasterSyncCard() {
 
   return (
     <section className="rounded-lg border border-primary/15 bg-card p-5">
-      <h2 className="font-display font-semibold text-lg tracking-tight">7) Kataster – sync</h2>
+      <h2 className="font-display font-semibold text-lg tracking-tight">Kataster – sync</h2>
       <div className="mt-3 space-y-4">
         <div className="text-sm text-muted-foreground">
           Zdroj: ZBGIS · endpoint: <code>/api/public/hooks/sync-kataster</code> · bez cronu, len
