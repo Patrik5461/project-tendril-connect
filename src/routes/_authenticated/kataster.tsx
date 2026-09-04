@@ -1,7 +1,7 @@
 // Interná stránka /kataster (len admin rola): prehľad parciel stiahnutých zo
 // ZBGIS s dôrazom na pozemky, kde je vlastníkom alebo správcom SPF.
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, ExternalLink, RefreshCw, Search } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { KuPicker } from "@/components/admin/KuPicker";
+import { SpfFoliosBrowser } from "@/components/admin/SpfFoliosBrowser";
+import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { OWNER_ROLE_LABEL, formatArea, isSpfOwner, zbgisParcelUrl } from "@/lib/kataster";
 import type { CadastralParcel, KuRow, ParcelOwner } from "@/lib/kataster";
 
@@ -101,7 +104,23 @@ function KatasterPage() {
     );
   }
   if (!allowed) return null;
-  return <KatasterBrowser />;
+  return (
+    <div className="mx-auto max-w-6xl px-3 sm:px-4 py-6 sm:py-8">
+      <h1 className="font-display text-2xl font-bold tracking-tight">Kataster</h1>
+      <Tabs defaultValue="parcely" className="mt-4">
+        <TabsList>
+          <TabsTrigger value="parcely">Parcely</TabsTrigger>
+          <TabsTrigger value="spf">SPF – listy vlastníctva</TabsTrigger>
+        </TabsList>
+        <TabsContent value="parcely" className="mt-4">
+          <KatasterBrowser />
+        </TabsContent>
+        <TabsContent value="spf" className="mt-4">
+          <SpfFoliosBrowser />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 }
 
 function KatasterBrowser() {
@@ -112,15 +131,12 @@ function KatasterBrowser() {
     search: "",
   });
   const [searchInput, setSearchInput] = useState("");
-  const [kuQuery, setKuQuery] = useState("");
-  const [kuOptions, setKuOptions] = useState<KuRow[]>([]);
   const [selectedKu, setSelectedKu] = useState<KuRow | null>(null);
   const [rows, setRows] = useState<CadastralParcel[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-  const kuSearchRef = useRef(0);
 
   // Filtre sa aplikujú na jednom mieste, nech tabuľka, súhrn aj export
   // pracujú s presne rovnakým výberom.
@@ -201,30 +217,6 @@ function KatasterBrowser() {
     void reload();
   }, [reload]);
 
-  // Vyhľadávanie k.ú. do selectu.
-  useEffect(() => {
-    const q = sanitize(kuQuery);
-    if (q.length < 2) {
-      setKuOptions([]);
-      return;
-    }
-    const token = ++kuSearchRef.current;
-    const t = setTimeout(async () => {
-      const { data, error } = await db
-        .from("ku_list")
-        .select("ku_code,ku_name,okres,kraj")
-        .or(`ku_name.ilike.%${q}%,ku_code.ilike.%${q}%`)
-        .order("ku_name")
-        .limit(20);
-      if (error) {
-        console.error("[kataster] hľadanie k.ú. zlyhalo", error);
-        return;
-      }
-      if (token === kuSearchRef.current) setKuOptions((data ?? []) as KuRow[]);
-    }, 250);
-    return () => clearTimeout(t);
-  }, [kuQuery]);
-
   async function exportCsv() {
     setExporting(true);
     try {
@@ -300,9 +292,8 @@ function KatasterBrowser() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-3 sm:px-4 py-6 sm:py-8">
-      <h1 className="font-display text-2xl font-bold tracking-tight">Kataster</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
         Parcely stiahnuté zo ZBGIS. Dáta sa napĺňajú ručným syncom v{" "}
         <a href="/admin" className="underline underline-offset-2">
           admin paneli
@@ -310,43 +301,19 @@ function KatasterBrowser() {
         (karta 7).
       </p>
 
-      <section className="mt-5 rounded-lg border border-primary/15 bg-card p-4">
+      <section className="rounded-lg border border-primary/15 bg-card p-4">
         <div className="grid gap-3 md:grid-cols-4">
-          <div className="relative md:col-span-2">
+          <div className="md:col-span-2">
             <label className="text-xs text-muted-foreground">Katastrálne územie</label>
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="pl-8"
-                value={selectedKu ? `${selectedKu.ku_name} (${selectedKu.ku_code})` : kuQuery}
-                placeholder="všetky k.ú. – píš názov alebo kód"
-                onChange={(e) => {
-                  setSelectedKu(null);
-                  setKuQuery(e.target.value);
-                  if (!e.target.value.trim()) setFilters((f) => ({ ...f, kuCode: "" }));
-                }}
-              />
-            </div>
-            {!selectedKu && kuOptions.length > 0 && (
-              <ul className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-md border bg-popover shadow-md">
-                {kuOptions.map((o) => (
-                  <li key={o.ku_code}>
-                    <button
-                      type="button"
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-muted"
-                      onClick={() => {
-                        setSelectedKu(o);
-                        setKuOptions([]);
-                        setFilters((f) => ({ ...f, kuCode: o.ku_code }));
-                      }}
-                    >
-                      {o.ku_name} <span className="text-muted-foreground">({o.ku_code})</span>
-                      {o.okres && <span className="text-muted-foreground"> · {o.okres}</span>}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <KuPicker
+              value={selectedKu}
+              onChange={(ku) => {
+                setSelectedKu(ku);
+                setFilters((f) => ({ ...f, kuCode: ku?.ku_code ?? "" }));
+              }}
+              allowEmpty
+              placeholder="všetky k.ú. – píš názov alebo kód"
+            />
           </div>
 
           <div>

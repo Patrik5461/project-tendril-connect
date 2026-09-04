@@ -30,6 +30,17 @@ export type CadastralParcel = {
 
 export type KuRow = { ku_code: string; ku_name: string; okres: string | null; kraj: string | null };
 
+/** Riadok zo zoznamu nezistených vlastníkov SPF — úroveň listu vlastníctva. */
+export type SpfFolio = {
+  id: string;
+  ku_code: string;
+  lv_number: string;
+  owners_count: number;
+  source: string;
+  valid_as_of: string | null;
+  updated_at: string;
+};
+
 export type SyncRun = {
   id: string;
   ku_code: string;

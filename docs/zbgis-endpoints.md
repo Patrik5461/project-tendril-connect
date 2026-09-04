@@ -49,6 +49,34 @@ je zo servera zavreté.
 Prakticky to znamená: **bodový dopyt na konkrétnu parcelu ide, hromadné
 sťahovanie nie.**
 
+## Čo je už naplnené zo SPF (medzikrok)
+
+SPF zverejňuje **Zoznam nezistených vlastníkov** — 7 CSV súborov, aktualizované
+dvakrát ročne, k 30. 6. 2026 spolu 4 951 162 riadkov. Sú to listy vlastníctva,
+na ktorých SPF zo zákona spravuje podiely nezistených vlastníkov, čiže pokrýva
+to rolu **správca** (nie vlastník — štátna pôda v tom nie je).
+
+Stĺpec „PORADOVÉ ČÍSLO" je priamo kód k.ú. podľa ÚGKK, takže sa napojí na
+`ku_list` bez mapovania (overené: 0 nesparovaných riadkov).
+
+Naimportované do `spf_folios` cez `scripts/import-spf-folios.ts`:
+**1 094 661 listov vlastníctva v 3 520 k.ú.** Súbory si skript nájde sám cez
+WordPress media API na pozfond.sk, takže pri ďalšom vydaní stačí spustiť ho
+znova. Zobrazuje sa v záložke „SPF – listy vlastníctva" na `/kataster`.
+
+Zámerne sa **neukladajú mená vlastníkov**, len ich počet na LV: na hľadanie
+pozemkov v správe SPF netreba a kopírovať si do vlastnej databázy 5 miliónov
+mien fyzických osôb nie je žiaduce. Mená ostávajú v zdrojovom CSV.
+
+Obmedzenie: je to úroveň LV, **nie parcely**. Rozvinúť LV na parcely by
+vyžadovalo mapovanie parcela↔LV z katastra, teda ten `/query`, ktorý vracia 403.
+Parcelnú úroveň doplnia až hromadné dáta z ÚGKK.
+
+Čo od SPF použiteľné **nie je**: „Zoznam pozemkov na prenájom" (mal by parcelné
+čísla, ale SPF ho momentálne nezverejňuje a archívne stránky neobsahujú súbory)
+a klientsky portál `kp.pozfond.sk` (Keycloak + prihlásenie cez slovensko.sk eID,
+elektronické služby, nie dátový zdroj).
+
 ## Legálne cesty k dátam, ktoré modul potrebuje
 
 1. **Poskytovanie údajov z katastra (ÚGKK / GKÚ)** – SPI/VGI export po
