@@ -41,22 +41,52 @@ export function KuPicker({
     }
     const mine = ++token.current;
     const t = setTimeout(async () => {
-      const { data, error } = await db
-        .from("ku_list")
-        .select("ku_code,ku_name,obec,okres,kraj")
-        // Ľudia píšu "Bratislava" alebo "Vysoké Tatry", ale k.ú. sa volá Staré Mesto
-        // či Tatranská Lomnica — preto hľadáme aj v obci, okrese a kraji.
-        .or(
-          `ku_name.ilike.%${q}%,ku_code.ilike.%${q}%,obec.ilike.%${q}%,okres.ilike.%${q}%,kraj.ilike.%${q}%`,
-        )
-        .order("ku_name")
-        .limit(20);
+      const cols = "ku_code,ku_name,obec,okres,kraj";
+      // Dva dotazy zámerne. Keby bol len ten široký, pri "Trnava" by limit 20
+      // zjedla abeceda (Biely Kostol, Bíňovce, Bohdanovce…) a samotná Trnava
+      // by sa do ponuky vôbec nedostala. Prvý dotaz preto berie začiatky slov
+      // a ide navrch.
+      const [starts, contains] = await Promise.all([
+        db
+          .from("ku_list")
+          .select(cols)
+          .or(`ku_name.ilike.${q}%,ku_code.ilike.${q}%,obec.ilike.${q}%`)
+          .order("ku_name")
+          .limit(10),
+        db
+          .from("ku_list")
+          .select(cols)
+          // Ľudia píšu "Bratislava" alebo "Vysoké Tatry", ale k.ú. sa volá Staré
+          // Mesto či Tatranská Lomnica — preto aj obec, okres a kraj.
+          .or(
+            `ku_name.ilike.%${q}%,ku_code.ilike.%${q}%,obec.ilike.%${q}%,okres.ilike.%${q}%,kraj.ilike.%${q}%`,
+          )
+          .order("ku_name")
+          .limit(25),
+      ]);
+
+      const error = starts.error ?? contains.error;
       if (error) {
         console.error("[kataster] hľadanie k.ú. zlyhalo", error);
         toast.error(`Hľadanie k.ú. zlyhalo: ${errorText(error)}`);
         return;
       }
-      if (mine === token.current) setOptions((data ?? []) as KuRow[]);
+
+      const seen = new Set<string>();
+      const merged: KuRow[] = [];
+      for (const row of [...(starts.data ?? []), ...(contains.data ?? [])] as KuRow[]) {
+        if (seen.has(row.ku_code)) continue;
+        seen.add(row.ku_code);
+        merged.push(row);
+      }
+      // Presná zhoda názvu úplne navrch.
+      const needle = q.toLowerCase();
+      merged.sort((a, b) => {
+        const rank = (r: KuRow) => (r.ku_name.toLowerCase() === needle ? 0 : 1);
+        return rank(a) - rank(b);
+      });
+
+      if (mine === token.current) setOptions(merged.slice(0, 25));
     }, 250);
     return () => clearTimeout(t);
   }, [query]);

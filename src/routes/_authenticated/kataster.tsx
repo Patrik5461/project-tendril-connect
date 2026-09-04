@@ -53,7 +53,14 @@ type Filters = {
   search: string;
 };
 
-type Summary = { total: number; spf: number; spfArea: number; areaTruncated: boolean };
+type Summary = {
+  total: number;
+  spf: number;
+  spfArea: number;
+  areaTruncated: boolean;
+  /** Koľko parciel je v tabuľke celkovo, bez ohľadu na filtre. */
+  grandTotal: number;
+};
 
 function ownersOf(p: CadastralParcel): ParcelOwner[] {
   return Array.isArray(p.owners) ? p.owners : [];
@@ -205,7 +212,13 @@ function KatasterBrowser() {
       if (from + SCAN_PAGE >= SCAN_CAP) areaTruncated = true;
     }
 
-    setSummary({ total, spf, spfArea, areaTruncated });
+    // Bez filtrov, nech vieme rozlíšiť "filter nič nenašiel" od "tabuľka je prázdna".
+    const { count: grandTotal, error: grandError } = await db
+      .from("cadastral_parcels")
+      .select("id", { count: "estimated", head: true });
+    if (grandError) throw grandError;
+
+    setSummary({ total, spf, spfArea, areaTruncated, grandTotal: grandTotal ?? 0 });
   }, [applyFilters]);
 
   const reload = useCallback(async () => {
@@ -409,7 +422,7 @@ function KatasterBrowser() {
             {!loading && rows.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-3 py-6 text-sm text-muted-foreground">
-                  {summary?.total === 0 && !filters.kuCode && !filters.search ? (
+                  {summary?.grandTotal === 0 ? (
                     <>
                       <strong className="text-foreground">Zatiaľ tu nie sú žiadne parcely.</strong>
                       <br />
