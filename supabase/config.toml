@@ -81,3 +81,6 @@ verify_jwt = true
 
 [functions.send-broadcast]
 verify_jwt = true
+
+[functions.send-trial-ending]
+verify_jwt = false
