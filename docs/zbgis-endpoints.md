@@ -1,57 +1,106 @@
-# ZBGIS endpointy – čo ešte treba doplniť
+# ZBGIS / ESKN endpointy – čo je overené a čo je zavreté
 
-> **Stav: nedopísané.** Tento súbor v repozitári chýbal, keď vznikal modul
-> Kataster, takže presné cesty ani tvar odpovedí ZBGIS nie sú overené.
-> Klient `src/server/kataster/zbgis.ts` je preto postavený tak, že adresy sú
-> šablóny v env premenných a odpovede prechádzajú tolerantným normalizérom.
-> Keď sa doplní dokumentácia, stačí prepísať `.env` a prípadne mapovanie polí
-> vo funkciách `fetchParcelsInKu` / `fetchLvDetail` – throttling, retry,
-> timeout ani zvyšok modulu sa meniť nemusia.
+> Zisťované 4. 9. 2026 sledovaním sieťovej komunikácie samotnej appky ZBGIS
+> (headless Chromium). Pôvodná dokumentácia k modulu Kataster chýbala, toto je
+> náhrada za ňu.
+
+## Zhrnutie: full sync sa cez verejné rozhrania ZBGIS spraviť nedá
+
+Parcely v katastrálnom území sa **nedajú vymenovať** a **vlastníci sa nedajú
+stiahnuť**. Obe cesty sú zámerne zavreté:
+
+- `/query` na vrstvách ESKN vracia zo servera **HTTP 403** (F5 WAF). Pritom
+  presne to by hromadný sync potreboval.
+- Detail listu vlastníctva s vlastníkmi je za **reCAPTCHA „Nie som robot"**.
+- OData `PortalODataPublic` vracia zo servera **HTTP 401**; v prehliadači
+  prejde vďaka cookie, ktorú nastaví WAF.
+
+Obísť to by znamenalo lámať bot ochranu a captchu, a pri vlastníkoch ide
+navyše o osobné údaje fyzických osôb (vrátane rodných čísel). Tadiaľ cesta
+nevedie – legálne varianty sú nižšie.
+
+## Čo zo servera funguje
+
+| Endpoint | Stav | Čo vráti |
+| --- | --- | --- |
+| `https://kataster.skgeodesy.sk/eskn/rest/services/VRM/kn/MapServer` | 200 | Vrstvy registra C. `[9] Plocha parcely C` je tá dátová. |
+| `https://kataster.skgeodesy.sk/eskn/rest/services/VRM/uo/MapServer` | 200 | Register E. `[2] Plocha parcely E`. |
+| `.../VRM/kn/MapServer/9?f=json` (a iné metadáta vrstiev) | 200 | Schéma polí. |
+| `.../VRM/identify/MapServer/identify?geometry={x,y}&...` | 200 | **Atribúty parcely v danom bode** – funguje aj zo servera. |
+| `https://services5.arcgis.com/xLgsg0kCC5lIjsBX/arcgis/rest/services/KATUZ/FeatureServer/0` | 200 | Číselník k.ú. ÚGKK (3 559 záznamov, `IDN5`/`NM5`/`NM3`/`NM2`). Odtiaľto je naplnená `ku_list`. |
+
+Nutné hlavičky: `User-Agent` bežného prehliadača a `Referer: https://zbgis.skgeodesy.sk/`.
+Bez nich vracia WAF 403 na všetko.
+
+### Čo `identify` vráti
+
+```
+ID, PARCEL_NUMBER, CADASTRAL_UNIT_ID, MUNICIPALITY_ID, DISTRICT_ID, REGION_ID,
+DESCRIPTIVE_AREA_OF_PARCEL (výmera SPI v m2), GEODETIC_AREA_OF_PARCEL,
+FOLIO_ID (interné ID listu vlastníctva), NATURE_OF_LAND_USE_ID (druh pozemku),
+PLOT_UTILISATION_ID, PROPERTY_AFFILIATION_ID, PARCEL_STATUS_ID, geometry (WGS84)
+```
+
+**Vlastníci tam nie sú.** Aj `CADASTRAL_UNIT_ID` a `FOLIO_ID` sú interné ESKN
+identifikátory – na kód k.ú. a číslo LV ich prekladá až OData
+(`CadastralUnits?$filter=Id eq …&$select=Code`, `Folios(…)?$select=No`), ktoré
+je zo servera zavreté.
+
+Prakticky to znamená: **bodový dopyt na konkrétnu parcelu ide, hromadné
+sťahovanie nie.**
+
+## Legálne cesty k dátam, ktoré modul potrebuje
+
+1. **Poskytovanie údajov z katastra (ÚGKK / GKÚ)** – SPI/VGI export po
+   katastrálnych územiach vrátane vlastníckych vzťahov, na zmluvu a licenciu.
+   Toto je štandardná cesta presne pre takýto účel.
+2. **Účet v ESKN** – appka má registráciu aj prihlásenie
+   (`esknConfig.registrationUrl`); prihlásený režim môže mať iné limity.
+3. **Vlastné zoznamy SPF** – keď je cieľom len pozemky SPF, ich vlastný
+   register býva rýchlejšia cesta než celý kataster.
+
+Modul je na ktorúkoľvek z nich pripravený: `src/server/kataster/zbgis.ts` má
+adresy v env premenných a tolerantný normalizér odpovedí, takže sa mení
+konfigurácia, nie kód.
 
 ## Premenné prostredia
 
 | Premenná | Povinná | Význam |
 | --- | --- | --- |
-| `ZBGIS_PARCELS_URL` | áno | Šablóna zoznamu parciel v k.ú. Zástupné znaky: `{ku_code}`, `{register}` (`C`/`E`), voliteľne `{offset}`, `{limit}`, `{page}`. Keď šablóna obsahuje `{offset}`, klient stránkuje sám. |
+| `ZBGIS_PARCELS_URL` | áno | Šablóna zoznamu parciel v k.ú. Zástupné znaky: `{ku_code}`, `{register}`, voliteľne `{offset}`, `{limit}`, `{page}`. Keď obsahuje `{offset}`, klient stránkuje sám. |
 | `ZBGIS_LV_DETAIL_URL` | áno | Šablóna detailu LV pre parcelu. Zástupný znak: `{parcel_id}`. |
-| `ZBGIS_USER_AGENT` | nie | Hlavička `User-Agent` (default `TendrikBot (+https://tendrik.sk)`). |
-| `ZBGIS_REFERER` | nie | Hlavička `Referer` (default `https://zbgis.skgeodesy.sk/`). |
-| `ZBGIS_GEOMETRY_CRS` | nie | `wgs84` \| `mercator` \| `none` – použije sa len vtedy, keď odpoveď neuvádza `wkid` (default `mercator`). |
-| `ZBGIS_REQ_DELAY_MS` | nie | Rozostup medzi requestmi, default `1000` (max 1 req/s). |
-| `ZBGIS_TIMEOUT_MS` | nie | Timeout jedného requestu, default `15000`. |
-| `ZBGIS_MAX_RETRIES` | nie | Počet opakovaní po chybe, default `3` (exponenciálny backoff). |
-| `ZBGIS_PAGE_SIZE` | nie | Veľkosť stránky pri stránkovaní, default `500`. |
-| `ZBGIS_MAX_PAGES` | nie | Poistka proti nekonečnému stránkovaniu, default `200`. |
-| `VITE_ZBGIS_PARCEL_URL` | nie | Šablóna odkazu do mapy pre stránku `/kataster`. Zástupné znaky `{register}`, `{ku_code}`, `{parcel_number}`. |
+| `ZBGIS_USER_AGENT` | nie | Default `TendrikBot (+https://tendrik.sk)`. Na ESKN treba UA prehliadača. |
+| `ZBGIS_REFERER` | nie | Default `https://zbgis.skgeodesy.sk/`. |
+| `ZBGIS_GEOMETRY_CRS` | nie | `wgs84` \| `mercator` \| `none`, použije sa len keď odpoveď neuvádza `wkid`. ESKN `identify` vracia WGS84 (`wkid` 4326), ArcGIS `KATUZ` S-JTSK (5514). |
+| `ZBGIS_REQ_DELAY_MS` | nie | Default `1000` (max 1 req/s). |
+| `ZBGIS_TIMEOUT_MS` | nie | Default `15000`. |
+| `ZBGIS_MAX_RETRIES` | nie | Default `3`, exponenciálny backoff. |
+| `ZBGIS_PAGE_SIZE` | nie | Default `500`. |
+| `ZBGIS_MAX_PAGES` | nie | Default `200`. |
+| `VITE_ZBGIS_PARCEL_URL` | nie | Odkaz do mapy pre `/kataster`. Zástupné znaky `{lat}`, `{lng}`, `{register}`, `{ku_code}`, `{parcel_number}`. |
 
-## Čo klient z odpovede číta
+Deep-link do mapy je overený: klient beží na `/mapka/` (staré `/mkzbgis/` len
+redirectuje) a detail parcely otvára **bodová identifikácia**, nie parcelné
+číslo:
 
-Normalizér berie kľúče case-insensitive a ignoruje podčiarkovníky, takže
-`cisloParcely`, `cislo_parcely` aj `CISLOPARCELY` sú to isté. Rozbalí aj
-ArcGIS obal `features[].attributes` / `properties`.
+```
+https://zbgis.skgeodesy.sk/mapka/sk/kataster/identification/point/{lat},{lng}?pos={lat},{lng},19
+```
 
-**Zoznam parciel** – hľadá:
+## Čo číta normalizér
 
-- číslo parcely: `parcel_number`, `cislo_parcely`, `cislo`, `parcela`, `number`
-- identifikátor: `parcel_id`, `objectid`, `id`, `id_parcely`, `guid`
-- ťažisko: `geometry.x` / `geometry.y` (podľa `spatialReference.wkid`), alebo `lat` / `lng`
+Kľúče berie case-insensitive a ignoruje podčiarkovníky, takže `cisloParcely`,
+`cislo_parcely` aj `CISLOPARCELY` sú to isté. Rozbalí ArcGIS obal
+`features[].attributes` / `properties`.
 
-**Detail LV** – hľadá:
-
-- LV: `lv_number`, `cislo_lv`, `lv`, `cislo_listu_vlastnictva`
-- výmera: `area_m2`, `vymera`, `vymera_m2`, `area`
-- druh pozemku: `land_type`, `druh_pozemku`, `druh`, `kultura`, `sposob_vyuzitia`
-- vlastníci: pole pod `vlastnici` / `owners` / `subjekty`, správcovia pod `spravcovia` / `sprava`
-  - v položke: meno (`nazov`, `meno`, `name`, `priezvisko`), podiel (`podiel`, `share`),
-    identifikátor (`ico`, `rodne_cislo`, `identifikator`), rola (`typ`, `vztah`, `role`)
-
-## Otvorené otázky
-
-- [ ] Presné cesty pre register C a register E (jeden endpoint s parametrom, alebo dva rôzne?).
-- [ ] Ako sa stránkuje zoznam parciel – `offset`/`limit`, `page`, alebo `resultOffset`/`resultRecordCount`?
-- [ ] V akom CRS chodí geometria (S-JTSK 5514 by chcel poriadnu transformáciu, tú klient zatiaľ nerobí a vráti `null`).
-- [ ] Aké limity ZBGIS reálne má – či 1 req/s stačí, alebo treba ísť pomalšie.
-- [ ] Či detail LV vracia správcov v samostatnom poli, alebo len ako rolu vo vlastníkoch.
+- **Zoznam parciel**: číslo (`parcel_number`, `cislo_parcely`, `cislo`, `parcela`),
+  identifikátor (`parcel_id`, `objectid`, `id`, `guid`),
+  ťažisko (`geometry.x`/`y` podľa `spatialReference.wkid`, alebo `lat`/`lng`)
+- **Detail LV**: LV (`lv_number`, `cislo_lv`, `lv`), výmera (`area_m2`, `vymera`),
+  druh pozemku (`land_type`, `druh_pozemku`, `kultura`), vlastníci pod
+  `vlastnici`/`owners`/`subjekty`, správcovia pod `spravcovia`/`sprava`;
+  v položke meno (`nazov`, `meno`, `priezvisko`), podiel (`podiel`, `share`),
+  identifikátor (`ico`, `rodne_cislo`), rola (`typ`, `vztah`, `role`)
 
 Kým `ZBGIS_PARCELS_URL` a `ZBGIS_LV_DETAIL_URL` nie sú nastavené, endpoint
 `/api/public/hooks/sync-kataster` beh korektne ukončí so stavom `failed`

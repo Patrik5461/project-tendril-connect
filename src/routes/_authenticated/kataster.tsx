@@ -474,7 +474,7 @@ function KatasterBrowser() {
                 <td className="px-3 py-2">
                   <a
                     className="inline-flex items-center gap-1 underline underline-offset-2"
-                    href={zbgisParcelUrl(p.ku_code, p.parcel_register, p.parcel_number)}
+                    href={zbgisParcelUrl(p)}
                     target="_blank"
                     rel="noreferrer"
                   >

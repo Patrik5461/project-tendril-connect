@@ -80,25 +80,46 @@ export const OWNER_ROLE_LABEL: Record<OwnerRole, string> = {
   iny: "iný",
 };
 
-// TODO: presný tvar deep-linku patrí do docs/zbgis-endpoints.md. Kým dokumentácia
-// nie je, adresa sa dá prebiť premennou VITE_ZBGIS_PARCEL_URL bez zásahu do kódu.
-const DEFAULT_PARCEL_LINK =
-  "https://zbgis.skgeodesy.sk/mkzbgis/sk/kataster/detail/kataster/parcela-{register}/{ku_code}/{parcel_number}";
+// Overené 4. 9. 2026 sledovaním samotnej appky ZBGIS: klient beží na /mapka/
+// (staré /mkzbgis/ len redirectuje) a detail parcely otvára bodová
+// identifikácia, nie parcelné číslo. Preto linkujeme cez ťažisko.
+// Prebiť sa to dá premennou VITE_ZBGIS_PARCEL_URL, zástupné znaky
+// {lat}, {lng}, {register}, {ku_code}, {parcel_number}.
+const DEFAULT_POINT_LINK =
+  "https://zbgis.skgeodesy.sk/mapka/sk/kataster/identification/point/{lat},{lng}?pos={lat},{lng},19";
+const MAP_FALLBACK = "https://zbgis.skgeodesy.sk/mapka/sk/kataster";
 
-function parcelLinkTemplate(): string {
+function parcelLinkTemplate(): string | undefined {
   const env = typeof import.meta !== "undefined" ? import.meta.env : undefined;
-  return (env?.["VITE_ZBGIS_PARCEL_URL"] as string | undefined) || DEFAULT_PARCEL_LINK;
+  return env?.["VITE_ZBGIS_PARCEL_URL"] as string | undefined;
 }
 
-export function zbgisParcelUrl(
-  kuCode: string,
-  register: ParcelRegister,
-  parcelNumber: string,
-): string {
-  return parcelLinkTemplate()
-    .replace("{register}", register.toLowerCase())
-    .replace("{ku_code}", encodeURIComponent(kuCode))
-    .replace("{parcel_number}", encodeURIComponent(parcelNumber));
+/**
+ * Odkaz na parcelu v ZBGIS. Bez ťažiska sa presné miesto ukázať nedá,
+ * vtedy vraciame aspoň mapu katastra.
+ */
+export function zbgisParcelUrl(parcel: {
+  ku_code: string;
+  parcel_register: ParcelRegister;
+  parcel_number: string;
+  centroid_lat?: number | null;
+  centroid_lng?: number | null;
+}): string {
+  const template = parcelLinkTemplate() ?? DEFAULT_POINT_LINK;
+  const lat = parcel.centroid_lat;
+  const lng = parcel.centroid_lng;
+  if (
+    template.includes("{lat}") &&
+    (lat === null || lat === undefined || lng === null || lng === undefined)
+  ) {
+    return MAP_FALLBACK;
+  }
+  return template
+    .replace(/\{lat\}/g, String(lat))
+    .replace(/\{lng\}/g, String(lng))
+    .replace(/\{register\}/g, parcel.parcel_register.toLowerCase())
+    .replace(/\{ku_code\}/g, encodeURIComponent(parcel.ku_code))
+    .replace(/\{parcel_number\}/g, encodeURIComponent(parcel.parcel_number));
 }
 
 export function formatArea(m2: number | null | undefined): string {
