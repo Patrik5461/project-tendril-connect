@@ -28,7 +28,13 @@ export type CadastralParcel = {
   fetched_at: string;
 };
 
-export type KuRow = { ku_code: string; ku_name: string; okres: string | null; kraj: string | null };
+export type KuRow = {
+  ku_code: string;
+  ku_name: string;
+  obec: string | null;
+  okres: string | null;
+  kraj: string | null;
+};
 
 /** Riadok zo zoznamu nezistených vlastníkov SPF — úroveň listu vlastníctva. */
 export type SpfFolio = {

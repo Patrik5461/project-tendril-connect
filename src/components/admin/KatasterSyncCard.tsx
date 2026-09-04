@@ -1,12 +1,12 @@
 // Admin tab "Kataster": ručné ťahanie parciel zo ZBGIS.
 // Zámerne bez cronu – beh sa spúšťa len tlačidlom a progres sa číta
 // pollovaním cadastral_sync_runs.
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { KuPicker } from "@/components/admin/KuPicker";
 import { Progress } from "@/components/ui/progress";
 import {
   Select,
@@ -16,8 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Play, RefreshCw, Search, ExternalLink } from "lucide-react";
-import { TEST_PARCEL_LIMIT } from "@/lib/kataster";
+import { Play, RefreshCw, ExternalLink } from "lucide-react";
+import { TEST_PARCEL_LIMIT, errorText } from "@/lib/kataster";
 import type { KuRow, SyncMode, SyncRegister, SyncRun } from "@/lib/kataster";
 
 // Tabuľky modulu Kataster zatiaľ nie sú v generovaných typoch, preto beztypový klient.
@@ -42,13 +42,10 @@ function fmt(v?: string | null) {
 }
 
 export function KatasterSyncCard() {
-  const [query, setQuery] = useState("");
-  const [options, setOptions] = useState<KuRow[]>([]);
   const [selected, setSelected] = useState<KuRow | null>(null);
   const [register, setRegister] = useState<SyncRegister>("both");
   const [busy, setBusy] = useState<SyncMode | null>(null);
   const [runs, setRuns] = useState<SyncRun[]>([]);
-  const searchRef = useRef(0);
 
   const loadRuns = useCallback(async () => {
     const { data, error } = await db
@@ -77,33 +74,6 @@ export function KatasterSyncCard() {
     return () => clearInterval(t);
   }, [hasRunning, loadRuns]);
 
-  // Vyhľadávanie k.ú. podľa názvu alebo kódu.
-  useEffect(() => {
-    const q = query.trim();
-    if (q.length < 2) {
-      setOptions([]);
-      return;
-    }
-    const token = ++searchRef.current;
-    const t = setTimeout(async () => {
-      // Čiarky a zátvorky by rozbili syntax .or() filtra.
-      const safe = q.replace(/[,()%]/g, " ").trim();
-      if (!safe) return;
-      const { data, error } = await db
-        .from("ku_list")
-        .select("ku_code,ku_name,okres,kraj")
-        .or(`ku_name.ilike.%${safe}%,ku_code.ilike.%${safe}%`)
-        .order("ku_name")
-        .limit(20);
-      if (error) {
-        console.error("[kataster] hľadanie k.ú. zlyhalo", error);
-        return;
-      }
-      if (token === searchRef.current) setOptions((data ?? []) as KuRow[]);
-    }, 250);
-    return () => clearTimeout(t);
-  }, [query]);
-
   async function startSync(mode: SyncMode) {
     if (!selected) {
       toast.error("Najprv vyber katastrálne územie.");
@@ -128,7 +98,7 @@ export function KatasterSyncCard() {
       );
       await loadRuns();
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(errorText(e));
     } finally {
       setBusy(null);
     }
@@ -149,39 +119,9 @@ export function KatasterSyncCard() {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-          <div className="relative">
+          <div>
             <label className="text-xs text-muted-foreground">Katastrálne územie</label>
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="pl-8"
-                value={selected ? `${selected.ku_name} (${selected.ku_code})` : query}
-                placeholder="názov alebo kód k.ú. (min. 2 znaky)"
-                onChange={(e) => {
-                  setSelected(null);
-                  setQuery(e.target.value);
-                }}
-              />
-            </div>
-            {!selected && options.length > 0 && (
-              <ul className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-md border bg-popover shadow-md">
-                {options.map((o) => (
-                  <li key={o.ku_code}>
-                    <button
-                      type="button"
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-muted"
-                      onClick={() => {
-                        setSelected(o);
-                        setOptions([]);
-                      }}
-                    >
-                      {o.ku_name} <span className="text-muted-foreground">({o.ku_code})</span>
-                      {o.okres && <span className="text-muted-foreground"> · {o.okres}</span>}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <KuPicker value={selected} onChange={setSelected} />
           </div>
 
           <div>

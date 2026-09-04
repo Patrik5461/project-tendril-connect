@@ -20,7 +20,7 @@ function sanitize(value: string): string {
 export function KuPicker({
   value,
   onChange,
-  placeholder = "názov alebo kód k.ú. (min. 2 znaky)",
+  placeholder = "k.ú., obec, okres alebo kód (min. 2 znaky)",
   allowEmpty = false,
 }: {
   value: KuRow | null;
@@ -43,9 +43,12 @@ export function KuPicker({
     const t = setTimeout(async () => {
       const { data, error } = await db
         .from("ku_list")
-        .select("ku_code,ku_name,okres,kraj")
-        // Ľudia píšu "Bratislava", ale k.ú. sa volá Staré Mesto — preto aj okres a kraj.
-        .or(`ku_name.ilike.%${q}%,ku_code.ilike.%${q}%,okres.ilike.%${q}%,kraj.ilike.%${q}%`)
+        .select("ku_code,ku_name,obec,okres,kraj")
+        // Ľudia píšu "Bratislava" alebo "Vysoké Tatry", ale k.ú. sa volá Staré Mesto
+        // či Tatranská Lomnica — preto hľadáme aj v obci, okrese a kraji.
+        .or(
+          `ku_name.ilike.%${q}%,ku_code.ilike.%${q}%,obec.ilike.%${q}%,okres.ilike.%${q}%,kraj.ilike.%${q}%`,
+        )
         .order("ku_name")
         .limit(20);
       if (error) {
@@ -88,6 +91,9 @@ export function KuPicker({
                 }}
               >
                 {o.ku_name} <span className="text-muted-foreground">({o.ku_code})</span>
+                {o.obec && o.obec !== o.ku_name && (
+                  <span className="text-muted-foreground"> · {o.obec}</span>
+                )}
                 {o.okres && <span className="text-muted-foreground"> · {o.okres}</span>}
                 {o.kraj && <span className="text-muted-foreground"> · {o.kraj}</span>}
               </button>

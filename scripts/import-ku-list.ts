@@ -15,7 +15,13 @@ import { resolve } from "node:path";
 
 const BATCH = 500;
 
-type Row = { ku_code: string; ku_name: string; okres: string | null; kraj: string | null };
+type Row = {
+  ku_code: string;
+  ku_name: string;
+  obec: string | null;
+  okres: string | null;
+  kraj: string | null;
+};
 
 function loadDotEnv() {
   const path = resolve(process.cwd(), ".env");
@@ -94,6 +100,7 @@ function normalizeHeader(value: string): string {
 const CANDIDATES: Record<keyof Row, string[]> = {
   ku_code: ["kucode", "kod", "kodku", "kodkatastralnehouzemia", "cislo", "kukod", "ku"],
   ku_name: ["kuname", "nazov", "nazovku", "nazovkatastralnehouzemia", "katastralneuzemie", "meno"],
+  obec: ["obec", "nazovobce", "obecnazov", "mesto"],
   okres: ["okres", "nazovokresu", "okresnazov"],
   kraj: ["kraj", "nazovkraja", "krajnazov"],
 };
@@ -131,13 +138,90 @@ async function upsert(url: string, key: string, rows: Row[]) {
   if (!res.ok) throw new Error(`PostgREST ${res.status}: ${await res.text()}`);
 }
 
+/**
+ * Číselník priamo z ArcGIS služby ÚGKK (vrstva KATUZ) — bez ručne
+ * pripravovaného CSV. IDN5 = kód k.ú., NM5 = názov, NM4 = obec,
+ * NM3 = okres, NM2 = kraj.
+ */
+async function fetchFromUgkk(): Promise<Row[]> {
+  const base =
+    process.env["UGKK_KATUZ_URL"] ??
+    "https://services5.arcgis.com/xLgsg0kCC5lIjsBX/arcgis/rest/services/KATUZ/FeatureServer/0/query";
+  const page = 2000;
+  const seen = new Set<string>();
+  const out: Row[] = [];
+  for (let offset = 0; ; offset += page) {
+    const params = new URLSearchParams({
+      where: "1=1",
+      outFields: "IDN5,NM5,NM4,NM3,NM2",
+      returnGeometry: "false",
+      orderByFields: "IDN5",
+      resultOffset: String(offset),
+      resultRecordCount: String(page),
+      f: "json",
+    });
+    const res = await fetch(`${base}?${params}`);
+    if (!res.ok) throw new Error(`ÚGKK KATUZ -> HTTP ${res.status}`);
+    const body = (await res.json()) as {
+      error?: unknown;
+      features?: Array<{ attributes: Record<string, unknown> }>;
+      exceededTransferLimit?: boolean;
+    };
+    if (body.error) throw new Error(`ÚGKK KATUZ: ${JSON.stringify(body.error).slice(0, 200)}`);
+    const feats = body.features ?? [];
+    for (const f of feats) {
+      const a = f.attributes;
+      const code = String(a["IDN5"] ?? "").trim();
+      const name = String(a["NM5"] ?? "").trim();
+      if (!code || !name || seen.has(code)) continue;
+      seen.add(code);
+      const txt = (v: unknown) => {
+        const t = String(v ?? "").trim();
+        return t ? t : null;
+      };
+      out.push({
+        ku_code: code,
+        ku_name: name,
+        obec: txt(a["NM4"]),
+        okres: txt(a["NM3"]),
+        kraj: txt(a["NM2"]),
+      });
+    }
+    if (feats.length < page || !body.exceededTransferLimit) break;
+  }
+  return out;
+}
+
 async function main() {
   loadDotEnv();
 
+  const fromUgkk = process.argv.includes("--from-ugkk");
   const csvPath = process.argv[2];
-  if (!csvPath || csvPath.startsWith("--")) {
-    console.error("Použitie: bun run scripts/import-ku-list.ts <subor.csv> [--dry-run]");
+  if (!fromUgkk && (!csvPath || csvPath.startsWith("--"))) {
+    console.error(
+      "Použitie: bun run scripts/import-ku-list.ts <subor.csv> [--dry-run]\n" +
+        "     alebo: bun run scripts/import-ku-list.ts --from-ugkk [--dry-run]",
+    );
     process.exit(1);
+  }
+
+  if (fromUgkk) {
+    const rows = await fetchFromUgkk();
+    console.log(`ÚGKK KATUZ -> ${rows.length} k.ú.`);
+    console.log("Ukážka:", rows.slice(0, 2));
+    if (process.argv.includes("--dry-run")) {
+      console.log("--dry-run: do databázy sa nič nezapísalo.");
+      return;
+    }
+    const url = process.env["SUPABASE_URL"];
+    const key = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+    if (!url || !key) throw new Error("Chýba SUPABASE_URL alebo SUPABASE_SERVICE_ROLE_KEY.");
+    for (let i = 0; i < rows.length; i += BATCH) {
+      await upsert(url.replace(/\/$/, ""), key, rows.slice(i, i + BATCH));
+      console.log(`Zapísaných ${Math.min(i + BATCH, rows.length)} / ${rows.length}`);
+    }
+    console.log("Hotovo.");
+    return;
   }
 
   const text = readFileSync(resolve(csvPath), "utf8").replace(/^\uFEFF/, "");
@@ -168,6 +252,7 @@ async function main() {
     rows.push({
       ku_code: code,
       ku_name: name,
+      obec: cols.obec >= 0 ? (line[cols.obec] ?? "").trim() || null : null,
       okres: cols.okres >= 0 ? (line[cols.okres] ?? "").trim() || null : null,
       kraj: cols.kraj >= 0 ? (line[cols.kraj] ?? "").trim() || null : null,
     });
