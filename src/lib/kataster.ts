@@ -91,24 +91,21 @@ export const OWNER_ROLE_LABEL: Record<OwnerRole, string> = {
   iny: "iný",
 };
 
-// Overené 4. 9. 2026 sledovaním samotnej appky ZBGIS: klient beží na /mapka/
-// (staré /mkzbgis/ len redirectuje) a detail parcely otvára bodová
-// identifikácia, nie parcelné číslo. Preto linkujeme cez ťažisko.
-// Prebiť sa to dá premennou VITE_ZBGIS_PARCEL_URL, zástupné znaky
-// {lat}, {lng}, {register}, {ku_code}, {parcel_number}.
-const DEFAULT_POINT_LINK =
-  "https://zbgis.skgeodesy.sk/mapka/sk/kataster/identification/point/{lat},{lng}?pos={lat},{lng},19";
-const MAP_FALLBACK = "https://zbgis.skgeodesy.sk/mapka/sk/kataster";
+// Overené 4. 9. 2026 priamo v appke ZBGIS: klient beží na /mapka/ (staré
+// /mkzbgis/ len redirectuje) a detail sa otvára routou detail/kataster/<typ>,
+// kde typ je parcela-c, parcela-e alebo list-vlastnictva. Berie kód k.ú. podľa
+// ÚGKK a číslo parcely/LV, čiže presne to, čo máme v databáze.
+//
+// Pozor: samotný obsah detailu si ZBGIS pýta cez reCAPTCHA — odkaz otvorí
+// správny panel, používateľ potvrdí „Nie som robot" a až potom vidí údaje.
+const ZBGIS_DETAIL = "https://zbgis.skgeodesy.sk/mapka/sk/kataster/detail/kataster";
 
-function parcelLinkTemplate(): string | undefined {
+function overrideTemplate(): string | undefined {
   const env = typeof import.meta !== "undefined" ? import.meta.env : undefined;
   return env?.["VITE_ZBGIS_PARCEL_URL"] as string | undefined;
 }
 
-/**
- * Odkaz na parcelu v ZBGIS. Bez ťažiska sa presné miesto ukázať nedá,
- * vtedy vraciame aspoň mapu katastra.
- */
+/** Odkaz na parcelu v ZBGIS. */
 export function zbgisParcelUrl(parcel: {
   ku_code: string;
   parcel_register: ParcelRegister;
@@ -116,24 +113,40 @@ export function zbgisParcelUrl(parcel: {
   centroid_lat?: number | null;
   centroid_lng?: number | null;
 }): string {
-  const template = parcelLinkTemplate() ?? DEFAULT_POINT_LINK;
-  const lat = parcel.centroid_lat;
-  const lng = parcel.centroid_lng;
-  if (
-    template.includes("{lat}") &&
-    (lat === null || lat === undefined || lng === null || lng === undefined)
-  ) {
-    return MAP_FALLBACK;
+  const register = parcel.parcel_register.toLowerCase();
+  const template = overrideTemplate();
+  if (template) {
+    return template
+      .replace(/\{lat\}/g, String(parcel.centroid_lat ?? ""))
+      .replace(/\{lng\}/g, String(parcel.centroid_lng ?? ""))
+      .replace(/\{register\}/g, register)
+      .replace(/\{ku_code\}/g, encodeURIComponent(parcel.ku_code))
+      .replace(/\{parcel_number\}/g, encodeURIComponent(parcel.parcel_number));
   }
-  return template
-    .replace(/\{lat\}/g, String(lat))
-    .replace(/\{lng\}/g, String(lng))
-    .replace(/\{register\}/g, parcel.parcel_register.toLowerCase())
-    .replace(/\{ku_code\}/g, encodeURIComponent(parcel.ku_code))
-    .replace(/\{parcel_number\}/g, encodeURIComponent(parcel.parcel_number));
+  return `${ZBGIS_DETAIL}/parcela-${register}/${encodeURIComponent(parcel.ku_code)}/${encodeURIComponent(parcel.parcel_number)}`;
+}
+
+/** Odkaz na list vlastníctva v ZBGIS. */
+export function zbgisFolioUrl(kuCode: string, lvNumber: string): string {
+  return `${ZBGIS_DETAIL}/list-vlastnictva/${encodeURIComponent(kuCode)}/${encodeURIComponent(lvNumber)}`;
 }
 
 export function formatArea(m2: number | null | undefined): string {
   if (m2 === null || m2 === undefined || !Number.isFinite(Number(m2))) return "—";
   return `${Number(m2).toLocaleString("sk-SK", { maximumFractionDigits: 0 })} m²`;
+}
+
+/**
+ * Supabase vracia chyby, ktoré majú občas prázdny `message` (napr. timeout).
+ * Prázdny toast vyzerá ako rozbitá appka, tak vždy vrátime aspoň niečo.
+ */
+export function errorText(e: unknown): string {
+  if (typeof e === "string" && e.trim()) return e;
+  const err = e as { message?: string; details?: string; hint?: string; code?: string } | null;
+  const parts = [err?.message, err?.details, err?.hint]
+    .map((x) => (x ?? "").toString().trim())
+    .filter(Boolean);
+  if (parts.length) return parts.join(" · ");
+  if (err?.code) return `Chyba ${err.code}`;
+  return "Neznáma chyba – detail je v konzole prehliadača.";
 }

@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { errorText } from "@/lib/kataster";
 import type { KuRow } from "@/lib/kataster";
+import { toast } from "sonner";
 
 // ku_list zatiaľ nie je v generovaných typoch, preto beztypový klient.
 const db = supabase as unknown as SupabaseClient;
@@ -42,11 +44,13 @@ export function KuPicker({
       const { data, error } = await db
         .from("ku_list")
         .select("ku_code,ku_name,okres,kraj")
-        .or(`ku_name.ilike.%${q}%,ku_code.ilike.%${q}%`)
+        // Ľudia píšu "Bratislava", ale k.ú. sa volá Staré Mesto — preto aj okres a kraj.
+        .or(`ku_name.ilike.%${q}%,ku_code.ilike.%${q}%,okres.ilike.%${q}%,kraj.ilike.%${q}%`)
         .order("ku_name")
         .limit(20);
       if (error) {
         console.error("[kataster] hľadanie k.ú. zlyhalo", error);
+        toast.error(`Hľadanie k.ú. zlyhalo: ${errorText(error)}`);
         return;
       }
       if (mine === token.current) setOptions((data ?? []) as KuRow[]);
@@ -85,6 +89,7 @@ export function KuPicker({
               >
                 {o.ku_name} <span className="text-muted-foreground">({o.ku_code})</span>
                 {o.okres && <span className="text-muted-foreground"> · {o.okres}</span>}
+                {o.kraj && <span className="text-muted-foreground"> · {o.kraj}</span>}
               </button>
             </li>
           ))}

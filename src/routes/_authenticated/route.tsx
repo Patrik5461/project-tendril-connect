@@ -2,14 +2,20 @@ import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Settings, LogOut, ShieldCheck, Coins } from "lucide-react";
+import {
+  LayoutDashboard,
+  Settings,
+  LogOut,
+  ShieldCheck,
+  Coins,
+  Map as MapIcon,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { HelpChatWidget } from "@/components/HelpChatWidget";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useIsNative } from "@/lib/native";
 import { attachPushNavigation } from "@/lib/push";
-
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -68,8 +74,10 @@ function AuthedLayout() {
     >
       <header className="border-b-2 border-foreground bg-background sticky top-0 z-10 safe-top">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
-
-          <Link to="/dashboard" className="flex items-center gap-2.5 font-display font-bold text-xl text-foreground">
+          <Link
+            to="/dashboard"
+            className="flex items-center gap-2.5 font-display font-bold text-xl text-foreground"
+          >
             <span
               className="relative inline-flex h-8 w-8 items-center justify-center bg-primary"
               aria-hidden="true"
@@ -104,6 +112,14 @@ function AuthedLayout() {
                 </Link>
               </>
             )}
+            {isAdmin && !native && (
+              <Link to="/kataster">
+                <Button variant="ghost" size="sm">
+                  <MapIcon className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Kataster</span>
+                </Button>
+              </Link>
+            )}
             {isAdmin && (
               <Link to="/admin">
                 <Button variant="ghost" size="sm">
@@ -123,7 +139,6 @@ function AuthedLayout() {
       <Outlet />
       <HelpChatWidget />
       <MobileBottomNav />
-
     </div>
   );
 }

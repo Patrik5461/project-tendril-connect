@@ -19,7 +19,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { KuPicker } from "@/components/admin/KuPicker";
 import { SpfFoliosBrowser } from "@/components/admin/SpfFoliosBrowser";
 import { Download, ExternalLink, RefreshCw } from "lucide-react";
-import { OWNER_ROLE_LABEL, formatArea, isSpfOwner, zbgisParcelUrl } from "@/lib/kataster";
+import {
+  OWNER_ROLE_LABEL,
+  errorText,
+  formatArea,
+  isSpfOwner,
+  zbgisParcelUrl,
+} from "@/lib/kataster";
 import type { CadastralParcel, KuRow, ParcelOwner } from "@/lib/kataster";
 
 export const Route = createFileRoute("/_authenticated/kataster")({
@@ -163,7 +169,7 @@ function KatasterBrowser() {
         .order("parcel_register")
         .order("parcel_number")
         .range(offset, offset + PAGE_SIZE - 1);
-      if (error) throw new Error(error.message);
+      if (error) throw error;
       const page = (data ?? []) as CadastralParcel[];
       setHasMore(page.length === PAGE_SIZE);
       setRows((prev) => (offset === 0 ? page : [...prev, ...page]));
@@ -179,7 +185,7 @@ function KatasterBrowser() {
         db.from("cadastral_parcels").select("id", { count: "exact", head: true }),
         { spf },
       );
-      if (error) throw new Error(error.message);
+      if (error) throw error;
       return count ?? 0;
     };
 
@@ -192,7 +198,7 @@ function KatasterBrowser() {
       const { data, error } = await applyFilters(db.from("cadastral_parcels").select("area_m2"), {
         spf: "only",
       }).range(from, from + SCAN_PAGE - 1);
-      if (error) throw new Error(error.message);
+      if (error) throw error;
       const page = (data ?? []) as Array<{ area_m2: number | null }>;
       for (const r of page) spfArea += Number(r.area_m2 ?? 0);
       if (page.length < SCAN_PAGE) break;
@@ -207,7 +213,7 @@ function KatasterBrowser() {
     try {
       await Promise.all([loadPage(0), loadSummary()]);
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(errorText(e));
     } finally {
       setLoading(false);
     }
@@ -229,7 +235,7 @@ function KatasterBrowser() {
           .order("parcel_register")
           .order("parcel_number")
           .range(from, from + SCAN_PAGE - 1);
-        if (error) throw new Error(error.message);
+        if (error) throw error;
         const page = (data ?? []) as CadastralParcel[];
         all.push(...page);
         if (page.length < SCAN_PAGE) break;
@@ -285,7 +291,7 @@ function KatasterBrowser() {
       URL.revokeObjectURL(url);
       toast.success(`Export: ${all.length} parciel.`);
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(errorText(e));
     } finally {
       setExporting(false);
     }
@@ -402,8 +408,21 @@ function KatasterBrowser() {
           <tbody>
             {!loading && rows.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-3 py-6 text-muted-foreground">
-                  Nič nesedí filtru. Skús vypnúť „len SPF“ alebo najprv spusti sync.
+                <td colSpan={7} className="px-3 py-6 text-sm text-muted-foreground">
+                  {summary?.total === 0 && !filters.kuCode && !filters.search ? (
+                    <>
+                      <strong className="text-foreground">Zatiaľ tu nie sú žiadne parcely.</strong>
+                      <br />
+                      Sync zo ZBGIS sa nedá spustiť, kým nie sú v <code>.env</code> nastavené{" "}
+                      <code>ZBGIS_PARCELS_URL</code> a <code>ZBGIS_LV_DETAIL_URL</code>. ZBGIS má
+                      hromadné sťahovanie parciel zavreté (403 na <code>/query</code>, vlastníci za
+                      reCAPTCHA), takže tie adresy musia ukazovať na iný zdroj — podrobnosti sú v{" "}
+                      <code>docs/zbgis-endpoints.md</code>. Medzitým funguje záložka{" "}
+                      <strong className="text-foreground">SPF – listy vlastníctva</strong>.
+                    </>
+                  ) : (
+                    <>Nič nesedí filtru. Skús vypnúť „len SPF“ alebo zmeniť katastrálne územie.</>
+                  )}
                 </td>
               </tr>
             )}
@@ -462,7 +481,7 @@ function KatasterBrowser() {
             onClick={() => {
               setLoading(true);
               loadPage(rows.length)
-                .catch((e) => toast.error((e as Error).message))
+                .catch((e) => toast.error(errorText(e)))
                 .finally(() => setLoading(false));
             }}
           >

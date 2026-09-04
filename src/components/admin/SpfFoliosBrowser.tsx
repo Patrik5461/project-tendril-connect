@@ -9,8 +9,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Download, RefreshCw } from "lucide-react";
+import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { KuPicker } from "@/components/admin/KuPicker";
+import { errorText, zbgisFolioUrl } from "@/lib/kataster";
 import type { KuRow, SpfFolio } from "@/lib/kataster";
 
 const db = supabase as unknown as SupabaseClient;
@@ -32,7 +33,7 @@ export function SpfFoliosBrowser() {
   const [lvInput, setLvInput] = useState("");
   const [lv, setLv] = useState("");
   const [rows, setRows] = useState<SpfFolio[]>([]);
-  const [total, setTotal] = useState<number | null>(null);
+  const [total, setTotal] = useState<{ value: number; exact: boolean } | null>(null);
   const [owners, setOwners] = useState<{ count: number; truncated: boolean } | null>(null);
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -55,7 +56,7 @@ export function SpfFoliosBrowser() {
         .order("ku_code")
         .order("owners_count", { ascending: false })
         .range(offset, offset + PAGE_SIZE - 1);
-      if (error) throw new Error(error.message);
+      if (error) throw error;
       const page = (data ?? []) as SpfFolio[];
       setHasMore(page.length === PAGE_SIZE);
       setRows((prev) => (offset === 0 ? page : [...prev, ...page]));
@@ -64,34 +65,42 @@ export function SpfFoliosBrowser() {
   );
 
   const loadSummary = useCallback(async () => {
-    const { count, error } = await applyFilters(
-      db.from("spf_folios").select("id", { count: "exact", head: true }),
-    );
-    if (error) throw new Error(error.message);
-    setTotal(count ?? 0);
+    // Bez filtra ide o 1,09 mil. riadkov — presný count aj sčítanie vlastníkov
+    // by trvali sekundy, tak sa robia až keď je výber zúžený.
+    const narrowed = Boolean(ku || lv.trim());
 
-    // Nezistených vlastníkov sčítavame v prehliadači, agregácie tu nemáme.
+    const { count, error } = await applyFilters(
+      db.from("spf_folios").select("id", { count: narrowed ? "exact" : "estimated", head: true }),
+    );
+    if (error) throw error;
+    setTotal({ value: count ?? 0, exact: narrowed });
+
+    if (!narrowed) {
+      setOwners(null);
+      return;
+    }
+
     let sum = 0;
     let truncated = false;
     for (let from = 0; from < SCAN_CAP; from += SCAN_PAGE) {
       const { data, error: e } = await applyFilters(
         db.from("spf_folios").select("owners_count"),
       ).range(from, from + SCAN_PAGE - 1);
-      if (e) throw new Error(e.message);
+      if (e) throw e;
       const page = (data ?? []) as Array<{ owners_count: number }>;
       for (const r of page) sum += Number(r.owners_count ?? 0);
       if (page.length < SCAN_PAGE) break;
       if (from + SCAN_PAGE >= SCAN_CAP) truncated = true;
     }
     setOwners({ count: sum, truncated });
-  }, [applyFilters]);
+  }, [applyFilters, ku, lv]);
 
   const reload = useCallback(async () => {
     setLoading(true);
     try {
       await Promise.all([loadPage(0), loadSummary()]);
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(errorText(e));
     } finally {
       setLoading(false);
     }
@@ -110,7 +119,7 @@ export function SpfFoliosBrowser() {
           .order("ku_code")
           .order("lv_number")
           .range(from, from + SCAN_PAGE - 1);
-        if (error) throw new Error(error.message);
+        if (error) throw error;
         const page = (data ?? []) as SpfFolio[];
         all.push(...page);
         if (page.length < SCAN_PAGE) break;
@@ -134,7 +143,7 @@ export function SpfFoliosBrowser() {
       URL.revokeObjectURL(url);
       toast.success(`Export: ${all.length} listov vlastníctva.`);
     } catch (e) {
-      toast.error((e as Error).message);
+      toast.error(errorText(e));
     } finally {
       setExporting(false);
     }
@@ -199,16 +208,21 @@ export function SpfFoliosBrowser() {
         <div className="rounded-lg border border-primary/15 bg-card p-4">
           <div className="text-xs text-muted-foreground">Listov vlastníctva</div>
           <div className="font-display text-xl font-semibold">
-            {total === null ? "…" : total.toLocaleString("sk-SK")}
+            {total === null
+              ? "…"
+              : `${total.exact ? "" : "~"}${total.value.toLocaleString("sk-SK")}`}
           </div>
         </div>
         <div className="rounded-lg border border-primary/15 bg-card p-4">
           <div className="text-xs text-muted-foreground">Nezistených vlastníkov</div>
           <div className="font-display text-xl font-semibold">
             {owners === null
-              ? "…"
+              ? "—"
               : `${owners.count.toLocaleString("sk-SK")}${owners.truncated ? " +" : ""}`}
           </div>
+          {owners === null && (
+            <div className="text-xs text-muted-foreground">Vyber k.ú. alebo LV</div>
+          )}
         </div>
       </div>
 
@@ -233,7 +247,17 @@ export function SpfFoliosBrowser() {
             {rows.map((r) => (
               <tr key={r.id} className="border-t">
                 <td className="px-3 py-2 font-mono text-xs">{r.ku_code}</td>
-                <td className="px-3 py-2 font-medium">{r.lv_number}</td>
+                <td className="px-3 py-2 font-medium">
+                  <a
+                    className="inline-flex items-center gap-1 underline underline-offset-2"
+                    href={zbgisFolioUrl(r.ku_code, r.lv_number)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {r.lv_number}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </td>
                 <td className="px-3 py-2 num">{r.owners_count}</td>
                 <td className="px-3 py-2">{r.valid_as_of ?? "—"}</td>
               </tr>
@@ -249,7 +273,7 @@ export function SpfFoliosBrowser() {
           onClick={() => {
             setLoading(true);
             loadPage(rows.length)
-              .catch((e) => toast.error((e as Error).message))
+              .catch((e) => toast.error(errorText(e)))
               .finally(() => setLoading(false));
           }}
         >
