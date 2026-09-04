@@ -44,17 +44,43 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+/**
+ * HTML dokument sa nesmie cachovať v prehliadači.
+ *
+ * nginx pred nami neposiela pri dokumente žiadny Cache-Control, takže si ho
+ * prehliadač drží heuristicky — a keďže index.html odkazuje na súbory
+ * s hashom v názve, po nasadení sa ďalej ťahá stará verzia appky a vyzerá to,
+ * akoby sa nič nenasadilo. Assety majú vlastný immutable Cache-Control,
+ * tých sa to netýka.
+ */
+function withNoStoreHtml(response: Response): Response {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!contentType.includes("text/html")) return response;
+  if (response.headers.has("cache-control")) return response;
+
+  const headers = new Headers(response.headers);
+  headers.set("cache-control", "no-cache, must-revalidate");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return withNoStoreHtml(await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {
         status: 500,
-        headers: { "content-type": "text/html; charset=utf-8" },
+        headers: {
+          "content-type": "text/html; charset=utf-8",
+          "cache-control": "no-cache, must-revalidate",
+        },
       });
     }
   },
