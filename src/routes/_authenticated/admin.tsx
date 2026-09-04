@@ -18,6 +18,7 @@ import { adminAnalyzeGrant } from "@/lib/grant-analysis.functions";
 import { geminiPing } from "@/lib/gemini-ping.functions";
 import { GoogleAnalyticsTab } from "@/components/admin/GoogleAnalyticsTab";
 import DeleteUserDialog from "@/components/admin/DeleteUserDialog";
+import { KatasterSyncCard } from "@/components/admin/KatasterSyncCard";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin – Tendrik" }] }),
@@ -140,6 +141,7 @@ function AdminPage() {
             <TabsTrigger value="ai-test">AI test</TabsTrigger>
             <TabsTrigger value="grants-test">Granty (ITMS)</TabsTrigger>
             <TabsTrigger value="grants-ai">Granty (AI test)</TabsTrigger>
+            <TabsTrigger value="kataster">Kataster</TabsTrigger>
             <TabsTrigger value="mail">Maily</TabsTrigger>
             <TabsTrigger value="marketing">Google / Analytics</TabsTrigger>
           </TabsList>
@@ -153,6 +155,7 @@ function AdminPage() {
         <TabsContent value="ai-test" className="mt-4"><AiTestTab /></TabsContent>
         <TabsContent value="grants-test" className="mt-4"><GrantsTestTab /></TabsContent>
         <TabsContent value="grants-ai" className="mt-4"><GrantsAiTestTab /></TabsContent>
+        <TabsContent value="kataster" className="mt-4"><KatasterSyncCard /></TabsContent>
         <TabsContent value="mail" className="mt-4"><MailTab /></TabsContent>
         <TabsContent value="marketing" className="mt-4"><GoogleAnalyticsTab /></TabsContent>
 

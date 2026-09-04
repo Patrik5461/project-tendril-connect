@@ -33,3 +33,6 @@ dist-ssr
 
 # Supabase CLI
 supabase/.temp
+
+# Stiahnuté zdrojové dáta pre modul Kataster (číselník ÚGKK, zoznamy SPF) — sú veľké a dajú sa kedykoľvek stiahnuť znova
+/data/
