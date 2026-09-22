@@ -131,8 +131,18 @@ function AuthPage() {
             {isSignup && (
               <>
                 <div className="rounded-md border border-primary/30 bg-primary/5 p-3 text-xs">
-                  <b className="text-primary">30 dní zdarma</b> (vrátane 5 AI analýz), potom 4,99 € / mes (Základ)
-                  alebo 14,99 € / mes (Prémium). Bez platobnej karty. Zrušiteľné kedykoľvek.
+                  {native ? (
+                    <>
+                      <b className="text-primary">30 dní zdarma</b> (vrátane 5 AI analýz). Bez
+                      platobnej karty. Zrušiteľné kedykoľvek.
+                    </>
+                  ) : (
+                    <>
+                      <b className="text-primary">30 dní zdarma</b> (vrátane 5 AI analýz), potom
+                      4,99 € / mes (Základ) alebo 14,99 € / mes (Prémium). Bez platobnej karty.
+                      Zrušiteľné kedykoľvek.
+                    </>
+                  )}
                 </div>
                 <label className="flex items-start gap-2 text-xs text-muted-foreground">
                   <input

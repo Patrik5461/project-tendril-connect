@@ -20,6 +20,7 @@ import GrantRadarsSection from "@/components/GrantRadarsSection";
 import { trackConversion } from "@/lib/analytics";
 import { PushNotificationsCard } from "@/components/PushNotificationsCard";
 import { WebOnlyPurchase } from "@/components/WebOnlyPurchase";
+import { useIsNative } from "@/lib/native";
 import DangerZoneSection from "@/components/DangerZoneSection";
 
 
@@ -43,6 +44,9 @@ const radars = () => supabase.from("user_radars" as never) as any;
 
 function SettingsPage() {
   const { t } = useTranslation("account");
+  // V natívnej appke sa predplatné vôbec nezobrazuje (App Store 3.1.1 aj
+  // požiadavka: appka nemá riešiť platby). Fakturačná záložka je len na webe.
+  const native = useIsNative();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [emailNotif, setEmailNotif] = useState(true);
@@ -231,11 +235,13 @@ function SettingsPage() {
       </Link>
 
       <Tabs defaultValue="notifications" className="mt-8">
-        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4">
+        <TabsList
+          className={`w-full grid grid-cols-2 ${native ? "sm:grid-cols-3" : "sm:grid-cols-4"}`}
+        >
           <TabsTrigger value="notifications">{t("settings.tabs.notifications")}</TabsTrigger>
           <TabsTrigger value="radars">{t("settings.tabs.radars")}</TabsTrigger>
           <TabsTrigger value="grant-radars">{t("settings.tabs.grantRadars")}</TabsTrigger>
-          <TabsTrigger value="billing">{t("settings.tabs.billing")}</TabsTrigger>
+          {!native && <TabsTrigger value="billing">{t("settings.tabs.billing")}</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="notifications" className="mt-6">
@@ -390,11 +396,13 @@ function SettingsPage() {
           <GrantRadarsSection userId={userId} />
         </TabsContent>
 
-        <TabsContent value="billing" className="mt-6 space-y-6">
-          <SubscriptionSection userId={userId} />
-          <BillingDetailsSection userId={userId} />
-          <InvoicesHistorySection userId={userId} />
-        </TabsContent>
+        {!native && (
+          <TabsContent value="billing" className="mt-6 space-y-6">
+            <SubscriptionSection userId={userId} />
+            <BillingDetailsSection userId={userId} />
+            <InvoicesHistorySection userId={userId} />
+          </TabsContent>
+        )}
       </Tabs>
 
       <DangerZoneSection email={email} />
